@@ -10,12 +10,33 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as KoRouteImport } from './routes/ko'
+import { Route as FrRouteImport } from './routes/fr'
+import { Route as EnRouteImport } from './routes/en'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KoListingsRouteImport } from './routes/ko.listings'
+import { Route as KoLandlordsRouteImport } from './routes/ko.landlords'
+import { Route as KoApplyRouteImport } from './routes/ko.apply'
+import { Route as FrListingsRouteImport } from './routes/fr.listings'
+import { Route as FrLandlordsRouteImport } from './routes/fr.landlords'
+import { Route as FrApplyRouteImport } from './routes/fr.apply'
+import { Route as EnListingsRouteImport } from './routes/en.listings'
+import { Route as EnLandlordsRouteImport } from './routes/en.landlords'
+import { Route as EnApplyRouteImport } from './routes/en.apply'
 
 const KoRoute = KoRouteImport.update({
   id: '/ko',
   path: '/ko',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrRoute = FrRouteImport.update({
+  id: '/fr',
+  path: '/fr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnRoute = EnRouteImport.update({
+  id: '/en',
+  path: '/en',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -28,35 +49,158 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KoListingsRoute = KoListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => KoRoute,
+} as any)
+const KoLandlordsRoute = KoLandlordsRouteImport.update({
+  id: '/landlords',
+  path: '/landlords',
+  getParentRoute: () => KoRoute,
+} as any)
+const KoApplyRoute = KoApplyRouteImport.update({
+  id: '/apply',
+  path: '/apply',
+  getParentRoute: () => KoRoute,
+} as any)
+const FrListingsRoute = FrListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => FrRoute,
+} as any)
+const FrLandlordsRoute = FrLandlordsRouteImport.update({
+  id: '/landlords',
+  path: '/landlords',
+  getParentRoute: () => FrRoute,
+} as any)
+const FrApplyRoute = FrApplyRouteImport.update({
+  id: '/apply',
+  path: '/apply',
+  getParentRoute: () => FrRoute,
+} as any)
+const EnListingsRoute = EnListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => EnRoute,
+} as any)
+const EnLandlordsRoute = EnLandlordsRouteImport.update({
+  id: '/landlords',
+  path: '/landlords',
+  getParentRoute: () => EnRoute,
+} as any)
+const EnApplyRoute = EnApplyRouteImport.update({
+  id: '/apply',
+  path: '/apply',
+  getParentRoute: () => EnRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/ko': typeof KoRoute
+  '/en': typeof EnRouteWithChildren
+  '/fr': typeof FrRouteWithChildren
+  '/ko': typeof KoRouteWithChildren
+  '/en/apply': typeof EnApplyRoute
+  '/en/landlords': typeof EnLandlordsRoute
+  '/en/listings': typeof EnListingsRoute
+  '/fr/apply': typeof FrApplyRoute
+  '/fr/landlords': typeof FrLandlordsRoute
+  '/fr/listings': typeof FrListingsRoute
+  '/ko/apply': typeof KoApplyRoute
+  '/ko/landlords': typeof KoLandlordsRoute
+  '/ko/listings': typeof KoListingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/ko': typeof KoRoute
+  '/en': typeof EnRouteWithChildren
+  '/fr': typeof FrRouteWithChildren
+  '/ko': typeof KoRouteWithChildren
+  '/en/apply': typeof EnApplyRoute
+  '/en/landlords': typeof EnLandlordsRoute
+  '/en/listings': typeof EnListingsRoute
+  '/fr/apply': typeof FrApplyRoute
+  '/fr/landlords': typeof FrLandlordsRoute
+  '/fr/listings': typeof FrListingsRoute
+  '/ko/apply': typeof KoApplyRoute
+  '/ko/landlords': typeof KoLandlordsRoute
+  '/ko/listings': typeof KoListingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/ko': typeof KoRoute
+  '/en': typeof EnRouteWithChildren
+  '/fr': typeof FrRouteWithChildren
+  '/ko': typeof KoRouteWithChildren
+  '/en/apply': typeof EnApplyRoute
+  '/en/landlords': typeof EnLandlordsRoute
+  '/en/listings': typeof EnListingsRoute
+  '/fr/apply': typeof FrApplyRoute
+  '/fr/landlords': typeof FrLandlordsRoute
+  '/fr/listings': typeof FrListingsRoute
+  '/ko/apply': typeof KoApplyRoute
+  '/ko/landlords': typeof KoLandlordsRoute
+  '/ko/listings': typeof KoListingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/ko'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/en'
+    | '/fr'
+    | '/ko'
+    | '/en/apply'
+    | '/en/landlords'
+    | '/en/listings'
+    | '/fr/apply'
+    | '/fr/landlords'
+    | '/fr/listings'
+    | '/ko/apply'
+    | '/ko/landlords'
+    | '/ko/listings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/ko'
-  id: '__root__' | '/' | '/admin' | '/ko'
+  to:
+    | '/'
+    | '/admin'
+    | '/en'
+    | '/fr'
+    | '/ko'
+    | '/en/apply'
+    | '/en/landlords'
+    | '/en/listings'
+    | '/fr/apply'
+    | '/fr/landlords'
+    | '/fr/listings'
+    | '/ko/apply'
+    | '/ko/landlords'
+    | '/ko/listings'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/en'
+    | '/fr'
+    | '/ko'
+    | '/en/apply'
+    | '/en/landlords'
+    | '/en/listings'
+    | '/fr/apply'
+    | '/fr/landlords'
+    | '/fr/listings'
+    | '/ko/apply'
+    | '/ko/landlords'
+    | '/ko/listings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  KoRoute: typeof KoRoute
+  EnRoute: typeof EnRouteWithChildren
+  FrRoute: typeof FrRouteWithChildren
+  KoRoute: typeof KoRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +210,20 @@ declare module '@tanstack/react-router' {
       path: '/ko'
       fullPath: '/ko'
       preLoaderRoute: typeof KoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr': {
+      id: '/fr'
+      path: '/fr'
+      fullPath: '/fr'
+      preLoaderRoute: typeof FrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en': {
+      id: '/en'
+      path: '/en'
+      fullPath: '/en'
+      preLoaderRoute: typeof EnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -82,13 +240,120 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ko/listings': {
+      id: '/ko/listings'
+      path: '/listings'
+      fullPath: '/ko/listings'
+      preLoaderRoute: typeof KoListingsRouteImport
+      parentRoute: typeof KoRoute
+    }
+    '/ko/landlords': {
+      id: '/ko/landlords'
+      path: '/landlords'
+      fullPath: '/ko/landlords'
+      preLoaderRoute: typeof KoLandlordsRouteImport
+      parentRoute: typeof KoRoute
+    }
+    '/ko/apply': {
+      id: '/ko/apply'
+      path: '/apply'
+      fullPath: '/ko/apply'
+      preLoaderRoute: typeof KoApplyRouteImport
+      parentRoute: typeof KoRoute
+    }
+    '/fr/listings': {
+      id: '/fr/listings'
+      path: '/listings'
+      fullPath: '/fr/listings'
+      preLoaderRoute: typeof FrListingsRouteImport
+      parentRoute: typeof FrRoute
+    }
+    '/fr/landlords': {
+      id: '/fr/landlords'
+      path: '/landlords'
+      fullPath: '/fr/landlords'
+      preLoaderRoute: typeof FrLandlordsRouteImport
+      parentRoute: typeof FrRoute
+    }
+    '/fr/apply': {
+      id: '/fr/apply'
+      path: '/apply'
+      fullPath: '/fr/apply'
+      preLoaderRoute: typeof FrApplyRouteImport
+      parentRoute: typeof FrRoute
+    }
+    '/en/listings': {
+      id: '/en/listings'
+      path: '/listings'
+      fullPath: '/en/listings'
+      preLoaderRoute: typeof EnListingsRouteImport
+      parentRoute: typeof EnRoute
+    }
+    '/en/landlords': {
+      id: '/en/landlords'
+      path: '/landlords'
+      fullPath: '/en/landlords'
+      preLoaderRoute: typeof EnLandlordsRouteImport
+      parentRoute: typeof EnRoute
+    }
+    '/en/apply': {
+      id: '/en/apply'
+      path: '/apply'
+      fullPath: '/en/apply'
+      preLoaderRoute: typeof EnApplyRouteImport
+      parentRoute: typeof EnRoute
+    }
   }
 }
+
+interface EnRouteChildren {
+  EnApplyRoute: typeof EnApplyRoute
+  EnLandlordsRoute: typeof EnLandlordsRoute
+  EnListingsRoute: typeof EnListingsRoute
+}
+
+const EnRouteChildren: EnRouteChildren = {
+  EnApplyRoute: EnApplyRoute,
+  EnLandlordsRoute: EnLandlordsRoute,
+  EnListingsRoute: EnListingsRoute,
+}
+
+const EnRouteWithChildren = EnRoute._addFileChildren(EnRouteChildren)
+
+interface FrRouteChildren {
+  FrApplyRoute: typeof FrApplyRoute
+  FrLandlordsRoute: typeof FrLandlordsRoute
+  FrListingsRoute: typeof FrListingsRoute
+}
+
+const FrRouteChildren: FrRouteChildren = {
+  FrApplyRoute: FrApplyRoute,
+  FrLandlordsRoute: FrLandlordsRoute,
+  FrListingsRoute: FrListingsRoute,
+}
+
+const FrRouteWithChildren = FrRoute._addFileChildren(FrRouteChildren)
+
+interface KoRouteChildren {
+  KoApplyRoute: typeof KoApplyRoute
+  KoLandlordsRoute: typeof KoLandlordsRoute
+  KoListingsRoute: typeof KoListingsRoute
+}
+
+const KoRouteChildren: KoRouteChildren = {
+  KoApplyRoute: KoApplyRoute,
+  KoLandlordsRoute: KoLandlordsRoute,
+  KoListingsRoute: KoListingsRoute,
+}
+
+const KoRouteWithChildren = KoRoute._addFileChildren(KoRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  KoRoute: KoRoute,
+  EnRoute: EnRouteWithChildren,
+  FrRoute: FrRouteWithChildren,
+  KoRoute: KoRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
