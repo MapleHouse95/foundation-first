@@ -18,6 +18,24 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const locale = localeFromPath(pathname);
+  const isEntry = pathname === "/";
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+
+  // Minimal header (logo only) on entry "/" and admin
+  if (isEntry || isAdmin) {
+    return (
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
+        <Container className="flex h-16 items-center justify-between">
+          <Logo />
+          {isAdmin && (
+            <span className="text-xs font-medium text-muted-foreground">
+              관리자 · 테스트 모드
+            </span>
+          )}
+        </Container>
+      </header>
+    );
+  }
 
   const navLinks = locale
     ? [
@@ -25,13 +43,12 @@ export function Header() {
         { to: `/${locale}/listings`, label: NAV_LABELS[locale].listings, exact: false },
         { to: `/${locale}/apply`, label: NAV_LABELS[locale].apply, exact: false },
         { to: `/${locale}/landlords`, label: NAV_LABELS[locale].landlords, exact: false },
-        { to: `/admin`, label: NAV_LABELS[locale].admin, exact: false },
       ]
     : [];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between">
+      <Container className="flex h-16 items-center justify-between gap-4">
         <Logo />
 
         <nav className="hidden items-center gap-1 md:flex">
