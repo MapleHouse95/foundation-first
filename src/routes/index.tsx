@@ -43,14 +43,14 @@ function LanguageSelect() {
               <Link
                 key={loc}
                 to={`/${loc}`}
-                className="group rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+                className="group cursor-pointer rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-accent/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 <div className="text-lg font-semibold text-foreground">
                   {LOCALE_LABELS[loc]}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">{TAGLINE[loc]}</p>
-                <span className="mt-4 inline-block text-xs font-medium uppercase tracking-wider text-primary">
-                  /{loc} →
+                <span className="mt-4 inline-block text-xs font-medium uppercase tracking-wider text-primary transition-transform group-hover:translate-x-0.5">
+                  Enter /{loc} →
                 </span>
               </Link>
             ))}

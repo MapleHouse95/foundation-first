@@ -88,7 +88,7 @@ const L: Record<Locale, L10n> = {
   en: {
     metaTitle: "Housing & Services — MapleHouse",
     metaDescription: "Preview of admin-reviewed Toronto housing (placeholder).",
-    title: "Recommended homes in Toronto",
+    title: "Recommended Listings in Toronto",
     countLabel: (n) => `${n} results`,
     filterChip: "Rent ≤ 4,000,000 KRW",
     filtersBtn: "Filters",
