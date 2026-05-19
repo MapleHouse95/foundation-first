@@ -155,7 +155,7 @@ export const LISTINGS_CONTENT: Record<Locale, ListingsContent> = {
     metaTitle: "하우스·서비스 — MapleHouse",
     metaDescription: "관리자가 검토한 매물 미리보기 (자리표시자).",
     eyebrow: "하우스·서비스",
-    title: "검토된 매물",
+    title: "토론토 추천 매물",
     description: "실제 매물 데이터는 다음 단계에서 추가됩니다. 현재는 예시 카드입니다.",
     cardTitle: (i) => `예시 매물 ${i + 1}`,
     cardBody: "지역 · 면적 · 예상 월비용 (자리표시자)",
@@ -165,7 +165,7 @@ export const LISTINGS_CONTENT: Record<Locale, ListingsContent> = {
     metaTitle: "Housing & Services — MapleHouse",
     metaDescription: "Preview of admin-reviewed housing options (placeholder).",
     eyebrow: "Housing & Services",
-    title: "Reviewed listings",
+    title: "Recommended Listings in Toronto",
     description: "Real listing data arrives in a later phase. These are placeholder cards.",
     cardTitle: (i) => `Sample home ${i + 1}`,
     cardBody: "Neighborhood · Size · Approx. monthly cost (placeholder)",
@@ -175,7 +175,7 @@ export const LISTINGS_CONTENT: Record<Locale, ListingsContent> = {
     metaTitle: "Logements & services — MapleHouse",
     metaDescription: "Aperçu de logements vérifiés par l’administration (placeholder).",
     eyebrow: "Logements & services",
-    title: "Logements vérifiés",
+    title: "Logements recommandés à Toronto",
     description:
       "Les vraies annonces arriveront dans une prochaine phase. Voici des cartes d’exemple.",
     cardTitle: (i) => `Logement exemple ${i + 1}`,
@@ -190,7 +190,7 @@ export const APPLY_CONTENT: Record<Locale, ApplyContent> = {
     metaTitle: "신청하기 — MapleHouse",
     metaDescription: "메이플하우스 상담 신청 페이지 자리표시자.",
     eyebrow: "신청하기",
-    title: "상담을 신청해 주세요",
+    title: "상담/예약 신청",
     description: "정식 신청 폼은 다음 단계에서 제공됩니다. 현재 페이지는 자리표시자입니다.",
     placeholderBody:
       "입력 필드·검증·제출 흐름은 아직 구현되지 않았습니다. 결제와 계약 기능도 아직 활성화되지 않았습니다.",
@@ -201,7 +201,7 @@ export const APPLY_CONTENT: Record<Locale, ApplyContent> = {
     metaTitle: "Apply — MapleHouse",
     metaDescription: "Placeholder application page for a MapleHouse consultation.",
     eyebrow: "Apply",
-    title: "Request a consultation",
+    title: "Consultation / Reservation Request",
     description: "The full inquiry form arrives in a later phase. This page is a placeholder.",
     placeholderBody:
       "Form fields, validation, and submission flow are not built yet. Payments and contracts are not active either.",
@@ -212,7 +212,7 @@ export const APPLY_CONTENT: Record<Locale, ApplyContent> = {
     metaTitle: "Faire une demande — MapleHouse",
     metaDescription: "Page de demande placeholder pour une consultation MapleHouse.",
     eyebrow: "Faire une demande",
-    title: "Demander une consultation",
+    title: "Demande de consultation / réservation",
     description:
       "Le vrai formulaire arrivera dans une prochaine phase. Cette page est un placeholder.",
     placeholderBody:
@@ -227,7 +227,7 @@ export const LANDLORDS_CONTENT: Record<Locale, LandlordsContent> = {
     metaTitle: "임대인 등록 — MapleHouse",
     metaDescription: "임대인·매물 제공자·룸 렌탈 운영자를 위한 안내 페이지 자리표시자.",
     eyebrow: "임대인 등록",
-    title: "임대인·매물 제공자를 위한 안내",
+    title: "임대인 등록/문의",
     description:
       "메이플하우스는 매물을 제공하려는 분과 신뢰 가능한 신청자를 구조적으로 연결합니다.",
     forWhoTitle: "이 페이지가 도움이 되는 분",
@@ -249,7 +249,7 @@ export const LANDLORDS_CONTENT: Record<Locale, LandlordsContent> = {
     metaDescription:
       "Placeholder info page for landlords, property owners, and room rental hosts.",
     eyebrow: "Landlord Registration",
-    title: "For landlords & property owners",
+    title: "Landlord / Property Owner Inquiry",
     description:
       "MapleHouse is building a structured way for property owners to connect with vetted applicants.",
     forWhoTitle: "Who this page is for",
@@ -271,7 +271,7 @@ export const LANDLORDS_CONTENT: Record<Locale, LandlordsContent> = {
     metaDescription:
       "Page d’information placeholder pour propriétaires, bailleurs et hôtes de locations.",
     eyebrow: "Proposer un logement",
-    title: "Pour les propriétaires et bailleurs",
+    title: "Proposer un logement",
     description:
       "MapleHouse prépare un parcours structuré pour mettre en relation les propriétaires et des candidats sérieux.",
     forWhoTitle: "À qui s’adresse cette page",
