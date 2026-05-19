@@ -1,85 +1,66 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Home as HomeIcon, MessageCircle, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
-import { Section } from "@/components/layout/Section";
-import { FeatureCard } from "@/components/layout/FeatureCard";
+import { Logo } from "@/components/layout/Logo";
+import { LOCALES, LOCALE_LABELS } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MapleHouse — Find your home, calmly" },
+      { title: "MapleHouse — Choose your language" },
       {
         name: "description",
         content:
-          "MapleHouse is a beginner-friendly home consultation service for first-time renters and buyers in Korea.",
+          "MapleHouse — choose your language to continue. Korean, English, or French.",
       },
     ],
   }),
-  component: Index,
+  component: LanguageSelect,
 });
 
-function Index() {
+const TAGLINE: Record<(typeof LOCALES)[number], string> = {
+  ko: "차분하고 명확한 주거 연결",
+  en: "Calm, clearer housing connections",
+  fr: "Des échanges immobiliers plus clairs",
+};
+
+function LanguageSelect() {
   return (
-    <>
-      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-accent/40 to-background">
-        <Container className="grid items-center gap-10 py-16 sm:py-24 lg:grid-cols-2 lg:py-32">
-          <div>
-            <span className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-              Test mode · MVP preview
-            </span>
-            <h1 className="mt-5 text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Find your home,
-              <br className="hidden sm:block" /> calmly and clearly.
-            </h1>
-            <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-              MapleHouse walks first-time renters and buyers through every step — from
-              listings to consultation — in plain language, with no pressure.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="hero" size="xl">
-                <Link to="/apply">Start free consultation</Link>
-              </Button>
-              <Button asChild variant="soft" size="xl">
-                <Link to="/listings">Browse listings</Link>
-              </Button>
-            </div>
+    <section className="relative flex min-h-[calc(100vh-4rem)] items-center bg-gradient-to-b from-accent/40 to-background">
+      <Container className="py-16 sm:py-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="flex justify-center">
+            <Logo />
+          </div>
+          <h1 className="mt-8 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Welcome · 환영합니다 · Bienvenue
+          </h1>
+          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+            Choose your language to continue · 언어를 선택해 주세요 · Choisissez votre langue
+          </p>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {LOCALES.map((loc) => (
+              <Link
+                key={loc}
+                to={`/${loc}`}
+                className="group rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+              >
+                <div className="text-lg font-semibold text-foreground">
+                  {LOCALE_LABELS[loc]}
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{TAGLINE[loc]}</p>
+                <span className="mt-4 inline-block text-xs font-medium uppercase tracking-wider text-primary">
+                  /{loc} →
+                </span>
+              </Link>
+            ))}
           </div>
 
-          <div className="relative">
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-primary/15 via-accent to-secondary" />
-              <p className="mt-4 text-sm text-muted-foreground">
-                Layout preview — real imagery added in a later phase.
-              </p>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      <Section
-        eyebrow="Why MapleHouse"
-        title="Built for first-time home seekers"
-        description="Clear steps, honest guidance, and a calm pace. No flashy gimmicks, no surprise fees."
-      >
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <FeatureCard
-            icon={<HomeIcon className="h-5 w-5" />}
-            title="Curated listings"
-            description="Hand-picked homes reviewed for safety, fit, and fair pricing before they reach you."
-          />
-          <FeatureCard
-            icon={<MessageCircle className="h-5 w-5" />}
-            title="1:1 consultation"
-            description="Talk to a real consultant who explains contracts and paperwork in plain Korean."
-          />
-          <FeatureCard
-            icon={<ShieldCheck className="h-5 w-5" />}
-            title="Transparent process"
-            description="Every step — application, payment, and refund — is tracked clearly in your dashboard."
-          />
+          <p className="mt-10 text-xs text-muted-foreground">
+            Test mode · MVP preview — responsive web service, not a native app.
+          </p>
         </div>
-      </Section>
-    </>
+      </Container>
+    </section>
   );
 }
