@@ -77,7 +77,7 @@ export const MAIN_CONTENT: Record<Locale, MainContent> = {
     seekerCardTitle: "집을 찾는 분",
     seekerCardBody:
       "지역·예산·상황을 알려주시면, 관리자가 검토한 매물과 안내를 받으실 수 있습니다.",
-    seekerCardCta: "신청 페이지로",
+    seekerCardCta: "매물 보러 가기",
     landlordCardTitle: "임대인 / 매물 제공자",
     landlordCardBody:
       "보유 매물을 구조적으로 소개하고, 메이플하우스를 통해 신뢰 가능한 신청자와 연결되세요.",
@@ -106,7 +106,7 @@ export const MAIN_CONTENT: Record<Locale, MainContent> = {
     seekerCardTitle: "Housing seekers",
     seekerCardBody:
       "Tell us your area, budget, and situation. An admin reviews listings and guides you through next steps.",
-    seekerCardCta: "Go to apply",
+    seekerCardCta: "Browse listings",
     landlordCardTitle: "Landlords & property owners",
     landlordCardBody:
       "Introduce your property in a structured way and get connected to vetted applicants through MapleHouse.",
@@ -136,7 +136,7 @@ export const MAIN_CONTENT: Record<Locale, MainContent> = {
     seekerCardTitle: "Chercheurs de logement",
     seekerCardBody:
       "Indiquez votre zone, votre budget et votre situation. Un administrateur examine les annonces et vous accompagne.",
-    seekerCardCta: "Faire une demande",
+    seekerCardCta: "Voir les logements",
     landlordCardTitle: "Propriétaires et bailleurs",
     landlordCardBody:
       "Présentez votre bien de manière structurée et entrez en contact avec des candidats sérieux via MapleHouse.",
