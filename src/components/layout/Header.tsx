@@ -1,20 +1,33 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "./Container";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { NAV_LABELS, localeFromPath, type Locale } from "@/lib/i18n";
 
-const navLinks = [
-  { to: "/" as const, label: "Home" },
-  { to: "/listings" as const, label: "Listings" },
-  { to: "/apply" as const, label: "Apply" },
-  { to: "/admin" as const, label: "Admin" },
-];
+const CTA_LABEL: Record<Locale, string> = {
+  ko: "무료 상담 신청",
+  en: "Free consultation",
+  fr: "Consultation gratuite",
+};
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+  const locale = localeFromPath(pathname);
+
+  const navLinks = locale
+    ? [
+        { to: `/${locale}`, label: NAV_LABELS[locale].home, exact: true },
+        { to: `/${locale}/listings`, label: NAV_LABELS[locale].listings, exact: false },
+        { to: `/${locale}/apply`, label: NAV_LABELS[locale].apply, exact: false },
+        { to: `/${locale}/landlords`, label: NAV_LABELS[locale].landlords, exact: false },
+        { to: `/admin`, label: NAV_LABELS[locale].admin, exact: false },
+      ]
+    : [];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
@@ -28,17 +41,20 @@ export function Header() {
               to={link.to}
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               activeProps={{ className: "text-foreground bg-accent" }}
-              activeOptions={{ exact: link.to === "/" }}
+              activeOptions={{ exact: link.exact }}
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <Button asChild size="sm">
-            <Link to="/apply">Free consultation</Link>
-          </Button>
+        <div className="hidden items-center gap-3 md:flex">
+          <LanguageSwitcher />
+          {locale && (
+            <Button asChild size="sm">
+              <Link to={`/${locale}/apply`}>{CTA_LABEL[locale]}</Link>
+            </Button>
+          )}
         </div>
 
         <button
@@ -65,16 +81,21 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
               activeProps={{ className: "text-foreground bg-accent" }}
-              activeOptions={{ exact: link.to === "/" }}
+              activeOptions={{ exact: link.exact }}
             >
               {link.label}
             </Link>
           ))}
-          <Button asChild size="sm" className="mt-2">
-            <Link to="/apply" onClick={() => setOpen(false)}>
-              Free consultation
-            </Link>
-          </Button>
+          <div className="mt-3">
+            <LanguageSwitcher />
+          </div>
+          {locale && (
+            <Button asChild size="sm" className="mt-2">
+              <Link to={`/${locale}/apply`} onClick={() => setOpen(false)}>
+                {CTA_LABEL[locale]}
+              </Link>
+            </Button>
+          )}
         </Container>
       </div>
     </header>
