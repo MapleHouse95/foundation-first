@@ -25,7 +25,7 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="hero" size="xl">
-                <Link to={`/${locale}/apply`}>{t.seekerCta}</Link>
+                <Link to={`/${locale}/listings`}>{t.seekerCta}</Link>
               </Button>
               <Button asChild variant="soft" size="xl">
                 <Link to={`/${locale}/landlords`}>{t.landlordCta}</Link>
@@ -48,7 +48,7 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
             icon={<HomeIcon className="h-5 w-5" />}
             title={t.seekerCardTitle}
             body={t.seekerCardBody}
-            ctaTo={`/${locale}/apply`}
+            ctaTo={`/${locale}/listings`}
             ctaLabel={t.seekerCardCta}
           />
           <RoleCard

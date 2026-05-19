@@ -16,7 +16,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-border bg-background/60 px-1 py-1",
+        "inline-flex flex-nowrap items-center gap-1 whitespace-nowrap rounded-md border border-border bg-background/60 px-1 py-1",
         className,
       )}
       role="group"
@@ -28,7 +28,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           key={loc}
           to={swapPath(loc)}
           className={cn(
-            "rounded px-2 py-1 text-xs font-medium transition-colors",
+            "whitespace-nowrap rounded px-2 py-1 text-xs font-medium transition-colors",
             current === loc
               ? "bg-accent text-foreground"
               : "text-muted-foreground hover:bg-accent hover:text-foreground",
