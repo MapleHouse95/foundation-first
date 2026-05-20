@@ -1,17 +1,28 @@
 import { useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Languages, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "./Container";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NAV_LABELS, localeFromPath, type Locale } from "@/lib/i18n";
 
-const CTA_LABEL: Record<Locale, string> = {
-  ko: "무료 상담 신청",
-  en: "Free consultation",
-  fr: "Consultation gratuite",
+const LANGUAGE_LABEL: Record<Locale, string> = {
+  ko: "언어 선택",
+  en: "Language",
+  fr: "Langue",
+};
+
+const LOGIN_LABEL: Record<Locale, string> = {
+  ko: "로그인",
+  en: "Login",
+  fr: "Connexion",
+};
+
+const SIGNUP_LABEL: Record<Locale, string> = {
+  ko: "회원가입",
+  en: "Sign up",
+  fr: "Inscription",
 };
 
 export function Header() {
@@ -20,12 +31,13 @@ export function Header() {
   const locale = localeFromPath(pathname);
   const isEntry = pathname === "/";
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+  const logoTo = locale ? `/${locale}` : "/";
 
   if (isEntry || isAdmin) {
     return (
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
         <Container className="flex h-16 items-center justify-between">
-          <Logo />
+          <Logo to={logoTo} />
           {isAdmin && (
             <span className="text-xs font-medium text-muted-foreground">
               관리자 · 테스트 모드
@@ -38,7 +50,6 @@ export function Header() {
 
   const navLinks = locale
     ? [
-        { to: `/${locale}`, label: NAV_LABELS[locale].home, exact: true },
         { to: `/${locale}/listings`, label: NAV_LABELS[locale].listings, exact: false },
         { to: `/${locale}/apply`, label: NAV_LABELS[locale].apply, exact: false },
         { to: `/${locale}/landlords`, label: NAV_LABELS[locale].landlords, exact: false },
@@ -49,17 +60,17 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-3">
-        <div className="flex min-w-[9.5rem] shrink-0 items-center">
-          <Logo />
+      <div className="mx-auto grid h-16 w-[calc(100%-2rem)] max-w-[82rem] grid-cols-[minmax(10rem,1fr)_auto] items-center gap-3 sm:w-[calc(100%-3rem)] xl:w-[calc(100%-4rem)] xl:grid-cols-[10.5rem_minmax(0,1fr)_20rem] xl:gap-5 2xl:grid-cols-[12rem_minmax(0,1fr)_21rem]">
+        <div className="flex min-w-0 items-center justify-start">
+          <Logo to={logoTo} />
         </div>
 
-        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden lg:flex">
+        <nav className="hidden min-w-0 items-center justify-center gap-2 overflow-hidden xl:flex 2xl:gap-2.5">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="inline-flex h-9 max-w-[8.25rem] items-center justify-center truncate whitespace-nowrap rounded-md px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground xl:max-w-[10rem] xl:text-sm"
+              className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-2.5 text-[12.5px] font-medium text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#FA7000] hover:text-white hover:shadow-sm focus-visible:bg-[#FA7000] focus-visible:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FA7000] 2xl:px-3 2xl:text-[13px]"
               activeProps={{ className: "bg-accent text-accent-foreground" }}
               activeOptions={{ exact: link.exact }}
             >
@@ -68,28 +79,38 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden min-w-[18rem] shrink-0 items-center justify-end gap-2 lg:flex">
-          <LanguageSwitcher />
+        <div className="hidden min-w-0 items-center justify-end gap-2 xl:flex">
           {locale && (
-            <Button asChild size="sm" className="min-w-[8.75rem] px-3">
-              <Link to={`/${locale}/apply`}>{CTA_LABEL[locale]}</Link>
-            </Button>
+            <>
+              <Button asChild variant="outline" size="sm" className="min-w-[7rem] px-2.5">
+                <Link to="/" className="gap-1.5">
+                  <Languages className="h-4 w-4" />
+                  {LANGUAGE_LABEL[locale]}
+                </Link>
+              </Button>
+              <Button asChild variant="soft" size="sm" className="min-w-[5.5rem] px-2.5">
+                <Link to={`/${locale}/login`}>{LOGIN_LABEL[locale]}</Link>
+              </Button>
+              <Button asChild size="sm" className="min-w-[6.25rem] px-2.5">
+                <Link to={`/${locale}/signup`}>{SIGNUP_LABEL[locale]}</Link>
+              </Button>
+            </>
           )}
         </div>
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground lg:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center justify-self-end rounded-md text-foreground xl:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
-      </Container>
+      </div>
 
       <div
         className={cn(
-          "border-t border-border bg-card lg:hidden",
+          "border-t border-border bg-card xl:hidden",
           open ? "block" : "hidden",
         )}
       >
@@ -107,14 +128,28 @@ export function Header() {
             </Link>
           ))}
           <div className="mt-3">
-            <LanguageSwitcher />
+            {locale && (
+              <Button asChild variant="outline" size="sm" className="w-full">
+                <Link to="/" onClick={() => setOpen(false)}>
+                  <Languages className="h-4 w-4" />
+                  {LANGUAGE_LABEL[locale]}
+                </Link>
+              </Button>
+            )}
           </div>
           {locale && (
-            <Button asChild size="sm" className="mt-2">
-              <Link to={`/${locale}/apply`} onClick={() => setOpen(false)}>
-                {CTA_LABEL[locale]}
-              </Link>
-            </Button>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Button asChild variant="soft" size="sm">
+                <Link to={`/${locale}/login`} onClick={() => setOpen(false)}>
+                  {LOGIN_LABEL[locale]}
+                </Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link to={`/${locale}/signup`} onClick={() => setOpen(false)}>
+                  {SIGNUP_LABEL[locale]}
+                </Link>
+              </Button>
+            </div>
           )}
         </Container>
       </div>

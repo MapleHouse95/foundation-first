@@ -1,10 +1,11 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   BadgeCheck,
   Building2,
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   ClipboardCheck,
   Clock3,
   FileCheck2,
@@ -12,8 +13,6 @@ import {
   Home,
   MapPinned,
   MessageSquareText,
-  Search,
-  ShieldCheck,
   SlidersHorizontal,
   Sofa,
   TrainFront,
@@ -23,6 +22,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
+import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
 
 type Action = {
@@ -46,6 +46,7 @@ type HomeGatewayContent = {
   bannerSlides: Array<{
     title: string;
     body: string;
+    image?: string;
   }>;
   searchTitle: string;
   searchDescription: string;
@@ -85,16 +86,16 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
       "지역, 예산, 계약 조건, 생활 체크리스트를 함께 보고 더 안전한 주거 결정을 준비하세요.",
     bannerSlides: [
       {
-        title: "토론토 첫 집, 무엇부터 확인해야 할까요?",
-        body: "처음부터 매물만 보면 놓치는 기준이 생깁니다. 생활권, 예산, 계약 조건을 먼저 정리하세요.",
+        title: "토론토 집 찾기, 기준부터 정리하세요",
+        body: "지역, 예산, 계약 조건을 기준으로 더 안전한 주거 결정을 준비하세요.",
       },
       {
         title: "지역·예산·계약 조건을 한 번에 비교하세요",
-        body: "초심자도 같은 기준으로 매물과 생활권을 살펴볼 수 있게 준비 중입니다.",
+        body: "매물보다 먼저 조건을 세우는 흐름입니다.",
       },
       {
         title: "입주 전 꼭 물어볼 질문을 체크리스트로 준비하세요",
-        body: "연락 전, 뷰잉 전, 계약 전 확인할 질문을 놓치지 않게 돕습니다.",
+        body: "연락 전, 계약 전 확인할 질문을 놓치지 않게 돕습니다.",
       },
     ],
     searchTitle: "내 조건으로 토론토 주거 탐색 시작",
@@ -105,9 +106,9 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     purposeLabel: "체류 목적",
     purposeOptions: ["워킹홀리데이", "유학생", "단기거주", "직장인", "기타"],
     budgetLabel: "월세 예산",
-    budgetPlaceholder: "예: 1,500,000원",
+    budgetPlaceholder: "150만원",
     moveInLabel: "입주 시기",
-    moveInPlaceholder: "예: 7월 초",
+    moveInPlaceholder: "입주 날짜 선택",
     peopleLabel: "인원",
     peopleValue: "1명",
     housingTypeLabel: "주거 형태",
@@ -144,21 +145,21 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
   en: {
     mvpNotice: "MVP preview · Real payments, contracts, and property registration are not active yet.",
     heroLabel: "Toronto housing gateway",
-    heroTitleLines: ["Find housing with", "clearer criteria"],
+    heroTitleLines: ["Find housing", "with clearer criteria"],
     heroDescription:
       "Compare location, budget, contract conditions, and checklists before making a housing decision abroad.",
     bannerSlides: [
       {
-        title: "Finding your first place in Toronto starts with better questions.",
-        body: "Organize your city, budget, and stay purpose before comparing listings.",
+        title: "Find housing with clearer criteria",
+        body: "Compare location, budget, and rental conditions before choosing housing abroad.",
       },
       {
-        title: "Compare neighborhoods, budget, and rental conditions together.",
-        body: "MapleHouse is preparing a clearer way to review housing options.",
+        title: "Compare neighborhoods, budget, and rental conditions",
+        body: "Review the housing decision in one place.",
       },
       {
-        title: "Prepare the right questions before contacting a landlord.",
-        body: "Use checklist-based guidance before viewing, signing, or moving in.",
+        title: "Prepare the right questions before contacting a landlord",
+        body: "Set your questions before browsing listings.",
       },
     ],
     searchTitle: "Start with your Toronto housing conditions",
@@ -168,9 +169,9 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     purposeLabel: "Stay purpose",
     purposeOptions: ["Working holiday", "Student", "Short-term stay", "Worker", "Other"],
     budgetLabel: "Budget",
-    budgetPlaceholder: "Monthly rent budget",
-    moveInLabel: "Move-in timing",
-    moveInPlaceholder: "e.g. early July",
+    budgetPlaceholder: "1,500 C$",
+    moveInLabel: "Move-in",
+    moveInPlaceholder: "Select",
     peopleLabel: "People",
     peopleValue: "1",
     housingTypeLabel: "Housing type",
@@ -207,21 +208,21 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
   fr: {
     mvpNotice: "Aperçu MVP · Les paiements, contrats et enregistrements réels ne sont pas encore actifs.",
     heroLabel: "Portail logement à Toronto",
-    heroTitleLines: ["Trouver un logement avec", "des critères plus clairs"],
+    heroTitleLines: ["Trouver un logement", "avec des critères plus clairs"],
     heroDescription:
       "Comparez le quartier, le budget, les conditions et les listes de vérification avant de choisir un logement.",
     bannerSlides: [
       {
-        title: "Trouver un premier logement à Toronto commence par les bonnes questions.",
-        body: "Organisez la ville, le budget et l'objectif du séjour avant de comparer.",
+        title: "Trouver un logement avec des critères plus clairs",
+        body: "Comparez le quartier, le budget et les conditions avant de choisir un logement.",
       },
       {
-        title: "Comparez quartier, budget et conditions de location ensemble.",
-        body: "MapleHouse prépare une façon plus claire d'examiner les options.",
+        title: "Comparez le quartier, le budget et les conditions",
+        body: "Gardez les critères importants au même endroit.",
       },
       {
-        title: "Préparez les questions importantes avant de contacter un propriétaire.",
-        body: "Utilisez une liste de vérification avant la visite, le contrat ou l'arrivée.",
+        title: "Préparez les bonnes questions avant de contacter un propriétaire",
+        body: "Définissez vos questions avant les annonces.",
       },
     ],
     searchTitle: "Commencer avec vos conditions de logement",
@@ -231,9 +232,9 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     purposeLabel: "Objectif du séjour",
     purposeOptions: ["PVT", "Études", "Court séjour", "Travail", "Autre"],
     budgetLabel: "Budget",
-    budgetPlaceholder: "Budget mensuel",
-    moveInLabel: "Date d'arrivée",
-    moveInPlaceholder: "ex. début juillet",
+    budgetPlaceholder: "1 500 C$",
+    moveInLabel: "Arrivée",
+    moveInPlaceholder: "Choisir",
     peopleLabel: "Personnes",
     peopleValue: "1",
     housingTypeLabel: "Type de logement",
@@ -241,7 +242,7 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     conditionsLabel: "Conditions importantes",
     conditions: ["Transport", "Sécurité", "Près de l'école", "Près du travail", "Meublé", "Animaux"],
     primaryCta: "Voir les logements adaptés",
-    checklistCta: "Voir la liste de vérification",
+    checklistCta: "Voir la liste d’abord",
     popularTitle: "Filtres populaires",
     popularDescription: "Des critères simples pour commencer une recherche plus claire.",
     popularFilters: [
@@ -269,24 +270,247 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
   },
 };
 
+const JULY_2026_DAYS = Array.from({ length: 31 }, (_, index) => index + 1);
+const JULY_2026_START_OFFSET = 3;
+const CALENDAR_WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const HERO_IMAGES = [
+  "/hero/toronto-1.png",
+  "/hero/toronto-4.png",
+  "/hero/vancouver-1.png",
+  "/hero/quebec-1.png",
+  "/hero/quebec-3.png",
+  "/hero/montreal-3.png",
+] as const;
+
+type HeroSlide = {
+  title: string;
+  body: string;
+  image: string;
+};
+
+const HERO_SLIDES: Record<Locale, HeroSlide[]> = {
+  ko: [
+    {
+      title: "토론토 집 찾기,\n기준부터 정리하세요",
+      body: "지역, 예산, 계약 조건을 기준으로 더 안전한 주거 결정을 준비하세요.",
+      image: HERO_IMAGES[0],
+    },
+    {
+      title: "지역·예산·계약 조건을\n한 번에 비교하세요",
+      body: "낯선 도시에서도 무엇을 먼저 확인해야 하는지 정리해드립니다.",
+      image: HERO_IMAGES[1],
+    },
+    {
+      title: "입주 전 꼭 물어볼 질문을\n체크리스트로 준비하세요",
+      body: "연락 전, 방문 전, 계약 전 확인할 질문을 놓치지 않게 돕습니다.",
+      image: HERO_IMAGES[2],
+    },
+    {
+      title: "검증 신호와 생활 조건을\n함께 확인하세요",
+      body: "등록일, 마지막 확인일, 지역 분위기, 비용 조건을 한눈에 비교합니다.",
+      image: HERO_IMAGES[3],
+    },
+    {
+      title: "처음 가는 도시에서도\n기준이 있으면 덜 불안합니다",
+      body: "주거 형태, 주변 환경, 계약 조건을 차근차근 확인할 수 있게 준비합니다.",
+      image: HERO_IMAGES[4],
+    },
+    {
+      title: "해외 단기거주자의\n주거 선택을 더 명확하게",
+      body: "매물보다 먼저 확인해야 할 기준을 정리하는 메이플하우스 MVP입니다.",
+      image: HERO_IMAGES[5],
+    },
+  ],
+  en: [
+    {
+      title: "Find housing\nwith clearer criteria",
+      body: "Compare location, budget, and rental conditions before choosing housing abroad.",
+      image: HERO_IMAGES[0],
+    },
+    {
+      title: "Compare neighborhood, budget,\nand rental conditions",
+      body: "Review the housing decision in one place.",
+      image: HERO_IMAGES[1],
+    },
+    {
+      title: "Prepare the right questions\nbefore contacting a landlord",
+      body: "Set your questions before browsing listings.",
+      image: HERO_IMAGES[2],
+    },
+    {
+      title: "Review trust signals\nbefore choosing housing",
+      body: "Compare listing dates, last-checked status, and core rental conditions.",
+      image: HERO_IMAGES[3],
+    },
+    {
+      title: "A clearer process\nfor unfamiliar cities",
+      body: "Move through housing type, neighborhood fit, and contract details step by step.",
+      image: HERO_IMAGES[4],
+    },
+    {
+      title: "Start with criteria,\nnot just listings",
+      body: "MapleHouse helps organize the decision before the listing search gets noisy.",
+      image: HERO_IMAGES[5],
+    },
+  ],
+  fr: [
+    {
+      title: "Trouver un logement\navec des critères plus clairs",
+      body: "Comparez le quartier, le budget et les conditions avant de choisir un logement.",
+      image: HERO_IMAGES[0],
+    },
+    {
+      title: "Comparez le quartier,\nle budget et les conditions",
+      body: "Gardez les critères importants au même endroit.",
+      image: HERO_IMAGES[1],
+    },
+    {
+      title: "Préparez les bonnes questions\navant de contacter un propriétaire",
+      body: "Définissez vos questions avant les annonces.",
+      image: HERO_IMAGES[2],
+    },
+    {
+      title: "Vérifiez les signaux de confiance\navant de choisir",
+      body: "Comparez les dates, le dernier contrôle et les conditions de location.",
+      image: HERO_IMAGES[3],
+    },
+    {
+      title: "Un parcours plus clair\npour les villes inconnues",
+      body: "Avancez étape par étape avec le type de logement, le quartier et le contrat.",
+      image: HERO_IMAGES[4],
+    },
+    {
+      title: "Commencez par les critères,\npas seulement les annonces",
+      body: "MapleHouse organise la décision avant la recherche de logements.",
+      image: HERO_IMAGES[5],
+    },
+  ],
+};
+
+function budgetInCad(value: number) {
+  return value * 10;
+}
+
+function formatBudget(locale: Locale, value: number) {
+  if (locale === "ko") return `${value}만원`;
+
+  const formatted = new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US").format(
+    budgetInCad(value),
+  );
+  return `${formatted} C$`;
+}
+
+function formatMaxBudget(locale: Locale, value: number) {
+  if (locale === "ko") return `최대 ${value}만원`;
+  return `Max ${formatBudget(locale, value)}`;
+}
+
+function formatMoveIn(locale: Locale, value: string | null, fallback: string) {
+  if (!value) return fallback;
+  return value;
+}
+
+function formatPeople(locale: Locale, value: number) {
+  if (locale === "ko") return `${value}명`;
+  if (locale === "fr") return value === 1 ? "1 personne" : `${value} personnes`;
+  return value === 1 ? "1 person" : `${value} people`;
+}
+
+function datePanelTitle(locale: Locale) {
+  if (locale === "ko") return "입주 날짜 선택";
+  if (locale === "fr") return "Choisir une date";
+  return "Select move-in date";
+}
+
+function calendarMonthTitle(locale: Locale) {
+  if (locale === "ko") return "2026년 7월";
+  if (locale === "fr") return "Juillet 2026";
+  return "July 2026";
+}
+
+function applyLabel(locale: Locale) {
+  if (locale === "ko") return "적용";
+  if (locale === "fr") return "Appliquer";
+  return "Apply";
+}
+
+function resetLabel(locale: Locale) {
+  if (locale === "ko") return "초기화";
+  if (locale === "fr") return "Réinitialiser";
+  return "Reset";
+}
+
+function cancelLabel(locale: Locale) {
+  if (locale === "ko") return "취소";
+  if (locale === "fr") return "Annuler";
+  return "Cancel";
+}
+
+function cityPlaceholder(locale: Locale) {
+  if (locale === "ko") return "도시 선택";
+  if (locale === "fr") return "Choisir";
+  return "Select";
+}
+
+function purposePlaceholder(locale: Locale) {
+  if (locale === "ko") return "체류 목적 선택";
+  if (locale === "fr") return "Choisir";
+  return "Select";
+}
+
+function housingPlaceholder(locale: Locale) {
+  if (locale === "ko") return "주거 형태 선택";
+  if (locale === "fr") return "Choisir";
+  return "Select";
+}
+
+function budgetPlaceholder(locale: Locale) {
+  if (locale === "ko") return "금액 선택";
+  if (locale === "fr") return "Choisir";
+  return "Select";
+}
+
+function moveInLabel(locale: Locale) {
+  if (locale === "ko") return "입주 날짜";
+  if (locale === "fr") return "Arrivée";
+  return "Move-in";
+}
+
+function cityOptions(locale: Locale) {
+  if (locale === "fr") return ["Toronto", "Vancouver", "Montréal", "Québec"];
+  return ["Toronto", "Vancouver", "Montreal", "Quebec City"];
+}
+
 export function LocaleMainPage({ locale }: { locale: Locale }) {
   const t = CONTENT[locale];
+  const heroSlides = HERO_SLIDES[locale];
+  const carouselSlides = useMemo(() => [...heroSlides, heroSlides[0]], [heroSlides]);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [withTransition, setWithTransition] = useState(true);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % t.bannerSlides.length);
-    }, 3000);
+      setWithTransition(true);
+      setActiveSlide((current) => current + 1);
+    }, 5000);
 
     return () => window.clearInterval(timer);
-  }, [t.bannerSlides.length]);
+  }, []);
 
-  const currentSlide = t.bannerSlides[activeSlide];
+  const visibleSlide = activeSlide % heroSlides.length;
+
+  const handleCarouselTransitionEnd = () => {
+    if (activeSlide === heroSlides.length) {
+      setWithTransition(false);
+      setActiveSlide(0);
+      window.setTimeout(() => setWithTransition(true), 20);
+    }
+  };
 
   return (
     <>
       <section className="border-b border-border bg-background">
-        <div className="relative overflow-hidden bg-secondary/70">
+        <div className="relative bg-secondary/70 pb-8">
           <div
             aria-hidden
             className="absolute inset-0"
@@ -302,61 +526,58 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
             className="absolute left-1/2 top-8 h-72 w-[54rem] -translate-x-1/2 rounded-full bg-accent blur-3xl"
           />
 
-          <Container className="relative py-8 sm:py-12 lg:py-14">
-            <div className="mx-auto flex min-h-[31rem] max-w-4xl flex-col items-center text-center sm:min-h-[33rem] lg:min-h-[34rem]">
-              <div className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-                {t.mvpNotice}
-              </div>
+          <Container className="relative max-w-[90rem] pt-6 sm:pt-8 lg:pt-10">
+            <div className="relative mx-auto max-w-[82rem] overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm">
+              <div
+                className={cn(
+                  "flex",
+                  withTransition && "transition-transform duration-700 ease-out",
+                )}
+                style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+                onTransitionEnd={handleCarouselTransitionEnd}
+              >
+                {carouselSlides.map((slide, index) => (
+                  <div
+                    key={`${slide.title}-${index}`}
+                    className="relative flex min-h-[24rem] w-full shrink-0 flex-col justify-center bg-secondary px-6 py-8 text-left sm:min-h-[26rem] sm:px-10 lg:px-14"
+                    style={{
+                      backgroundImage: `linear-gradient(90deg, rgba(12, 12, 12, 0.70), rgba(12, 12, 12, 0.38), rgba(255, 255, 255, 0.10)), url("${slide.image}")`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  >
+                    <div className="max-w-3xl text-white drop-shadow-sm">
+                      <div className="inline-flex max-w-full rounded-full border border-white/25 bg-white/15 px-3 py-1 text-[11px] font-medium text-white/90 shadow-sm backdrop-blur">
+                        {t.mvpNotice}
+                      </div>
 
-              <div className="flex min-h-[16.5rem] flex-col items-center sm:min-h-[17rem]">
-                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/90 px-3 py-1 text-xs font-semibold text-primary">
-                  <MapPinned className="h-3.5 w-3.5" />
-                  {t.heroLabel}
-                </div>
+                      <h1 className="mt-6 min-h-[6.25rem] whitespace-pre-line text-4xl font-semibold leading-tight sm:text-5xl">
+                        {slide.title}
+                      </h1>
 
-                <h1 className="mt-5 text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
-                  {t.heroTitleLines.map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))}
-                </h1>
-
-                <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  {t.heroDescription}
-                </p>
-              </div>
-
-              <div className="mx-auto mt-6 flex min-h-[11.75rem] w-full max-w-2xl flex-col justify-between rounded-2xl border border-border bg-card/95 p-4 text-left shadow-sm backdrop-blur">
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
-                    <ShieldCheck className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                      MapleHouse guide
-                    </p>
-                    <h2 className="mh-clamp-2 mt-1 min-h-[3rem] text-base font-semibold text-foreground sm:text-lg">
-                      {currentSlide.title}
-                    </h2>
-                    <p className="mh-clamp-2 mt-1 text-sm leading-relaxed text-muted-foreground">
-                      {currentSlide.body}
-                    </p>
+                      <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/90">
+                        {slide.body}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-4 flex justify-center gap-2" aria-label="banner slide indicators">
-                  {t.bannerSlides.map((slide, index) => (
-                    <button
-                      key={slide.title}
-                      type="button"
-                      className={`h-2 rounded-full transition-all ${
-                        index === activeSlide ? "w-8 bg-primary" : "w-2 bg-border"
-                      }`}
-                      onClick={() => setActiveSlide(index)}
-                      aria-label={`slide ${index + 1}`}
-                    />
-                  ))}
-                </div>
+                ))}
+              </div>
+
+              <div className="absolute bottom-7 left-6 z-10 flex justify-start gap-2 sm:left-10 lg:left-14" aria-label="banner slide indicators">
+                {heroSlides.map((slide, index) => (
+                  <button
+                    key={slide.title}
+                    type="button"
+                    className={`h-2 rounded-full transition-all ${
+                      index === visibleSlide ? "w-8 bg-primary" : "w-2 bg-white/60"
+                    }`}
+                    onClick={() => {
+                      setWithTransition(true);
+                      setActiveSlide(index);
+                    }}
+                    aria-label={`slide ${index + 1}`}
+                  />
+                ))}
               </div>
             </div>
 
@@ -424,9 +645,20 @@ function SearchModule({
   locale: Locale;
   content: HomeGatewayContent;
 }) {
+  const [city, setCity] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [housingType, setHousingType] = useState("");
+  const [budget, setBudget] = useState<number | null>(null);
+  const [draftBudget, setDraftBudget] = useState(150);
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [moveInOpen, setMoveInOpen] = useState(false);
+  const [moveInDate, setMoveInDate] = useState<string | null>(null);
+  const [draftMoveInDate, setDraftMoveInDate] = useState<string | null>(null);
+  const [people, setPeople] = useState(1);
+
   return (
-    <div className="relative z-10 mx-auto mt-8 min-h-[28rem] max-w-5xl rounded-3xl border border-border bg-card p-4 shadow-md sm:p-5 lg:min-h-[23.5rem]">
-      <div className="mb-4 flex min-h-[5.75rem] items-start justify-between gap-3">
+    <div className="relative z-20 mx-auto mt-6 min-h-[16rem] max-w-[82rem] rounded-3xl border border-border bg-card p-4 shadow-lg sm:p-5">
+      <div className="mb-4 flex min-h-[4.75rem] items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
             MapleHouse search
@@ -436,61 +668,186 @@ function SearchModule({
             {content.searchDescription}
           </p>
         </div>
-        <Search className="mt-1 h-5 w-5 text-primary" />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-6">
-        <GatewayField icon={<MapPinned />} label={content.cityLabel} className="lg:col-span-1">
-          <StaticValue>{content.cityValue}</StaticValue>
-        </GatewayField>
-        <GatewayField icon={<SlidersHorizontal />} label={content.purposeLabel} className="lg:col-span-2">
-          <select className="w-full bg-transparent text-sm font-medium text-foreground outline-none">
-            {content.purposeOptions.map((option) => (
-              <option key={option}>{option}</option>
-            ))}
-          </select>
-        </GatewayField>
-        <GatewayField icon={<WalletCards />} label={content.budgetLabel} className="lg:col-span-1">
-          <input
-            className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
-            placeholder={content.budgetPlaceholder}
-          />
-        </GatewayField>
-        <GatewayField icon={<CalendarDays />} label={content.moveInLabel} className="lg:col-span-1">
-          <input
-            className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
-            placeholder={content.moveInPlaceholder}
-          />
-        </GatewayField>
-        <GatewayField icon={<Users />} label={content.peopleLabel} className="lg:col-span-1">
-          <StaticValue>{content.peopleValue}</StaticValue>
-        </GatewayField>
-        <GatewayField icon={<Home />} label={content.housingTypeLabel} className="lg:col-span-2">
-          <select className="w-full bg-transparent text-sm font-medium text-foreground outline-none">
-            {content.housingTypes.map((type) => (
-              <option key={type}>{type}</option>
-            ))}
-          </select>
-        </GatewayField>
-        <div className="min-h-16 rounded-xl border border-border bg-background px-3 py-2 md:col-span-2 lg:col-span-4">
-          <p className="mb-2 text-[11px] font-medium text-muted-foreground">
-            {content.conditionsLabel}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {content.conditions.map((condition, index) => (
-              <span
-                key={condition}
-                className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                  index < 3
-                    ? "border-primary/30 bg-accent text-foreground"
-                    : "border-border bg-card text-muted-foreground"
-                }`}
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(8.5rem,1fr)_minmax(10rem,1.1fr)_minmax(10rem,1.05fr)_minmax(8.5rem,1fr)_minmax(9rem,1fr)_minmax(14rem,1.25fr)]">
+        <GatewaySelectField
+          icon={<MapPinned />}
+          label={content.cityLabel}
+          placeholder={cityPlaceholder(locale)}
+          options={cityOptions(locale)}
+          value={city}
+          onChange={setCity}
+          className="xl:col-span-1"
+        />
+        <GatewaySelectField
+          icon={<SlidersHorizontal />}
+          label={content.purposeLabel}
+          placeholder={purposePlaceholder(locale)}
+          options={content.purposeOptions}
+          value={purpose}
+          onChange={setPurpose}
+          className="xl:col-span-1"
+        />
+        <GatewaySelectField
+          icon={<Home />}
+          label={content.housingTypeLabel}
+          placeholder={housingPlaceholder(locale)}
+          options={content.housingTypes}
+          value={housingType}
+          onChange={setHousingType}
+          className="xl:col-span-1"
+        />
+        <SearchPopoverField
+          icon={<WalletCards />}
+          label={content.budgetLabel}
+          value={budget === null ? budgetPlaceholder(locale) : formatBudget(locale, budget)}
+          valueMuted={budget === null}
+          className="xl:col-span-1"
+          open={budgetOpen}
+          onToggle={() => {
+            setDraftBudget(budget ?? 150);
+            setBudgetOpen((value) => !value);
+            setMoveInOpen(false);
+          }}
+        >
+          <div className="w-80 rounded-2xl border border-border bg-card p-4 shadow-lg">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+              {content.budgetLabel}
+            </p>
+            <p className="mt-2 text-lg font-semibold text-foreground">
+              {formatMaxBudget(locale, draftBudget)}
+            </p>
+            <input
+              type="range"
+              min={0}
+              max={400}
+              step={10}
+              value={draftBudget}
+              onChange={(event) => setDraftBudget(Number(event.target.value))}
+              className="mt-4 w-full accent-primary"
+            />
+            <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
+              <span>{locale === "ko" ? "0만원" : "0 C$"}</span>
+              <span>{locale === "ko" ? "400만원" : "4,000 C$"}</span>
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="soft"
+                size="sm"
+                onClick={() => {
+                  setBudget(null);
+                  setDraftBudget(150);
+                  setBudgetOpen(false);
+                }}
               >
-                {condition}
-              </span>
-            ))}
+                {resetLabel(locale)}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  setBudget(draftBudget);
+                  setBudgetOpen(false);
+                }}
+              >
+                {applyLabel(locale)}
+              </Button>
+            </div>
           </div>
-        </div>
+        </SearchPopoverField>
+        <SearchPopoverField
+          icon={<CalendarDays />}
+          label={moveInLabel(locale)}
+          value={formatMoveIn(locale, moveInDate, content.moveInPlaceholder)}
+          valueMuted={!moveInDate}
+          className="xl:col-span-1"
+          open={moveInOpen}
+          onToggle={() => {
+            setDraftMoveInDate(moveInDate);
+            setMoveInOpen((value) => !value);
+            setBudgetOpen(false);
+          }}
+        >
+          <div className="w-80 rounded-2xl border border-border bg-card p-4 text-foreground shadow-lg">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                  {datePanelTitle(locale)}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-foreground">
+                  {calendarMonthTitle(locale)}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+                onClick={() => setMoveInOpen(false)}
+                aria-label="close calendar"
+              >
+                ×
+              </button>
+            </div>
+            <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground">
+              {CALENDAR_WEEKDAYS.map((day) => (
+                <span key={day}>{day}</span>
+              ))}
+            </div>
+            <div className="mt-2 grid grid-cols-7 gap-1">
+              {Array.from({ length: JULY_2026_START_OFFSET }).map((_, index) => (
+                <span key={`blank-${index}`} />
+              ))}
+              {JULY_2026_DAYS.map((day) => {
+                const date = `2026-07-${String(day).padStart(2, "0")}`;
+                return (
+                <button
+                  key={date}
+                  type="button"
+                  className={cn(
+                    "flex h-9 items-center justify-center rounded-lg text-sm font-medium transition-colors",
+                    draftMoveInDate === date
+                      ? "bg-[#FA7000] text-white"
+                      : "text-foreground hover:bg-accent",
+                  )}
+                  onClick={() => setDraftMoveInDate(date)}
+                >
+                  {day}
+                </button>
+                );
+              })}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="soft"
+                size="sm"
+                onClick={() => setMoveInOpen(false)}
+              >
+                {cancelLabel(locale)}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={!draftMoveInDate || draftMoveInDate === moveInDate}
+                onClick={() => {
+                  setMoveInDate(draftMoveInDate);
+                  setMoveInOpen(false);
+                }}
+              >
+                {applyLabel(locale)}
+              </Button>
+            </div>
+          </div>
+        </SearchPopoverField>
+        <PeopleField
+          locale={locale}
+          label={content.peopleLabel}
+          value={people}
+          onDecrease={() => setPeople((value) => Math.max(1, value - 1))}
+          onIncrease={() => setPeople((value) => value + 1)}
+          className="xl:col-span-1"
+        />
       </div>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)]">
@@ -517,7 +874,7 @@ function GatewayField({
   className?: string;
 }) {
   return (
-    <label className={`flex min-h-16 items-center gap-3 rounded-xl border border-border bg-background px-3 py-2 ${className}`}>
+    <label className={`flex h-[3.75rem] items-center gap-3 rounded-xl border border-border bg-background px-3 py-1.5 ${className}`}>
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
         {icon}
       </span>
@@ -526,6 +883,156 @@ function GatewayField({
         <span className="block">{children}</span>
       </span>
     </label>
+  );
+}
+
+function PeopleField({
+  locale,
+  label,
+  value,
+  onDecrease,
+  onIncrease,
+  className = "",
+}: {
+  locale: Locale;
+  label: string;
+  value: number;
+  onDecrease: () => void;
+  onIncrease: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={`flex h-[3.75rem] min-w-0 items-center gap-3 rounded-xl border border-border bg-background px-3 py-1.5 ${className}`}>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
+        <Users />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="mh-clamp-1 block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
+          {label}
+        </span>
+        <span className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card px-1.5 py-1 sm:gap-2">
+          <button
+            type="button"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-primary disabled:opacity-40"
+            onClick={onDecrease}
+            disabled={value <= 1}
+            aria-label="decrease people"
+          >
+            -
+          </button>
+          <span className="min-w-[4.75rem] whitespace-nowrap text-center text-xs font-semibold text-foreground sm:min-w-[5.25rem]">
+            {formatPeople(locale, value)}
+          </span>
+          <button
+            type="button"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
+            onClick={onIncrease}
+            aria-label="increase people"
+          >
+            +
+          </button>
+        </span>
+      </span>
+    </div>
+  );
+}
+
+function GatewaySelectField({
+  icon,
+  label,
+  placeholder,
+  options,
+  value,
+  onChange,
+  className = "",
+}: {
+  icon: ReactNode;
+  label: string;
+  placeholder: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}) {
+  return (
+    <label
+      className={`relative flex h-[3.75rem] cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-1.5 transition-colors hover:border-primary hover:bg-accent/40 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary ${className}`}
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
+          {label}
+        </span>
+        <select
+          className={cn(
+            "mt-0.5 w-full cursor-pointer appearance-none bg-transparent pr-6 text-sm font-medium outline-none",
+            value ? "text-foreground" : "text-muted-foreground",
+          )}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">{placeholder}</option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </span>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    </label>
+  );
+}
+
+function SearchPopoverField({
+  icon,
+  label,
+  value,
+  valueMuted = false,
+  children,
+  open,
+  onToggle,
+  className = "",
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  valueMuted?: boolean;
+  children: ReactNode;
+  open: boolean;
+  onToggle: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={`relative ${className}`}>
+      <button
+        type="button"
+        className="flex h-[3.75rem] w-full cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-1.5 pr-9 text-left transition-colors hover:border-primary hover:bg-accent/40 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+        onClick={onToggle}
+        aria-expanded={open}
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
+          {icon}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
+            {label}
+          </span>
+          <span
+            className={cn(
+              "block whitespace-nowrap text-sm font-medium",
+              valueMuted ? "text-muted-foreground" : "text-foreground",
+            )}
+          >
+            {value}
+          </span>
+        </span>
+        <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      </button>
+      {open && <div className="absolute left-0 top-[calc(100%+0.5rem)] z-[60]">{children}</div>}
+    </div>
   );
 }
 
