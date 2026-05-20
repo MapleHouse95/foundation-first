@@ -6,12 +6,13 @@ import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
 
 type Status = "verified" | "needs_check" | "preparing";
+type LocalizedText = Record<Locale, string>;
 
 interface MockListing {
   id: string;
-  title: string;
+  title: LocalizedText;
   area: string;
-  roomType: string;
+  roomType: LocalizedText;
   maxPeople: number;
   priceKRW: number;
   priceCAD: number;
@@ -21,11 +22,86 @@ interface MockListing {
 }
 
 const MOCK_LISTINGS: MockListing[] = [
-  { id: "L-001", title: "Koreatown 1BR 코지 스튜디오", area: "Koreatown", roomType: "1BR", maxPeople: 1, priceKRW: 1850000, priceCAD: 1850, status: "verified", lastChecked: "2026-05-15", registered: "2026-04-02" },
-  { id: "L-002", title: "Downtown 컨도 풀퍼니시드", area: "Downtown", roomType: "Condo", maxPeople: 2, priceKRW: 3400000, priceCAD: 3400, status: "verified", lastChecked: "2026-05-12", registered: "2026-03-20" },
-  { id: "L-003", title: "North York 셰어하우스 룸", area: "North York", roomType: "Share", maxPeople: 1, priceKRW: 1050000, priceCAD: 1050, status: "needs_check", lastChecked: "2026-04-29", registered: "2026-03-01" },
-  { id: "L-004", title: "Midtown 2BR 라이트 필드", area: "Midtown", roomType: "2BR", maxPeople: 3, priceKRW: 3950000, priceCAD: 3950, status: "preparing", lastChecked: "2026-05-10", registered: "2026-05-08" },
-  { id: "L-005", title: "Annex 스튜디오 (가족형 X)", area: "Downtown", roomType: "Studio", maxPeople: 1, priceKRW: 1620000, priceCAD: 1620, status: "verified", lastChecked: "2026-05-14", registered: "2026-04-18" },
+  {
+    id: "L-001",
+    title: {
+      ko: "Koreatown 1BR 코지 스튜디오",
+      en: "Cozy 1BR Studio in Koreatown",
+      fr: "Studio 1 chambre confortable à Koreatown",
+    },
+    area: "Koreatown",
+    roomType: { ko: "1베드", en: "1BR", fr: "1 chambre" },
+    maxPeople: 1,
+    priceKRW: 1850000,
+    priceCAD: 1850,
+    status: "verified",
+    lastChecked: "2026-05-15",
+    registered: "2026-04-02",
+  },
+  {
+    id: "L-002",
+    title: {
+      ko: "Downtown 콘도 풀퍼니시드",
+      en: "Fully Furnished Downtown Condo",
+      fr: "Condo meublé au centre-ville",
+    },
+    area: "Downtown",
+    roomType: { ko: "콘도", en: "Condo", fr: "Condo" },
+    maxPeople: 2,
+    priceKRW: 3400000,
+    priceCAD: 3400,
+    status: "verified",
+    lastChecked: "2026-05-12",
+    registered: "2026-03-20",
+  },
+  {
+    id: "L-003",
+    title: {
+      ko: "North York 셰어하우스 룸",
+      en: "Share House Room in North York",
+      fr: "Chambre en colocation à North York",
+    },
+    area: "North York",
+    roomType: { ko: "셰어룸", en: "Share room", fr: "Chambre en colocation" },
+    maxPeople: 1,
+    priceKRW: 1050000,
+    priceCAD: 1050,
+    status: "needs_check",
+    lastChecked: "2026-04-29",
+    registered: "2026-03-01",
+  },
+  {
+    id: "L-004",
+    title: {
+      ko: "Midtown 2BR 라이트 필드",
+      en: "Bright 2BR in Midtown",
+      fr: "Logement 2 chambres lumineux à Midtown",
+    },
+    area: "Midtown",
+    roomType: { ko: "2베드", en: "2BR", fr: "2 chambres" },
+    maxPeople: 3,
+    priceKRW: 3950000,
+    priceCAD: 3950,
+    status: "preparing",
+    lastChecked: "2026-05-10",
+    registered: "2026-05-08",
+  },
+  {
+    id: "L-005",
+    title: {
+      ko: "Annex 스튜디오 (가족형 X)",
+      en: "Annex Studio (Not Family Type)",
+      fr: "Studio à Annex (non familial)",
+    },
+    area: "Downtown",
+    roomType: { ko: "스튜디오", en: "Studio", fr: "Studio" },
+    maxPeople: 1,
+    priceKRW: 1620000,
+    priceCAD: 1620,
+    status: "verified",
+    lastChecked: "2026-05-14",
+    registered: "2026-04-18",
+  },
 ];
 
 const MAP_PINS = [
@@ -49,6 +125,7 @@ interface L10n {
   cityValue: string;
   people: string;
   peopleValue: string;
+  maxPeopleLabel: (n: number) => string;
   activeArea: string;
   recentTitle: string;
   status: Record<Status, string>;
@@ -75,6 +152,7 @@ const L: Record<Locale, L10n> = {
     cityValue: "토론토",
     people: "인원",
     peopleValue: "1명",
+    maxPeopleLabel: (n) => `최대 ${n}명`,
     activeArea: "활성 지역: Downtown Toronto",
     recentTitle: "최근 본 매물",
     status: { verified: "검증완료", needs_check: "확인필요", preparing: "준비중" },
@@ -99,6 +177,7 @@ const L: Record<Locale, L10n> = {
     cityValue: "Toronto",
     people: "People",
     peopleValue: "1",
+    maxPeopleLabel: (n) => `max ${n}`,
     activeArea: "Active area: Downtown Toronto",
     recentTitle: "Recently viewed",
     status: { verified: "Verified", needs_check: "Needs check", preparing: "Preparing" },
@@ -123,6 +202,7 @@ const L: Record<Locale, L10n> = {
     cityValue: "Toronto",
     people: "Personnes",
     peopleValue: "1",
+    maxPeopleLabel: (n) => `max. ${n} pers.`,
     activeArea: "Zone active : Downtown Toronto",
     recentTitle: "Vus récemment",
     status: { verified: "Vérifié", needs_check: "À vérifier", preparing: "En préparation" },
@@ -191,59 +271,64 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
               </span>
             </header>
             <ul className="space-y-3">
-              {MOCK_LISTINGS.map((l) => (
-                <li
-                  key={l.id}
-                  className="group rounded-xl border border-border bg-background p-3 transition-colors hover:border-primary/40"
-                >
-                  <div className="flex gap-3">
-                    <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-accent to-secondary">
-                      <span
-                        className={cn(
-                          "absolute left-1 top-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
-                          STATUS_CLASS[l.status],
-                        )}
-                      >
-                        {t.status[l.status]}
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="truncate text-sm font-semibold text-foreground">
-                          {l.title}
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={() => toggleFav(l.id)}
-                          aria-label="favorite"
-                          className="shrink-0 text-muted-foreground hover:text-primary"
+              {MOCK_LISTINGS.map((l) => {
+                const title = l.title[locale];
+                const roomType = l.roomType[locale];
+
+                return (
+                  <li
+                    key={l.id}
+                    className="group rounded-xl border border-border bg-background p-3 transition-colors hover:border-primary/40"
+                  >
+                    <div className="flex gap-3">
+                      <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-accent to-secondary">
+                        <span
+                          className={cn(
+                            "absolute left-1 top-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                            STATUS_CLASS[l.status],
+                          )}
                         >
-                          <Star
-                            className={cn(
-                              "h-4 w-4",
-                              favs.has(l.id) && "fill-primary text-primary",
-                            )}
-                          />
-                        </button>
-                      </div>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {l.area} · {l.roomType} · max {l.maxPeople}
-                      </p>
-                      <div className="mt-1.5 flex items-baseline gap-2">
-                        <span className="text-sm font-semibold text-primary">
-                          {fmtKRW(l.priceKRW)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          ({fmtCAD(l.priceCAD)}){t.perMonth}
+                          {t.status[l.status]}
                         </span>
                       </div>
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {t.lastChecked}: {l.lastChecked} · {t.registered}: {l.registered}
-                      </p>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="truncate text-sm font-semibold text-foreground">
+                            {title}
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => toggleFav(l.id)}
+                            aria-label="favorite"
+                            className="shrink-0 text-muted-foreground hover:text-primary"
+                          >
+                            <Star
+                              className={cn(
+                                "h-4 w-4",
+                                favs.has(l.id) && "fill-primary text-primary",
+                              )}
+                            />
+                          </button>
+                        </div>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {l.area} · {roomType} · {t.maxPeopleLabel(l.maxPeople)}
+                        </p>
+                        <div className="mt-1.5 flex items-baseline gap-2">
+                          <span className="text-sm font-semibold text-primary">
+                            {fmtKRW(l.priceKRW)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            ({fmtCAD(l.priceCAD)}){t.perMonth}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-[11px] text-muted-foreground">
+                          {t.lastChecked}: {l.lastChecked} · {t.registered}: {l.registered}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
             <p className="mt-3 text-[11px] text-muted-foreground">{t.autoDeact}</p>
           </section>
@@ -288,7 +373,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
                     <div className="h-8 w-10 shrink-0 rounded bg-gradient-to-br from-accent to-secondary" />
                     <div className="min-w-0">
                       <p className="truncate text-[11px] font-medium text-foreground">
-                        {l.title}
+                        {l.title[locale]}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
                         {fmtKRW(l.priceKRW)}

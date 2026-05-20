@@ -3,6 +3,7 @@ import {
   Outlet,
   Link,
   createRootRouteWithContext,
+  useLocation,
   useRouter,
   HeadContent,
   Scripts,
@@ -112,6 +113,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { pathname } = useLocation();
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -120,7 +123,7 @@ function RootComponent() {
         <main className="flex-1">
           <Outlet />
         </main>
-        <Footer />
+        {!isAdmin && <Footer />}
       </div>
     </QueryClientProvider>
   );
