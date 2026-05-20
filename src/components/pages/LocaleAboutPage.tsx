@@ -99,14 +99,14 @@ export function LocaleAboutPage({ locale }: { locale: Locale }) {
   return (
     <main className="bg-background">
       <Container className="py-12 sm:py-16">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto min-h-[18rem] max-w-3xl text-center sm:min-h-[17rem]">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             {t.eyebrow}
           </p>
           <h1 className="mt-3 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
             {t.title}
           </h1>
-          <p className="mt-5 rounded-2xl border border-border bg-card p-6 text-base leading-relaxed text-foreground shadow-sm">
+          <p className="mt-5 min-h-[8.75rem] rounded-2xl border border-border bg-card p-6 text-base leading-relaxed text-foreground shadow-sm">
             {t.coreMessage}
           </p>
         </div>
@@ -117,15 +117,15 @@ export function LocaleAboutPage({ locale }: { locale: Locale }) {
             return (
               <section
                 key={section.title}
-                className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+                className="min-h-[13.5rem] rounded-2xl border border-border bg-card p-5 shadow-sm"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h2 className="mt-4 text-base font-semibold text-foreground">
+                <h2 className="mh-clamp-2 mt-4 min-h-10 text-base font-semibold text-foreground">
                   {section.title}
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <p className="mh-clamp-4 mt-2 text-sm leading-relaxed text-muted-foreground">
                   {section.body}
                 </p>
               </section>

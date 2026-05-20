@@ -68,7 +68,7 @@ function LanguageSelect() {
             MapleHouse language gateway
           </div>
 
-          <h1 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+          <h1 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold leading-tight text-foreground sm:min-h-[6.125rem] sm:text-4xl">
             Find housing with clearer criteria · 더 명확한 기준으로 집을 찾으세요 ·
             Trouvez un logement avec plus de clarté
           </h1>
@@ -92,7 +92,7 @@ function LanguageSelect() {
                 <Link
                   key={loc}
                   to={`/${loc}`}
-                  className="mh-interactive-card mh-language-card group rounded-2xl border border-border bg-card p-6 text-left shadow-sm"
+                  className="mh-interactive-card mh-language-card group flex min-h-[15rem] flex-col rounded-2xl border border-border bg-card p-6 text-left shadow-sm"
                 >
                   <div className="mh-card-accent text-xs font-semibold uppercase tracking-[0.16em] text-primary">
                     {copy.eyebrow}
@@ -100,10 +100,10 @@ function LanguageSelect() {
                   <h2 className="mt-3 text-lg font-semibold text-inherit">
                     {LOCALE_LABELS[loc]}
                   </h2>
-                  <p className="mh-card-muted mt-2 min-h-12 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mh-card-muted mh-clamp-3 mt-2 min-h-[4.5rem] text-sm leading-relaxed text-muted-foreground">
                     {copy.body}
                   </p>
-                  <span className="mh-card-accent mt-5 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                  <span className="mh-card-accent mt-auto inline-flex items-center gap-1 pt-5 text-xs font-semibold uppercase tracking-wider text-primary">
                     {copy.enter}
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </span>
@@ -123,7 +123,7 @@ function LanguageSelect() {
 
 function EntrySignal({ icon, label }: { icon: ReactNode; label: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 rounded-xl bg-secondary px-3 py-2 text-xs font-medium text-foreground">
+    <div className="flex min-h-10 items-center justify-center gap-2 rounded-xl bg-secondary px-3 py-2 text-xs font-medium text-foreground">
       <span className="text-primary [&_svg]:h-4 [&_svg]:w-4">{icon}</span>
       {label}
     </div>

@@ -122,14 +122,14 @@ export function LocaleContactPage({ locale }: { locale: Locale }) {
   return (
     <main className="bg-background">
       <Container className="py-12 sm:py-16">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto min-h-[11rem] max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             {t.eyebrow}
           </p>
           <h1 className="mt-3 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
             {t.title}
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <p className="mh-clamp-3 mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
             {t.subtitle}
           </p>
         </div>
@@ -140,15 +140,15 @@ export function LocaleContactPage({ locale }: { locale: Locale }) {
             return (
               <section
                 key={section.title}
-                className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+                className="min-h-[12.75rem] rounded-2xl border border-border bg-card p-5 shadow-sm"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h2 className="mt-4 text-base font-semibold text-foreground">
+                <h2 className="mh-clamp-2 mt-4 min-h-10 text-base font-semibold text-foreground">
                   {section.title}
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <p className="mh-clamp-3 mt-2 text-sm leading-relaxed text-muted-foreground">
                   {section.body}
                 </p>
               </section>
@@ -156,7 +156,7 @@ export function LocaleContactPage({ locale }: { locale: Locale }) {
           })}
         </div>
 
-        <section className="mx-auto mt-8 max-w-3xl rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <section className="mx-auto mt-8 min-h-[24rem] max-w-3xl rounded-2xl border border-border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-foreground">{t.formTitle}</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <PreviewField label={t.nameLabel} />
@@ -164,7 +164,7 @@ export function LocaleContactPage({ locale }: { locale: Locale }) {
             <PreviewField label={t.categoryLabel} />
             <PreviewField label={t.messageLabel} className="sm:col-span-2" multiline />
           </div>
-          <Button disabled className="mt-5">
+          <Button disabled className="mt-5 min-w-[10rem]">
             {t.disabledCta}
           </Button>
           <p className="mt-4 text-xs text-muted-foreground">{t.notice}</p>
@@ -188,7 +188,7 @@ function PreviewField({
 
   return (
     <label className={className}>
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="mh-clamp-1 block min-h-[1rem] text-xs font-medium text-muted-foreground">{label}</span>
       {multiline ? (
         <textarea className={`${baseClass} min-h-24 resize-none`} disabled />
       ) : (

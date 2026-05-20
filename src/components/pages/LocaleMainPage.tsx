@@ -303,29 +303,31 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
           />
 
           <Container className="relative py-8 sm:py-12 lg:py-14">
-            <div className="mx-auto max-w-4xl text-center">
+            <div className="mx-auto flex min-h-[31rem] max-w-4xl flex-col items-center text-center sm:min-h-[33rem] lg:min-h-[34rem]">
               <div className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
                 {t.mvpNotice}
               </div>
 
-              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/90 px-3 py-1 text-xs font-semibold text-primary">
-                <MapPinned className="h-3.5 w-3.5" />
-                {t.heroLabel}
+              <div className="flex min-h-[16.5rem] flex-col items-center sm:min-h-[17rem]">
+                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/90 px-3 py-1 text-xs font-semibold text-primary">
+                  <MapPinned className="h-3.5 w-3.5" />
+                  {t.heroLabel}
+                </div>
+
+                <h1 className="mt-5 text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
+                  {t.heroTitleLines.map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </h1>
+
+                <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {t.heroDescription}
+                </p>
               </div>
 
-              <h1 className="mt-5 text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
-                {t.heroTitleLines.map((line) => (
-                  <span key={line} className="block">
-                    {line}
-                  </span>
-                ))}
-              </h1>
-
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                {t.heroDescription}
-              </p>
-
-              <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-border bg-card/95 p-4 text-left shadow-sm backdrop-blur">
+              <div className="mx-auto mt-6 flex min-h-[11.75rem] w-full max-w-2xl flex-col justify-between rounded-2xl border border-border bg-card/95 p-4 text-left shadow-sm backdrop-blur">
                 <div className="flex items-start gap-3">
                   <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
                     <ShieldCheck className="h-4 w-4" />
@@ -334,10 +336,10 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
                       MapleHouse guide
                     </p>
-                    <h2 className="mt-1 text-base font-semibold text-foreground sm:text-lg">
+                    <h2 className="mh-clamp-2 mt-1 min-h-[3rem] text-base font-semibold text-foreground sm:text-lg">
                       {currentSlide.title}
                     </h2>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mh-clamp-2 mt-1 text-sm leading-relaxed text-muted-foreground">
                       {currentSlide.body}
                     </p>
                   </div>
@@ -423,14 +425,14 @@ function SearchModule({
   content: HomeGatewayContent;
 }) {
   return (
-    <div className="relative z-10 mx-auto mt-8 max-w-5xl rounded-3xl border border-border bg-card p-4 shadow-md sm:p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
+    <div className="relative z-10 mx-auto mt-8 min-h-[28rem] max-w-5xl rounded-3xl border border-border bg-card p-4 shadow-md sm:p-5 lg:min-h-[23.5rem]">
+      <div className="mb-4 flex min-h-[5.75rem] items-start justify-between gap-3">
+        <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
             MapleHouse search
           </p>
-          <h2 className="mt-1 text-xl font-semibold text-foreground">{content.searchTitle}</h2>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          <h2 className="mh-clamp-2 mt-1 text-xl font-semibold text-foreground">{content.searchTitle}</h2>
+          <p className="mh-clamp-2 mt-1 text-xs leading-relaxed text-muted-foreground">
             {content.searchDescription}
           </p>
         </div>
@@ -470,7 +472,7 @@ function SearchModule({
             ))}
           </select>
         </GatewayField>
-        <div className="rounded-xl border border-border bg-background px-3 py-2 md:col-span-2 lg:col-span-4">
+        <div className="min-h-16 rounded-xl border border-border bg-background px-3 py-2 md:col-span-2 lg:col-span-4">
           <p className="mb-2 text-[11px] font-medium text-muted-foreground">
             {content.conditionsLabel}
           </p>
@@ -491,11 +493,11 @@ function SearchModule({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
-        <Button asChild size="lg">
+      <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)]">
+        <Button asChild size="lg" className="min-h-10 px-4 text-center">
           <Link to={`/${locale}/listings`}>{content.primaryCta}</Link>
         </Button>
-        <Button asChild variant="soft" size="lg">
+        <Button asChild variant="soft" size="lg" className="min-h-10 px-4 text-center">
           <a href="#checklist-preview">{content.checklistCta}</a>
         </Button>
       </div>
@@ -520,7 +522,7 @@ function GatewayField({
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-medium text-muted-foreground">{label}</span>
+        <span className="mh-clamp-1 block min-h-[1rem] text-[11px] font-medium text-muted-foreground">{label}</span>
         <span className="block">{children}</span>
       </span>
     </label>
@@ -544,14 +546,14 @@ function PopularFilterCard({ filter }: { filter: PopularFilter }) {
   return (
     <button
       type="button"
-      className="mh-interactive-card rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
+      className="mh-interactive-card min-h-[10.75rem] rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
       aria-disabled="true"
     >
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary [&_svg]:h-5 [&_svg]:w-5">
         {filter.icon}
       </span>
-      <span className="mt-4 block text-sm font-semibold text-foreground">{filter.title}</span>
-      <span className="mt-3 flex flex-wrap gap-1.5">
+      <span className="mh-clamp-2 mt-4 block min-h-10 text-sm font-semibold text-foreground">{filter.title}</span>
+      <span className="mt-3 flex min-h-[3.25rem] flex-wrap content-start gap-1.5 overflow-hidden">
         {filter.tags.map((tag) => (
           <span
             key={tag}
@@ -571,8 +573,8 @@ function QuickAction({ action }: { action: Action }) {
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary [&_svg]:h-5 [&_svg]:w-5">
         {action.icon}
       </span>
-      <span className="mt-4 block text-sm font-semibold text-foreground">{action.label}</span>
-      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+      <span className="mh-clamp-2 mt-4 block min-h-10 text-sm font-semibold text-foreground">{action.label}</span>
+      <span className="mh-clamp-2 mt-1 block min-h-10 text-xs leading-relaxed text-muted-foreground">
         {action.description}
       </span>
     </>
@@ -582,7 +584,7 @@ function QuickAction({ action }: { action: Action }) {
     return (
       <Link
         to={action.to}
-        className="mh-interactive-card rounded-2xl border border-border bg-card p-4 shadow-sm"
+        className="mh-interactive-card min-h-[11rem] rounded-2xl border border-border bg-card p-4 shadow-sm"
       >
         {content}
       </Link>
@@ -592,7 +594,7 @@ function QuickAction({ action }: { action: Action }) {
   return (
     <button
       type="button"
-      className="mh-interactive-card rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
+      className="mh-interactive-card min-h-[11rem] rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
       aria-disabled="true"
     >
       {content}

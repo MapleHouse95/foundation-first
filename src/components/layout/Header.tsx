@@ -50,14 +50,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
       <Container className="flex h-16 items-center justify-between gap-3">
-        <Logo />
+        <div className="flex min-w-[9.5rem] shrink-0 items-center">
+          <Logo />
+        </div>
 
-        <nav className="hidden min-w-0 items-center gap-0.5 lg:flex">
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-md px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground xl:text-sm"
+              className="inline-flex h-9 max-w-[8.25rem] items-center justify-center truncate whitespace-nowrap rounded-md px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground xl:max-w-[10rem] xl:text-sm"
               activeProps={{ className: "bg-accent text-accent-foreground" }}
               activeOptions={{ exact: link.exact }}
             >
@@ -66,10 +68,10 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+        <div className="hidden min-w-[18rem] shrink-0 items-center justify-end gap-2 lg:flex">
           <LanguageSwitcher />
           {locale && (
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="min-w-[8.75rem] px-3">
               <Link to={`/${locale}/apply`}>{CTA_LABEL[locale]}</Link>
             </Button>
           )}

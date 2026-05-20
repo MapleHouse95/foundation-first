@@ -192,9 +192,38 @@
     box-shadow: 0 18px 38px rgb(36 33 31 / 0.1);
   }
 
+  .mh-clamp-1,
+  .mh-clamp-2,
+  .mh-clamp-3,
+  .mh-clamp-4 {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+  }
+
+  .mh-clamp-1 {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .mh-clamp-2 {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .mh-clamp-3 {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .mh-clamp-4 {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+
   .mh-language-card:hover,
   .mh-language-card:focus-visible {
-    background-color: var(--color-primary);
+    background-color: #fa7000;
     color: var(--color-primary-foreground);
   }
 
