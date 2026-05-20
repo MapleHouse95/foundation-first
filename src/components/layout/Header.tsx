@@ -24,7 +24,7 @@ export function Header() {
   // Minimal header (logo only) on entry "/" and admin
   if (isEntry || isAdmin) {
     return (
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
         <Container className="flex h-16 items-center justify-between">
           <Logo />
           {isAdmin && (
@@ -47,7 +47,7 @@ export function Header() {
     : [];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Logo />
 
@@ -56,8 +56,8 @@ export function Header() {
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-accent" }}
+              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              activeProps={{ className: "bg-accent text-accent-foreground" }}
               activeOptions={{ exact: link.exact }}
             >
               {link.label}
@@ -86,7 +86,7 @@ export function Header() {
 
       <div
         className={cn(
-          "border-t border-border/70 md:hidden",
+          "border-t border-border bg-card md:hidden",
           open ? "block" : "hidden",
         )}
       >
@@ -96,8 +96,8 @@ export function Header() {
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-accent" }}
+              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              activeProps={{ className: "bg-accent text-accent-foreground" }}
               activeOptions={{ exact: link.exact }}
             >
               {link.label}

@@ -25,7 +25,7 @@ const TAGLINE: Record<(typeof LOCALES)[number], string> = {
 
 function LanguageSelect() {
   return (
-    <section className="relative flex min-h-[calc(100vh-4rem)] items-center bg-gradient-to-b from-accent/40 to-background">
+    <section className="relative flex min-h-[calc(100vh-4rem)] items-center bg-secondary/50">
       <Container className="py-16 sm:py-24">
         <div className="mx-auto max-w-2xl text-center">
           <div className="flex justify-center">
@@ -43,7 +43,7 @@ function LanguageSelect() {
               <Link
                 key={loc}
                 to={`/${loc}`}
-                className="group cursor-pointer rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-accent/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="group cursor-pointer rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-accent/70 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 <div className="text-lg font-semibold text-foreground">
                   {LOCALE_LABELS[loc]}

@@ -10,7 +10,7 @@ const placeholderLinks = [
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-border/70 bg-secondary/40">
+    <footer className="mt-24 border-t border-border bg-secondary/70">
       <Container className="flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <Logo />

@@ -217,7 +217,7 @@ const L: Record<Locale, L10n> = {
 
 const STATUS_CLASS: Record<Status, string> = {
   verified: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  needs_check: "bg-amber-100 text-amber-800 border-amber-200",
+  needs_check: "bg-warning/15 text-warning-foreground border-warning/60",
   preparing: "bg-muted text-muted-foreground border-border",
 };
 
@@ -235,7 +235,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const fmtCAD = (v: number) => `CA$${v.toLocaleString("en-CA")}`;
 
   return (
-    <div className="bg-secondary/30">
+    <div className="bg-secondary/70">
       {/* Top filter bar */}
       <div className="border-b border-border bg-background">
         <Container className="flex flex-wrap items-center gap-2 py-3">
@@ -278,10 +278,10 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
                 return (
                   <li
                     key={l.id}
-                    className="group rounded-xl border border-border bg-background p-3 transition-colors hover:border-primary/40"
+                    className="group rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/40"
                   >
                     <div className="flex gap-3">
-                      <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-accent to-secondary">
+                      <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
                         <span
                           className={cn(
                             "absolute left-1 top-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
@@ -339,9 +339,9 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--accent)) 100%)",
+                  "var(--muted)",
                 backgroundImage:
-                  "repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 40px)",
+                  "repeating-linear-gradient(0deg, rgba(36,33,31,0.045) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, rgba(36,33,31,0.045) 0 1px, transparent 1px 40px)",
               }}
               aria-hidden
             />
@@ -370,7 +370,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
               <ul className="mt-2 space-y-2">
                 {MOCK_LISTINGS.slice(0, 2).map((l) => (
                   <li key={l.id} className="flex items-center gap-2">
-                    <div className="h-8 w-10 shrink-0 rounded bg-gradient-to-br from-accent to-secondary" />
+                    <div className="h-8 w-10 shrink-0 rounded border border-border bg-muted" />
                     <div className="min-w-0">
                       <p className="truncate text-[11px] font-medium text-foreground">
                         {l.title[locale]}

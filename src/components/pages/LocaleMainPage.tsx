@@ -11,7 +11,7 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-accent/40 to-background">
+      <section className="relative overflow-hidden border-b border-border bg-background">
         <Container className="grid items-center gap-10 py-16 sm:py-24 lg:grid-cols-2 lg:py-28">
           <div>
             <span className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -35,7 +35,7 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
 
           <div className="relative">
             <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-primary/15 via-accent to-secondary" />
+              <div className="aspect-[4/3] rounded-2xl border border-border bg-muted" />
               <p className="mt-4 text-sm text-muted-foreground">{t.mvpNotice}</p>
             </div>
           </div>
@@ -62,7 +62,7 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
       </Section>
 
       <Section
-        className="bg-secondary/30 py-14 sm:py-16"
+        className="bg-secondary/70 py-14 sm:py-16"
         eyebrow={t.aboutEyebrow}
         title={t.aboutTitle}
         description={t.aboutBody}
