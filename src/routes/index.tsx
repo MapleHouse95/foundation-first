@@ -1,66 +1,131 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, Globe2, MapPinned, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { Logo } from "@/components/layout/Logo";
 import { LOCALES, LOCALE_LABELS } from "@/lib/i18n";
+import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MapleHouse — Choose your language" },
+      { title: "MapleHouse · Choose your language" },
       {
         name: "description",
         content:
-          "MapleHouse — choose your language to continue. Korean, English, or French.",
+          "MapleHouse language gateway for Korean, English, and French users.",
       },
     ],
   }),
   component: LanguageSelect,
 });
 
-const TAGLINE: Record<(typeof LOCALES)[number], string> = {
-  ko: "차분하고 명확한 주거 연결",
-  en: "Calm, clearer housing connections",
-  fr: "Des échanges immobiliers plus clairs",
+const LANGUAGE_COPY: Record<
+  (typeof LOCALES)[number],
+  { eyebrow: string; body: string; enter: string }
+> = {
+  ko: {
+    eyebrow: "한국어",
+    body: "토론토 주거 탐색과 체크리스트를 한국어 기준으로 확인합니다.",
+    enter: "입장하기",
+  },
+  en: {
+    eyebrow: "English",
+    body: "Review housing search, checklists, and owner inquiry flows in English.",
+    enter: "Enter",
+  },
+  fr: {
+    eyebrow: "Français",
+    body: "Consultez la recherche, les listes de vérification et les demandes.",
+    enter: "Entrer",
+  },
 };
 
 function LanguageSelect() {
   return (
-    <section className="relative flex min-h-[calc(100vh-4rem)] items-center bg-secondary/50">
-      <Container className="py-16 sm:py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <div className="flex justify-center">
-            <Logo />
+    <section className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-background">
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+          opacity: 0.34,
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-16 h-64 w-[42rem] -translate-x-1/2 rounded-full bg-accent blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="absolute bottom-0 right-0 h-72 w-72 rounded-tl-[6rem] bg-secondary"
+      />
+
+      <Container className="relative py-14 sm:py-20">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
+            <Globe2 className="h-3.5 w-3.5 text-primary" />
+            MapleHouse language gateway
           </div>
-          <h1 className="mt-8 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Welcome · 환영합니다 · Bienvenue
+
+          <h1 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+            Find housing with clearer criteria · 더 명확한 기준으로 집을 찾으세요 ·
+            Trouvez un logement avec plus de clarté
           </h1>
-          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-            Choose your language to continue · 언어를 선택해 주세요 · Choisissez votre langue
+
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Choose a language first. MapleHouse will then guide you to housing search,
+            checklists, local context, and property owner inquiry flows.
           </p>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            {LOCALES.map((loc) => (
-              <Link
-                key={loc}
-                to={`/${loc}`}
-                className="group cursor-pointer rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-accent/70 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                <div className="text-lg font-semibold text-foreground">
-                  {LOCALE_LABELS[loc]}
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">{TAGLINE[loc]}</p>
-                <span className="mt-4 inline-block text-xs font-medium uppercase tracking-wider text-primary transition-transform group-hover:translate-x-0.5">
-                  Enter /{loc} →
-                </span>
-              </Link>
-            ))}
+          <div className="mx-auto mt-8 grid max-w-2xl gap-3 rounded-2xl border border-border bg-card/90 p-3 text-left shadow-sm backdrop-blur sm:grid-cols-3">
+            <EntrySignal icon={<MapPinned />} label="Toronto first" />
+            <EntrySignal icon={<ShieldCheck />} label="Trust signals" />
+            <EntrySignal icon={<Globe2 />} label="KO · EN · FR" />
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            {LOCALES.map((loc) => {
+              const copy = LANGUAGE_COPY[loc];
+
+              return (
+                <Link
+                  key={loc}
+                  to={`/${loc}`}
+                  className="mh-interactive-card mh-language-card group rounded-2xl border border-border bg-card p-6 text-left shadow-sm"
+                >
+                  <div className="mh-card-accent text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                    {copy.eyebrow}
+                  </div>
+                  <h2 className="mt-3 text-lg font-semibold text-inherit">
+                    {LOCALE_LABELS[loc]}
+                  </h2>
+                  <p className="mh-card-muted mt-2 min-h-12 text-sm leading-relaxed text-muted-foreground">
+                    {copy.body}
+                  </p>
+                  <span className="mh-card-accent mt-5 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                    {copy.enter}
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
 
           <p className="mt-10 text-xs text-muted-foreground">
-            Test mode · MVP preview — responsive web service, not a native app.
+            MVP preview · Real payments, contracts, and property registration are not active yet.
           </p>
         </div>
       </Container>
     </section>
+  );
+}
+
+function EntrySignal({ icon, label }: { icon: ReactNode; label: string }) {
+  return (
+    <div className="flex items-center justify-center gap-2 rounded-xl bg-secondary px-3 py-2 text-xs font-medium text-foreground">
+      <span className="text-primary [&_svg]:h-4 [&_svg]:w-4">{icon}</span>
+      {label}
+    </div>
   );
 }

@@ -7,7 +7,14 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   fr: "Français",
 };
 
-export type LocaleNavKey = "home" | "listings" | "apply" | "landlords" | "admin";
+export type LocaleNavKey =
+  | "home"
+  | "listings"
+  | "apply"
+  | "landlords"
+  | "contact"
+  | "about"
+  | "admin";
 
 export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
   ko: {
@@ -15,6 +22,8 @@ export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
     listings: "하우스·서비스",
     apply: "신청하기",
     landlords: "임대인 등록",
+    contact: "문의하기",
+    about: "메이플하우스란?",
     admin: "관리자",
   },
   en: {
@@ -22,6 +31,8 @@ export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
     listings: "Housing & Services",
     apply: "Apply",
     landlords: "Landlord Registration",
+    contact: "Contact",
+    about: "About Us",
     admin: "Admin",
   },
   fr: {
@@ -29,6 +40,8 @@ export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
     listings: "Logements & services",
     apply: "Faire une demande",
     landlords: "Proposer un logement",
+    contact: "Contact",
+    about: "À propos",
     admin: "Admin",
   },
 };

@@ -152,7 +152,56 @@
   }
 
   body {
+    font-family: "NanumSquare Neo", "NanumSquare", "NanumSquareRound", "Pretendard",
+      "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-feature-settings: "kern";
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "NanumSquare Neo", "NanumSquare", "Pretendard", "Noto Sans KR",
+      "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    font-weight: 800;
+    line-height: 1.22;
+  }
+}
+
+@layer components {
+  .mh-interactive-card {
+    transition-property: transform, box-shadow, border-color, background-color, color;
+    transition-duration: 180ms;
+    transition-timing-function: ease;
+  }
+
+  .mh-interactive-card:hover {
+    transform: translateY(-3px) scale(1.01);
+    border-color: var(--color-primary);
+    box-shadow: 0 18px 38px rgb(36 33 31 / 0.1);
+  }
+
+  .mh-interactive-card:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    box-shadow: 0 18px 38px rgb(36 33 31 / 0.1);
+  }
+
+  .mh-language-card:hover,
+  .mh-language-card:focus-visible {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+
+  .mh-language-card:hover .mh-card-muted,
+  .mh-language-card:hover .mh-card-accent,
+  .mh-language-card:focus-visible .mh-card-muted,
+  .mh-language-card:focus-visible .mh-card-accent {
+    color: var(--color-primary-foreground);
   }
 }

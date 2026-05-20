@@ -1,17 +1,24 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import {
+  BadgeCheck,
   Building2,
   CalendarDays,
   CheckCircle2,
   ClipboardCheck,
+  Clock3,
+  FileCheck2,
+  GraduationCap,
   Home,
   MapPinned,
   MessageSquareText,
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  Sofa,
+  TrainFront,
   Users,
+  Venus,
   WalletCards,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,9 +32,17 @@ type Action = {
   icon: ReactNode;
 };
 
+type PopularFilter = {
+  title: string;
+  tags: string[];
+  icon: ReactNode;
+};
+
 type HomeGatewayContent = {
   mvpNotice: string;
-  bannerEyebrow: string;
+  heroLabel: string;
+  heroTitleLines: string[];
+  heroDescription: string;
   bannerSlides: Array<{
     title: string;
     body: string;
@@ -50,24 +65,28 @@ type HomeGatewayContent = {
   conditions: string[];
   primaryCta: string;
   checklistCta: string;
+  popularTitle: string;
+  popularDescription: string;
+  popularFilters: PopularFilter[];
   quickTitle: string;
   quickDescription: string;
   quickActions: Action[];
   checklistTitle: string;
   checklistDescription: string;
   checklistItems: string[];
-  guideTitle: string;
-  guideItems: string[];
 };
 
 const CONTENT: Record<Locale, HomeGatewayContent> = {
   ko: {
     mvpNotice: "MVP 미리보기 · 실제 결제/계약/매물 등록은 아직 활성화되지 않았습니다.",
-    bannerEyebrow: "Toronto housing gateway",
+    heroLabel: "토론토 주거 탐색 게이트웨이",
+    heroTitleLines: ["토론토 집 찾기,", "기준부터 정리하세요"],
+    heroDescription:
+      "지역, 예산, 계약 조건, 생활 체크리스트를 함께 보고 더 안전한 주거 결정을 준비하세요.",
     bannerSlides: [
       {
-        title: "토론토 첫 집 찾기, 무엇부터 확인해야 할까요?",
-        body: "지역, 예산, 체류 목적을 먼저 정리하면 매물 비교가 훨씬 쉬워집니다.",
+        title: "토론토 첫 집, 무엇부터 확인해야 할까요?",
+        body: "처음부터 매물만 보면 놓치는 기준이 생깁니다. 생활권, 예산, 계약 조건을 먼저 정리하세요.",
       },
       {
         title: "지역·예산·계약 조건을 한 번에 비교하세요",
@@ -79,13 +98,14 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
       },
     ],
     searchTitle: "내 조건으로 토론토 주거 탐색 시작",
-    searchDescription: "아직 실제 검색은 연결 전입니다. 지금은 조건 입력 흐름을 확인하는 MVP 화면입니다.",
+    searchDescription:
+      "아직 실제 검색은 연결 전입니다. 지금은 조건 입력 흐름을 확인하는 MVP 화면입니다.",
     cityLabel: "도시",
     cityValue: "토론토",
     purposeLabel: "체류 목적",
-    purposeOptions: ["워킹홀리데이", "유학생", "단기거주", "기타"],
-    budgetLabel: "예산",
-    budgetPlaceholder: "월세 예산",
+    purposeOptions: ["워킹홀리데이", "유학생", "단기거주", "직장인", "기타"],
+    budgetLabel: "월세 예산",
+    budgetPlaceholder: "예: 1,500,000원",
     moveInLabel: "입주 시기",
     moveInPlaceholder: "예: 7월 초",
     peopleLabel: "인원",
@@ -93,11 +113,23 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     housingTypeLabel: "주거 형태",
     housingTypes: ["룸렌트", "스튜디오", "콘도", "쉐어하우스"],
     conditionsLabel: "중요 조건",
-    conditions: ["교통", "치안", "학교 근처", "직장 근처", "반려동물", "가구 포함"],
+    conditions: ["교통", "치안", "학교 근처", "직장 근처", "가구 포함", "반려동물"],
     primaryCta: "조건에 맞는 매물 보기",
     checklistCta: "체크리스트 먼저 보기",
+    popularTitle: "인기 필터",
+    popularDescription: "초심자가 자주 찾는 기준을 먼저 모아두었습니다.",
+    popularFilters: [
+      { title: "학교 근처", tags: ["통학", "어학원", "유학생"], icon: <GraduationCap /> },
+      { title: "교통 좋은", tags: ["TTC", "역세권", "출퇴근"], icon: <TrainFront /> },
+      { title: "여성 전용 공간", tags: ["안전", "룸렌트", "공용공간"], icon: <Venus /> },
+      { title: "가구 포함", tags: ["침대", "책상", "즉시 생활"], icon: <Sofa /> },
+      { title: "즉시 입주 가능", tags: ["빠른 입주", "단기", "공실"], icon: <Clock3 /> },
+      { title: "단기 가능", tags: ["서브렛", "1-3개월", "유연"], icon: <CalendarDays /> },
+      { title: "검증 완료", tags: ["확인일", "상태", "신뢰"], icon: <BadgeCheck /> },
+      { title: "계약 전 확인 필요", tags: ["질문", "조건", "리스크"], icon: <FileCheck2 /> },
+    ],
     quickTitle: "빠른 이동",
-    quickDescription: "매물 탐색부터 임대인 문의까지, 필요한 흐름으로 바로 이동하세요.",
+    quickDescription: "매물 탐색부터 임대인 문의까지 필요한 흐름으로 바로 이동하세요.",
     quickActions: [
       { label: "매물 보기", description: "지도와 리스트로 보기", to: "/ko/listings", icon: <Home /> },
       { label: "지역 가이드", description: "생활권 비교 준비 중", icon: <MapPinned /> },
@@ -106,14 +138,15 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
       { label: "임대인 등록/문의", description: "매물 제공자 흐름", to: "/ko/landlords", icon: <Building2 /> },
     ],
     checklistTitle: "처음 집을 보기 전 확인할 것",
-    checklistDescription: "메이플하우스는 단순 매물 검색보다 판단 기준을 먼저 정리합니다.",
+    checklistDescription: "단순 매물 검색보다 판단 기준을 먼저 정리합니다.",
     checklistItems: ["예산에 포함된 비용", "대중교통과 생활권", "계약 기간과 보증금", "마지막 확인일과 검증 상태"],
-    guideTitle: "추천 기준",
-    guideItems: ["워홀: 구직 동선", "유학: 학교 접근성", "단기거주: 입주 가능일", "초심자: 계약 리스크"],
   },
   en: {
     mvpNotice: "MVP preview · Real payments, contracts, and property registration are not active yet.",
-    bannerEyebrow: "Toronto housing gateway",
+    heroLabel: "Toronto housing gateway",
+    heroTitleLines: ["Find housing with", "clearer criteria"],
+    heroDescription:
+      "Compare location, budget, contract conditions, and checklists before making a housing decision abroad.",
     bannerSlides: [
       {
         title: "Finding your first place in Toronto starts with better questions.",
@@ -133,7 +166,7 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     cityLabel: "City",
     cityValue: "Toronto",
     purposeLabel: "Stay purpose",
-    purposeOptions: ["Working holiday", "Student", "Short-term stay", "Other"],
+    purposeOptions: ["Working holiday", "Student", "Short-term stay", "Worker", "Other"],
     budgetLabel: "Budget",
     budgetPlaceholder: "Monthly rent budget",
     moveInLabel: "Move-in timing",
@@ -143,9 +176,21 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     housingTypeLabel: "Housing type",
     housingTypes: ["Room rental", "Studio", "Condo", "Share house"],
     conditionsLabel: "Important conditions",
-    conditions: ["Transit", "Safety", "Near school", "Near work", "Pet friendly", "Furnished"],
+    conditions: ["Transit", "Safety", "Near school", "Near work", "Furnished", "Pet friendly"],
     primaryCta: "View matching listings",
     checklistCta: "View checklist first",
+    popularTitle: "Popular filters",
+    popularDescription: "Common starting points for first-time overseas housing decisions.",
+    popularFilters: [
+      { title: "Near school", tags: ["Commute", "Student", "Language school"], icon: <GraduationCap /> },
+      { title: "Good transit", tags: ["TTC", "Station", "Daily route"], icon: <TrainFront /> },
+      { title: "Women-only option", tags: ["Safety", "Room", "Shared space"], icon: <Venus /> },
+      { title: "Furnished", tags: ["Bed", "Desk", "Ready"], icon: <Sofa /> },
+      { title: "Move-in ready", tags: ["Available", "Fast", "Vacant"], icon: <Clock3 /> },
+      { title: "Short-term friendly", tags: ["Sublet", "1-3 months", "Flexible"], icon: <CalendarDays /> },
+      { title: "Verified", tags: ["Checked", "Status", "Trust"], icon: <BadgeCheck /> },
+      { title: "Contract checklist", tags: ["Questions", "Terms", "Risk"], icon: <FileCheck2 /> },
+    ],
     quickTitle: "Quick actions",
     quickDescription: "Move from discovery to inquiry without losing the bigger decision context.",
     quickActions: [
@@ -158,12 +203,13 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     checklistTitle: "What to check before choosing a place",
     checklistDescription: "MapleHouse focuses on decision criteria, not just listing volume.",
     checklistItems: ["Costs included in rent", "Transit and neighborhood fit", "Lease period and deposit", "Last checked and verification status"],
-    guideTitle: "Matching cues",
-    guideItems: ["Working holiday: job access", "Student: school commute", "Short stay: move-in timing", "Newcomer: contract risk"],
   },
   fr: {
     mvpNotice: "Aperçu MVP · Les paiements, contrats et enregistrements réels ne sont pas encore actifs.",
-    bannerEyebrow: "Portail logement à Toronto",
+    heroLabel: "Portail logement à Toronto",
+    heroTitleLines: ["Trouver un logement avec", "des critères plus clairs"],
+    heroDescription:
+      "Comparez le quartier, le budget, les conditions et les listes de vérification avant de choisir un logement.",
     bannerSlides: [
       {
         title: "Trouver un premier logement à Toronto commence par les bonnes questions.",
@@ -183,7 +229,7 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     cityLabel: "Ville",
     cityValue: "Toronto",
     purposeLabel: "Objectif du séjour",
-    purposeOptions: ["PVT", "Études", "Court séjour", "Autre"],
+    purposeOptions: ["PVT", "Études", "Court séjour", "Travail", "Autre"],
     budgetLabel: "Budget",
     budgetPlaceholder: "Budget mensuel",
     moveInLabel: "Date d'arrivée",
@@ -193,9 +239,21 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     housingTypeLabel: "Type de logement",
     housingTypes: ["Chambre", "Studio", "Condo", "Colocation"],
     conditionsLabel: "Conditions importantes",
-    conditions: ["Transport", "Sécurité", "Près de l'école", "Près du travail", "Animaux", "Meublé"],
+    conditions: ["Transport", "Sécurité", "Près de l'école", "Près du travail", "Meublé", "Animaux"],
     primaryCta: "Voir les logements adaptés",
-    checklistCta: "Voir la checklist",
+    checklistCta: "Voir la liste de vérification",
+    popularTitle: "Filtres populaires",
+    popularDescription: "Des critères simples pour commencer une recherche plus claire.",
+    popularFilters: [
+      { title: "Près de l’école", tags: ["Trajet", "Étudiant", "École"], icon: <GraduationCap /> },
+      { title: "Bon transport", tags: ["TTC", "Station", "Quotidien"], icon: <TrainFront /> },
+      { title: "Option femmes", tags: ["Sécurité", "Chambre", "Partagé"], icon: <Venus /> },
+      { title: "Meublé", tags: ["Lit", "Bureau", "Prêt"], icon: <Sofa /> },
+      { title: "Prêt à emménager", tags: ["Disponible", "Rapide", "Libre"], icon: <Clock3 /> },
+      { title: "Court séjour", tags: ["Sous-location", "1-3 mois", "Flexible"], icon: <CalendarDays /> },
+      { title: "Vérifié", tags: ["Contrôlé", "Statut", "Confiance"], icon: <BadgeCheck /> },
+      { title: "Liste avant contrat", tags: ["Questions", "Conditions", "Risque"], icon: <FileCheck2 /> },
+    ],
     quickTitle: "Accès rapides",
     quickDescription: "Passez de la recherche à la demande sans perdre les critères de décision.",
     quickActions: [
@@ -208,8 +266,6 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
     checklistTitle: "À vérifier avant de choisir un logement",
     checklistDescription: "MapleHouse met l'accent sur les critères de décision, pas seulement les annonces.",
     checklistItems: ["Coûts inclus dans le loyer", "Transport et quartier", "Durée du bail et dépôt", "Dernière vérification et statut"],
-    guideTitle: "Critères de recommandation",
-    guideItems: ["PVT: accès au travail", "Études: trajet vers l'école", "Court séjour: date d'arrivée", "Nouveau résident: risque contractuel"],
   },
 };
 
@@ -229,39 +285,64 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <section className="border-b border-border bg-secondary/70">
-        <Container className="py-6 lg:py-8">
-          <div className="mb-4 inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-            {t.mvpNotice}
-          </div>
+      <section className="border-b border-border bg-background">
+        <div className="relative overflow-hidden bg-secondary/70">
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)",
+              backgroundSize: "46px 46px",
+              opacity: 0.34,
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute left-1/2 top-8 h-72 w-[54rem] -translate-x-1/2 rounded-full bg-accent blur-3xl"
+          />
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_440px]">
-            <div className="relative min-h-[320px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,var(--color-background),var(--color-muted))]" />
-              <div className="absolute right-0 top-0 h-48 w-48 rounded-bl-[6rem] bg-accent" />
-              <div className="absolute bottom-0 left-0 h-28 w-72 rounded-tr-[5rem] bg-muted" />
+          <Container className="relative py-8 sm:py-12 lg:py-14">
+            <div className="mx-auto max-w-4xl text-center">
+              <div className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
+                {t.mvpNotice}
+              </div>
 
-              <div className="relative flex h-full min-h-[320px] flex-col justify-between p-6 sm:p-8">
-                <div>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/80 px-3 py-1 text-xs font-semibold text-primary">
-                    <MapPinned className="h-3.5 w-3.5" />
-                    {t.bannerEyebrow}
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/90 px-3 py-1 text-xs font-semibold text-primary">
+                <MapPinned className="h-3.5 w-3.5" />
+                {t.heroLabel}
+              </div>
+
+              <h1 className="mt-5 text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
+                {t.heroTitleLines.map((line) => (
+                  <span key={line} className="block">
+                    {line}
                   </span>
-                  <h1 className="mt-5 max-w-2xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl lg:text-4xl">
-                    {currentSlide.title}
-                  </h1>
-                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                    {currentSlide.body}
-                  </p>
-                </div>
+                ))}
+              </h1>
 
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  <Signal icon={<ShieldCheck />} label={t.guideItems[3]} />
-                  <Signal icon={<WalletCards />} label={t.guideItems[0]} />
-                  <Signal icon={<CheckCircle2 />} label={t.guideItems[1]} />
-                </div>
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                {t.heroDescription}
+              </p>
 
-                <div className="mt-6 flex gap-2" aria-label="banner slide indicators">
+              <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-border bg-card/95 p-4 text-left shadow-sm backdrop-blur">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
+                    <ShieldCheck className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                      MapleHouse guide
+                    </p>
+                    <h2 className="mt-1 text-base font-semibold text-foreground sm:text-lg">
+                      {currentSlide.title}
+                    </h2>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {currentSlide.body}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-center gap-2" aria-label="banner slide indicators">
                   {t.bannerSlides.map((slide, index) => (
                     <button
                       key={slide.title}
@@ -277,103 +358,26 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase text-primary">
-                    MapleHouse search
-                  </p>
-                  <h2 className="mt-1 text-xl font-semibold text-foreground">
-                    {t.searchTitle}
-                  </h2>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {t.searchDescription}
-                  </p>
-                </div>
-                <Search className="mt-1 h-5 w-5 text-primary" />
-              </div>
+            <SearchModule locale={locale} content={t} />
+          </Container>
+        </div>
+      </section>
 
-              <div className="grid gap-3">
-                <GatewayField icon={<MapPinned />} label={t.cityLabel}>
-                  <StaticValue>{t.cityValue}</StaticValue>
-                </GatewayField>
-                <GatewayField icon={<SlidersHorizontal />} label={t.purposeLabel}>
-                  <select className="w-full bg-transparent text-sm font-medium text-foreground outline-none">
-                    {t.purposeOptions.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
-                </GatewayField>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <GatewayField icon={<WalletCards />} label={t.budgetLabel}>
-                    <input
-                      className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
-                      placeholder={t.budgetPlaceholder}
-                    />
-                  </GatewayField>
-                  <GatewayField icon={<CalendarDays />} label={t.moveInLabel}>
-                    <input
-                      className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
-                      placeholder={t.moveInPlaceholder}
-                    />
-                  </GatewayField>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <GatewayField icon={<Users />} label={t.peopleLabel}>
-                    <StaticValue>{t.peopleValue}</StaticValue>
-                  </GatewayField>
-                  <GatewayField icon={<Home />} label={t.housingTypeLabel}>
-                    <select className="w-full bg-transparent text-sm font-medium text-foreground outline-none">
-                      {t.housingTypes.map((type) => (
-                        <option key={type}>{type}</option>
-                      ))}
-                    </select>
-                  </GatewayField>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <p className="mb-2 text-xs font-medium text-muted-foreground">
-                  {t.conditionsLabel}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {t.conditions.map((condition, index) => (
-                    <span
-                      key={condition}
-                      className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                        index < 3
-                          ? "border-primary/30 bg-accent text-foreground"
-                          : "border-border bg-background text-muted-foreground"
-                      }`}
-                    >
-                      {condition}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
-                <Button asChild size="lg">
-                  <Link to={`/${locale}/listings`}>{t.primaryCta}</Link>
-                </Button>
-                <Button asChild variant="soft" size="lg">
-                  <a href="#checklist-preview">{t.checklistCta}</a>
-                </Button>
-              </div>
-            </div>
+      <section className="bg-background py-10">
+        <Container>
+          <SectionHeading title={t.popularTitle} description={t.popularDescription} />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {t.popularFilters.map((filter) => (
+              <PopularFilterCard key={filter.title} filter={filter} />
+            ))}
           </div>
         </Container>
       </section>
 
-      <section className="bg-background py-8">
+      <section className="bg-secondary/70 py-10">
         <Container>
-          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">{t.quickTitle}</h2>
-              <p className="text-sm text-muted-foreground">{t.quickDescription}</p>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <SectionHeading title={t.quickTitle} description={t.quickDescription} />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {t.quickActions.map((action) => (
               <QuickAction key={action.label} action={action} />
             ))}
@@ -381,8 +385,8 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
         </Container>
       </section>
 
-      <section id="checklist-preview" className="bg-secondary/70 py-10">
-        <Container className="grid gap-4 lg:grid-cols-[1fr_360px]">
+      <section id="checklist-preview" className="bg-background py-10">
+        <Container>
           <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-5 flex items-start gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
@@ -393,33 +397,109 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
                 <p className="mt-1 text-sm text-muted-foreground">{t.checklistDescription}</p>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {t.checklistItems.map((item) => (
                 <div
                   key={item}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground"
+                  className="rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground"
                 >
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                  <CheckCircle2 className="mb-2 h-4 w-4 text-primary" />
                   {item}
                 </div>
               ))}
             </div>
           </div>
-
-          <aside className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <h3 className="text-base font-semibold text-foreground">{t.guideTitle}</h3>
-            <ul className="mt-4 space-y-3">
-              {t.guideItems.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </aside>
         </Container>
       </section>
     </>
+  );
+}
+
+function SearchModule({
+  locale,
+  content,
+}: {
+  locale: Locale;
+  content: HomeGatewayContent;
+}) {
+  return (
+    <div className="relative z-10 mx-auto mt-8 max-w-5xl rounded-3xl border border-border bg-card p-4 shadow-md sm:p-5">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+            MapleHouse search
+          </p>
+          <h2 className="mt-1 text-xl font-semibold text-foreground">{content.searchTitle}</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            {content.searchDescription}
+          </p>
+        </div>
+        <Search className="mt-1 h-5 w-5 text-primary" />
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-6">
+        <GatewayField icon={<MapPinned />} label={content.cityLabel} className="lg:col-span-1">
+          <StaticValue>{content.cityValue}</StaticValue>
+        </GatewayField>
+        <GatewayField icon={<SlidersHorizontal />} label={content.purposeLabel} className="lg:col-span-2">
+          <select className="w-full bg-transparent text-sm font-medium text-foreground outline-none">
+            {content.purposeOptions.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+          </select>
+        </GatewayField>
+        <GatewayField icon={<WalletCards />} label={content.budgetLabel} className="lg:col-span-1">
+          <input
+            className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+            placeholder={content.budgetPlaceholder}
+          />
+        </GatewayField>
+        <GatewayField icon={<CalendarDays />} label={content.moveInLabel} className="lg:col-span-1">
+          <input
+            className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+            placeholder={content.moveInPlaceholder}
+          />
+        </GatewayField>
+        <GatewayField icon={<Users />} label={content.peopleLabel} className="lg:col-span-1">
+          <StaticValue>{content.peopleValue}</StaticValue>
+        </GatewayField>
+        <GatewayField icon={<Home />} label={content.housingTypeLabel} className="lg:col-span-2">
+          <select className="w-full bg-transparent text-sm font-medium text-foreground outline-none">
+            {content.housingTypes.map((type) => (
+              <option key={type}>{type}</option>
+            ))}
+          </select>
+        </GatewayField>
+        <div className="rounded-xl border border-border bg-background px-3 py-2 md:col-span-2 lg:col-span-4">
+          <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+            {content.conditionsLabel}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {content.conditions.map((condition, index) => (
+              <span
+                key={condition}
+                className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                  index < 3
+                    ? "border-primary/30 bg-accent text-foreground"
+                    : "border-border bg-card text-muted-foreground"
+                }`}
+              >
+                {condition}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+        <Button asChild size="lg">
+          <Link to={`/${locale}/listings`}>{content.primaryCta}</Link>
+        </Button>
+        <Button asChild variant="soft" size="lg">
+          <a href="#checklist-preview">{content.checklistCta}</a>
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -427,14 +507,16 @@ function GatewayField({
   icon,
   label,
   children,
+  className = "",
 }: {
   icon: ReactNode;
   label: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <label className="flex min-h-16 items-center gap-3 rounded-xl border border-border bg-background px-3 py-2">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
+    <label className={`flex min-h-16 items-center gap-3 rounded-xl border border-border bg-background px-3 py-2 ${className}`}>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
         {icon}
       </span>
       <span className="min-w-0 flex-1">
@@ -449,12 +531,37 @@ function StaticValue({ children }: { children: ReactNode }) {
   return <span className="text-sm font-medium text-foreground">{children}</span>;
 }
 
-function Signal({ icon, label }: { icon: ReactNode; label: string }) {
+function SectionHeading({ title, description }: { title: string; description: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-border bg-background/80 px-3 py-2 text-xs font-medium text-foreground">
-      <span className="text-primary [&_svg]:h-4 [&_svg]:w-4">{icon}</span>
-      <span className="truncate">{label}</span>
+    <div>
+      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
     </div>
+  );
+}
+
+function PopularFilterCard({ filter }: { filter: PopularFilter }) {
+  return (
+    <button
+      type="button"
+      className="mh-interactive-card rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
+      aria-disabled="true"
+    >
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary [&_svg]:h-5 [&_svg]:w-5">
+        {filter.icon}
+      </span>
+      <span className="mt-4 block text-sm font-semibold text-foreground">{filter.title}</span>
+      <span className="mt-3 flex flex-wrap gap-1.5">
+        {filter.tags.map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+          >
+            {tag}
+          </span>
+        ))}
+      </span>
+    </button>
   );
 }
 
@@ -475,7 +582,7 @@ function QuickAction({ action }: { action: Action }) {
     return (
       <Link
         to={action.to}
-        className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary/45 hover:bg-accent/40"
+        className="mh-interactive-card rounded-2xl border border-border bg-card p-4 shadow-sm"
       >
         {content}
       </Link>
@@ -485,7 +592,7 @@ function QuickAction({ action }: { action: Action }) {
   return (
     <button
       type="button"
-      className="rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition-colors hover:border-primary/45 hover:bg-accent/40"
+      className="mh-interactive-card rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
       aria-disabled="true"
     >
       {content}

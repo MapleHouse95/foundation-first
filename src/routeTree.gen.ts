@@ -19,13 +19,19 @@ import { Route as FrIndexRouteImport } from './routes/fr.index'
 import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as KoListingsRouteImport } from './routes/ko.listings'
 import { Route as KoLandlordsRouteImport } from './routes/ko.landlords'
+import { Route as KoContactRouteImport } from './routes/ko.contact'
 import { Route as KoApplyRouteImport } from './routes/ko.apply'
+import { Route as KoAboutRouteImport } from './routes/ko.about'
 import { Route as FrListingsRouteImport } from './routes/fr.listings'
 import { Route as FrLandlordsRouteImport } from './routes/fr.landlords'
+import { Route as FrContactRouteImport } from './routes/fr.contact'
 import { Route as FrApplyRouteImport } from './routes/fr.apply'
+import { Route as FrAboutRouteImport } from './routes/fr.about'
 import { Route as EnListingsRouteImport } from './routes/en.listings'
 import { Route as EnLandlordsRouteImport } from './routes/en.landlords'
+import { Route as EnContactRouteImport } from './routes/en.contact'
 import { Route as EnApplyRouteImport } from './routes/en.apply'
+import { Route as EnAboutRouteImport } from './routes/en.about'
 
 const KoRoute = KoRouteImport.update({
   id: '/ko',
@@ -77,9 +83,19 @@ const KoLandlordsRoute = KoLandlordsRouteImport.update({
   path: '/landlords',
   getParentRoute: () => KoRoute,
 } as any)
+const KoContactRoute = KoContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => KoRoute,
+} as any)
 const KoApplyRoute = KoApplyRouteImport.update({
   id: '/apply',
   path: '/apply',
+  getParentRoute: () => KoRoute,
+} as any)
+const KoAboutRoute = KoAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => KoRoute,
 } as any)
 const FrListingsRoute = FrListingsRouteImport.update({
@@ -92,9 +108,19 @@ const FrLandlordsRoute = FrLandlordsRouteImport.update({
   path: '/landlords',
   getParentRoute: () => FrRoute,
 } as any)
+const FrContactRoute = FrContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => FrRoute,
+} as any)
 const FrApplyRoute = FrApplyRouteImport.update({
   id: '/apply',
   path: '/apply',
+  getParentRoute: () => FrRoute,
+} as any)
+const FrAboutRoute = FrAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => FrRoute,
 } as any)
 const EnListingsRoute = EnListingsRouteImport.update({
@@ -107,9 +133,19 @@ const EnLandlordsRoute = EnLandlordsRouteImport.update({
   path: '/landlords',
   getParentRoute: () => EnRoute,
 } as any)
+const EnContactRoute = EnContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => EnRoute,
+} as any)
 const EnApplyRoute = EnApplyRouteImport.update({
   id: '/apply',
   path: '/apply',
+  getParentRoute: () => EnRoute,
+} as any)
+const EnAboutRoute = EnAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => EnRoute,
 } as any)
 
@@ -119,13 +155,19 @@ export interface FileRoutesByFullPath {
   '/en': typeof EnRouteWithChildren
   '/fr': typeof FrRouteWithChildren
   '/ko': typeof KoRouteWithChildren
+  '/en/about': typeof EnAboutRoute
   '/en/apply': typeof EnApplyRoute
+  '/en/contact': typeof EnContactRoute
   '/en/landlords': typeof EnLandlordsRoute
   '/en/listings': typeof EnListingsRoute
+  '/fr/about': typeof FrAboutRoute
   '/fr/apply': typeof FrApplyRoute
+  '/fr/contact': typeof FrContactRoute
   '/fr/landlords': typeof FrLandlordsRoute
   '/fr/listings': typeof FrListingsRoute
+  '/ko/about': typeof KoAboutRoute
   '/ko/apply': typeof KoApplyRoute
+  '/ko/contact': typeof KoContactRoute
   '/ko/landlords': typeof KoLandlordsRoute
   '/ko/listings': typeof KoListingsRoute
   '/en/': typeof EnIndexRoute
@@ -135,13 +177,19 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/en/about': typeof EnAboutRoute
   '/en/apply': typeof EnApplyRoute
+  '/en/contact': typeof EnContactRoute
   '/en/landlords': typeof EnLandlordsRoute
   '/en/listings': typeof EnListingsRoute
+  '/fr/about': typeof FrAboutRoute
   '/fr/apply': typeof FrApplyRoute
+  '/fr/contact': typeof FrContactRoute
   '/fr/landlords': typeof FrLandlordsRoute
   '/fr/listings': typeof FrListingsRoute
+  '/ko/about': typeof KoAboutRoute
   '/ko/apply': typeof KoApplyRoute
+  '/ko/contact': typeof KoContactRoute
   '/ko/landlords': typeof KoLandlordsRoute
   '/ko/listings': typeof KoListingsRoute
   '/en': typeof EnIndexRoute
@@ -155,13 +203,19 @@ export interface FileRoutesById {
   '/en': typeof EnRouteWithChildren
   '/fr': typeof FrRouteWithChildren
   '/ko': typeof KoRouteWithChildren
+  '/en/about': typeof EnAboutRoute
   '/en/apply': typeof EnApplyRoute
+  '/en/contact': typeof EnContactRoute
   '/en/landlords': typeof EnLandlordsRoute
   '/en/listings': typeof EnListingsRoute
+  '/fr/about': typeof FrAboutRoute
   '/fr/apply': typeof FrApplyRoute
+  '/fr/contact': typeof FrContactRoute
   '/fr/landlords': typeof FrLandlordsRoute
   '/fr/listings': typeof FrListingsRoute
+  '/ko/about': typeof KoAboutRoute
   '/ko/apply': typeof KoApplyRoute
+  '/ko/contact': typeof KoContactRoute
   '/ko/landlords': typeof KoLandlordsRoute
   '/ko/listings': typeof KoListingsRoute
   '/en/': typeof EnIndexRoute
@@ -176,13 +230,19 @@ export interface FileRouteTypes {
     | '/en'
     | '/fr'
     | '/ko'
+    | '/en/about'
     | '/en/apply'
+    | '/en/contact'
     | '/en/landlords'
     | '/en/listings'
+    | '/fr/about'
     | '/fr/apply'
+    | '/fr/contact'
     | '/fr/landlords'
     | '/fr/listings'
+    | '/ko/about'
     | '/ko/apply'
+    | '/ko/contact'
     | '/ko/landlords'
     | '/ko/listings'
     | '/en/'
@@ -192,13 +252,19 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/en/about'
     | '/en/apply'
+    | '/en/contact'
     | '/en/landlords'
     | '/en/listings'
+    | '/fr/about'
     | '/fr/apply'
+    | '/fr/contact'
     | '/fr/landlords'
     | '/fr/listings'
+    | '/ko/about'
     | '/ko/apply'
+    | '/ko/contact'
     | '/ko/landlords'
     | '/ko/listings'
     | '/en'
@@ -211,13 +277,19 @@ export interface FileRouteTypes {
     | '/en'
     | '/fr'
     | '/ko'
+    | '/en/about'
     | '/en/apply'
+    | '/en/contact'
     | '/en/landlords'
     | '/en/listings'
+    | '/fr/about'
     | '/fr/apply'
+    | '/fr/contact'
     | '/fr/landlords'
     | '/fr/listings'
+    | '/ko/about'
     | '/ko/apply'
+    | '/ko/contact'
     | '/ko/landlords'
     | '/ko/listings'
     | '/en/'
@@ -305,11 +377,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KoLandlordsRouteImport
       parentRoute: typeof KoRoute
     }
+    '/ko/contact': {
+      id: '/ko/contact'
+      path: '/contact'
+      fullPath: '/ko/contact'
+      preLoaderRoute: typeof KoContactRouteImport
+      parentRoute: typeof KoRoute
+    }
     '/ko/apply': {
       id: '/ko/apply'
       path: '/apply'
       fullPath: '/ko/apply'
       preLoaderRoute: typeof KoApplyRouteImport
+      parentRoute: typeof KoRoute
+    }
+    '/ko/about': {
+      id: '/ko/about'
+      path: '/about'
+      fullPath: '/ko/about'
+      preLoaderRoute: typeof KoAboutRouteImport
       parentRoute: typeof KoRoute
     }
     '/fr/listings': {
@@ -326,11 +412,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrLandlordsRouteImport
       parentRoute: typeof FrRoute
     }
+    '/fr/contact': {
+      id: '/fr/contact'
+      path: '/contact'
+      fullPath: '/fr/contact'
+      preLoaderRoute: typeof FrContactRouteImport
+      parentRoute: typeof FrRoute
+    }
     '/fr/apply': {
       id: '/fr/apply'
       path: '/apply'
       fullPath: '/fr/apply'
       preLoaderRoute: typeof FrApplyRouteImport
+      parentRoute: typeof FrRoute
+    }
+    '/fr/about': {
+      id: '/fr/about'
+      path: '/about'
+      fullPath: '/fr/about'
+      preLoaderRoute: typeof FrAboutRouteImport
       parentRoute: typeof FrRoute
     }
     '/en/listings': {
@@ -347,6 +447,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnLandlordsRouteImport
       parentRoute: typeof EnRoute
     }
+    '/en/contact': {
+      id: '/en/contact'
+      path: '/contact'
+      fullPath: '/en/contact'
+      preLoaderRoute: typeof EnContactRouteImport
+      parentRoute: typeof EnRoute
+    }
     '/en/apply': {
       id: '/en/apply'
       path: '/apply'
@@ -354,18 +461,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnApplyRouteImport
       parentRoute: typeof EnRoute
     }
+    '/en/about': {
+      id: '/en/about'
+      path: '/about'
+      fullPath: '/en/about'
+      preLoaderRoute: typeof EnAboutRouteImport
+      parentRoute: typeof EnRoute
+    }
   }
 }
 
 interface EnRouteChildren {
+  EnAboutRoute: typeof EnAboutRoute
   EnApplyRoute: typeof EnApplyRoute
+  EnContactRoute: typeof EnContactRoute
   EnLandlordsRoute: typeof EnLandlordsRoute
   EnListingsRoute: typeof EnListingsRoute
   EnIndexRoute: typeof EnIndexRoute
 }
 
 const EnRouteChildren: EnRouteChildren = {
+  EnAboutRoute: EnAboutRoute,
   EnApplyRoute: EnApplyRoute,
+  EnContactRoute: EnContactRoute,
   EnLandlordsRoute: EnLandlordsRoute,
   EnListingsRoute: EnListingsRoute,
   EnIndexRoute: EnIndexRoute,
@@ -374,14 +492,18 @@ const EnRouteChildren: EnRouteChildren = {
 const EnRouteWithChildren = EnRoute._addFileChildren(EnRouteChildren)
 
 interface FrRouteChildren {
+  FrAboutRoute: typeof FrAboutRoute
   FrApplyRoute: typeof FrApplyRoute
+  FrContactRoute: typeof FrContactRoute
   FrLandlordsRoute: typeof FrLandlordsRoute
   FrListingsRoute: typeof FrListingsRoute
   FrIndexRoute: typeof FrIndexRoute
 }
 
 const FrRouteChildren: FrRouteChildren = {
+  FrAboutRoute: FrAboutRoute,
   FrApplyRoute: FrApplyRoute,
+  FrContactRoute: FrContactRoute,
   FrLandlordsRoute: FrLandlordsRoute,
   FrListingsRoute: FrListingsRoute,
   FrIndexRoute: FrIndexRoute,
@@ -390,14 +512,18 @@ const FrRouteChildren: FrRouteChildren = {
 const FrRouteWithChildren = FrRoute._addFileChildren(FrRouteChildren)
 
 interface KoRouteChildren {
+  KoAboutRoute: typeof KoAboutRoute
   KoApplyRoute: typeof KoApplyRoute
+  KoContactRoute: typeof KoContactRoute
   KoLandlordsRoute: typeof KoLandlordsRoute
   KoListingsRoute: typeof KoListingsRoute
   KoIndexRoute: typeof KoIndexRoute
 }
 
 const KoRouteChildren: KoRouteChildren = {
+  KoAboutRoute: KoAboutRoute,
   KoApplyRoute: KoApplyRoute,
+  KoContactRoute: KoContactRoute,
   KoLandlordsRoute: KoLandlordsRoute,
   KoListingsRoute: KoListingsRoute,
   KoIndexRoute: KoIndexRoute,

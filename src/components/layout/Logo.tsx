@@ -2,16 +2,26 @@ import { Link } from "@tanstack/react-router";
 
 export function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2 text-foreground">
+    <Link to="/" className="flex shrink-0 items-center gap-2.5 text-foreground">
       <span
         aria-hidden
         className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm"
       >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
-          <path d="M12 2.4l1.45 3.3 3.3-1.1-.8 3.25 3.2.9-2.75 1.85 1.45 3.05-3.25-.45-.9 3.2h-2.4l-.9-3.2-3.25.45 1.45-3.05-2.75-1.85 3.2-.9-.8-3.25 3.3 1.1L12 2.4zm-1 14.9h2V22h-2z" />
+        <svg viewBox="0 0 28 28" className="h-5 w-5" fill="none" aria-hidden>
+          <path
+            d="M14 4.2 16 8l4.2-1.2-1.1 4 3.7 1.2-3.2 2.4 1.5 3.9-4.1-.6-1.4 4h-3.2l-1.4-4-4.1.6 1.5-3.9-3.2-2.4 3.7-1.2-1.1-4L12 8l2-3.8Z"
+            fill="currentColor"
+          />
+          <path
+            d="M9.2 14.3 14 10.8l4.8 3.5v6.9h-3.1v-4.1h-3.4v4.1H9.2v-6.9Z"
+            fill="white"
+            fillOpacity="0.95"
+          />
         </svg>
       </span>
-      <span className="text-[15px] font-bold tracking-[0.04em]">MAPLEHOUSE</span>
+      <span className="text-[15px] font-extrabold tracking-[0.08em] text-foreground">
+        MAPLEHOUSE
+      </span>
     </Link>
   );
 }

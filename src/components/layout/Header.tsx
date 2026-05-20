@@ -21,7 +21,6 @@ export function Header() {
   const isEntry = pathname === "/";
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
 
-  // Minimal header (logo only) on entry "/" and admin
   if (isEntry || isAdmin) {
     return (
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
@@ -43,20 +42,22 @@ export function Header() {
         { to: `/${locale}/listings`, label: NAV_LABELS[locale].listings, exact: false },
         { to: `/${locale}/apply`, label: NAV_LABELS[locale].apply, exact: false },
         { to: `/${locale}/landlords`, label: NAV_LABELS[locale].landlords, exact: false },
+        { to: `/${locale}/contact`, label: NAV_LABELS[locale].contact, exact: false },
+        { to: `/${locale}/about`, label: NAV_LABELS[locale].about, exact: false },
       ]
     : [];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-4">
+      <Container className="flex h-16 items-center justify-between gap-3">
         <Logo />
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden min-w-0 items-center gap-0.5 lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="rounded-md px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground xl:text-sm"
               activeProps={{ className: "bg-accent text-accent-foreground" }}
               activeOptions={{ exact: link.exact }}
             >
@@ -65,7 +66,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
           <LanguageSwitcher />
           {locale && (
             <Button asChild size="sm">
@@ -76,7 +77,7 @@ export function Header() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
@@ -86,7 +87,7 @@ export function Header() {
 
       <div
         className={cn(
-          "border-t border-border bg-card md:hidden",
+          "border-t border-border bg-card lg:hidden",
           open ? "block" : "hidden",
         )}
       >
