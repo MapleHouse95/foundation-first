@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Mock condo interior thumbnail">
+  <rect width="640" height="420" fill="#F7F8F9"/>
+  <rect x="0" y="0" width="640" height="178" fill="#E6ECEF"/>
+  <rect x="68" y="46" width="108" height="110" rx="12" fill="#FFFFFF"/>
+  <rect x="92" y="68" width="60" height="64" rx="8" fill="#DDE8EC"/>
+  <rect x="214" y="78" width="98" height="78" rx="12" fill="#FFFFFF"/>
+  <rect x="238" y="98" width="50" height="40" rx="7" fill="#DDE8EC"/>
+  <path d="M408 124h96a42 42 0 0 1 42 42v42H366v-42a42 42 0 0 1 42-42Z" fill="#FFFFFF" stroke="#E2E5E8" stroke-width="6"/>
+  <rect x="386" y="160" width="138" height="48" rx="12" fill="#FFF3E6"/>
+  <rect x="86" y="260" width="248" height="72" rx="24" fill="#FFFFFF" stroke="#E2E5E8" stroke-width="6"/>
+  <rect x="368" y="252" width="126" height="94" rx="18" fill="#FA7000" opacity=".18"/>
+  <rect x="0" y="358" width="640" height="62" fill="#E9EEF1"/>
+</svg>

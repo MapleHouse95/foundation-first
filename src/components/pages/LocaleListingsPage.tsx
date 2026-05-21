@@ -1,12 +1,36 @@
-import { useState } from "react";
-import { Star, MapPin, Filter, Search } from "lucide-react";
-import { Container } from "@/components/layout/Container";
+import { useState, type CSSProperties, type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
+import {
+  BookOpen,
+  Building2,
+  CalendarDays,
+  ChevronDown,
+  CheckCircle2,
+  Home,
+  House,
+  MapPin,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  Star,
+  Users,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
 
 type Status = "verified" | "needs_check" | "preparing";
 type LocalizedText = Record<Locale, string>;
+type FilterPopover = "budget" | "housing" | "moveIn" | "people" | "more" | null;
+type HousingTypeId = "room" | "studio" | "condo" | "share" | "house";
+type MoreFilterId =
+  | "verified"
+  | "furnished"
+  | "pet"
+  | "school"
+  | "transit"
+  | "contract";
 
 interface MockListing {
   id: string;
@@ -19,6 +43,64 @@ interface MockListing {
   status: Status;
   lastChecked: string;
   registered: string;
+  imagePath: string;
+  description: LocalizedText;
+  checklist: Record<Locale, string[]>;
+}
+
+interface SidebarItem {
+  key: string;
+  icon: ReactNode;
+  label: LocalizedText;
+}
+
+interface MapPinData {
+  area: string;
+  x: number;
+  y: number;
+}
+
+interface LocalizedOption<T extends string> {
+  id: T;
+  label: LocalizedText;
+}
+
+interface L10n {
+  pageTitle: string;
+  resultCount: (n: number) => string;
+  searchPlaceholder: string;
+  searchButton: string;
+  budget: string;
+  housingType: string;
+  moveIn: string;
+  people: string;
+  moreFilters: string;
+  reset: string;
+  apply: string;
+  activeArea: string;
+  budgetTitle: string;
+  budgetRange: string;
+  budgetMax: (value: number) => string;
+  budgetChip: (value: number) => string;
+  budgetMinLabel: string;
+  budgetMaxLabel: string;
+  calendarTitle: string;
+  weekdays: string[];
+  moveInChip: (value: string) => string;
+  peopleChip: (value: number) => string;
+  status: Record<Status, string>;
+  maxPeopleLabel: (n: number) => string;
+  lastChecked: string;
+  registered: string;
+  autoDeact: string;
+  mapLabel: string;
+  mapActiveArea: string;
+  consultationCta: string;
+  checklistCta: string;
+  detailLabel: string;
+  closeDetail: string;
+  sampleImage: string;
+  mvpNotice: string;
 }
 
 const MOCK_LISTINGS: MockListing[] = [
@@ -37,6 +119,17 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "verified",
     lastChecked: "2026-05-15",
     registered: "2026-04-02",
+    imagePath: "/listings/koreatown-studio.svg",
+    description: {
+      ko: "Koreatown 생활권을 먼저 확인해보고 싶은 1인 거주자용 mock 매물입니다.",
+      en: "A mock listing for one person who wants to start around Koreatown.",
+      fr: "Annonce fictive pour une personne souhaitant commencer par Koreatown.",
+    },
+    checklist: {
+      ko: ["역까지 실제 이동 시간 확인", "가구 포함 범위 확인", "계약 전 보증금 조건 확인"],
+      en: ["Check real transit time", "Confirm furnished items", "Review deposit terms"],
+      fr: ["Vérifier le temps de trajet", "Confirmer les meubles inclus", "Relire les conditions"],
+    },
   },
   {
     id: "L-002",
@@ -53,6 +146,17 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "verified",
     lastChecked: "2026-05-12",
     registered: "2026-03-20",
+    imagePath: "/listings/downtown-condo.svg",
+    description: {
+      ko: "다운타운 접근성과 생활 편의성을 비교해보기 위한 콘도 mock 매물입니다.",
+      en: "A mock condo listing for comparing downtown access and daily convenience.",
+      fr: "Condo fictif pour comparer l'accès au centre-ville et les commodités.",
+    },
+    checklist: {
+      ko: ["공용 시설 비용 확인", "월세 포함 항목 확인", "소음·출퇴근 동선 확인"],
+      en: ["Check amenity costs", "Confirm included utilities", "Review commute and noise"],
+      fr: ["Vérifier les frais communs", "Confirmer les inclusions", "Vérifier trajet et bruit"],
+    },
   },
   {
     id: "L-003",
@@ -69,6 +173,17 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "needs_check",
     lastChecked: "2026-04-29",
     registered: "2026-03-01",
+    imagePath: "/listings/northyork-share.svg",
+    description: {
+      ko: "North York에서 예산을 낮춰 비교해볼 수 있는 셰어하우스 mock 매물입니다.",
+      en: "A mock share-house listing for comparing lower-budget options in North York.",
+      fr: "Colocation fictive pour comparer des options plus abordables à North York.",
+    },
+    checklist: {
+      ko: ["룸메이트 규칙 확인", "주방·욕실 공유 기준 확인", "최근 확인일 재점검"],
+      en: ["Confirm roommate rules", "Check shared kitchen/bath terms", "Recheck last verification"],
+      fr: ["Confirmer les règles", "Vérifier cuisine/salle de bain partagées", "Revoir la date de vérif."],
+    },
   },
   {
     id: "L-004",
@@ -85,6 +200,17 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "preparing",
     lastChecked: "2026-05-10",
     registered: "2026-05-08",
+    imagePath: "/listings/midtown-2br.svg",
+    description: {
+      ko: "Midtown 생활권과 2인 이상 거주 가능성을 비교하기 위한 mock 매물입니다.",
+      en: "A mock listing for comparing Midtown options for two or more people.",
+      fr: "Annonce fictive pour comparer Midtown pour deux personnes ou plus.",
+    },
+    checklist: {
+      ko: ["방별 실제 크기 확인", "입주 가능일 확인", "교통·치안 우선순위 비교"],
+      en: ["Check actual room sizes", "Confirm move-in date", "Compare transit and safety"],
+      fr: ["Vérifier la taille des pièces", "Confirmer la date d'arrivée", "Comparer transport et sécurité"],
+    },
   },
   {
     id: "L-005",
@@ -93,7 +219,7 @@ const MOCK_LISTINGS: MockListing[] = [
       en: "Annex Studio (Not Family Type)",
       fr: "Studio à Annex (non familial)",
     },
-    area: "Downtown",
+    area: "Annex",
     roomType: { ko: "스튜디오", en: "Studio", fr: "Studio" },
     maxPeople: 1,
     priceKRW: 1620000,
@@ -101,129 +227,226 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "verified",
     lastChecked: "2026-05-14",
     registered: "2026-04-18",
+    imagePath: "/listings/annex-studio.svg",
+    description: {
+      ko: "Annex 주변 생활권과 스튜디오 조건을 비교하기 위한 mock 매물입니다.",
+      en: "A mock studio listing for comparing the Annex area and studio conditions.",
+      fr: "Studio fictif pour comparer Annex et les conditions d'un studio.",
+    },
+    checklist: {
+      ko: ["단기 가능 여부 확인", "난방·전기 포함 여부 확인", "가족형 제한 조건 확인"],
+      en: ["Confirm short-term availability", "Check heating/electricity", "Review household restrictions"],
+      fr: ["Confirmer le court séjour", "Vérifier chauffage/électricité", "Revoir les restrictions"],
+    },
   },
 ];
 
-const MAP_PINS = [
-  { area: "Downtown", x: 38, y: 58 },
-  { area: "Koreatown", x: 28, y: 50 },
-  { area: "North York", x: 55, y: 22 },
-  { area: "Midtown", x: 48, y: 40 },
+const SIDEBAR_ITEMS: SidebarItem[] = [
+  {
+    key: "rent",
+    icon: <Home className="h-4 w-4" />,
+    label: { ko: "월/룸", en: "Room", fr: "Chambre" },
+  },
+  {
+    key: "condo",
+    icon: <Building2 className="h-4 w-4" />,
+    label: { ko: "콘도", en: "Condo", fr: "Condo" },
+  },
+  {
+    key: "house",
+    icon: <House className="h-4 w-4" />,
+    label: { ko: "하우스", en: "House", fr: "Maison" },
+  },
+  {
+    key: "share",
+    icon: <Users className="h-4 w-4" />,
+    label: { ko: "쉐어", en: "Share", fr: "Colocation" },
+  },
+  {
+    key: "favorites",
+    icon: <Star className="h-4 w-4" />,
+    label: { ko: "즐겨찾기", en: "Favorites", fr: "Favoris" },
+  },
+  {
+    key: "guide",
+    icon: <BookOpen className="h-4 w-4" />,
+    label: { ko: "가이드", en: "Guide", fr: "Guide" },
+  },
 ];
 
-interface L10n {
-  metaTitle: string;
-  metaDescription: string;
-  title: string;
-  countLabel: (n: number) => string;
-  filterChip: string;
-  filtersBtn: string;
-  searchBtn: string;
-  country: string;
-  countryValue: string;
-  city: string;
-  cityValue: string;
-  people: string;
-  peopleValue: string;
-  maxPeopleLabel: (n: number) => string;
-  activeArea: string;
-  recentTitle: string;
-  status: Record<Status, string>;
-  perMonth: string;
-  lastChecked: string;
-  registered: string;
-  autoDeact: string;
-  mapPlaceholder: string;
-  mvpNotice: string;
-}
+const HOUSING_OPTIONS: LocalizedOption<HousingTypeId>[] = [
+  { id: "room", label: { ko: "룸렌트", en: "Room rental", fr: "Chambre" } },
+  { id: "studio", label: { ko: "스튜디오", en: "Studio", fr: "Studio" } },
+  { id: "condo", label: { ko: "콘도", en: "Condo", fr: "Condo" } },
+  { id: "share", label: { ko: "쉐어하우스", en: "Share house", fr: "Colocation" } },
+  { id: "house", label: { ko: "하우스", en: "House", fr: "Maison" } },
+];
+
+const MORE_FILTER_OPTIONS: LocalizedOption<MoreFilterId>[] = [
+  { id: "verified", label: { ko: "검증완료만", en: "Verified only", fr: "Vérifié seulement" } },
+  { id: "furnished", label: { ko: "가구 포함", en: "Furnished", fr: "Meublé" } },
+  { id: "pet", label: { ko: "반려동물 가능", en: "Pet friendly", fr: "Animaux acceptés" } },
+  { id: "school", label: { ko: "학교 근처", en: "Near school", fr: "Près de l’école" } },
+  { id: "transit", label: { ko: "교통 좋은", en: "Good transit", fr: "Bon transport" } },
+  {
+    id: "contract",
+    label: { ko: "계약 전 확인 필요", en: "Contract checklist", fr: "Liste avant contrat" },
+  },
+];
+
+const MAP_PINS: MapPinData[] = [
+  { area: "Downtown", x: 43, y: 62 },
+  { area: "Koreatown", x: 30, y: 51 },
+  { area: "North York", x: 58, y: 24 },
+  { area: "Midtown", x: 52, y: 42 },
+  { area: "Annex", x: 36, y: 46 },
+];
+
+const MAY_2026_DATES = Array.from({ length: 31 }, (_, index) => {
+  const day = index + 1;
+  return `2026-05-${String(day).padStart(2, "0")}`;
+});
+
+const MAY_2026_LEADING_BLANKS = 5;
 
 const L: Record<Locale, L10n> = {
   ko: {
-    metaTitle: "하우스·서비스 — MapleHouse",
-    metaDescription: "토론토 검증 매물 미리보기 (자리표시자).",
-    title: "토론토 추천 매물",
-    countLabel: (n) => `검색 결과 ${n}건`,
-    filterChip: "월세 4,000,000원 이하",
-    filtersBtn: "필터 보기",
-    searchBtn: "검색하기",
-    country: "국가 선택",
-    countryValue: "캐나다",
-    city: "도시",
-    cityValue: "토론토",
+    pageTitle: "토론토 추천 매물",
+    resultCount: (n) => `검색 결과 ${n}개`,
+    searchPlaceholder: "지역, 학교, 지하철, 매물번호 검색",
+    searchButton: "검색",
+    budget: "월세 예산",
+    housingType: "주거 형태",
+    moveIn: "입주 날짜",
     people: "인원",
-    peopleValue: "1명",
-    maxPeopleLabel: (n) => `최대 ${n}명`,
-    activeArea: "활성 지역: Downtown Toronto",
-    recentTitle: "최근 본 매물",
+    moreFilters: "추가필터",
+    reset: "초기화",
+    apply: "적용",
+    activeArea: "활성 지역",
+    budgetTitle: "월세 예산",
+    budgetRange: "0만원 ~ 400만원",
+    budgetMax: (value) => `최대 ${value}만원`,
+    budgetChip: (value) => `월세 최대 ${value}만원`,
+    budgetMinLabel: "0만원",
+    budgetMaxLabel: "400만원",
+    calendarTitle: "2026년 5월",
+    weekdays: ["일", "월", "화", "수", "목", "금", "토"],
+    moveInChip: (value) => `입주 날짜 ${value}`,
+    peopleChip: (value) => `${value}명`,
     status: { verified: "검증완료", needs_check: "확인필요", preparing: "준비중" },
-    perMonth: "/월",
+    maxPeopleLabel: (n) => `최대 ${n}명`,
     lastChecked: "최근 확인",
     registered: "등록",
-    autoDeact: "30일 미확인 시 자동 비활성화 (예정)",
-    mapPlaceholder: "지도 영역 (Google Maps 연동 예정)",
+    autoDeact: "30일 미확인 시 자동 비활성화 예정",
+    mapLabel: "지도 자리표시자 · 실제 지도 API 미연동",
+    mapActiveArea: "활성 지역 · Downtown Toronto",
+    consultationCta: "상담/예약 신청",
+    checklistCta: "체크리스트 보기",
+    detailLabel: "매물 상세",
+    closeDetail: "상세 닫기",
+    sampleImage: "sample image",
     mvpNotice: "MVP 미리보기 · 실제 결제/계약/매물 등록은 아직 활성화되지 않았습니다.",
   },
   en: {
-    metaTitle: "Housing & Services — MapleHouse",
-    metaDescription: "Preview of admin-reviewed Toronto housing (placeholder).",
-    title: "Recommended Listings in Toronto",
-    countLabel: (n) => `${n} results`,
-    filterChip: "Rent ≤ 4,000,000 KRW",
-    filtersBtn: "Filters",
-    searchBtn: "Search",
-    country: "Country",
-    countryValue: "Canada",
-    city: "City",
-    cityValue: "Toronto",
+    pageTitle: "Recommended Listings in Toronto",
+    resultCount: (n) => `${n} results`,
+    searchPlaceholder: "Search area, school, transit, listing ID",
+    searchButton: "Search",
+    budget: "Budget",
+    housingType: "Housing type",
+    moveIn: "Move-in",
     people: "People",
-    peopleValue: "1",
-    maxPeopleLabel: (n) => `max ${n}`,
-    activeArea: "Active area: Downtown Toronto",
-    recentTitle: "Recently viewed",
+    moreFilters: "More filters",
+    reset: "Reset",
+    apply: "Apply",
+    activeArea: "Active area",
+    budgetTitle: "Budget",
+    budgetRange: "0 to 4,000,000 KRW",
+    budgetMax: (value) => `Max ${Math.round(value * 10).toLocaleString("en-CA")} C$`,
+    budgetChip: (value) => `Budget max ${Math.round(value * 10).toLocaleString("en-CA")} C$`,
+    budgetMinLabel: "0 KRW",
+    budgetMaxLabel: "4,000,000 KRW",
+    calendarTitle: "May 2026",
+    weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    moveInChip: (value) => `Move-in ${value}`,
+    peopleChip: (value) => `${value} people`,
     status: { verified: "Verified", needs_check: "Needs check", preparing: "Preparing" },
-    perMonth: "/mo",
+    maxPeopleLabel: (n) => `max ${n}`,
     lastChecked: "Last checked",
     registered: "Registered",
-    autoDeact: "Auto-deactivates after 30 days without check (planned)",
-    mapPlaceholder: "Map area (Google Maps integration planned)",
+    autoDeact: "Auto-deactivation after 30 unchecked days is planned",
+    mapLabel: "Map placeholder · no real map API",
+    mapActiveArea: "Active area · Downtown Toronto",
+    consultationCta: "Request consultation",
+    checklistCta: "View checklist",
+    detailLabel: "Listing details",
+    closeDetail: "Close details",
+    sampleImage: "sample image",
     mvpNotice: "MVP preview · Real payments, contracts, and property registration are not active yet.",
   },
   fr: {
-    metaTitle: "Logements & services — MapleHouse",
-    metaDescription: "Aperçu de logements vérifiés à Toronto (placeholder).",
-    title: "Logements recommandés à Toronto",
-    countLabel: (n) => `${n} résultats`,
-    filterChip: "Loyer ≤ 4 000 000 KRW",
-    filtersBtn: "Filtres",
-    searchBtn: "Rechercher",
-    country: "Pays",
-    countryValue: "Canada",
-    city: "Ville",
-    cityValue: "Toronto",
+    pageTitle: "Logements recommandés à Toronto",
+    resultCount: (n) => `${n} résultats`,
+    searchPlaceholder: "Rechercher zone, école, transport, annonce",
+    searchButton: "Rechercher",
+    budget: "Budget",
+    housingType: "Type",
+    moveIn: "Arrivée",
     people: "Personnes",
-    peopleValue: "1",
-    maxPeopleLabel: (n) => `max. ${n} pers.`,
-    activeArea: "Zone active : Downtown Toronto",
-    recentTitle: "Vus récemment",
+    moreFilters: "Plus de filtres",
+    reset: "Réinitialiser",
+    apply: "Appliquer",
+    activeArea: "Zone active",
+    budgetTitle: "Budget",
+    budgetRange: "0 à 4 000 000 KRW",
+    budgetMax: (value) =>
+      `Max ${Math.round(value * 10).toLocaleString("fr-FR").replace(/\u202f/g, " ")} C$`,
+    budgetChip: (value) =>
+      `Budget max ${Math.round(value * 10).toLocaleString("fr-FR").replace(/\u202f/g, " ")} C$`,
+    budgetMinLabel: "0 KRW",
+    budgetMaxLabel: "4 000 000 KRW",
+    calendarTitle: "Mai 2026",
+    weekdays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+    moveInChip: (value) => `Arrivée ${value}`,
+    peopleChip: (value) => `${value} personnes`,
     status: { verified: "Vérifié", needs_check: "À vérifier", preparing: "En préparation" },
-    perMonth: "/mois",
+    maxPeopleLabel: (n) => `max. ${n} pers.`,
     lastChecked: "Dernière vérif.",
     registered: "Enregistré",
-    autoDeact: "Désactivation auto après 30 jours sans vérif. (prévu)",
-    mapPlaceholder: "Zone carte (intégration Google Maps prévue)",
+    autoDeact: "Désactivation automatique prévue après 30 jours sans vérification",
+    mapLabel: "Carte fictive · aucune API réelle",
+    mapActiveArea: "Zone active · Downtown Toronto",
+    consultationCta: "Demander une consultation",
+    checklistCta: "Voir la liste",
+    detailLabel: "Détails du logement",
+    closeDetail: "Fermer les détails",
+    sampleImage: "image d'exemple",
     mvpNotice: "Aperçu MVP · Les paiements, contrats et enregistrements réels ne sont pas encore actifs.",
   },
 };
 
 const STATUS_CLASS: Record<Status, string> = {
-  verified: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  needs_check: "bg-warning/15 text-warning-foreground border-warning/60",
-  preparing: "bg-muted text-muted-foreground border-border",
+  verified: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  needs_check: "border-warning-border/70 bg-warning/15 text-warning-foreground",
+  preparing: "border-border bg-muted text-muted-foreground",
 };
 
 export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const t = L[locale];
+  const [searchValue, setSearchValue] = useState("");
   const [favs, setFavs] = useState<Set<string>>(new Set());
+  const [openFilter, setOpenFilter] = useState<FilterPopover>(null);
+  const [draftBudgetMax, setDraftBudgetMax] = useState(150);
+  const [appliedBudgetMax, setAppliedBudgetMax] = useState<number | null>(null);
+  const [housingType, setHousingType] = useState<HousingTypeId | null>(null);
+  const [draftMoveIn, setDraftMoveIn] = useState("");
+  const [moveIn, setMoveIn] = useState("");
+  const [draftPeople, setDraftPeople] = useState(1);
+  const [peopleCount, setPeopleCount] = useState(1);
+  const [draftMoreFilters, setDraftMoreFilters] = useState<Set<MoreFilterId>>(new Set());
+  const [moreFilters, setMoreFilters] = useState<Set<MoreFilterId>>(new Set());
+  const [selectedListing, setSelectedListing] = useState<MockListing | null>(null);
+
   const toggleFav = (id: string) =>
     setFavs((s) => {
       const n = new Set(s);
@@ -231,172 +454,869 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
       return n;
     });
 
-  const fmtKRW = (v: number) => `${v.toLocaleString("ko-KR")}원`;
+  const fmtKRW = (v: number) =>
+    locale === "ko" ? `${v.toLocaleString("ko-KR")}원` : `₩${v.toLocaleString("ko-KR")}`;
   const fmtCAD = (v: number) => `CA$${v.toLocaleString("en-CA")}`;
+  const selectedArea = selectedListing?.area ?? "Downtown Toronto";
+  const activePinArea = selectedListing?.area ?? "Downtown";
+  const activePin = MAP_PINS.find((pin) => pin.area === activePinArea);
+  const mapTransform = activePin
+    ? `translate(${(50 - activePin.x) * 0.16}%, ${(50 - activePin.y) * 0.16}%) scale(1.03)`
+    : "translate(0, 0) scale(1)";
+  const housingLabel = housingType
+    ? HOUSING_OPTIONS.find((option) => option.id === housingType)?.label[locale]
+    : undefined;
+  const activeChips = [
+    { id: "area", label: `${t.activeArea}: ${selectedArea}`, primary: true },
+    ...(appliedBudgetMax ? [{ id: "budget", label: t.budgetChip(appliedBudgetMax) }] : []),
+    ...(housingLabel ? [{ id: "housing", label: housingLabel }] : []),
+    ...(moveIn ? [{ id: "moveIn", label: t.moveInChip(moveIn) }] : []),
+    ...(peopleCount > 1 ? [{ id: "people", label: t.peopleChip(peopleCount) }] : []),
+    ...Array.from(moreFilters).map((id) => ({
+      id: `more-${id}`,
+      label: MORE_FILTER_OPTIONS.find((option) => option.id === id)?.label[locale] ?? id,
+    })),
+  ];
+
+  const openListing = (listing: MockListing) => {
+    setSelectedListing(listing);
+  };
+
+  const removeActiveChip = (id: string) => {
+    if (id === "budget") setAppliedBudgetMax(null);
+    if (id === "housing") setHousingType(null);
+    if (id === "moveIn") {
+      setMoveIn("");
+      setDraftMoveIn("");
+    }
+    if (id === "people") {
+      setPeopleCount(1);
+      setDraftPeople(1);
+    }
+    if (id.startsWith("more-")) {
+      const filterId = id.replace("more-", "") as MoreFilterId;
+      setMoreFilters((current) => {
+        const next = new Set(current);
+        next.delete(filterId);
+        return next;
+      });
+      setDraftMoreFilters((current) => {
+        const next = new Set(current);
+        next.delete(filterId);
+        return next;
+      });
+    }
+  };
+
+  const resetFilters = () => {
+    setSearchValue("");
+    setOpenFilter(null);
+    setDraftBudgetMax(150);
+    setAppliedBudgetMax(null);
+    setHousingType(null);
+    setDraftMoveIn("");
+    setMoveIn("");
+    setDraftPeople(1);
+    setPeopleCount(1);
+    setDraftMoreFilters(new Set());
+    setMoreFilters(new Set());
+  };
+
+  const toggleDraftMoreFilter = (id: MoreFilterId) => {
+    setDraftMoreFilters((current) => {
+      const next = new Set(current);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   return (
-    <div className="bg-secondary/70">
-      {/* Top filter bar */}
-      <div className="border-b border-border bg-background">
-        <Container className="flex min-h-[4.25rem] flex-wrap items-center gap-2 py-3">
-          <FilterPill label={t.country} value={t.countryValue} />
-          <FilterPill label={t.city} value={t.cityValue} />
-          <FilterPill label={t.people} value={t.peopleValue} />
-          <Button variant="outline" size="sm" className="min-w-[6.75rem] gap-1">
-            <Filter className="h-4 w-4" /> {t.filtersBtn}
-          </Button>
-          <Button size="sm" className="ml-auto min-w-[6.75rem] gap-1">
-            <Search className="h-4 w-4" /> {t.searchBtn}
-          </Button>
-        </Container>
-      </div>
+    <main className="min-h-[calc(100vh-4rem)] bg-secondary">
+      <section className="border-b border-border bg-card">
+        <div className="mx-auto flex min-h-[4.75rem] w-full max-w-[96rem] flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex min-w-0 flex-1 items-center gap-2 xl:max-w-[38rem]">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
+                aria-label={t.searchPlaceholder}
+                placeholder={t.searchPlaceholder}
+                className="h-10 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+              />
+            </div>
+            <Button type="button" className="h-10 shrink-0 gap-1.5 px-4" onClick={() => setOpenFilter(null)}>
+              <Search className="h-4 w-4" />
+              {t.searchButton}
+            </Button>
+          </div>
 
-      <Container className="py-6">
-        <div className="mb-3 flex min-h-[2rem] flex-wrap items-center gap-2">
-          <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <MapPin className="h-3.5 w-3.5" /> {t.activeArea}
-          </span>
-          <span className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground">
-            {t.filterChip}
-          </span>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_1fr]">
-          {/* Left: listing panel */}
-          <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-            <header className="mb-3 flex min-h-[3rem] items-start justify-between gap-3">
-              <h1 className="mh-clamp-2 text-lg font-semibold text-foreground">{t.title}</h1>
-              <span className="text-xs text-muted-foreground">
-                {t.countLabel(MOCK_LISTINGS.length)}
-              </span>
-            </header>
-            <ul className="space-y-3">
-              {MOCK_LISTINGS.map((l) => {
-                const title = l.title[locale];
-                const roomType = l.roomType[locale];
-
-                return (
-                  <li
-                    key={l.id}
-                    className="group min-h-[7rem] rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/40"
+          <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+            <div className="relative">
+              <FilterTrigger
+                label={t.budget}
+                value={appliedBudgetMax ? t.budgetMax(appliedBudgetMax) : undefined}
+                open={openFilter === "budget"}
+                onClick={() => setOpenFilter(openFilter === "budget" ? null : "budget")}
+              />
+              {openFilter === "budget" && (
+                <FilterPanel className="w-[19rem]">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-semibold">{t.budgetTitle}</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">{t.budgetRange}</p>
+                  </div>
+                  <span className="text-sm font-extrabold text-primary">
+                    {t.budgetMax(draftBudgetMax)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="400"
+                  step="10"
+                  value={draftBudgetMax}
+                  onChange={(event) => setDraftBudgetMax(Number(event.target.value))}
+                  className="mh-budget-range mt-5 w-full"
+                  style={
+                    {
+                      "--mh-range-progress": `${(draftBudgetMax / 400) * 100}%`,
+                    } as CSSProperties
+                  }
+                  aria-label={t.budgetTitle}
+                />
+                <div className="mt-2 flex justify-between text-[11px] font-medium text-muted-foreground">
+                  <span>{t.budgetMinLabel}</span>
+                  <span>{t.budgetMaxLabel}</span>
+                </div>
+                <div className="mt-4 flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setDraftBudgetMax(150);
+                      setAppliedBudgetMax(null);
+                    }}
                   >
-                    <div className="flex gap-3">
-                      <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
-                        <span
+                    {t.reset}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setAppliedBudgetMax(draftBudgetMax);
+                      setOpenFilter(null);
+                    }}
+                  >
+                    {t.apply}
+                  </Button>
+                </div>
+                </FilterPanel>
+              )}
+            </div>
+
+            <div className="relative">
+              <FilterTrigger
+                label={t.housingType}
+                value={housingLabel}
+                open={openFilter === "housing"}
+                onClick={() => setOpenFilter(openFilter === "housing" ? null : "housing")}
+              />
+              {openFilter === "housing" && (
+                <FilterPanel className="w-40">
+                  <div className="grid gap-1">
+                    {HOUSING_OPTIONS.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => {
+                          setHousingType(option.id);
+                          setOpenFilter(null);
+                        }}
+                        className={cn(
+                          "rounded-lg px-3 py-2 text-left text-sm transition hover:bg-accent hover:text-primary",
+                          housingType === option.id && "bg-accent text-primary",
+                        )}
+                      >
+                        {option.label[locale]}
+                      </button>
+                    ))}
+                  </div>
+                </FilterPanel>
+              )}
+            </div>
+
+            <div className="relative">
+              <FilterTrigger
+                label={t.moveIn}
+                value={moveIn || undefined}
+                icon={<CalendarDays className="h-4 w-4" />}
+                open={openFilter === "moveIn"}
+                onClick={() => setOpenFilter(openFilter === "moveIn" ? null : "moveIn")}
+              />
+              {openFilter === "moveIn" && (
+                <FilterPanel className="w-[19rem]">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-bold text-foreground">{t.calendarTitle}</h2>
+                    {draftMoveIn && (
+                      <button
+                        type="button"
+                        onClick={() => setDraftMoveIn("")}
+                        className="text-xs font-semibold text-primary"
+                      >
+                        {t.reset}
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-muted-foreground">
+                    {t.weekdays.map((weekday) => (
+                      <span key={weekday}>{weekday}</span>
+                    ))}
+                  </div>
+                  <div className="mt-2 grid grid-cols-7 gap-1">
+                    {Array.from({ length: MAY_2026_LEADING_BLANKS }).map((_, index) => (
+                      <span key={`blank-${index}`} aria-hidden />
+                    ))}
+                    {MAY_2026_DATES.map((date) => {
+                      const day = Number(date.slice(-2));
+                      const selected = draftMoveIn === date;
+
+                      return (
+                        <button
+                          key={date}
+                          type="button"
+                          onClick={() => setDraftMoveIn(date)}
                           className={cn(
-                            "absolute left-1 top-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
-                            STATUS_CLASS[l.status],
+                            "h-9 rounded-full text-sm font-semibold transition",
+                            selected
+                              ? "bg-primary text-primary-foreground"
+                              : "text-foreground hover:bg-accent hover:text-primary",
                           )}
                         >
-                          {t.status[l.status]}
-                        </span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="mh-clamp-1 text-sm font-semibold text-foreground">
-                            {title}
-                          </h3>
-                          <button
-                            type="button"
-                            onClick={() => toggleFav(l.id)}
-                            aria-label="favorite"
-                            className="shrink-0 text-muted-foreground hover:text-primary"
-                          >
-                            <Star
-                              className={cn(
-                                "h-4 w-4",
-                                favs.has(l.id) && "fill-primary text-primary",
-                              )}
-                            />
-                          </button>
-                        </div>
-                        <p className="mh-clamp-1 mt-0.5 text-xs text-muted-foreground">
-                          {l.area} · {roomType} · {t.maxPeopleLabel(l.maxPeople)}
-                        </p>
-                        <div className="mt-1.5 flex items-baseline gap-2">
-                          <span className="text-sm font-semibold text-primary">
-                            {fmtKRW(l.priceKRW)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            ({fmtCAD(l.priceCAD)}){t.perMonth}
-                          </span>
-                        </div>
-                        <p className="mh-clamp-1 mt-1 text-[11px] text-muted-foreground">
-                          {t.lastChecked}: {l.lastChecked} · {t.registered}: {l.registered}
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-3 text-[11px] text-muted-foreground">{t.autoDeact}</p>
-          </section>
-
-          {/* Right: map panel */}
-          <section className="relative min-h-[480px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "var(--muted)",
-                backgroundImage:
-                  "repeating-linear-gradient(0deg, rgba(36,33,31,0.045) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, rgba(36,33,31,0.045) 0 1px, transparent 1px 40px)",
-              }}
-              aria-hidden
-            />
-            <div className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-md border border-border bg-background/90 px-2 py-1 text-[11px] text-muted-foreground backdrop-blur">
-              {t.mapPlaceholder}
+                          {day}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setDraftMoveIn("");
+                        setMoveIn("");
+                      }}
+                    >
+                      {t.reset}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        setMoveIn(draftMoveIn);
+                        setOpenFilter(null);
+                      }}
+                    >
+                      {t.apply}
+                    </Button>
+                  </div>
+                </FilterPanel>
+              )}
             </div>
 
-            {MAP_PINS.map((p) => (
-              <div
-                key={p.area}
-                className="absolute -translate-x-1/2 -translate-y-full"
-                style={{ left: `${p.x}%`, top: `${p.y}%` }}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <span className="rounded-md border border-border bg-background px-2 py-0.5 text-[10px] font-medium text-foreground shadow-sm">
-                    {p.area}
-                  </span>
-                  <span className="h-3 w-3 rounded-full border-2 border-background bg-primary shadow" />
-                </div>
-              </div>
-            ))}
-
-            {/* Recently viewed floating panel */}
-            <div className="absolute bottom-3 right-3 w-56 rounded-xl border border-border bg-background/95 p-3 shadow-md backdrop-blur">
-              <h4 className="mh-clamp-1 text-xs font-semibold text-foreground">{t.recentTitle}</h4>
-              <ul className="mt-2 space-y-2">
-                {MOCK_LISTINGS.slice(0, 2).map((l) => (
-                  <li key={l.id} className="flex items-center gap-2">
-                    <div className="h-8 w-10 shrink-0 rounded border border-border bg-muted" />
-                    <div className="min-w-0">
-                      <p className="truncate text-[11px] font-medium text-foreground">
-                        {l.title[locale]}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {fmtKRW(l.priceKRW)}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            <div className="relative">
+              <FilterTrigger
+                label={t.people}
+                value={peopleCount > 1 ? t.peopleChip(peopleCount) : undefined}
+                icon={<Users className="h-4 w-4" />}
+                open={openFilter === "people"}
+                onClick={() => setOpenFilter(openFilter === "people" ? null : "people")}
+              />
+              {openFilter === "people" && (
+                <FilterPanel className="w-56">
+                  <div className="flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setDraftPeople((value) => Math.max(1, value - 1))}
+                      className="h-9 w-9 rounded-full border border-border text-lg font-bold text-foreground transition hover:border-primary hover:text-primary"
+                    >
+                      -
+                    </button>
+                    <span className="text-lg font-extrabold text-foreground">
+                      {t.peopleChip(draftPeople)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setDraftPeople((value) => value + 1)}
+                      className="h-9 w-9 rounded-full border border-border text-lg font-bold text-foreground transition hover:border-primary hover:text-primary"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="mt-4 flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setDraftPeople(1);
+                        setPeopleCount(1);
+                      }}
+                    >
+                      {t.reset}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        setPeopleCount(draftPeople);
+                        setOpenFilter(null);
+                      }}
+                    >
+                      {t.apply}
+                    </Button>
+                  </div>
+                </FilterPanel>
+              )}
             </div>
-          </section>
+
+            <div className="relative">
+              <FilterTrigger
+                label={t.moreFilters}
+                value={moreFilters.size > 0 ? `${moreFilters.size}` : undefined}
+                icon={<SlidersHorizontal className="h-4 w-4" />}
+                open={openFilter === "more"}
+                onClick={() => setOpenFilter(openFilter === "more" ? null : "more")}
+              />
+              {openFilter === "more" && (
+                <FilterPanel className="right-0 left-auto w-[18rem]">
+                  <div className="grid gap-2">
+                    {MORE_FILTER_OPTIONS.map((option) => (
+                      <label
+                        key={option.id}
+                        className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-foreground transition hover:bg-accent"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={draftMoreFilters.has(option.id)}
+                          onChange={() => toggleDraftMoreFilter(option.id)}
+                          className="h-4 w-4 accent-[#FA7000]"
+                        />
+                        <span>{option.label[locale]}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setDraftMoreFilters(new Set());
+                        setMoreFilters(new Set());
+                      }}
+                    >
+                      {t.reset}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        setMoreFilters(new Set(draftMoreFilters));
+                        setOpenFilter(null);
+                      }}
+                    >
+                      {t.apply}
+                    </Button>
+                  </div>
+                </FilterPanel>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <RotateCcw className="h-4 w-4" />
+              {t.reset}
+            </button>
+          </div>
         </div>
+      </section>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">{t.mvpNotice}</p>
-      </Container>
+      <section className="mx-auto grid w-full max-w-[96rem] gap-0 px-4 py-4 sm:px-6 lg:grid-cols-[5.5rem_minmax(22rem,25.5rem)_minmax(0,1fr)] lg:px-8">
+        <aside className="mb-3 flex gap-2 overflow-x-auto border-border bg-card p-2 shadow-sm lg:mb-0 lg:h-[calc(100vh-10.75rem)] lg:flex-col lg:overflow-visible lg:rounded-l-2xl lg:border lg:border-r-0">
+          {SIDEBAR_ITEMS.map((item, index) => {
+            const selected = index === 0;
+
+            return (
+              <button
+                key={item.key}
+                type="button"
+                className={cn(
+                  "flex min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl border px-2 py-3 text-xs font-semibold transition lg:min-w-0",
+                  selected
+                    ? "border-primary bg-accent text-primary"
+                    : "border-transparent text-muted-foreground hover:border-primary/35 hover:bg-background hover:text-foreground",
+                )}
+              >
+                {item.icon}
+                <span className="mh-clamp-2 leading-tight">{item.label[locale]}</span>
+              </button>
+            );
+          })}
+        </aside>
+
+        <section className="border border-border bg-card p-4 shadow-sm lg:h-[calc(100vh-10.75rem)] lg:overflow-y-auto lg:rounded-none">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">{t.pageTitle}</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t.resultCount(MOCK_LISTINGS.length)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {activeChips.map((chip) => (
+              <Chip
+                key={chip.id}
+                icon={chip.id === "area" ? <MapPin className="h-3.5 w-3.5" /> : undefined}
+                label={chip.label}
+                primary={chip.primary}
+                onRemove={chip.id === "area" ? undefined : () => removeActiveChip(chip.id)}
+              />
+            ))}
+          </div>
+
+          <ul className="mt-4 space-y-3">
+            {MOCK_LISTINGS.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                locale={locale}
+                t={t}
+                favs={favs}
+                onToggleFav={toggleFav}
+                onOpenDetail={openListing}
+                fmtKRW={fmtKRW}
+                fmtCAD={fmtCAD}
+              />
+            ))}
+          </ul>
+
+          <p className="mt-4 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+            {t.autoDeact}
+          </p>
+        </section>
+
+        <section className="relative mt-4 min-h-[34rem] overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:mt-0 lg:h-[calc(100vh-10.75rem)] lg:rounded-l-none">
+          <div
+            className="absolute inset-[-2rem] transition-transform duration-300 ease-out"
+            style={{ transform: mapTransform }}
+          >
+            <MapBackground />
+            {MAP_PINS.map((pin) => (
+              <MapMarker key={pin.area} pin={pin} active={pin.area === activePinArea} />
+            ))}
+          </div>
+
+          <div className="absolute left-4 top-4 z-10 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
+            <span className="rounded-full border border-border bg-background/95 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
+              {t.mapLabel}
+            </span>
+            <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
+              {t.activeArea} · {selectedArea}
+            </span>
+          </div>
+        </section>
+
+      </section>
+
+      <ListingDetailDrawer
+        listing={selectedListing}
+        locale={locale}
+        t={t}
+        fmtKRW={fmtKRW}
+        fmtCAD={fmtCAD}
+        onClose={() => setSelectedListing(null)}
+      />
+
+      <p className="px-4 pb-6 text-center text-xs text-muted-foreground">{t.mvpNotice}</p>
+    </main>
+  );
+}
+
+function FilterTrigger({
+  label,
+  value,
+  icon,
+  open,
+  onClick,
+  className,
+}: {
+  label: string;
+  value?: string;
+  icon?: ReactNode;
+  open: boolean;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "inline-flex h-10 max-w-[13rem] items-center justify-center gap-1.5 rounded-lg border bg-background px-3 text-center text-sm font-medium text-foreground shadow-sm transition hover:border-primary/70",
+        open ? "border-primary text-primary" : "border-border",
+        className,
+      )}
+    >
+      {icon}
+      <span className="truncate">{value ?? label}</span>
+      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+    </button>
+  );
+}
+
+function FilterPanel({ className, children }: { className?: string; children: ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "absolute left-0 top-12 z-40 rounded-xl border border-border bg-popover p-4 text-popover-foreground shadow-xl",
+        className,
+      )}
+    >
+      {children}
     </div>
   );
 }
 
-function FilterPill({ label, value }: { label: string; value: string }) {
+function Chip({
+  label,
+  icon,
+  primary = false,
+  onRemove,
+}: {
+  label: string;
+  icon?: ReactNode;
+  primary?: boolean;
+  onRemove?: () => void;
+}) {
   return (
-    <div className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs">
-      <span className="max-w-24 truncate text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground">{value}</span>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium",
+        primary
+          ? "border-primary/20 bg-accent text-primary"
+          : "border-border bg-background text-muted-foreground",
+      )}
+    >
+      {icon}
+      {label}
+      {onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="-mr-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition hover:bg-background hover:text-foreground"
+          aria-label="remove filter"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      )}
+    </span>
+  );
+}
+
+function ListingCard({
+  listing,
+  locale,
+  t,
+  favs,
+  onToggleFav,
+  onOpenDetail,
+  fmtKRW,
+  fmtCAD,
+}: {
+  listing: MockListing;
+  locale: Locale;
+  t: L10n;
+  favs: Set<string>;
+  onToggleFav: (id: string) => void;
+  onOpenDetail: (listing: MockListing) => void;
+  fmtKRW: (value: number) => string;
+  fmtCAD: (value: number) => string;
+}) {
+  return (
+    <li
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpenDetail(listing)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenDetail(listing);
+        }
+      }}
+      className="mh-interactive-card cursor-pointer rounded-2xl border border-border bg-card p-3 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
+      <div className="flex gap-3">
+        <MockListingImage
+          listing={listing}
+          locale={locale}
+          t={t}
+          className="h-24 w-28 shrink-0"
+          imageClassName="rounded-xl"
+          badgeClassName="left-2 top-2"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h2 className="mh-clamp-2 text-sm font-bold text-foreground">
+                {listing.title[locale]}
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {listing.area} · {listing.roomType[locale]} · {t.maxPeopleLabel(listing.maxPeople)}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleFav(listing.id);
+              }}
+              aria-label="favorite"
+              className="rounded-full p-1 text-muted-foreground transition hover:bg-accent hover:text-primary"
+            >
+              <Star className={cn("h-4 w-4", favs.has(listing.id) && "fill-primary text-primary")} />
+            </button>
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="text-base font-extrabold text-primary">
+              {fmtKRW(listing.priceKRW)}
+            </span>
+            <span className="text-xs font-medium text-muted-foreground">
+              {fmtCAD(listing.priceCAD)}/mo
+            </span>
+          </div>
+
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            {t.lastChecked}: {listing.lastChecked} · {t.registered}: {listing.registered}
+          </p>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function MockListingImage({
+  listing,
+  locale,
+  t,
+  className,
+  imageClassName,
+  badgeClassName,
+  showSampleLabel = false,
+}: {
+  listing: MockListing;
+  locale: Locale;
+  t: L10n;
+  className?: string;
+  imageClassName?: string;
+  badgeClassName?: string;
+  showSampleLabel?: boolean;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-xl border border-border bg-muted",
+        className,
+      )}
+    >
+      {!failed && (
+        <img
+          src={listing.imagePath}
+          alt={listing.title[locale]}
+          onError={() => setFailed(true)}
+          className={cn("h-full w-full object-cover", imageClassName)}
+        />
+      )}
+      {failed && (
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.8),rgba(226,229,232,0.78))]">
+          <div className="absolute inset-x-4 top-1/2 h-px -translate-y-1/2 bg-border" />
+          <div className="absolute inset-y-4 left-1/2 w-px -translate-x-1/2 bg-border" />
+        </div>
+      )}
+      <span
+        className={cn(
+          "absolute rounded-full border px-2 py-0.5 text-[10px] font-bold",
+          STATUS_CLASS[listing.status],
+          badgeClassName,
+        )}
+      >
+        {t.status[listing.status]}
+      </span>
+      {showSampleLabel && (
+        <span className="absolute bottom-2 left-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur">
+          {t.sampleImage}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function ListingDetailDrawer({
+  listing,
+  locale,
+  t,
+  fmtKRW,
+  fmtCAD,
+  onClose,
+}: {
+  listing: MockListing | null;
+  locale: Locale;
+  t: L10n;
+  fmtKRW: (value: number) => string;
+  fmtCAD: (value: number) => string;
+  onClose: () => void;
+}) {
+  if (!listing) return null;
+
+  return (
+    <aside
+      className="mh-drawer-slide-in fixed bottom-0 right-0 top-0 z-50 w-full max-w-[30rem] overflow-y-auto border-l border-border bg-card shadow-2xl"
+      aria-label={t.detailLabel}
+    >
+        <div className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-card/95 px-5 backdrop-blur">
+          <h2 className="text-sm font-bold text-foreground">{t.detailLabel}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.closeDetail}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-5 p-5">
+          <MockListingImage
+            key={listing.imagePath}
+            listing={listing}
+            locale={locale}
+            t={t}
+            className="h-64 w-full"
+            imageClassName="rounded-xl"
+            badgeClassName="left-3 top-3"
+            showSampleLabel
+          />
+
+          <div>
+            <p className="text-xs font-semibold text-primary">{listing.area}</p>
+            <h3 className="mt-1 text-2xl font-extrabold text-foreground">
+              {listing.title[locale]}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {listing.area} · {listing.roomType[locale]} · {t.maxPeopleLabel(listing.maxPeople)}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-background p-4">
+            <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+              <span className="text-2xl font-extrabold text-primary">
+                {fmtKRW(listing.priceKRW)}
+              </span>
+              <span className="text-sm font-semibold text-muted-foreground">
+                {fmtCAD(listing.priceCAD)}/mo
+              </span>
+            </div>
+            <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+              <span>
+                {t.lastChecked}: <strong className="text-foreground">{listing.lastChecked}</strong>
+              </span>
+              <span>
+                {t.registered}: <strong className="text-foreground">{listing.registered}</strong>
+              </span>
+            </div>
+          </div>
+
+          <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
+            {listing.description[locale]}
+          </p>
+
+          <section className="rounded-2xl border border-border bg-card p-4">
+            <h4 className="text-sm font-bold text-foreground">{t.checklistCta}</h4>
+            <ul className="mt-3 space-y-2">
+              {listing.checklist[locale].map((item) => (
+                <li key={item} className="flex gap-2 text-sm text-muted-foreground">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Button asChild size="lg">
+              <Link to={`/${locale}/apply`}>{t.consultationCta}</Link>
+            </Button>
+            <Button type="button" variant="outline" size="lg">
+              {t.checklistCta}
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground">{t.mvpNotice}</p>
+        </div>
+    </aside>
+  );
+}
+
+function MapBackground() {
+  return (
+    <div
+      className="absolute inset-0 bg-[#EEF1F2]"
+      style={{
+        backgroundImage:
+          "linear-gradient(24deg, rgba(255,255,255,0.75) 0 2px, transparent 2px 90px), linear-gradient(115deg, rgba(255,255,255,0.72) 0 2px, transparent 2px 105px), repeating-linear-gradient(0deg, rgba(96,101,107,0.11) 0 1px, transparent 1px 42px), repeating-linear-gradient(90deg, rgba(96,101,107,0.11) 0 1px, transparent 1px 42px)",
+      }}
+      aria-hidden
+    />
+  );
+}
+
+function MapMarker({ pin, active }: { pin: MapPinData; active: boolean }) {
+  return (
+    <div
+      className="absolute z-10 -translate-x-1/2 -translate-y-full"
+      style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+    >
+      <div className="flex flex-col items-center gap-1">
+        <span
+          className={cn(
+            "rounded-md border px-2 py-1 text-[11px] font-bold shadow-sm",
+            active
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-background text-foreground",
+          )}
+        >
+          {pin.area}
+        </span>
+        <span
+          className={cn(
+            "relative flex items-center justify-center rounded-full border-4 border-background bg-primary shadow-md transition-all",
+            active ? "h-7 w-7 ring-4 ring-primary/20" : "h-5 w-5",
+          )}
+        >
+          <span className="h-2 w-2 rounded-full bg-primary-foreground" />
+        </span>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Mock studio interior thumbnail">
+  <rect width="640" height="420" fill="#F7F8F9"/>
+  <rect x="0" y="0" width="640" height="174" fill="#EEF1F2"/>
+  <rect x="76" y="52" width="126" height="106" rx="14" fill="#FFFFFF"/>
+  <rect x="102" y="74" width="74" height="62" rx="9" fill="#DDE8EC"/>
+  <rect x="268" y="112" width="226" height="108" rx="18" fill="#FFFFFF" stroke="#E2E5E8" stroke-width="6"/>
+  <rect x="296" y="140" width="84" height="50" rx="12" fill="#FFF3E6"/>
+  <rect x="396" y="140" width="70" height="50" rx="12" fill="#FA7000" opacity=".18"/>
+  <rect x="106" y="262" width="154" height="54" rx="18" fill="#FFFFFF" stroke="#E2E5E8" stroke-width="6"/>
+  <rect x="324" y="262" width="126" height="76" rx="20" fill="#F2AC29" opacity=".2"/>
+  <rect x="0" y="358" width="640" height="62" fill="#E9EEF1"/>
+</svg>

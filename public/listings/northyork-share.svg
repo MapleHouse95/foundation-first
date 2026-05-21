@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Mock share house interior thumbnail">
+  <rect width="640" height="420" fill="#F7F8F9"/>
+  <rect x="0" y="0" width="640" height="170" fill="#EEF1F2"/>
+  <rect x="62" y="58" width="132" height="92" rx="14" fill="#FFFFFF"/>
+  <rect x="82" y="78" width="92" height="50" rx="8" fill="#DDE8EC"/>
+  <rect x="248" y="96" width="164" height="162" rx="18" fill="#FFFFFF" stroke="#E2E5E8" stroke-width="6"/>
+  <rect x="274" y="124" width="112" height="60" rx="12" fill="#FFF3E6"/>
+  <rect x="274" y="200" width="112" height="34" rx="17" fill="#FA7000" opacity=".22"/>
+  <rect x="452" y="194" width="96" height="118" rx="18" fill="#FFFFFF" stroke="#E2E5E8" stroke-width="6"/>
+  <rect x="476" y="216" width="48" height="72" rx="9" fill="#DDE8EC"/>
+  <rect x="86" y="284" width="122" height="62" rx="18" fill="#F2AC29" opacity=".22"/>
+  <rect x="0" y="358" width="640" height="62" fill="#E9EEF1"/>
+</svg>
