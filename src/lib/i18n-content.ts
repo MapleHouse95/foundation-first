@@ -72,8 +72,7 @@ export const MAIN_CONTENT: Record<Locale, MainContent> = {
     landlordCta: "임대인 등록/문의",
     rolesEyebrow: "어떤 도움이 필요하세요?",
     rolesTitle: "두 가지 흐름으로 안내합니다",
-    rolesDescription:
-      "언어와 역할은 서로 분리되어 있어요. 원하는 흐름을 선택해 주세요.",
+    rolesDescription: "언어와 역할은 서로 분리되어 있어요. 원하는 흐름을 선택해 주세요.",
     seekerCardTitle: "집을 찾는 분",
     seekerCardBody:
       "지역·예산·상황을 알려주시면, 관리자가 검토한 매물과 안내를 받으실 수 있습니다.",
@@ -86,8 +85,7 @@ export const MAIN_CONTENT: Record<Locale, MainContent> = {
     aboutTitle: "차분하고, 명확하고, 초보자 친화적인 주거 서비스",
     aboutBody:
       "메이플하우스는 첫 자취·첫 전월세·외국인 정착 등 처음 집을 구하는 분과, 안정적인 입주자를 찾는 임대인을 연결합니다. 모든 절차는 사람과 관리자가 함께 검토합니다.",
-    mvpNotice:
-      "MVP 준비 단계입니다. 결제·계약·실제 등록 기능은 아직 활성화되지 않았습니다.",
+    mvpNotice: "MVP 준비 단계입니다. 결제·계약·실제 등록 기능은 아직 활성화되지 않았습니다.",
   },
   en: {
     metaTitle: "MapleHouse — Calm, clearer housing connections",
@@ -101,8 +99,7 @@ export const MAIN_CONTENT: Record<Locale, MainContent> = {
     landlordCta: "I want to list a property",
     rolesEyebrow: "How can we help?",
     rolesTitle: "Two flows, one calm process",
-    rolesDescription:
-      "Language and role are kept separate. Pick the flow that fits you.",
+    rolesDescription: "Language and role are kept separate. Pick the flow that fits you.",
     seekerCardTitle: "Housing seekers",
     seekerCardBody:
       "Tell us your area, budget, and situation. An admin reviews listings and guides you through next steps.",
@@ -123,8 +120,7 @@ export const MAIN_CONTENT: Record<Locale, MainContent> = {
     metaDescription:
       "MapleHouse met en relation les chercheurs de logement et les propriétaires via un service web structuré.",
     testModeBadge: "Mode test · Aperçu MVP",
-    heroTitle:
-      "Des échanges immobiliers plus clairs, dans la langue que vous préférez.",
+    heroTitle: "Des échanges immobiliers plus clairs, dans la langue que vous préférez.",
     heroDescription:
       "MapleHouse aide les personnes qui cherchent un logement et les propriétaires à communiquer grâce à un processus structuré.",
     seekerCta: "Je cherche un logement",
@@ -188,37 +184,37 @@ export const LISTINGS_CONTENT: Record<Locale, ListingsContent> = {
 export const APPLY_CONTENT: Record<Locale, ApplyContent> = {
   ko: {
     metaTitle: "신청하기 — MapleHouse",
-    metaDescription: "메이플하우스 상담 신청 페이지 자리표시자.",
+    metaDescription: "메이플하우스 상담/예약 신청 정보를 미리 정리하는 MVP 양식입니다.",
     eyebrow: "신청하기",
     title: "상담/예약 신청",
-    description: "정식 신청 폼은 다음 단계에서 제공됩니다. 현재 페이지는 자리표시자입니다.",
-    placeholderBody:
-      "입력 필드·검증·제출 흐름은 아직 구현되지 않았습니다. 결제와 계약 기능도 아직 활성화되지 않았습니다.",
-    disabledCta: "제출 (이 단계에서는 비활성화)",
-    mvpNotice: "MVP 준비 단계입니다.",
+    description:
+      "원하는 주거 조건과 상담 정보를 남겨주시면 메이플하우스가 확인 후 안내드리는 흐름입니다.",
+    placeholderBody: "현재는 MVP 미리보기 단계입니다. 입력 내용은 실제로 저장되지 않습니다.",
+    disabledCta: "상담/예약 신청 미리보기",
+    mvpNotice: "현재는 MVP 미리보기 단계입니다. 입력 내용은 실제로 저장되지 않습니다.",
   },
   en: {
     metaTitle: "Apply — MapleHouse",
-    metaDescription: "Placeholder application page for a MapleHouse consultation.",
+    metaDescription: "MVP consultation and reservation request preview for MapleHouse.",
     eyebrow: "Apply",
-    title: "Consultation / Reservation Request",
-    description: "The full inquiry form arrives in a later phase. This page is a placeholder.",
-    placeholderBody:
-      "Form fields, validation, and submission flow are not built yet. Payments and contracts are not active either.",
-    disabledCta: "Submit (disabled in this phase)",
-    mvpNotice: "MVP preview — not connected to any database.",
+    title: "Apply for Consultation / Reservation",
+    description:
+      "Share your housing conditions and consultation details so MapleHouse can guide the next step.",
+    placeholderBody: "This is an MVP preview. Your input is not actually saved yet.",
+    disabledCta: "Preview consultation request",
+    mvpNotice: "This is an MVP preview. Your input is not actually saved yet.",
   },
   fr: {
     metaTitle: "Faire une demande — MapleHouse",
-    metaDescription: "Page de demande placeholder pour une consultation MapleHouse.",
+    metaDescription: "Aperçu MVP pour une demande de consultation ou réservation MapleHouse.",
     eyebrow: "Faire une demande",
     title: "Demande de consultation / réservation",
     description:
-      "Le vrai formulaire arrivera dans une prochaine phase. Cette page est un placeholder.",
+      "Indiquez vos conditions de logement et vos informations de consultation afin que MapleHouse puisse préparer l’étape suivante.",
     placeholderBody:
-      "Les champs, la validation et l’envoi ne sont pas encore construits. Les paiements et les contrats ne sont pas non plus actifs.",
-    disabledCta: "Envoyer (désactivé à cette étape)",
-    mvpNotice: "Aperçu MVP — aucune base de données connectée.",
+      "Ceci est un aperçu MVP. Les informations saisies ne sont pas encore enregistrées.",
+    disabledCta: "Aperçu de la demande",
+    mvpNotice: "Ceci est un aperçu MVP. Les informations saisies ne sont pas encore enregistrées.",
   },
 };
 
@@ -241,13 +237,11 @@ export const LANDLORDS_CONTENT: Record<Locale, LandlordsContent> = {
     prepBody:
       "구조화된 매물 등록과 파트너 문의 흐름을 준비하고 있습니다. 정식 등록은 아직 가능하지 않습니다.",
     comingSoonBadge: "곧 공개 · MVP 자리표시자",
-    mvpNotice:
-      "실제 매물 등록·계약·결제 기능은 아직 활성화되지 않았습니다.",
+    mvpNotice: "실제 매물 등록·계약·결제 기능은 아직 활성화되지 않았습니다.",
   },
   en: {
     metaTitle: "Landlord Registration — MapleHouse",
-    metaDescription:
-      "Placeholder info page for landlords, property owners, and room rental hosts.",
+    metaDescription: "Placeholder info page for landlords, property owners, and room rental hosts.",
     eyebrow: "Landlord Registration",
     title: "Landlord / Property Owner Inquiry",
     description:
@@ -263,8 +257,7 @@ export const LANDLORDS_CONTENT: Record<Locale, LandlordsContent> = {
     prepBody:
       "We’re preparing a structured listing and partner inquiry flow. Real registration is not yet available.",
     comingSoonBadge: "Coming soon · MVP placeholder",
-    mvpNotice:
-      "Real property registration, contracts, and payments are not active yet.",
+    mvpNotice: "Real property registration, contracts, and payments are not active yet.",
   },
   fr: {
     metaTitle: "Proposer un logement — MapleHouse",
