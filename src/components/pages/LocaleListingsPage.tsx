@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
 import {
+  ArrowRight,
   BookOpen,
   Building2,
   CalendarDays,
@@ -24,6 +24,7 @@ type Status = "verified" | "needs_check" | "preparing";
 type LocalizedText = Record<Locale, string>;
 type FilterPopover = "budget" | "housing" | "moveIn" | "people" | "more" | null;
 type HousingTypeId = "room" | "studio" | "condo" | "share" | "house";
+type InquiryMethod = "direct" | "support";
 type MoreFilterId =
   | "verified"
   | "furnished"
@@ -101,6 +102,21 @@ interface L10n {
   closeDetail: string;
   sampleImage: string;
   mvpNotice: string;
+  inquiryModal: {
+    title: string;
+    subtitle: string;
+    directTitle: string;
+    directBadge: string;
+    directDescription: string;
+    directAction: string;
+    directMessage: string;
+    supportTitle: string;
+    supportBadge: string;
+    supportDescription: string;
+    supportAction: string;
+    supportMessage: string;
+    footerNotice: string;
+  };
 }
 
 const MOCK_LISTINGS: MockListing[] = [
@@ -340,12 +356,33 @@ const L: Record<Locale, L10n> = {
     autoDeact: "30일 미확인 시 자동 비활성화 예정",
     mapLabel: "지도 자리표시자 · 실제 지도 API 미연동",
     mapActiveArea: "활성 지역 · Downtown Toronto",
-    consultationCta: "상담/예약 신청",
+    consultationCta: "이 매물 문의하기",
     checklistCta: "체크리스트 보기",
     detailLabel: "매물 상세",
     closeDetail: "상세 닫기",
     sampleImage: "sample image",
     mvpNotice: "MVP 미리보기 · 실제 결제/계약/매물 등록은 아직 활성화되지 않았습니다.",
+    inquiryModal: {
+      title: "이 매물에 어떻게 문의할까요?",
+      subtitle:
+        "선택한 방식에 따라 집주인에게 직접 문의하거나, 메이플하우스의 도움을 받아 문의할 수 있습니다.",
+      directTitle: "집주인에게 직접 문의하기",
+      directBadge: "무료",
+      directDescription:
+        "체크리스트를 참고해 직접 집주인과 메시지를 주고받는 방식입니다. 현재 DM 기능은 MVP 준비 중입니다.",
+      directAction: "직접 문의 미리보기",
+      directMessage:
+        "집주인 직접 메시지 기능은 다음 단계에서 연결됩니다. 현재는 MVP 미리보기입니다.",
+      supportTitle: "메이플하우스와 함께 문의하기",
+      supportBadge: "유료 플랜 예정",
+      supportDescription:
+        "처음이라 불안하거나 조건 확인이 어렵다면, 메이플하우스가 질문 정리와 기본 확인 과정을 도와주는 흐름입니다.",
+      supportAction: "함께 문의 미리보기",
+      supportMessage:
+        "메이플하우스와 함께 문의하기는 유료 플랜으로 연결될 예정입니다. 현재는 신청 흐름만 미리 보여주는 단계입니다.",
+      footerNotice:
+        "현재 MVP 미리보기 단계입니다. 실제 메시지 발송, 결제, 신청 저장은 아직 진행되지 않습니다.",
+    },
   },
   en: {
     pageTitle: "Recommended Listings in Toronto",
@@ -377,12 +414,33 @@ const L: Record<Locale, L10n> = {
     autoDeact: "Auto-deactivation after 30 unchecked days is planned",
     mapLabel: "Map placeholder · no real map API",
     mapActiveArea: "Active area · Downtown Toronto",
-    consultationCta: "Request consultation",
+    consultationCta: "Ask about this listing",
     checklistCta: "View checklist",
     detailLabel: "Listing details",
     closeDetail: "Close details",
     sampleImage: "sample image",
     mvpNotice: "MVP preview · Real payments, contracts, and property registration are not active yet.",
+    inquiryModal: {
+      title: "How would you like to ask about this listing?",
+      subtitle:
+        "Choose whether to contact the landlord directly or ask with MapleHouse support.",
+      directTitle: "Contact landlord directly",
+      directBadge: "Free",
+      directDescription:
+        "Message the landlord yourself using the listing details and checklist. Direct messaging is still being prepared for the MVP.",
+      directAction: "Preview direct inquiry",
+      directMessage:
+        "Direct landlord messaging will be connected in a later step. This is an MVP preview.",
+      supportTitle: "Ask with MapleHouse support",
+      supportBadge: "Paid plan planned",
+      supportDescription:
+        "If you are unsure what to ask or want help checking conditions, MapleHouse will help organize questions and support the inquiry flow.",
+      supportAction: "Preview MapleHouse support",
+      supportMessage:
+        "MapleHouse-assisted inquiry will be connected to a paid plan later. For now, this only previews the flow.",
+      footerNotice:
+        "This is an MVP preview. No real message, payment, or request is submitted yet.",
+    },
   },
   fr: {
     pageTitle: "Logements recommandés à Toronto",
@@ -416,12 +474,33 @@ const L: Record<Locale, L10n> = {
     autoDeact: "Désactivation automatique prévue après 30 jours sans vérification",
     mapLabel: "Carte fictive · aucune API réelle",
     mapActiveArea: "Zone active · Downtown Toronto",
-    consultationCta: "Demander une consultation",
+    consultationCta: "Se renseigner sur ce logement",
     checklistCta: "Voir la liste",
     detailLabel: "Détails du logement",
     closeDetail: "Fermer les détails",
     sampleImage: "image d'exemple",
     mvpNotice: "Aperçu MVP · Les paiements, contrats et enregistrements réels ne sont pas encore actifs.",
+    inquiryModal: {
+      title: "Comment souhaitez-vous vous renseigner sur ce logement ?",
+      subtitle:
+        "Choisissez de contacter directement le propriétaire ou de demander l’aide de MapleHouse.",
+      directTitle: "Contacter directement le propriétaire",
+      directBadge: "Gratuit",
+      directDescription:
+        "Contactez vous-même le propriétaire à l’aide des informations du logement et de la liste de vérification. La messagerie directe est encore en préparation pour le MVP.",
+      directAction: "Aperçu du contact direct",
+      directMessage:
+        "La messagerie directe avec le propriétaire sera connectée plus tard. Ceci est un aperçu MVP.",
+      supportTitle: "Demander l’aide de MapleHouse",
+      supportBadge: "Forfait payant prévu",
+      supportDescription:
+        "Si vous ne savez pas quoi demander ou si vous voulez vérifier les conditions, MapleHouse vous aide à organiser les questions et le parcours de demande.",
+      supportAction: "Aperçu avec MapleHouse",
+      supportMessage:
+        "La demande assistée par MapleHouse sera liée à un forfait payant plus tard. Pour l’instant, ce parcours est seulement prévisualisé.",
+      footerNotice:
+        "Ceci est un aperçu MVP. Aucun message réel, paiement ou demande n’est envoyé pour le moment.",
+    },
   },
 };
 
@@ -1187,13 +1266,17 @@ function ListingDetailDrawer({
   fmtCAD: (value: number) => string;
   onClose: () => void;
 }) {
+  const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
+  const [inquiryPreview, setInquiryPreview] = useState<InquiryMethod | null>(null);
+
   if (!listing) return null;
 
   return (
-    <aside
-      className="mh-drawer-slide-in fixed bottom-0 right-0 top-0 z-50 w-full max-w-[30rem] overflow-y-auto border-l border-border bg-card shadow-2xl"
-      aria-label={t.detailLabel}
-    >
+    <>
+      <aside
+        className="mh-drawer-slide-in fixed bottom-0 right-0 top-0 z-50 w-full max-w-[30rem] overflow-y-auto border-l border-border bg-card shadow-2xl"
+        aria-label={t.detailLabel}
+      >
         <div className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-card/95 px-5 backdrop-blur">
           <h2 className="text-sm font-bold text-foreground">{t.detailLabel}</h2>
           <button
@@ -1264,8 +1347,15 @@ function ListingDetailDrawer({
           </section>
 
           <div className="grid gap-2 sm:grid-cols-2">
-            <Button asChild size="lg">
-              <Link to={`/${locale}/apply`}>{t.consultationCta}</Link>
+            <Button
+              type="button"
+              size="lg"
+              onClick={() => {
+                setInquiryModalOpen(true);
+                setInquiryPreview(null);
+              }}
+            >
+              {t.consultationCta}
             </Button>
             <Button type="button" variant="outline" size="lg">
               {t.checklistCta}
@@ -1274,7 +1364,186 @@ function ListingDetailDrawer({
 
           <p className="text-xs text-muted-foreground">{t.mvpNotice}</p>
         </div>
-    </aside>
+      </aside>
+
+      {inquiryModalOpen && (
+        <InquiryChoiceModal
+          listing={listing}
+          locale={locale}
+          t={t}
+          fmtKRW={fmtKRW}
+          fmtCAD={fmtCAD}
+          selectedMethod={inquiryPreview}
+          onSelectMethod={setInquiryPreview}
+          onClose={() => {
+            setInquiryModalOpen(false);
+            setInquiryPreview(null);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+function InquiryChoiceModal({
+  listing,
+  locale,
+  t,
+  fmtKRW,
+  fmtCAD,
+  selectedMethod,
+  onSelectMethod,
+  onClose,
+}: {
+  listing: MockListing;
+  locale: Locale;
+  t: L10n;
+  fmtKRW: (value: number) => string;
+  fmtCAD: (value: number) => string;
+  selectedMethod: InquiryMethod | null;
+  onSelectMethod: (method: InquiryMethod) => void;
+  onClose: () => void;
+}) {
+  const message =
+    selectedMethod === "direct"
+      ? t.inquiryModal.directMessage
+      : selectedMethod === "support"
+        ? t.inquiryModal.supportMessage
+        : null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/35 px-4 py-6 backdrop-blur-sm"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="inquiry-choice-title"
+        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-border bg-card p-5 shadow-2xl sm:p-6"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="inquiry-choice-title" className="text-xl font-extrabold text-foreground">
+              {t.inquiryModal.title}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              {t.inquiryModal.subtitle}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.closeDetail}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-5 flex gap-3 rounded-2xl border border-border bg-secondary p-3 sm:p-4">
+          <MockListingImage
+            listing={listing}
+            locale={locale}
+            t={t}
+            className="h-[72px] w-[88px] shrink-0"
+            imageClassName="rounded-xl"
+            badgeClassName="hidden"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="mh-clamp-2 text-sm font-extrabold text-foreground">
+              {listing.title[locale]}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              <span>{listing.area}</span>
+              <span>·</span>
+              <span>{listing.roomType[locale]}</span>
+              <span>·</span>
+              <span>{t.maxPeopleLabel(listing.maxPeople)}</span>
+            </div>
+            <p className="mt-2 text-sm font-extrabold text-primary">
+              {fmtKRW(listing.priceKRW)}
+              <span className="ml-2 text-xs font-semibold text-muted-foreground">
+                {fmtCAD(listing.priceCAD)}/mo
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <InquiryOptionCard
+            title={t.inquiryModal.directTitle}
+            badge={t.inquiryModal.directBadge}
+            description={t.inquiryModal.directDescription}
+            action={t.inquiryModal.directAction}
+            active={selectedMethod === "direct"}
+            onClick={() => onSelectMethod("direct")}
+          />
+          <InquiryOptionCard
+            title={t.inquiryModal.supportTitle}
+            badge={t.inquiryModal.supportBadge}
+            description={t.inquiryModal.supportDescription}
+            action={t.inquiryModal.supportAction}
+            active={selectedMethod === "support"}
+            onClick={() => onSelectMethod("support")}
+          />
+        </div>
+
+        {message && (
+          <p className="mt-4 rounded-2xl border border-primary/20 bg-accent px-4 py-3 text-sm font-medium leading-relaxed text-foreground">
+            {message}
+          </p>
+        )}
+
+        <p className="mt-5 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
+          {t.inquiryModal.footerNotice}
+        </p>
+      </section>
+    </div>
+  );
+}
+
+function InquiryOptionCard({
+  title,
+  badge,
+  description,
+  action,
+  active,
+  onClick,
+}: {
+  title: string;
+  badge: string;
+  description: string;
+  action: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex h-full flex-col rounded-2xl border p-4 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        active
+          ? "border-primary bg-accent shadow-md"
+          : "border-border bg-card hover:border-primary hover:bg-accent hover:shadow-md",
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-base font-extrabold text-foreground">{title}</h3>
+        <span className="shrink-0 rounded-full border border-primary/20 bg-accent px-2.5 py-1 text-[11px] font-bold text-primary">
+          {badge}
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
+      <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-bold text-primary">
+        {action}
+        <ArrowRight className="h-4 w-4" />
+      </span>
+    </button>
   );
 }
 
