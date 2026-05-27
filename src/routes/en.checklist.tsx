@@ -7,7 +7,7 @@ export const Route = createFileRoute("/en/checklist")({
       { title: "Checklist · MapleHouse" },
       {
         name: "description",
-        content: "MapleHouse checklist MVP placeholder.",
+        content: "MapleHouse checklist MVP for Toronto housing search decisions.",
       },
     ],
   }),

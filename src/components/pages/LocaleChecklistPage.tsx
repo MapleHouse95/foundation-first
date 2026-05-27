@@ -4,7 +4,6 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronLeft,
-  ClipboardCheck,
   Compass,
   Home,
   RotateCcw,
@@ -12,6 +11,11 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
+import {
+  TRANSLATED_CHECKLIST_CONTENT,
+  type ChecklistLocaleContent,
+  type TranslatedChecklistLocale,
+} from "@/lib/checklistLocaleContent";
 import type { Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
@@ -41,19 +45,6 @@ const LEGAL_SCOPE_NOTICE_LINES = [
   "이 추천은 정답이 아니라 탐색 시작점을 잡기 위한 참고용입니다. 실제 통학/출근 시간, 매물 상태, 계약 조건, 송금 여부는 사용자가 직접 확인해야 합니다.",
   "메이플하우스는 계약 당사자가 아니며, 법률 자문이나 부동산 중개를 제공하지 않습니다.",
 ];
-
-const PLACEHOLDER_COPY = {
-  en: {
-    title: "Checklist feature is being prepared",
-    body: "This checklist feature is being prepared for the MVP. Please use the Korean version for the current preview.",
-    button: "Go to Korean checklist",
-  },
-  fr: {
-    title: "La checklist est en préparation",
-    body: "Cette fonctionnalité de checklist est en préparation pour le MVP. Veuillez utiliser la version coréenne pour l’aperçu actuel.",
-    button: "Voir la version coréenne",
-  },
-};
 
 const DEPARTURE_TYPES = [
   {
@@ -98,33 +89,389 @@ const HOUSING_GUIDE = [
 
 export function LocaleChecklistPage({ locale }: { locale: Locale }) {
   if (locale !== "ko") {
-    return <ChecklistPlaceholder locale={locale} />;
+    return <TranslatedChecklistPage locale={locale} />;
   }
 
   return <KoreanChecklistPage />;
 }
 
-function ChecklistPlaceholder({ locale }: { locale: "en" | "fr" }) {
-  const t = PLACEHOLDER_COPY[locale];
+function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale }) {
+  const content = TRANSLATED_CHECKLIST_CONTENT[locale];
+  const location = useLocation() as { href?: string; searchStr?: string };
+  const [mode, setMode] = useState<KoreanMode>("overview");
+  const [workingStep, setWorkingStep] = useState(0);
+  const [workingAnswers, setWorkingAnswers] = useState<AnswerMap>({});
+  const [workingResult, setWorkingResult] = useState<CalculationResult | null>(null);
+  const [generalStep, setGeneralStep] = useState(0);
+  const [generalAnswers, setGeneralAnswers] = useState<GeneralAnswers>({});
+  const [notice, setNotice] = useState<string | null>(null);
+  const [supportNotice, setSupportNotice] = useState(false);
+
+  const workingQuestions = content.workingQuestions;
+  const generalQuestions = content.generalQuestions;
+  const workingQuestion = workingQuestions[workingStep];
+  const selectedWorkingAnswer = workingQuestion ? workingAnswers[workingQuestion.id] : undefined;
+  const workingProgress = mode === "workingWizard" ? ((workingStep + 1) / workingQuestions.length) * 100 : 0;
+  const generalQuestion = generalQuestions[generalStep];
+  const selectedGeneralOptions = generalQuestion ? generalAnswers[generalQuestion.id] ?? [] : [];
+  const generalProgress = mode === "generalWizard" ? ((generalStep + 1) / generalQuestions.length) * 100 : 0;
+
+  function resetToOverview() {
+    setMode("overview");
+    setWorkingStep(0);
+    setWorkingAnswers({});
+    setWorkingResult(null);
+    setGeneralStep(0);
+    setGeneralAnswers({});
+    setNotice(null);
+    setSupportNotice(false);
+  }
+
+  function showOverview() {
+    resetToOverview();
+  }
+
+  useEffect(() => {
+    const searchText =
+      location.searchStr ??
+      (typeof window !== "undefined" ? window.location.search : "");
+    const params = new URLSearchParams(searchText.startsWith("?") ? searchText : `?${searchText}`);
+
+    if (params.get("view") === "main") {
+      resetToOverview();
+    }
+  }, [location.href, location.searchStr]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    window.addEventListener(CHECKLIST_MAIN_EVENT, resetToOverview);
+    return () => window.removeEventListener(CHECKLIST_MAIN_EVENT, resetToOverview);
+  }, []);
+
+  function startWorkingWizard() {
+    setMode("workingWizard");
+    setWorkingStep(0);
+    setWorkingAnswers({});
+    setWorkingResult(null);
+    setSupportNotice(false);
+    setNotice(null);
+  }
+
+  function startGeneralChecklist() {
+    setMode("generalWizard");
+    setGeneralStep(0);
+    setGeneralAnswers({});
+    setSupportNotice(false);
+    setNotice(null);
+  }
+
+  function selectWorkingAnswer(value: AnswerValue) {
+    if (!workingQuestion) return;
+    setWorkingAnswers((prev) => ({ ...prev, [workingQuestion.id]: value }));
+  }
+
+  function goNextWorking() {
+    if (!workingQuestion || !selectedWorkingAnswer) return;
+
+    if (workingStep < workingQuestions.length - 1) {
+      setWorkingStep((prev) => prev + 1);
+      return;
+    }
+
+    const nextAnswers = { ...workingAnswers, [workingQuestion.id]: selectedWorkingAnswer };
+    if (!isCompleteAnswerMap(nextAnswers)) return;
+    setWorkingResult(calculateStationRecommendation(nextAnswers));
+    setMode("workingResult");
+    setSupportNotice(false);
+  }
+
+  function toggleGeneralOption(option: string) {
+    if (!generalQuestion) return;
+    setGeneralAnswers((prev) => {
+      const current = prev[generalQuestion.id] ?? [];
+      const next = current.includes(option)
+        ? current.filter((item) => item !== option)
+        : [...current, option];
+      return { ...prev, [generalQuestion.id]: next };
+    });
+  }
+
+  function goNextGeneral() {
+    if (generalStep < generalQuestions.length - 1) {
+      setGeneralStep((prev) => prev + 1);
+      return;
+    }
+    setMode("generalResult");
+    setSupportNotice(false);
+  }
 
   return (
-    <main className="bg-background [overflow-wrap:break-word] [word-break:keep-all]">
-      <Container className="py-14 sm:py-20">
-        <section className="mx-auto max-w-2xl rounded-3xl border border-border bg-card p-8 text-center shadow-sm sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-            MapleHouse Checklist
-          </p>
-          <h1 className="mt-4 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
-            {t.title}
-          </h1>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">{t.body}</p>
-          <Button asChild size="lg" className="mt-8">
-            <Link to="/ko/checklist">
-              {t.button}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </section>
+    <main className="bg-background [overflow-wrap:break-word]">
+      <Container className="py-10 sm:py-14">
+        {mode === "overview" && (
+          <TranslatedHeroSection content={content} onStartGeneral={startGeneralChecklist} />
+        )}
+
+        {mode === "overview" && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+              {content.overview.departureHeading}
+            </h2>
+          </div>
+        )}
+
+        {notice && (
+          <div className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground">
+            {notice}
+          </div>
+        )}
+
+        {mode === "overview" && (
+          <section className="mt-4 grid gap-4 lg:grid-cols-3">
+            {content.departureTypes.map((type) => (
+              <article
+                key={type.title}
+                className="flex h-full min-h-[15rem] min-w-0 flex-col rounded-3xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary hover:shadow-md sm:p-6"
+              >
+                <h3 className="text-xl font-semibold text-foreground">{type.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {type.description}
+                </p>
+                <div className="mt-auto pt-6">
+                  <Button
+                    type="button"
+                    className="w-full whitespace-normal text-center leading-snug"
+                    variant={type.action === "working" ? "default" : "soft"}
+                    onClick={() => {
+                      if (type.action === "working") {
+                        setMode("workingIntro");
+                        setNotice(null);
+                      } else {
+                        setNotice(type.notice ?? null);
+                      }
+                    }}
+                  >
+                    {type.button}
+                    {type.action === "working" && <ArrowRight className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
+
+        {mode === "workingIntro" && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              {content.workingIntro.label}
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+              {content.workingIntro.title}
+            </h2>
+            <div className="mt-5 space-y-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {content.workingIntro.paragraphs.map((paragraph, index) => (
+                <p key={paragraph} className={index === 2 ? "font-medium text-foreground" : undefined}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button type="button" variant="outline" size="lg" onClick={showOverview}>
+                <ChevronLeft className="h-4 w-4" />
+                {content.wizardLabels.previous}
+              </Button>
+              <Button type="button" size="lg" onClick={startWorkingWizard}>
+                {content.wizardLabels.start}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "workingWizard" && workingQuestion && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+            <WizardHeader
+              countLabel={`${workingStep + 1} / ${workingQuestions.length}`}
+              title={content.wizardLabels.workingTitle}
+              progress={workingProgress}
+            />
+
+            <div className="mt-8">
+              <h2 className="text-2xl font-semibold leading-tight text-foreground">
+                {workingQuestion.title}
+              </h2>
+              {workingQuestion.intro && (
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {workingQuestion.intro}
+                </p>
+              )}
+              {workingQuestion.notice && (
+                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground">
+                  {workingQuestion.notice}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-3 xl:grid-cols-2">
+              {workingQuestion.options.map((option) => {
+                const selected = selectedWorkingAnswer === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={cn(
+                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                      selected
+                        ? "border-primary bg-accent shadow-sm"
+                        : "border-border bg-card hover:border-primary hover:shadow-sm",
+                    )}
+                    onClick={() => selectWorkingAnswer(option.value)}
+                  >
+                    <AnswerMarker selected={selected} />
+                    <span className="ml-8 -mt-5 block">
+                      <span className="block text-base font-semibold text-foreground">
+                        {option.label}
+                      </span>
+                      <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                        {option.description}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {workingQuestion.footerNote && (
+              <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground">
+                {workingQuestion.footerNote}
+              </p>
+            )}
+
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (workingStep === 0) {
+                    showOverview();
+                    return;
+                  }
+                  setWorkingStep((prev) => prev - 1);
+                }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                {content.wizardLabels.previous}
+              </Button>
+              <Button type="button" disabled={!selectedWorkingAnswer} onClick={goNextWorking}>
+                {workingStep === workingQuestions.length - 1
+                  ? content.wizardLabels.showResult
+                  : content.wizardLabels.next}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "workingResult" && workingResult && (
+          <TranslatedWorkingResultSection
+            locale={locale}
+            content={content}
+            calculation={workingResult}
+            supportNotice={supportNotice}
+            onSupportClick={() => setSupportNotice(true)}
+            onRestart={startWorkingWizard}
+            onStartGeneral={startGeneralChecklist}
+          />
+        )}
+
+        {mode === "generalWizard" && generalQuestion && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+            <WizardHeader
+              countLabel={`${generalStep + 1} / ${generalQuestions.length}`}
+              title={content.wizardLabels.generalTitle}
+              progress={generalProgress}
+            />
+            <div className="mt-8">
+              <p className="text-sm font-semibold text-primary">{content.generalChecklist.eyebrow}</p>
+              <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground">
+                {generalQuestion.title}
+              </h2>
+              {generalStep === 0 && (
+                <div className="mt-3 max-w-4xl space-y-1 text-sm leading-7 text-muted-foreground">
+                  {content.generalChecklist.intro.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              )}
+              {selectedGeneralOptions.length === 0 && (
+                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground">
+                  {content.generalChecklist.emptyHint}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-3 xl:grid-cols-2">
+              {generalQuestion.options.map((option) => {
+                const selected = selectedGeneralOptions.includes(option);
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    className={cn(
+                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                      selected
+                        ? "border-primary bg-accent shadow-sm"
+                        : "border-border bg-card hover:border-primary hover:shadow-sm",
+                    )}
+                    onClick={() => toggleGeneralOption(option)}
+                  >
+                    <AnswerMarker selected={selected} />
+                    <span className="ml-8 -mt-5 block text-sm font-medium leading-relaxed text-foreground">
+                      {option}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (generalStep === 0) {
+                    showOverview();
+                    return;
+                  }
+                  setGeneralStep((prev) => prev - 1);
+                }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                {content.wizardLabels.previous}
+              </Button>
+              <Button type="button" onClick={goNextGeneral}>
+                {generalStep === generalQuestions.length - 1
+                  ? content.wizardLabels.showResult
+                  : content.wizardLabels.next}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "generalResult" && (
+          <TranslatedGeneralChecklistResult
+            locale={locale}
+            content={content}
+            answers={generalAnswers}
+            supportNotice={supportNotice}
+            onSupportClick={() => setSupportNotice(true)}
+            onRestart={startGeneralChecklist}
+          />
+        )}
+
+        <TranslatedHousingGuideSection content={content} />
       </Container>
     </main>
   );
@@ -510,19 +857,17 @@ function HeroSection({ onStartGeneral }: { onStartGeneral: () => void }) {
   return (
     <section className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm">
       <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:p-10">
-        <div>
-          <p className="inline-flex rounded-full border border-[#FFE8CC] bg-[#FFF7ED] px-3 py-1 text-xs font-semibold text-primary">
+        <div className="min-w-0">
+          <p className="inline-flex w-fit rounded-full border border-[#FFE8CC] bg-[#FFF7ED] px-3 py-1 text-xs font-semibold text-primary">
             Toronto Station Checklist · MVP
           </p>
           <h1 className="mt-5 max-w-3xl text-[2rem] font-semibold leading-[1.16] text-foreground [word-break:keep-all] sm:text-[2.35rem] lg:text-[2.65rem]">
             <span className="block">처음 토론토에서 집을 <span className="whitespace-nowrap">구할 때,</span></span>
             <span className="block">어디부터 봐야 할까요?</span>
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            몇 가지 질문에 답하면 내 목적과 예산, 생활 방식에 맞는 기준역 후보를 추천해드립니다.
-          </p>
-          <p className="mt-5 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground">
-            이 추천은 정답이 아니라, 집을 찾기 시작할 기준점을 잡기 위한 참고용입니다.
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground [word-break:keep-all] sm:text-lg">
+            <span className="block">몇 가지 질문에 답하면 내 목적과 예산, 생활 방식에 맞는 기준 역을</span>
+            <span className="block">추천해드립니다.</span>
           </p>
         </div>
 
@@ -530,11 +875,8 @@ function HeroSection({ onStartGeneral }: { onStartGeneral: () => void }) {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             MapleHouse Checklist
           </p>
-          <h2 className="mt-4 flex items-center gap-3 text-2xl font-semibold leading-tight text-foreground">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent text-primary">
-              <ClipboardCheck className="h-5 w-5" />
-            </span>
-            <span className="[word-break:keep-all]">캐나다 집 구하기 체크리스트</span>
+          <h2 className="mt-4 text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
+            캐나다 집 구하기 체크리스트
           </h2>
           <div className="mt-4 max-w-xl space-y-4 text-sm leading-7 text-muted-foreground [word-break:keep-all]">
             <p>
@@ -553,6 +895,164 @@ function HeroSection({ onStartGeneral }: { onStartGeneral: () => void }) {
             </Button>
           </div>
         </article>
+      </div>
+    </section>
+  );
+}
+
+function TranslatedHeroSection({
+  content,
+  onStartGeneral,
+}: {
+  content: ChecklistLocaleContent;
+  onStartGeneral: () => void;
+}) {
+  return (
+    <section className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm">
+      <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:p-10">
+        <div className="min-w-0">
+          <p className="inline-flex w-fit rounded-full border border-[#FFE8CC] bg-[#FFF7ED] px-3 py-1 text-xs font-semibold text-primary">
+            {content.overview.heroLabel}
+          </p>
+          <h1 className="mt-5 max-w-3xl text-[2rem] font-semibold leading-[1.16] text-foreground sm:text-[2.35rem] lg:text-[2.65rem]">
+            {content.overview.heroTitle}
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            {content.overview.subtitle}
+          </p>
+        </div>
+
+        <article className="flex h-full flex-col rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            {content.overview.cardLabel}
+          </p>
+          <h2 className="mt-4 text-2xl font-semibold leading-tight text-foreground">
+            {content.overview.cardTitle}
+          </h2>
+          <div className="mt-4 max-w-xl space-y-4 text-sm leading-7 text-muted-foreground">
+            {content.overview.cardDescription.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          <div className="mt-auto pt-7">
+            <Button type="button" className="w-full" onClick={onStartGeneral}>
+              {content.overview.cardButton}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function TranslatedWorkingResultSection({
+  locale,
+  content,
+  calculation,
+  supportNotice,
+  onSupportClick,
+  onRestart,
+  onStartGeneral,
+}: {
+  locale: TranslatedChecklistLocale;
+  content: ChecklistLocaleContent;
+  calculation: CalculationResult;
+  supportNotice: boolean;
+  onSupportClick: () => void;
+  onRestart: () => void;
+  onStartGeneral: () => void;
+}) {
+  const result = content.recommendationResults[calculation.resultId] ?? calculation.result;
+  const budgetComment = content.budgetComments[calculation.budgetKey] ?? calculation.budgetComment;
+  const listingsPath = locale === "en" ? "/en/listings" : "/fr/listings";
+
+  return (
+    <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+      <p className="text-sm font-semibold text-primary">{content.workingResult.eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+        {content.workingResult.title}
+      </h2>
+      <div className="mt-4 space-y-1 text-sm leading-relaxed text-muted-foreground">
+        {content.workingResult.explanation.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </div>
+
+      <div className="mt-6 rounded-3xl border border-border bg-card p-5 sm:p-6">
+        <h3 className="text-xl font-semibold text-foreground">{result.title}</h3>
+
+        <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
+          <p className="text-sm font-semibold text-primary">{content.workingResult.stationTitle}</p>
+          <div className="mt-4 grid gap-3">
+            {result.stations.map((station, index) => (
+              <div
+                key={station}
+                className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                  {index + 1}
+                </span>
+                <span className="text-lg font-bold leading-tight text-foreground sm:text-xl">
+                  {formatStationDisplayName(station, locale)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <InfoBlock title={content.workingResult.reasonTitle} body={result.reason} />
+          <InfoBlock title={content.workingResult.nearbyTitle} body={result.nearby} />
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <h4 className="text-sm font-semibold text-foreground">
+              {content.workingResult.goodForTitle}
+            </h4>
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+              {result.goodFor.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <InfoBlock title={budgetComment.label} body={budgetComment.comment} />
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-muted-foreground">
+          <span className="font-semibold text-foreground">
+            {content.workingResult.cautionLabel}
+          </span>{" "}
+          {result.caution}
+        </div>
+      </div>
+
+      <LegalScopeNotice lines={content.legalScopeNoticeLines} />
+
+      {supportNotice && (
+        <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground">
+          {content.workingResult.supportNotice}
+        </p>
+      )}
+
+      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Button asChild>
+          <Link to={listingsPath}>
+            {content.workingResult.viewListings}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button type="button" variant="outline" onClick={onStartGeneral}>
+          {content.workingResult.startChecklist}
+        </Button>
+        <Button type="button" variant="outline" onClick={onRestart}>
+          <RotateCcw className="h-4 w-4" />
+          {content.workingResult.retake}
+        </Button>
+        <Button type="button" variant="soft" onClick={onSupportClick}>
+          {content.workingResult.support}
+        </Button>
       </div>
     </section>
   );
@@ -751,6 +1251,110 @@ function GeneralChecklistResult({
   );
 }
 
+function TranslatedGeneralChecklistResult({
+  locale,
+  content,
+  answers,
+  supportNotice,
+  onSupportClick,
+  onRestart,
+}: {
+  locale: TranslatedChecklistLocale;
+  content: ChecklistLocaleContent;
+  answers: GeneralAnswers;
+  supportNotice: boolean;
+  onSupportClick: () => void;
+  onRestart: () => void;
+}) {
+  const groupedAnswers = content.generalQuestions.map((question) => ({
+    title: question.resultTitle,
+    items: answers[question.id] ?? [],
+  }));
+  const selectedCount = groupedAnswers.reduce((sum, group) => sum + group.items.length, 0);
+  const listingsPath = locale === "en" ? "/en/listings" : "/fr/listings";
+
+  return (
+    <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+      <p className="text-sm font-semibold text-primary">{content.generalResult.eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+        {content.generalResult.title}
+      </h2>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        {content.generalResult.subtitle}
+      </p>
+
+      <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-3xl border border-border bg-secondary p-5">
+          <h3 className="text-xl font-semibold text-foreground">
+            {content.generalResult.checkedTitle}
+          </h3>
+          {selectedCount <= 2 && (
+            <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground">
+              {content.generalResult.emptyChecked}
+            </p>
+          )}
+          <div className="mt-5 space-y-4">
+            {groupedAnswers.map((group) => (
+              <div key={group.title} className="rounded-2xl border border-border bg-card p-4">
+                <h4 className="text-sm font-semibold text-foreground">{group.title}</h4>
+                {group.items.length > 0 ? (
+                  <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+                    {group.items.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {content.generalResult.noItems}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+          <h3 className="text-xl font-semibold text-foreground">
+            {content.generalResult.listingTitle}
+          </h3>
+          <div className="mt-5 rounded-2xl border border-dashed border-border bg-secondary p-5 text-sm leading-relaxed text-muted-foreground">
+            {content.generalResult.noListing.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <LegalScopeNotice lines={content.legalScopeNoticeLines} />
+
+      {supportNotice && (
+        <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground">
+          {content.generalResult.supportNotice}
+        </p>
+      )}
+
+      <div className="mt-7 grid gap-3 sm:grid-cols-3">
+        <Button type="button" variant="outline" onClick={onRestart}>
+          <RotateCcw className="h-4 w-4" />
+          {content.generalResult.retake}
+        </Button>
+        <Button asChild>
+          <Link to={listingsPath}>
+            {content.generalResult.viewListings}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button type="button" variant="soft" onClick={onSupportClick}>
+          {content.generalResult.support}
+        </Button>
+      </div>
+    </section>
+  );
+}
+
 function HousingGuideSection() {
   return (
     <section className="mt-10">
@@ -765,6 +1369,28 @@ function HousingGuideSection() {
               <Icon className="h-5 w-5 text-primary" />
               <h3 className="mt-4 text-lg font-semibold text-foreground [word-break:keep-all]">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">{item.body}</p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function TranslatedHousingGuideSection({ content }: { content: ChecklistLocaleContent }) {
+  const icons = [Home, WalletCards, Compass];
+
+  return (
+    <section className="mt-10">
+      <h2 className="text-2xl font-semibold text-foreground">{content.housingGuide.title}</h2>
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        {content.housingGuide.items.map((item, index) => {
+          const Icon = icons[index] ?? Home;
+          return (
+            <article key={item.title} className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+              <Icon className="h-5 w-5 text-primary" />
+              <h3 className="mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </article>
           );
         })}
@@ -820,10 +1446,10 @@ function InfoBlock({ title, body }: { title: string; body: string }) {
   );
 }
 
-function LegalScopeNotice() {
+function LegalScopeNotice({ lines = LEGAL_SCOPE_NOTICE_LINES }: { lines?: string[] }) {
   return (
     <div className="mt-5 space-y-1 rounded-2xl border border-border bg-secondary p-4 text-xs leading-6 text-muted-foreground [word-break:keep-all]">
-      {LEGAL_SCOPE_NOTICE_LINES.map((line) => (
+      {lines.map((line) => (
         <p key={line}>{line}</p>
       ))}
     </div>

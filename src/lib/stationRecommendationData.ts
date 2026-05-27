@@ -568,7 +568,8 @@ const BUDGET_TIE_BREAK: Partial<Record<AnswerValue, Orientation>> = {
   budget5: "downtownActivity",
 };
 
-export function formatStationDisplayName(station: string) {
+export function formatStationDisplayName(station: string, locale: "ko" | "en" | "fr" = "ko") {
+  if (locale !== "ko") return `${station} Station`;
   return STATION_DISPLAY_NAMES[station] ?? `${station} Station`;
 }
 
@@ -602,6 +603,8 @@ export function calculateStationRecommendation(answers: Record<QuestionId, Answe
   return {
     scores,
     topOrientation,
+    resultId,
+    budgetKey: answers.budget,
     result: RECOMMENDATION_RESULTS[resultId],
     budgetComment: BUDGET_COMMENTS[answers.budget],
   };
