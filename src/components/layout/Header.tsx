@@ -25,6 +25,13 @@ const SIGNUP_LABEL: Record<Locale, string> = {
   fr: "Inscription",
 };
 
+const CHECKLIST_MAIN_EVENT = "maplehouse:checklist-main";
+
+function resetChecklistMainView() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(CHECKLIST_MAIN_EVENT));
+}
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -50,11 +57,42 @@ export function Header() {
 
   const navLinks = locale
     ? [
-        { to: `/${locale}/listings`, label: NAV_LABELS[locale].listings, exact: false },
-        { to: `/${locale}/apply`, label: NAV_LABELS[locale].apply, exact: false },
-        { to: `/${locale}/landlords`, label: NAV_LABELS[locale].landlords, exact: false },
-        { to: `/${locale}/contact`, label: NAV_LABELS[locale].contact, exact: false },
-        { to: `/${locale}/about`, label: NAV_LABELS[locale].about, exact: false },
+        {
+          to: `/${locale}/listings`,
+          label: NAV_LABELS[locale].listings,
+          exact: false,
+          resetChecklist: false,
+        },
+        {
+          to: `/${locale}/apply`,
+          label: NAV_LABELS[locale].apply,
+          exact: false,
+          resetChecklist: false,
+        },
+        {
+          to: `/${locale}/checklist`,
+          label: NAV_LABELS[locale].checklist,
+          exact: false,
+          resetChecklist: true,
+        },
+        {
+          to: `/${locale}/landlords`,
+          label: NAV_LABELS[locale].landlords,
+          exact: false,
+          resetChecklist: false,
+        },
+        {
+          to: `/${locale}/contact`,
+          label: NAV_LABELS[locale].contact,
+          exact: false,
+          resetChecklist: false,
+        },
+        {
+          to: `/${locale}/about`,
+          label: NAV_LABELS[locale].about,
+          exact: false,
+          resetChecklist: false,
+        },
       ]
     : [];
 
@@ -70,6 +108,9 @@ export function Header() {
             <Link
               key={link.to}
               to={link.to}
+              onClick={() => {
+                if (link.resetChecklist) resetChecklistMainView();
+              }}
               className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-2.5 text-[12.5px] font-medium text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#FA7000] hover:text-white hover:shadow-sm focus-visible:bg-[#FA7000] focus-visible:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FA7000] 2xl:px-3 2xl:text-[13px]"
               activeProps={{ className: "bg-accent text-accent-foreground" }}
               activeOptions={{ exact: link.exact }}
@@ -119,7 +160,10 @@ export function Header() {
             <Link
               key={link.to}
               to={link.to}
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                if (link.resetChecklist) resetChecklistMainView();
+                setOpen(false);
+              }}
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
               activeProps={{ className: "bg-accent text-accent-foreground" }}
               activeOptions={{ exact: link.exact }}

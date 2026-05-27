@@ -10,6 +10,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
 export type LocaleNavKey =
   | "home"
   | "listings"
+  | "checklist"
   | "apply"
   | "landlords"
   | "contact"
@@ -20,6 +21,7 @@ export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
   ko: {
     home: "홈",
     listings: "하우스·서비스",
+    checklist: "체크리스트",
     apply: "신청하기",
     landlords: "임대인 등록",
     contact: "문의하기",
@@ -29,6 +31,7 @@ export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
   en: {
     home: "Home",
     listings: "Housing & Services",
+    checklist: "Checklist",
     apply: "Apply",
     landlords: "Landlord Registration",
     contact: "Contact",
@@ -38,6 +41,7 @@ export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
   fr: {
     home: "Accueil",
     listings: "Logements & services",
+    checklist: "Liste de vérification",
     apply: "Faire une demande",
     landlords: "Proposer un logement",
     contact: "Contact",
