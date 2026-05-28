@@ -43,7 +43,7 @@ export const NAV_LABELS: Record<Locale, Record<LocaleNavKey, string>> = {
     listings: "Logements",
     checklist: "Check-list",
     apply: "Demande",
-    landlords: "Proposer",
+    landlords: "Propriétaires",
     contact: "Contact",
     about: "À propos",
     admin: "Admin",

@@ -973,7 +973,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         button: "Coming soon",
         action: "language",
         notice:
-          "The language study checklist is being prepared. For this MVP preview, the working holiday station recommendation is available first.",
+          "The language study checklist is being prepared around language school locations, morning commute burden, budget, and first-arrival stability.",
       },
       {
         title: "College / University",
@@ -1109,7 +1109,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         button: "En préparation",
         action: "language",
         notice:
-          "La liste pour les études linguistiques est en préparation. Pour cet aperçu MVP, la recommandation de stations pour le permis vacances-travail est disponible en premier.",
+          "La check-list pour les études linguistiques est en préparation autour de l’emplacement des écoles de langue, du trajet du matin, du budget et de la stabilité à l’arrivée.",
       },
       {
         title: "Collège / université",

@@ -19,11 +19,19 @@ import {
 import type { Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
+  calculateLanguageStudyRecommendation,
   calculateStationRecommendation,
   formatStationDisplayName,
   GENERAL_CHECKLIST_QUESTIONS,
   type GeneralChecklistQuestionId,
   isCompleteAnswerMap,
+  isCompleteLanguageStudyAnswerMap,
+  LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION,
+  LANGUAGE_STUDY_INTRO,
+  LANGUAGE_STUDY_QUESTIONS,
+  type IlacCampusAnswer,
+  type LanguageStudyAnswerMap,
+  type LanguageStudyAnswerValue,
   type AnswerMap,
   type AnswerValue,
   WORKING_HOLIDAY_QUESTIONS,
@@ -34,9 +42,13 @@ type KoreanMode =
   | "workingIntro"
   | "workingWizard"
   | "workingResult"
+  | "languageIntro"
+  | "languageWizard"
+  | "languageResult"
   | "generalWizard"
   | "generalResult";
 type CalculationResult = ReturnType<typeof calculateStationRecommendation>;
+type LanguageStudyCalculationResult = ReturnType<typeof calculateLanguageStudyRecommendation>;
 type GeneralAnswers = Partial<Record<GeneralChecklistQuestionId, string[]>>;
 
 const CHECKLIST_MAIN_EVENT = "maplehouse:checklist-main";
@@ -44,6 +56,14 @@ const CHECKLIST_MAIN_EVENT = "maplehouse:checklist-main";
 const LEGAL_SCOPE_NOTICE_LINES = [
   "이 추천은 정답이 아니라 탐색 시작점을 잡기 위한 참고용입니다. 실제 통학/출근 시간, 매물 상태, 계약 조건, 송금 여부는 사용자가 직접 확인해야 합니다.",
   "메이플하우스는 계약 당사자가 아니며, 법률 자문이나 부동산 중개를 제공하지 않습니다.",
+];
+
+const LANGUAGE_STUDY_LEGAL_NOTICE_LINES = [
+  "이 추천은 정답이 아니라 집을 찾기 위한 탐색 시작점입니다.",
+  "실제 통학 시간과 경로는 수업 시간, 날씨, 교통 상황에 따라 달라질 수 있습니다.",
+  "계약 전에는 반드시 지도 길찾기로 직접 확인해 주세요.",
+  "어학원 등록 정보, 캠퍼스 주소, 수업 시간표는 반드시 어학원 공식 안내에서 다시 확인해야 합니다.",
+  "메이플하우스는 학교 등록 대행, 비자 자문, 법률 자문, 부동산 중개, 송금 대행을 제공하지 않습니다.",
 ];
 
 const DEPARTURE_TYPES = [
@@ -56,9 +76,9 @@ const DEPARTURE_TYPES = [
   {
     title: "어학연수",
     description: "어학원 위치와 아침 통학 기준으로 생활권을 정리하는 기능입니다.",
-    button: "준비 중",
+    button: "어학연수 기준역 찾기",
     action: "language",
-    notice: "어학연수용 체크리스트는 준비 중입니다. 이번 MVP에서는 워킹홀리데이 기준 역 추천 기능을 먼저 제공합니다.",
+    notice: "어학연수 체크리스트는 주요 어학원 위치와 아침 통학 부담, 예산, 초반 정착 안정성을 기준으로 준비 중입니다.",
   },
   {
     title: "유학",
@@ -483,6 +503,9 @@ function KoreanChecklistPage() {
   const [workingStep, setWorkingStep] = useState(0);
   const [workingAnswers, setWorkingAnswers] = useState<AnswerMap>({});
   const [workingResult, setWorkingResult] = useState<CalculationResult | null>(null);
+  const [languageStep, setLanguageStep] = useState(0);
+  const [languageAnswers, setLanguageAnswers] = useState<LanguageStudyAnswerMap>({});
+  const [languageResult, setLanguageResult] = useState<LanguageStudyCalculationResult | null>(null);
   const [generalStep, setGeneralStep] = useState(0);
   const [generalAnswers, setGeneralAnswers] = useState<GeneralAnswers>({});
   const [notice, setNotice] = useState<string | null>(null);
@@ -492,6 +515,16 @@ function KoreanChecklistPage() {
   const selectedWorkingAnswer = workingQuestion ? workingAnswers[workingQuestion.id] : undefined;
   const workingProgress =
     mode === "workingWizard" ? ((workingStep + 1) / WORKING_HOLIDAY_QUESTIONS.length) * 100 : 0;
+
+  const languageQuestion = LANGUAGE_STUDY_QUESTIONS[languageStep];
+  const selectedLanguageAnswer = languageQuestion
+    ? languageAnswers[languageQuestion.id]
+    : undefined;
+  const languageProgress =
+    mode === "languageWizard" ? ((languageStep + 1) / LANGUAGE_STUDY_QUESTIONS.length) * 100 : 0;
+  const needsIlacCampus =
+    languageQuestion?.id === "school" && selectedLanguageAnswer === "school_ilac";
+  const canGoNextLanguage = Boolean(selectedLanguageAnswer) && (!needsIlacCampus || Boolean(languageAnswers.ilacCampus));
 
   const generalQuestion = GENERAL_CHECKLIST_QUESTIONS[generalStep];
   const selectedGeneralOptions = generalQuestion ? generalAnswers[generalQuestion.id] ?? [] : [];
@@ -503,6 +536,9 @@ function KoreanChecklistPage() {
     setWorkingStep(0);
     setWorkingAnswers({});
     setWorkingResult(null);
+    setLanguageStep(0);
+    setLanguageAnswers({});
+    setLanguageResult(null);
     setGeneralStep(0);
     setGeneralAnswers({});
     setNotice(null);
@@ -540,6 +576,15 @@ function KoreanChecklistPage() {
     setNotice(null);
   }
 
+  function startLanguageWizard() {
+    setMode("languageWizard");
+    setLanguageStep(0);
+    setLanguageAnswers({});
+    setLanguageResult(null);
+    setSupportNotice(false);
+    setNotice(null);
+  }
+
   function startGeneralChecklist() {
     setMode("generalWizard");
     setGeneralStep(0);
@@ -551,6 +596,21 @@ function KoreanChecklistPage() {
   function selectWorkingAnswer(value: AnswerValue) {
     if (!workingQuestion) return;
     setWorkingAnswers((prev) => ({ ...prev, [workingQuestion.id]: value }));
+  }
+
+  function selectLanguageAnswer(value: LanguageStudyAnswerValue) {
+    if (!languageQuestion) return;
+    setLanguageAnswers((prev) => {
+      const next: LanguageStudyAnswerMap = { ...prev, [languageQuestion.id]: value };
+      if (languageQuestion.id === "school" && value !== "school_ilac") {
+        delete next.ilacCampus;
+      }
+      return next;
+    });
+  }
+
+  function selectIlacCampus(value: IlacCampusAnswer) {
+    setLanguageAnswers((prev) => ({ ...prev, ilacCampus: value }));
   }
 
   function goNextWorking() {
@@ -565,6 +625,26 @@ function KoreanChecklistPage() {
     if (!isCompleteAnswerMap(nextAnswers)) return;
     setWorkingResult(calculateStationRecommendation(nextAnswers));
     setMode("workingResult");
+    setSupportNotice(false);
+  }
+
+  function goNextLanguage() {
+    if (!languageQuestion || !canGoNextLanguage || !selectedLanguageAnswer) return;
+
+    const nextAnswers: LanguageStudyAnswerMap = {
+      ...languageAnswers,
+      [languageQuestion.id]: selectedLanguageAnswer,
+    };
+
+    if (languageStep < LANGUAGE_STUDY_QUESTIONS.length - 1) {
+      setLanguageAnswers(nextAnswers);
+      setLanguageStep((prev) => prev + 1);
+      return;
+    }
+
+    if (!isCompleteLanguageStudyAnswerMap(nextAnswers)) return;
+    setLanguageResult(calculateLanguageStudyRecommendation(nextAnswers));
+    setMode("languageResult");
     setSupportNotice(false);
   }
 
@@ -622,10 +702,17 @@ function KoreanChecklistPage() {
                   <Button
                     type="button"
                     className="mt-auto w-full"
-                    variant={type.action === "working" ? "default" : "soft"}
+                    variant={type.action === "study" ? "soft" : "default"}
                     onClick={() => {
                       if (type.action === "working") {
                         setMode("workingIntro");
+                        setNotice(null);
+                      } else if (type.action === "language") {
+                        setMode("languageIntro");
+                        setLanguageStep(0);
+                        setLanguageAnswers({});
+                        setLanguageResult(null);
+                        setSupportNotice(false);
                         setNotice(null);
                       } else {
                         setNotice(type.notice);
@@ -633,7 +720,7 @@ function KoreanChecklistPage() {
                     }}
                   >
                     {type.button}
-                    {type.action === "working" && <ArrowRight className="h-4 w-4" />}
+                    {type.action !== "study" && <ArrowRight className="h-4 w-4" />}
                   </Button>
                 </article>
               );
@@ -757,6 +844,181 @@ function KoreanChecklistPage() {
             supportNotice={supportNotice}
             onSupportClick={() => setSupportNotice(true)}
             onRestart={startWorkingWizard}
+            onStartGeneral={startGeneralChecklist}
+          />
+        )}
+
+        {mode === "languageIntro" && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              {LANGUAGE_STUDY_INTRO.label}
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-foreground [word-break:keep-all] sm:text-3xl">
+              {LANGUAGE_STUDY_INTRO.title}
+            </h2>
+            <div className="mt-5 space-y-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all] sm:text-base">
+              {LANGUAGE_STUDY_INTRO.paragraphs.map((paragraph, index) => (
+                <p key={paragraph} className={index === 2 ? "font-medium text-foreground" : undefined}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button type="button" variant="outline" size="lg" onClick={showOverview}>
+                <ChevronLeft className="h-4 w-4" />
+                이전
+              </Button>
+              <Button type="button" size="lg" onClick={startLanguageWizard}>
+                시작하기
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "languageWizard" && languageQuestion && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+            <WizardHeader
+              countLabel={`${languageStep + 1} / ${LANGUAGE_STUDY_QUESTIONS.length}`}
+              title="어학연수 기준역 추천"
+              progress={languageProgress}
+            />
+
+            <div className="mt-8">
+              <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
+                {languageQuestion.title}
+              </h2>
+              {languageQuestion.intro && (
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                  {languageQuestion.intro}
+                </p>
+              )}
+              {languageQuestion.notice && (
+                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                  {languageQuestion.notice}
+                </p>
+              )}
+              {languageQuestion.helpItems && (
+                <details className="mt-3 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                  <summary className="cursor-pointer font-semibold text-foreground">
+                    ? {languageQuestion.helpTitle}
+                  </summary>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    {languageQuestion.helpItems.map((item) => (
+                      <div key={item.term} className="rounded-xl border border-[#FFE8CC] bg-card p-3">
+                        <p className="font-semibold text-foreground">{item.term}</p>
+                        <p className="mt-1">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-3 xl:grid-cols-2">
+              {languageQuestion.options.map((option) => {
+                const selected = selectedLanguageAnswer === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={cn(
+                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                      selected
+                        ? "border-primary bg-accent shadow-sm"
+                        : "border-border bg-card hover:border-primary hover:shadow-sm",
+                    )}
+                    onClick={() => selectLanguageAnswer(option.value)}
+                  >
+                    <AnswerMarker selected={selected} />
+                    <span className="ml-8 -mt-5 block [word-break:keep-all]">
+                      <span className="block text-base font-semibold text-foreground">
+                        {option.label}
+                      </span>
+                      <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                        {option.description}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {needsIlacCampus && (
+              <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 sm:p-5">
+                <h3 className="text-lg font-semibold text-foreground [word-break:keep-all]">
+                  {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                  {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.notice}
+                </p>
+                <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                  {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.options.map((option) => {
+                    const campusValue = option.value as IlacCampusAnswer;
+                    const selected = languageAnswers.ilacCampus === campusValue;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={cn(
+                          "rounded-2xl border bg-card p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                          selected
+                            ? "border-primary bg-accent shadow-sm"
+                            : "border-[#FFE8CC] hover:border-primary hover:shadow-sm",
+                        )}
+                        onClick={() => selectIlacCampus(campusValue)}
+                      >
+                        <AnswerMarker selected={selected} />
+                        <span className="ml-8 -mt-5 block [word-break:keep-all]">
+                          <span className="block text-base font-semibold text-foreground">
+                            {option.label}
+                          </span>
+                          <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                            {option.description}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {languageQuestion.footerNote && (
+              <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground [word-break:keep-all]">
+                {languageQuestion.footerNote}
+              </p>
+            )}
+
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (languageStep === 0) {
+                    showOverview();
+                    return;
+                  }
+                  setLanguageStep((prev) => prev - 1);
+                }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                이전
+              </Button>
+              <Button type="button" disabled={!canGoNextLanguage} onClick={goNextLanguage}>
+                {languageStep === LANGUAGE_STUDY_QUESTIONS.length - 1 ? "결과 보기" : "다음"}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "languageResult" && languageResult && (
+          <LanguageStudyResultSection
+            calculation={languageResult}
+            supportNotice={supportNotice}
+            onSupportClick={() => setSupportNotice(true)}
+            onRestart={startLanguageWizard}
             onStartGeneral={startGeneralChecklist}
           />
         )}
@@ -1140,6 +1402,105 @@ function WorkingResultSection({
         <Button asChild>
           <Link to="/ko/listings">
             이 역 근처 매물 보기
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button type="button" variant="outline" onClick={onStartGeneral}>
+          체크리스트 시작하기
+        </Button>
+        <Button type="button" variant="outline" onClick={onRestart}>
+          <RotateCcw className="h-4 w-4" />
+          다시 설문하기
+        </Button>
+        <Button type="button" variant="soft" onClick={onSupportClick}>
+          메이플하우스와 함께 문의하기
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function LanguageStudyResultSection({
+  calculation,
+  supportNotice,
+  onSupportClick,
+  onRestart,
+  onStartGeneral,
+}: {
+  calculation: LanguageStudyCalculationResult;
+  supportNotice: boolean;
+  onSupportClick: () => void;
+  onRestart: () => void;
+  onStartGeneral: () => void;
+}) {
+  const { result, budgetComment, recommendedStations, comparisonStations } = calculation;
+  const comparisonText = comparisonStations.map((station) => formatStationDisplayName(station)).join(", ");
+
+  return (
+    <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+      <p className="text-sm font-semibold text-primary">Language Study Result</p>
+      <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground [word-break:keep-all] sm:text-3xl">
+        당신에게 맞는 기준역 후보
+      </h2>
+      <div className="mt-4 space-y-1 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+        <p>아래 추천은 정답이 아니라 집을 찾기 시작할 기준점입니다.</p>
+        <p>실제 통학 시간, 수업 시간, 매물 상태, 계약 조건은 반드시 직접 확인해야 합니다.</p>
+      </div>
+
+      <div className="mt-6 rounded-3xl border border-border bg-card p-5 sm:p-6">
+        <h3 className="text-xl font-semibold text-foreground [word-break:keep-all]">
+          {result.title}
+        </h3>
+
+        <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
+          <p className="text-sm font-semibold text-primary">추천 기준역</p>
+          <div className="mt-4 grid gap-3">
+            {recommendedStations.map((station, index) => (
+              <div
+                key={station}
+                className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                  {index + 1}
+                </span>
+                <span className="text-lg font-bold leading-tight text-foreground [word-break:keep-all] sm:text-xl">
+                  {formatStationDisplayName(station)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <InfoBlock
+            title="추천 이유"
+            body={`선택하신 어학원, 아침 등교 허용 범위, 월세 예산, 수업 후 생활 패턴을 기준으로 추천했습니다. ${result.reason}`}
+          />
+          <InfoBlock
+            title="근처 비교 범위"
+            body={`추천 기준역만 보지 말고, ${comparisonText} 주변 역과 함께 비교해보세요. 실제 매물 수와 가격은 시점에 따라 달라질 수 있습니다.`}
+          />
+          <InfoBlock title="이런 사용자에게 맞습니다" body={result.goodFor} />
+          <InfoBlock title={budgetComment.label} body={budgetComment.comment} />
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+          <span className="font-semibold text-foreground">주의:</span> {result.caution}
+        </div>
+      </div>
+
+      <LegalScopeNotice lines={LANGUAGE_STUDY_LEGAL_NOTICE_LINES} />
+
+      {supportNotice && (
+        <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground [word-break:keep-all]">
+          메이플하우스와 함께 문의하기는 유료 플랜 흐름으로 연결될 예정입니다. 현재는 MVP 미리보기 단계입니다.
+        </p>
+      )}
+
+      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Button asChild>
+          <Link to="/ko/listings">
+            매물 리스트 보기
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
