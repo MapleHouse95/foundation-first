@@ -537,16 +537,69 @@ const CHECKLIST_SOURCE_LABELS: Record<Locale, Record<ChecklistListingSource, str
     languageStudy: "Language Study",
   },
   fr: {
-    workingHoliday: "Permis vacances-travail",
-    languageStudy: "Études linguistiques",
+    workingHoliday: "PVT",
+    languageStudy: "Séjour linguistique",
+  },
+};
+
+const CHECKLIST_RECOMMENDATION_COPY: Record<
+  Locale,
+  {
+    applied: string;
+    fallbackSource: string;
+    summary: (sourceLabel: string | null, count: number) => string;
+    show: string;
+    hide: string;
+    stations: string;
+    clear: string;
+    clearAria: string;
+    removeStationAria: (station: string) => string;
+  }
+> = {
+  ko: {
+    applied: "체크리스트 추천 적용됨",
+    fallbackSource: "체크리스트",
+    summary: (sourceLabel, count) =>
+      `${sourceLabel ? `${sourceLabel} 결과 기반` : "체크리스트 결과 기반"} · 기준역 ${count}개`,
+    show: "선택된 필터 보기",
+    hide: "선택된 필터 숨기기",
+    stations: "추천 기준역",
+    clear: "추천 전체 해제",
+    clearAria: "체크리스트 추천 초기화",
+    removeStationAria: (station) => `${station} 삭제`,
+  },
+  en: {
+    applied: "Checklist recommendation applied",
+    fallbackSource: "checklist",
+    summary: (sourceLabel, count) => {
+      const source = sourceLabel ? sourceLabel.toLowerCase() : "checklist";
+      return `Based on ${source} result · ${count} ${count === 1 ? "station" : "stations"}`;
+    },
+    show: "Show selected filters",
+    hide: "Hide selected filters",
+    stations: "Recommended stations",
+    clear: "Clear recommendation",
+    clearAria: "Clear checklist recommendation",
+    removeStationAria: (station) => `Remove ${station}`,
+  },
+  fr: {
+    applied: "Recommandation appliquée",
+    fallbackSource: "check-list",
+    summary: (sourceLabel, count) =>
+      `${sourceLabel ?? "Check-list"} · ${count} ${count === 1 ? "station" : "stations"}`,
+    show: "Afficher les filtres",
+    hide: "Masquer les filtres",
+    stations: "Stations",
+    clear: "Retirer",
+    clearAria: "Retirer la recommandation",
+    removeStationAria: (station) => `Retirer ${station}`,
   },
 };
 
 export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const t = L[locale];
   const location = useLocation() as { href?: string; searchStr?: string };
-  const rawChecklistContext =
-    locale === "ko" ? parseChecklistListingsContext(location.searchStr, locale) : null;
+  const rawChecklistContext = parseChecklistListingsContext(location.searchStr, locale);
   const [showChecklistFilters, setShowChecklistFilters] = useState(false);
   const [removedChecklistFilters, setRemovedChecklistFilters] = useState<Set<string>>(new Set());
   const appliedChecklistContext = rawChecklistContext
@@ -1030,6 +1083,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
 
           {checklistContext && (
             <ChecklistRecommendationBanner
+              locale={locale}
               context={checklistContext}
               expanded={showChecklistFilters}
               onToggleExpanded={() => setShowChecklistFilters((current) => !current)}
@@ -1190,19 +1244,21 @@ function splitStationLabel(label: string) {
 }
 
 function ChecklistRecommendationBanner({
+  locale,
   context,
   expanded,
   onToggleExpanded,
   onRemoveFilter,
   onClearRecommendation,
 }: {
+  locale: Locale;
   context: ChecklistListingsContext;
   expanded: boolean;
   onToggleExpanded: () => void;
   onRemoveFilter: (filterId: string) => void;
   onClearRecommendation: () => void;
 }) {
-  const sourceText = context.sourceLabel ? `${context.sourceLabel} 결과 기반` : "체크리스트 결과 기반";
+  const copy = CHECKLIST_RECOMMENDATION_COPY[locale];
   const stationCount = context.stationItems.length;
 
   return (
@@ -1211,15 +1267,15 @@ function ChecklistRecommendationBanner({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em] text-primary">
-              체크리스트 추천 적용됨
+              {copy.applied}
             </p>
             <p className="mt-1 whitespace-nowrap text-[12px] font-semibold text-foreground [word-break:keep-all] sm:text-[13px]">
-              {sourceText} · 기준역 {stationCount}개
+              {copy.summary(context.sourceLabel, stationCount)}
             </p>
           </div>
           <button
             type="button"
-            aria-label="체크리스트 추천 초기화"
+            aria-label={copy.clearAria}
             className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#FFD7AA] bg-white text-muted-foreground transition-colors hover:border-primary hover:text-primary"
             onClick={onClearRecommendation}
           >
@@ -1232,20 +1288,21 @@ function ChecklistRecommendationBanner({
         <div className="border-t border-[#FFF0E0] bg-white px-3.5 py-3">
           <div className="flex items-center justify-between gap-3">
             <p className="whitespace-nowrap text-[11px] font-semibold text-primary [word-break:keep-all]">
-              추천 기준역
+              {copy.stations}
             </p>
             <button
               type="button"
               className="shrink-0 whitespace-nowrap text-[11px] font-semibold text-primary transition-colors hover:text-primary/80 [word-break:keep-all]"
               onClick={onClearRecommendation}
             >
-              추천 전체 해제
+              {copy.clear}
             </button>
           </div>
           <div className="mt-2 space-y-1.5">
             {context.stationItems.map((station) => (
               <RecommendedStationFilterRow
                 key={station.id}
+                removeLabel={copy.removeStationAria(station.englishName)}
                 station={station}
                 onRemove={() => onRemoveFilter(station.id)}
               />
@@ -1260,7 +1317,7 @@ function ChecklistRecommendationBanner({
         onClick={onToggleExpanded}
       >
         <span className="whitespace-nowrap [word-break:keep-all]">
-          {expanded ? "선택된 필터 숨기기" : "선택된 필터 보기"}
+          {expanded ? copy.hide : copy.show}
         </span>
         <ChevronDown
           className={cn("h-3.5 w-3.5 shrink-0 transition-transform", expanded && "rotate-180")}
@@ -1272,9 +1329,11 @@ function ChecklistRecommendationBanner({
 
 function RecommendedStationFilterRow({
   station,
+  removeLabel,
   onRemove,
 }: {
   station: ChecklistStationItem;
+  removeLabel: string;
   onRemove: () => void;
 }) {
   return (
@@ -1285,7 +1344,7 @@ function RecommendedStationFilterRow({
       </span>
       <button
         type="button"
-        aria-label={`${station.englishName} 삭제`}
+        aria-label={removeLabel}
         className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#FFE0BF] bg-white text-muted-foreground transition-colors hover:border-primary hover:text-primary"
         onClick={onRemove}
       >

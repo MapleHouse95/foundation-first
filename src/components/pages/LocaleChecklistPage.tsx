@@ -166,6 +166,16 @@ const HOUSING_GLOSSARY = [
 ] as const;
 
 type HousingGlossaryPictogram = (typeof HOUSING_GLOSSARY)[number]["pictogram"];
+type HousingGlossaryContent = {
+  trigger: string;
+  title: string;
+  closeLabel: string;
+  items: ReadonlyArray<{
+    term: string;
+    description: ReadonlyArray<string>;
+    pictogram: HousingGlossaryPictogram;
+  }>;
+};
 
 export function LocaleChecklistPage({ locale }: { locale: Locale }) {
   if (locale !== "ko") {
@@ -182,16 +192,30 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
   const [workingStep, setWorkingStep] = useState(0);
   const [workingAnswers, setWorkingAnswers] = useState<AnswerMap>({});
   const [workingResult, setWorkingResult] = useState<CalculationResult | null>(null);
+  const [languageStep, setLanguageStep] = useState(0);
+  const [languageAnswers, setLanguageAnswers] = useState<LanguageStudyAnswerMap>({});
+  const [languageResult, setLanguageResult] = useState<LanguageStudyCalculationResult | null>(null);
   const [generalStep, setGeneralStep] = useState(0);
   const [generalAnswers, setGeneralAnswers] = useState<GeneralAnswers>({});
   const [notice, setNotice] = useState<string | null>(null);
   const [supportNotice, setSupportNotice] = useState(false);
 
   const workingQuestions = content.workingQuestions;
+  const languageQuestions = content.languageStudy.questions;
   const generalQuestions = content.generalQuestions;
   const workingQuestion = workingQuestions[workingStep];
   const selectedWorkingAnswer = workingQuestion ? workingAnswers[workingQuestion.id] : undefined;
   const workingProgress = mode === "workingWizard" ? ((workingStep + 1) / workingQuestions.length) * 100 : 0;
+  const languageQuestion = languageQuestions[languageStep];
+  const selectedLanguageAnswer = languageQuestion
+    ? languageAnswers[languageQuestion.id]
+    : undefined;
+  const languageProgress =
+    mode === "languageWizard" ? ((languageStep + 1) / languageQuestions.length) * 100 : 0;
+  const needsIlacCampus =
+    languageQuestion?.id === "school" && selectedLanguageAnswer === "school_ilac";
+  const canGoNextLanguage =
+    Boolean(selectedLanguageAnswer) && (!needsIlacCampus || Boolean(languageAnswers.ilacCampus));
   const generalQuestion = generalQuestions[generalStep];
   const selectedGeneralOptions = generalQuestion ? generalAnswers[generalQuestion.id] ?? [] : [];
   const generalProgress = mode === "generalWizard" ? ((generalStep + 1) / generalQuestions.length) * 100 : 0;
@@ -201,6 +225,9 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
     setWorkingStep(0);
     setWorkingAnswers({});
     setWorkingResult(null);
+    setLanguageStep(0);
+    setLanguageAnswers({});
+    setLanguageResult(null);
     setGeneralStep(0);
     setGeneralAnswers({});
     setNotice(null);
@@ -246,9 +273,33 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
     setNotice(null);
   }
 
+  function startLanguageWizard() {
+    setMode("languageWizard");
+    setLanguageStep(0);
+    setLanguageAnswers({});
+    setLanguageResult(null);
+    setSupportNotice(false);
+    setNotice(null);
+  }
+
   function selectWorkingAnswer(value: AnswerValue) {
     if (!workingQuestion) return;
     setWorkingAnswers((prev) => ({ ...prev, [workingQuestion.id]: value }));
+  }
+
+  function selectLanguageAnswer(value: LanguageStudyAnswerValue) {
+    if (!languageQuestion) return;
+    setLanguageAnswers((prev) => {
+      const next: LanguageStudyAnswerMap = { ...prev, [languageQuestion.id]: value };
+      if (languageQuestion.id === "school" && value !== "school_ilac") {
+        delete next.ilacCampus;
+      }
+      return next;
+    });
+  }
+
+  function selectIlacCampus(value: IlacCampusAnswer) {
+    setLanguageAnswers((prev) => ({ ...prev, ilacCampus: value }));
   }
 
   function goNextWorking() {
@@ -263,6 +314,26 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
     if (!isCompleteAnswerMap(nextAnswers)) return;
     setWorkingResult(calculateStationRecommendation(nextAnswers));
     setMode("workingResult");
+    setSupportNotice(false);
+  }
+
+  function goNextLanguage() {
+    if (!languageQuestion || !canGoNextLanguage || !selectedLanguageAnswer) return;
+
+    const nextAnswers: LanguageStudyAnswerMap = {
+      ...languageAnswers,
+      [languageQuestion.id]: selectedLanguageAnswer,
+    };
+
+    if (languageStep < languageQuestions.length - 1) {
+      setLanguageAnswers(nextAnswers);
+      setLanguageStep((prev) => prev + 1);
+      return;
+    }
+
+    if (!isCompleteLanguageStudyAnswerMap(nextAnswers)) return;
+    setLanguageResult(calculateLanguageStudyRecommendation(nextAnswers));
+    setMode("languageResult");
     setSupportNotice(false);
   }
 
@@ -322,10 +393,17 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
                   <Button
                     type="button"
                     className="w-full whitespace-normal text-center leading-snug"
-                    variant={type.action === "working" ? "default" : "soft"}
+                    variant={type.action === "study" ? "soft" : "default"}
                     onClick={() => {
                       if (type.action === "working") {
                         setMode("workingIntro");
+                        setNotice(null);
+                      } else if (type.action === "language") {
+                        setMode("languageIntro");
+                        setLanguageStep(0);
+                        setLanguageAnswers({});
+                        setLanguageResult(null);
+                        setSupportNotice(false);
                         setNotice(null);
                       } else {
                         setNotice(type.notice ?? null);
@@ -333,7 +411,7 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
                     }}
                   >
                     {type.button}
-                    {type.action === "working" && <ArrowRight className="h-4 w-4" />}
+                    {type.action !== "study" && <ArrowRight className="h-4 w-4" />}
                   </Button>
                 </div>
               </article>
@@ -461,6 +539,195 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
             supportNotice={supportNotice}
             onSupportClick={() => setSupportNotice(true)}
             onRestart={startWorkingWizard}
+            onStartGeneral={startGeneralChecklist}
+          />
+        )}
+
+        {mode === "languageIntro" && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              {content.languageStudy.intro.label}
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+              {content.languageStudy.intro.title}
+            </h2>
+            <div className="mt-5 space-y-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {content.languageStudy.intro.paragraphs.map((paragraph, index) => (
+                <p key={paragraph} className={index === 2 ? "font-medium text-foreground" : undefined}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button type="button" variant="outline" size="lg" onClick={showOverview}>
+                <ChevronLeft className="h-4 w-4" />
+                {content.wizardLabels.previous}
+              </Button>
+              <Button type="button" size="lg" onClick={startLanguageWizard}>
+                {content.wizardLabels.start}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "languageWizard" && languageQuestion && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+            <WizardHeader
+              countLabel={`${languageStep + 1} / ${languageQuestions.length}`}
+              title={content.languageStudy.intro.label}
+              progress={languageProgress}
+            />
+
+            <div className="mt-8">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <h2 className="text-2xl font-semibold leading-tight text-foreground">
+                  {languageQuestion.title}
+                </h2>
+                {languageQuestion.id === "housingType" && (
+                  <HousingGlossaryHelp glossary={content.languageStudy.glossary} />
+                )}
+              </div>
+              {languageQuestion.intro && (
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {languageQuestion.intro}
+                </p>
+              )}
+              {languageQuestion.notice && (
+                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground">
+                  {languageQuestion.notice}
+                </p>
+              )}
+              {languageQuestion.helpItems && languageQuestion.id !== "housingType" && (
+                <details className="mt-3 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground">
+                  <summary className="cursor-pointer font-semibold text-foreground">
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <HelpCircle className="h-3.5 w-3.5 text-primary" />
+                      {languageQuestion.helpTitle}
+                    </span>
+                  </summary>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    {languageQuestion.helpItems.map((item) => (
+                      <div key={item.term} className="rounded-xl border border-[#FFE8CC] bg-card p-3">
+                        <p className="font-semibold text-foreground">{item.term}</p>
+                        <p className="mt-1">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-3 xl:grid-cols-2">
+              {languageQuestion.options.map((option) => {
+                const selected = selectedLanguageAnswer === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={cn(
+                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                      selected
+                        ? "border-primary bg-accent shadow-sm"
+                        : "border-border bg-card hover:border-primary hover:shadow-sm",
+                    )}
+                    onClick={() => selectLanguageAnswer(option.value)}
+                  >
+                    <AnswerMarker selected={selected} />
+                    <span className="ml-8 -mt-5 block">
+                      <span className="block text-base font-semibold text-foreground">
+                        {option.label}
+                      </span>
+                      <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                        {option.description}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {needsIlacCampus && (
+              <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 sm:p-5">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {content.languageStudy.ilacCampusQuestion.title}
+                </h3>
+                {content.languageStudy.ilacCampusQuestion.notice && (
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {content.languageStudy.ilacCampusQuestion.notice}
+                  </p>
+                )}
+                <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                  {content.languageStudy.ilacCampusQuestion.options.map((option) => {
+                    const campusValue = option.value as IlacCampusAnswer;
+                    const selected = languageAnswers.ilacCampus === campusValue;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={cn(
+                          "rounded-2xl border bg-card p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                          selected
+                            ? "border-primary bg-accent shadow-sm"
+                            : "border-[#FFE8CC] hover:border-primary hover:shadow-sm",
+                        )}
+                        onClick={() => selectIlacCampus(campusValue)}
+                      >
+                        <AnswerMarker selected={selected} />
+                        <span className="ml-8 -mt-5 block">
+                          <span className="block text-base font-semibold text-foreground">
+                            {option.label}
+                          </span>
+                          <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                            {option.description}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {languageQuestion.footerNote && (
+              <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground">
+                {languageQuestion.footerNote}
+              </p>
+            )}
+
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (languageStep === 0) {
+                    showOverview();
+                    return;
+                  }
+                  setLanguageStep((prev) => prev - 1);
+                }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                {content.wizardLabels.previous}
+              </Button>
+              <Button type="button" disabled={!canGoNextLanguage} onClick={goNextLanguage}>
+                {languageStep === languageQuestions.length - 1
+                  ? content.wizardLabels.showResult
+                  : content.wizardLabels.next}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "languageResult" && languageResult && (
+          <TranslatedLanguageStudyResultSection
+            locale={locale}
+            content={content}
+            calculation={languageResult}
+            supportNotice={supportNotice}
+            onSupportClick={() => setSupportNotice(true)}
+            onRestart={startLanguageWizard}
             onStartGeneral={startGeneralChecklist}
           />
         )}
@@ -964,7 +1231,10 @@ function KoreanChecklistPage() {
               {languageQuestion.helpItems && languageQuestion.id !== "housingType" && (
                 <details className="mt-3 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
                   <summary className="cursor-pointer font-semibold text-foreground">
-                    ? {languageQuestion.helpTitle}
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap [word-break:keep-all]">
+                      <HelpCircle className="h-3.5 w-3.5 text-primary" />
+                      {languageQuestion.helpTitle}
+                    </span>
                   </summary>
                   <div className="mt-3 grid gap-3 md:grid-cols-2">
                     {languageQuestion.helpItems.map((item) => (
@@ -1290,8 +1560,6 @@ function TranslatedWorkingResultSection({
 }) {
   const result = content.recommendationResults[calculation.resultId] ?? calculation.result;
   const budgetComment = content.budgetComments[calculation.budgetKey] ?? calculation.budgetComment;
-  const listingsPath = locale === "en" ? "/en/listings" : "/fr/listings";
-
   return (
     <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
       <p className="text-sm font-semibold text-primary">{content.workingResult.eyebrow}</p>
@@ -1318,9 +1586,7 @@ function TranslatedWorkingResultSection({
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
                   {index + 1}
                 </span>
-                <span className="text-lg font-bold leading-tight text-foreground sm:text-xl">
-                  {formatStationDisplayName(station, locale)}
-                </span>
+                <StationNameLines station={station} locale={locale} />
               </div>
             ))}
           </div>
@@ -1363,10 +1629,10 @@ function TranslatedWorkingResultSection({
 
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Button asChild>
-          <Link to={listingsPath}>
+          <a href={buildChecklistListingsHref("workingHoliday", result.stations, result.title, locale)}>
             {content.workingResult.viewListings}
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </a>
         </Button>
         <Button type="button" variant="outline" onClick={onStartGeneral}>
           {content.workingResult.startChecklist}
@@ -1377,6 +1643,151 @@ function TranslatedWorkingResultSection({
         </Button>
         <Button type="button" variant="soft" onClick={onSupportClick}>
           {content.workingResult.support}
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function TranslatedLanguageStudyResultSection({
+  locale,
+  content,
+  calculation,
+  supportNotice,
+  onSupportClick,
+  onRestart,
+  onStartGeneral,
+}: {
+  locale: TranslatedChecklistLocale;
+  content: ChecklistLocaleContent;
+  calculation: LanguageStudyCalculationResult;
+  supportNotice: boolean;
+  onSupportClick: () => void;
+  onRestart: () => void;
+  onStartGeneral: () => void;
+}) {
+  const localizedResult =
+    content.languageStudy.resultTemplates[calculation.resultId] ?? calculation.result;
+  const budgetComment =
+    content.languageStudy.budgetComments[calculation.budgetKey] ?? calculation.budgetComment;
+  const {
+    destinationStations,
+    recommendedStations,
+    comparisonStations,
+  } = calculation;
+  const nearbyStations = comparisonStations.length > 0 ? comparisonStations : recommendedStations;
+  const comparisonText = nearbyStations
+    .map((station) => formatStationDisplayName(station, locale))
+    .join(", ");
+  const resultLabels = content.languageStudy.result;
+
+  return (
+    <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+      <p className="text-sm font-semibold text-primary">{resultLabels.eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+        {resultLabels.title}
+      </h2>
+      <div className="mt-4 space-y-1 text-sm leading-relaxed text-muted-foreground">
+        {resultLabels.description.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </div>
+
+      <div className="mt-6 rounded-3xl border border-border bg-card p-5 sm:p-6">
+        <h3 className="text-xl font-semibold text-foreground">{localizedResult.title}</h3>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {destinationStations.length > 0 && (
+            <div className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
+              <p className="text-sm font-semibold text-primary">{resultLabels.destinationTitle}</p>
+              <div className="mt-4 grid gap-3">
+                {destinationStations.map((station, index) => (
+                  <div
+                    key={station}
+                    className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                      {index + 1}
+                    </span>
+                    <StationNameLines station={station} locale={locale} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
+            <p className="text-sm font-semibold text-primary">
+              {destinationStations.length > 0
+                ? resultLabels.comparisonTitle
+                : resultLabels.recommendationTitle}
+            </p>
+            <div className="mt-4 grid gap-3">
+              {recommendedStations.map((station, index) => (
+                <div
+                  key={station}
+                  className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <StationNameLines station={station} locale={locale} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <InfoBlock
+            title={resultLabels.reasonTitle}
+            body={`${resultLabels.reasonPrefix} ${localizedResult.reason}`}
+          />
+          <InfoBlock
+            title={resultLabels.nearbyTitle}
+            body={`${resultLabels.nearbyPrefix} ${comparisonText} ${resultLabels.nearbySuffix}`}
+          />
+          <InfoBlock title={resultLabels.goodForTitle} body={localizedResult.goodFor} />
+          <InfoBlock title={budgetComment.label} body={budgetComment.comment} />
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-muted-foreground">
+          <span className="font-semibold text-foreground">{resultLabels.importantNotesTitle}:</span>{" "}
+          {localizedResult.caution}
+        </div>
+      </div>
+
+      <LegalScopeNotice lines={content.languageStudy.legalNoticeLines} />
+
+      {supportNotice && (
+        <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground">
+          {resultLabels.supportNotice}
+        </p>
+      )}
+
+      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Button asChild>
+          <a
+            href={buildChecklistListingsHref(
+              "languageStudy",
+              uniqueStations([...destinationStations, ...recommendedStations]),
+              localizedResult.title,
+              locale,
+            )}
+          >
+            {resultLabels.viewListings}
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </Button>
+        <Button type="button" variant="outline" onClick={onStartGeneral}>
+          {resultLabels.startChecklist}
+        </Button>
+        <Button type="button" variant="outline" onClick={onRestart}>
+          <RotateCcw className="h-4 w-4" />
+          {resultLabels.retake}
+        </Button>
+        <Button type="button" variant="soft" onClick={onSupportClick}>
+          {resultLabels.support}
         </Button>
       </div>
     </section>
@@ -1811,8 +2222,14 @@ function TranslatedGeneralChecklistResult({
   );
 }
 
-function StationNameLines({ station }: { station: string }) {
-  const label = formatStationDisplayName(station);
+function StationNameLines({
+  station,
+  locale = "ko",
+}: {
+  station: string;
+  locale?: Locale;
+}) {
+  const label = formatStationDisplayName(station, locale);
   const match = label.match(/^(.*?)\s*(\(.+\))$/);
   const englishName = match?.[1] ?? label;
   const koreanName = match?.[2];
@@ -1839,13 +2256,14 @@ function buildChecklistListingsHref(
   source: "workingHoliday" | "languageStudy",
   stations: string[],
   resultLabel: string,
+  locale: Locale = "ko",
 ) {
   const params = new URLSearchParams();
   params.set("checklist", source);
   params.set("stations", uniqueStations(stations).join(","));
   params.set("label", resultLabel);
 
-  return `/ko/listings?${params.toString()}`;
+  return `/${locale}/listings?${params.toString()}`;
 }
 
 function HousingGlossaryPictogram({ type }: { type: HousingGlossaryPictogram }) {
@@ -1940,7 +2358,14 @@ function HousingGlossaryPictogram({ type }: { type: HousingGlossaryPictogram }) 
   );
 }
 
-function HousingGlossaryHelp() {
+const KOREAN_HOUSING_GLOSSARY_CONTENT: HousingGlossaryContent = {
+  trigger: "용어 보기",
+  title: "캐나다 집 용어 빠른 설명",
+  closeLabel: "용어 설명 닫기",
+  items: HOUSING_GLOSSARY,
+};
+
+function HousingGlossaryHelp({ glossary = KOREAN_HOUSING_GLOSSARY_CONTENT }: { glossary?: HousingGlossaryContent }) {
   const [open, setOpen] = useState(false);
   const popoverRef = useRef<HTMLSpanElement>(null);
 
@@ -1967,7 +2392,7 @@ function HousingGlossaryHelp() {
         onFocus={() => setOpen(true)}
       >
         <HelpCircle className="h-3.5 w-3.5" />
-        용어 보기
+        {glossary.trigger}
       </button>
 
       <span
@@ -1977,18 +2402,18 @@ function HousingGlossaryHelp() {
         )}
       >
         <span className="flex items-center justify-between gap-3">
-          <span className="text-sm font-semibold text-foreground">캐나다 집 용어 빠른 설명</span>
+          <span className="text-sm font-semibold text-foreground">{glossary.title}</span>
           <button
             type="button"
             className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            aria-label="용어 설명 닫기"
+            aria-label={glossary.closeLabel}
             onClick={() => setOpen(false)}
           >
             <X className="h-4 w-4" />
           </button>
         </span>
         <span className="mt-3 grid max-h-[24rem] gap-2 overflow-y-auto pr-1">
-          {HOUSING_GLOSSARY.map((item) => (
+          {glossary.items.map((item) => (
             <span key={item.term} className="flex gap-3 rounded-2xl border border-border bg-secondary/60 p-3">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#FFE8CC] bg-[#FFF7ED]">
                 {/* TODO: Add a richer housing-type explanation page later when visual examples are ready. */}
@@ -2044,7 +2469,10 @@ function TranslatedHousingGuideSection({ content }: { content: ChecklistLocaleCo
 
   return (
     <section className="mt-10">
-      <h2 className="text-2xl font-semibold text-foreground">{content.housingGuide.title}</h2>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <h2 className="text-2xl font-semibold text-foreground">{content.housingGuide.title}</h2>
+        <HousingGlossaryHelp glossary={content.languageStudy.glossary} />
+      </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
         {content.housingGuide.items.map((item, index) => {
           const Icon = icons[index] ?? Home;

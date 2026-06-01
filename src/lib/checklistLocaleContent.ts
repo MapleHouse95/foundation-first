@@ -1,6 +1,9 @@
 import type {
   BudgetComment,
   GeneralChecklistQuestion,
+  LanguageStudyBudgetComment,
+  LanguageStudyQuestion,
+  LanguageStudyResultTemplate,
   RecommendationResult,
   WizardQuestion,
 } from "@/lib/stationRecommendationData";
@@ -53,6 +56,59 @@ export interface ChecklistLocaleContent {
     retake: string;
     support: string;
     supportNotice: string;
+  };
+  languageStudy: {
+    intro: {
+      label: string;
+      title: string;
+      paragraphs: string[];
+    };
+    ilacCampusQuestion: {
+      title: string;
+      notice?: string;
+      options: LanguageStudyQuestion["options"];
+    };
+    questions: LanguageStudyQuestion[];
+    result: {
+      eyebrow: string;
+      title: string;
+      description: string[];
+      destinationTitle: string;
+      comparisonTitle: string;
+      recommendationTitle: string;
+      reasonTitle: string;
+      reasonPrefix: string;
+      nearbyTitle: string;
+      nearbyPrefix: string;
+      nearbySuffix: string;
+      goodForTitle: string;
+      importantNotesTitle: string;
+      viewListings: string;
+      startChecklist: string;
+      retake: string;
+      support: string;
+      supportNotice: string;
+    };
+    legalNoticeLines: string[];
+    budgetComments: Record<string, LanguageStudyBudgetComment>;
+    resultTemplates: Record<string, LanguageStudyResultTemplate>;
+    glossary: {
+      trigger: string;
+      title: string;
+      closeLabel: string;
+      items: Array<{
+        term: string;
+        description: string[];
+        pictogram:
+          | "room"
+          | "share"
+          | "studio"
+          | "oneBedroom"
+          | "den"
+          | "basement"
+          | "condo";
+      }>;
+    };
   };
   generalChecklist: {
     eyebrow: string;
@@ -370,6 +426,1113 @@ const frenchWorkingQuestions: WizardQuestion[] = [
     ],
   },
 ];
+
+const englishLanguageStudyIlacCampusQuestion: ChecklistLocaleContent["languageStudy"]["ilacCampusQuestion"] = {
+  title: "Q1-1. Do you know your ILAC campus?",
+  notice:
+    "ILAC may assign classes to different campuses. Please confirm your campus address in the official information from the school.",
+  options: [
+    {
+      value: "ilac_growth",
+      label: "ILAC Growth Campus / Main Campus",
+      description: "120 Bloor St E. Near Bloor-Yonge Station.",
+    },
+    {
+      value: "ilac_pathway",
+      label: "ILAC University Pathway Campus",
+      description: "255 College St. Near College and St George.",
+    },
+    {
+      value: "ilac_dream",
+      label: "ILAC Dream Campus",
+      description: "425 Bloor St E. Near Sherbourne and Bloor-Yonge.",
+    },
+    {
+      value: "ilac_heart",
+      label: "ILAC Heart Campus",
+      description: "655 Bay St. Near College and Dundas.",
+    },
+    {
+      value: "ilac_unknown_campus",
+      label: "I do not know my ILAC campus yet",
+      description: "Start with Bloor-Yonge and College as broad reference points.",
+    },
+  ],
+};
+
+const frenchLanguageStudyIlacCampusQuestion: ChecklistLocaleContent["languageStudy"]["ilacCampusQuestion"] = {
+  title: "Q1-1. Connaissez-vous votre campus ILAC?",
+  notice:
+    "ILAC peut avoir plusieurs campus. Confirmez l’adresse dans les informations officielles reçues de l’école.",
+  options: [
+    {
+      value: "ilac_growth",
+      label: "ILAC Growth Campus / campus principal",
+      description: "120 Bloor St E. Près de Bloor-Yonge.",
+    },
+    {
+      value: "ilac_pathway",
+      label: "ILAC University Pathway Campus",
+      description: "255 College St. Près de College et St George.",
+    },
+    {
+      value: "ilac_dream",
+      label: "ILAC Dream Campus",
+      description: "425 Bloor St E. Près de Sherbourne et Bloor-Yonge.",
+    },
+    {
+      value: "ilac_heart",
+      label: "ILAC Heart Campus",
+      description: "655 Bay St. Près de College et Dundas.",
+    },
+    {
+      value: "ilac_unknown_campus",
+      label: "Je ne connais pas encore mon campus ILAC",
+      description: "Commencez avec Bloor-Yonge et College comme repères.",
+    },
+  ],
+};
+
+const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
+  {
+    id: "school",
+    title: "Q1. Which language school are you registered with, or considering?",
+    options: [
+      {
+        value: "school_ilac",
+        label: "ILAC (International Language Academy of Canada)",
+        description: "I am registered with or considering ILAC.",
+      },
+      {
+        value: "school_ilsc",
+        label: "ILSC Language Schools Toronto",
+        description: "I am considering ILSC Toronto.",
+      },
+      {
+        value: "school_ec",
+        label: "EC English Toronto",
+        description: "I am considering EC English Toronto.",
+      },
+      {
+        value: "school_hansa",
+        label: "Hansa Language Centre",
+        description: "I am considering Hansa Language Centre.",
+      },
+      {
+        value: "school_kaplan",
+        label: "Kaplan International Languages Toronto",
+        description: "I am considering Kaplan Toronto.",
+      },
+      {
+        value: "school_other",
+        label: "Another language school",
+        description: "My school is not listed here.",
+      },
+      {
+        value: "school_unknown",
+        label: "I have not decided yet",
+        description: "I am still comparing schools.",
+      },
+    ],
+  },
+  {
+    id: "commuteRange",
+    title: "Q2. If your class starts around 8:30 AM, how much commute can you handle?",
+    intro:
+      "Morning classes can start early. Choose a rough commute range you could handle.",
+    notice: "These times are only reference points. Always check real routes on a map.",
+    options: [
+      {
+        value: "commute_very_close",
+        label: "Same station area or 0-1 stops",
+        description: "I want a short route, around 20-30 minutes if possible.",
+      },
+      {
+        value: "commute_short",
+        label: "About 2-3 stops is fine",
+        description: "A short commute is best, but I can live a little farther away.",
+      },
+      {
+        value: "commute_medium",
+        label: "About 4-6 stops is fine",
+        description: "I can accept more travel if rent or room condition is better.",
+      },
+      {
+        value: "commute_budget_first",
+        label: "Farther is okay if rent is lower",
+        description: "Saving rent matters more, even if the commute becomes longer.",
+      },
+      {
+        value: "commute_not_sure",
+        label: "I am not sure yet",
+        description: "I want to start with balanced station areas.",
+      },
+    ],
+  },
+  {
+    id: "transport",
+    title: "Q3. What kind of morning commute feels easiest?",
+    helpTitle: "Commute tips",
+    helpItems: [
+      { term: "Subway-based routes", description: "They can feel simpler and easier to understand." },
+      { term: "Bus routes", description: "Buses may be slower, but they can connect more housing areas." },
+      { term: "Real routes vary", description: "Weather, time, route, and service changes can affect travel." },
+    ],
+    options: [
+      {
+        value: "prefer_subway",
+        label: "I prefer subway-based routes",
+        description: "I want a simple route that is easy to understand.",
+      },
+      {
+        value: "bus_ok",
+        label: "Bus routes are okay",
+        description: "I do not mind using a bus if the housing option is better.",
+      },
+      {
+        value: "avoid_long_walk",
+        label: "I want to avoid long walks to transit",
+        description: "Transit access near home matters to me.",
+      },
+      {
+        value: "transport_budget_first",
+        label: "Rent matters more than commute comfort",
+        description: "I can accept a less convenient route to save money.",
+      },
+      {
+        value: "transport_not_sure",
+        label: "I am not sure yet",
+        description: "I want to start with simple subway reference areas.",
+      },
+    ],
+  },
+  {
+    id: "languageBudget",
+    title: "Q4. What monthly rent range can you handle?",
+    intro: "CAD prices can be hard to feel at first. Use these as rough rent ranges.",
+    notice: "These amounts are monthly rent only. Deposit, utilities, food, and transit are separate.",
+    footerNote: "These rent ranges are rough reference points. Extra costs may apply.",
+    options: [
+      {
+        value: "budget_400_600",
+        label: "C$400-600",
+        description: "Very low budget. Options may be limited and require compromises.",
+      },
+      {
+        value: "budget_600_900",
+        label: "C$600-900",
+        description: "A budget range for room rentals or shared housing.",
+      },
+      {
+        value: "budget_900_1200",
+        label: "C$900-1,200",
+        description: "A practical range for comparing room rentals.",
+      },
+      {
+        value: "budget_1200_1800",
+        label: "C$1,200-1,800",
+        description: "You may compare better rooms, basements, or some private-space options.",
+      },
+      {
+        value: "budget_1800_plus",
+        label: "C$1,800+",
+        description: "You may consider studios, condos, or more private housing.",
+      },
+    ],
+  },
+  {
+    id: "housingType",
+    title: "Q5. Do you have a housing type in mind?",
+    helpTitle: "Housing terms",
+    options: [
+      {
+        value: "housing_room_share",
+        label: "Room rent or shared housing is okay",
+        description: "I can share common spaces to reduce cost.",
+      },
+      {
+        value: "housing_private_space",
+        label: "I prefer a more private space",
+        description: "I want to compare studios, condos, basements, or similar options.",
+      },
+      {
+        value: "housing_start_simple",
+        label: "I can start with a room and move later",
+        description: "I can settle first, then move when I understand the city better.",
+      },
+      {
+        value: "housing_not_sure",
+        label: "I am not sure yet",
+        description: "I want to understand housing terms first.",
+      },
+    ],
+  },
+  {
+    id: "afterSchool",
+    title: "Q6. What do you want to do most after class?",
+    options: [
+      {
+        value: "after_school_near_school",
+        label: "Meet classmates near school",
+        description: "I may eat or hang out with classmates after class.",
+      },
+      {
+        value: "after_school_korean_food",
+        label: "Visit Korean food or community areas",
+        description: "Korean food, friends, and information access matter to me.",
+      },
+      {
+        value: "after_school_city_activity",
+        label: "Explore food, attractions, and events",
+        description: "I want to experience the city with new friends.",
+      },
+      {
+        value: "after_school_home_area",
+        label: "Rest near home after class",
+        description: "I prefer a calmer daily routine around home.",
+      },
+      {
+        value: "after_school_not_sure",
+        label: "I am not sure yet",
+        description: "I cannot predict my routine yet.",
+      },
+    ],
+  },
+  {
+    id: "koreanCommunity",
+    title: "Q7. How important is Korean community access?",
+    intro: "This means Korean food, stores, community information, and early support channels.",
+    options: [
+      {
+        value: "korean_very_important",
+        label: "Very important",
+        description: "I think I will need Korean food and information at first.",
+      },
+      {
+        value: "korean_somewhat",
+        label: "Helpful, but not required",
+        description: "It would help, but I do not need to live right next to it.",
+      },
+      {
+        value: "korean_beginner_need",
+        label: "Useful during the first stage",
+        description: "It may help while I settle in.",
+      },
+      {
+        value: "korean_not_important",
+        label: "Not very important",
+        description: "I want to experience more local areas.",
+      },
+    ],
+  },
+  {
+    id: "cityActivity",
+    title: "Q8. How often do you expect to visit city-centre areas, attractions, or events?",
+    options: [
+      {
+        value: "city_activity_very_often",
+        label: "Almost every day or very often",
+        description: "I expect many plans for friends, events, shopping, or sightseeing.",
+      },
+      {
+        value: "city_activity_often",
+        label: "Two or three times a week",
+        description: "I may go often, but not every day.",
+      },
+      {
+        value: "city_activity_weekend",
+        label: "Mostly weekends or special days",
+        description: "On weekdays, class and home-area life matter more.",
+      },
+      {
+        value: "city_activity_low",
+        label: "Not very often",
+        description: "Resting near home matters more.",
+      },
+    ],
+  },
+  {
+    id: "partTime",
+    title: "Q9. Are you open to small part-time work if allowed?",
+    notice:
+      "Work permission depends on visa, student status, and program conditions. MapleHouse does not provide visa or job advice.",
+    options: [
+      {
+        value: "parttime_yes",
+        label: "Yes, if possible",
+        description: "I want to keep part-time work possibilities open.",
+      },
+      {
+        value: "parttime_maybe",
+        label: "Maybe later",
+        description: "I may look into it if my situation allows.",
+      },
+      {
+        value: "parttime_low",
+        label: "Study and daily life matter more",
+        description: "Adapting to school and life is the priority.",
+      },
+      {
+        value: "parttime_no",
+        label: "No",
+        description: "I am not considering part-time work.",
+      },
+    ],
+  },
+  {
+    id: "finalPriority",
+    title: "Q10. If you had to choose one priority, what matters most?",
+    options: [
+      {
+        value: "final_school_commute",
+        label: "Easy morning commute to school",
+        description: "I want to reduce stress for early classes.",
+      },
+      {
+        value: "final_budget",
+        label: "Saving rent",
+        description: "Lower rent matters even if travel is longer.",
+      },
+      {
+        value: "final_social_activity",
+        label: "Easy after-class social life",
+        description: "Food, events, sightseeing, and friends matter.",
+      },
+      {
+        value: "final_korean_community",
+        label: "Korean food and information access",
+        description: "Being near Korean community access matters.",
+      },
+      {
+        value: "final_beginner_stability",
+        label: "Stable first-arrival life",
+        description: "I want a place that feels manageable at first.",
+      },
+      {
+        value: "final_subway_convenience",
+        label: "Simple subway-based mobility",
+        description: "I want routes that are easy to understand.",
+      },
+    ],
+  },
+];
+
+const frenchLanguageStudyQuestions: LanguageStudyQuestion[] = [
+  {
+    id: "school",
+    title: "Q1. Dans quelle école de langue êtes-vous inscrit, ou laquelle envisagez-vous?",
+    options: [
+      {
+        value: "school_ilac",
+        label: "ILAC",
+        description: "Je suis inscrit à ILAC ou j’envisage ILAC.",
+      },
+      {
+        value: "school_ilsc",
+        label: "ILSC Toronto",
+        description: "J’envisage ILSC Toronto.",
+      },
+      {
+        value: "school_ec",
+        label: "EC English Toronto",
+        description: "J’envisage EC English Toronto.",
+      },
+      {
+        value: "school_hansa",
+        label: "Hansa Language Centre",
+        description: "J’envisage Hansa Language Centre.",
+      },
+      {
+        value: "school_kaplan",
+        label: "Kaplan Toronto",
+        description: "J’envisage Kaplan Toronto.",
+      },
+      {
+        value: "school_other",
+        label: "Une autre école de langue",
+        description: "Mon école n’est pas dans la liste.",
+      },
+      {
+        value: "school_unknown",
+        label: "Je n’ai pas encore décidé",
+        description: "Je compare encore plusieurs écoles.",
+      },
+    ],
+  },
+  {
+    id: "commuteRange",
+    title: "Q2. Si vos cours commencent vers 8 h 30, quel trajet pouvez-vous accepter?",
+    intro: "Les cours peuvent commencer tôt. Choisissez un repère de trajet réaliste.",
+    notice: "Ces durées sont seulement des repères. Vérifiez toujours le vrai trajet sur une carte.",
+    options: [
+      {
+        value: "commute_very_close",
+        label: "Même secteur ou 0-1 station",
+        description: "Je préfère un trajet court, autour de 20-30 minutes si possible.",
+      },
+      {
+        value: "commute_short",
+        label: "2-3 stations me conviennent",
+        description: "Je peux vivre un peu plus loin si le trajet reste simple.",
+      },
+      {
+        value: "commute_medium",
+        label: "4-6 stations me conviennent",
+        description: "Je peux accepter plus de trajet si le logement est meilleur.",
+      },
+      {
+        value: "commute_budget_first",
+        label: "Plus loin, si le loyer baisse",
+        description: "Le budget passe avant le confort du trajet.",
+      },
+      {
+        value: "commute_not_sure",
+        label: "Je ne sais pas encore",
+        description: "Je veux commencer avec des secteurs équilibrés.",
+      },
+    ],
+  },
+  {
+    id: "transport",
+    title: "Q3. Quel type de trajet du matin vous semble le plus simple?",
+    helpTitle: "Conseils de trajet",
+    helpItems: [
+      { term: "Métro", description: "Le trajet peut sembler plus simple à comprendre." },
+      { term: "Bus", description: "Le bus peut être plus lent, mais il dessert plus de secteurs." },
+      { term: "Trajet réel", description: "La météo, l’horaire et les travaux peuvent changer le trajet." },
+    ],
+    options: [
+      {
+        value: "prefer_subway",
+        label: "Je préfère le métro",
+        description: "Je veux un trajet simple à comprendre.",
+      },
+      {
+        value: "bus_ok",
+        label: "Le bus me convient",
+        description: "Je peux prendre le bus si le logement est meilleur.",
+      },
+      {
+        value: "avoid_long_walk",
+        label: "Je veux éviter une longue marche",
+        description: "L’accès au transport près du logement est important.",
+      },
+      {
+        value: "transport_budget_first",
+        label: "Le loyer compte plus que le trajet",
+        description: "J’accepte un trajet moins pratique pour économiser.",
+      },
+      {
+        value: "transport_not_sure",
+        label: "Je ne sais pas encore",
+        description: "Je veux partir de repères simples en métro.",
+      },
+    ],
+  },
+  {
+    id: "languageBudget",
+    title: "Q4. Quel budget mensuel pouvez-vous prévoir pour le loyer?",
+    intro: "Les prix en dollars canadiens peuvent être difficiles à évaluer au début.",
+    notice: "Ces montants concernent seulement le loyer. Dépôt, charges, nourriture et transport sont séparés.",
+    footerNote: "Ces montants sont des repères approximatifs. Des frais supplémentaires peuvent s’ajouter.",
+    options: [
+      {
+        value: "budget_400_600",
+        label: "400-600 $ CA",
+        description: "Budget très bas. Les options peuvent être limitées.",
+      },
+      {
+        value: "budget_600_900",
+        label: "600-900 $ CA",
+        description: "Budget plutôt adapté aux chambres ou logements partagés.",
+      },
+      {
+        value: "budget_900_1200",
+        label: "900-1 200 $ CA",
+        description: "Fourchette pratique pour comparer des chambres.",
+      },
+      {
+        value: "budget_1200_1800",
+        label: "1 200-1 800 $ CA",
+        description: "Vous pouvez comparer de meilleures chambres ou certains espaces privés.",
+      },
+      {
+        value: "budget_1800_plus",
+        label: "1 800 $ CA et plus",
+        description: "Vous pouvez envisager studios, condos ou logements plus privés.",
+      },
+    ],
+  },
+  {
+    id: "housingType",
+    title: "Q5. Avez-vous déjà un type de logement en tête?",
+    helpTitle: "Types de logement",
+    options: [
+      {
+        value: "housing_room_share",
+        label: "Chambre ou colocation me convient",
+        description: "Je peux partager les espaces communs pour réduire le coût.",
+      },
+      {
+        value: "housing_private_space",
+        label: "Je préfère un espace privé",
+        description: "Je veux comparer studios, condos, sous-sols ou options similaires.",
+      },
+      {
+        value: "housing_start_simple",
+        label: "Je peux commencer par une chambre",
+        description: "Je peux m’installer d’abord, puis déménager plus tard.",
+      },
+      {
+        value: "housing_not_sure",
+        label: "Je ne sais pas encore",
+        description: "Je veux d’abord comprendre les types de logement.",
+      },
+    ],
+  },
+  {
+    id: "afterSchool",
+    title: "Q6. Que voulez-vous faire le plus souvent après les cours?",
+    options: [
+      {
+        value: "after_school_near_school",
+        label: "Voir des camarades près de l’école",
+        description: "Je pourrais manger ou sortir avec eux après les cours.",
+      },
+      {
+        value: "after_school_korean_food",
+        label: "Aller vers les zones coréennes",
+        description: "La nourriture, les amis et les informations coréennes comptent.",
+      },
+      {
+        value: "after_school_city_activity",
+        label: "Explorer restaurants, lieux et événements",
+        description: "Je veux découvrir la ville avec de nouveaux amis.",
+      },
+      {
+        value: "after_school_home_area",
+        label: "Me reposer près du logement",
+        description: "Je préfère une routine calme autour de chez moi.",
+      },
+      {
+        value: "after_school_not_sure",
+        label: "Je ne sais pas encore",
+        description: "Je ne connais pas encore mon rythme.",
+      },
+    ],
+  },
+  {
+    id: "koreanCommunity",
+    title: "Q7. L’accès à la communauté coréenne est-il important pour vous?",
+    intro: "Cela signifie nourriture, magasins, informations et repères coréens au début.",
+    options: [
+      {
+        value: "korean_very_important",
+        label: "Très important",
+        description: "Je pense en avoir besoin au début.",
+      },
+      {
+        value: "korean_somewhat",
+        label: "Utile, mais pas obligatoire",
+        description: "Cela aide, mais je n’ai pas besoin d’habiter juste à côté.",
+      },
+      {
+        value: "korean_beginner_need",
+        label: "Utile au début",
+        description: "Cela peut aider pendant l’installation.",
+      },
+      {
+        value: "korean_not_important",
+        label: "Pas très important",
+        description: "Je veux découvrir davantage les zones locales.",
+      },
+    ],
+  },
+  {
+    id: "cityActivity",
+    title: "Q8. À quelle fréquence pensez-vous aller dans les secteurs centraux, les attractions ou les événements?",
+    options: [
+      {
+        value: "city_activity_very_often",
+        label: "Très souvent",
+        description: "Je prévois beaucoup de sorties, événements ou visites.",
+      },
+      {
+        value: "city_activity_often",
+        label: "Deux ou trois fois par semaine",
+        description: "J’irai souvent, mais pas tous les jours.",
+      },
+      {
+        value: "city_activity_weekend",
+        label: "Surtout le week-end",
+        description: "En semaine, les cours et le quartier du logement comptent plus.",
+      },
+      {
+        value: "city_activity_low",
+        label: "Pas très souvent",
+        description: "Le repos près du logement compte plus.",
+      },
+    ],
+  },
+  {
+    id: "partTime",
+    title: "Q9. Êtes-vous ouvert à un petit emploi à temps partiel si c’est permis?",
+    notice:
+      "Le droit de travailler dépend du visa, du statut étudiant et du programme. MapleHouse ne fournit pas de conseil visa ou emploi.",
+    options: [
+      {
+        value: "parttime_yes",
+        label: "Oui, si possible",
+        description: "Je veux garder cette possibilité ouverte.",
+      },
+      {
+        value: "parttime_maybe",
+        label: "Peut-être plus tard",
+        description: "Je pourrais regarder si ma situation le permet.",
+      },
+      {
+        value: "parttime_low",
+        label: "Les études et la vie quotidienne comptent plus",
+        description: "L’adaptation à l’école et à la ville est prioritaire.",
+      },
+      {
+        value: "parttime_no",
+        label: "Non",
+        description: "Je ne pense pas au travail à temps partiel.",
+      },
+    ],
+  },
+  {
+    id: "finalPriority",
+    title: "Q10. Si vous deviez choisir une seule priorité, laquelle serait la plus importante?",
+    options: [
+      {
+        value: "final_school_commute",
+        label: "Trajet simple vers l’école",
+        description: "Je veux réduire le stress des cours tôt le matin.",
+      },
+      {
+        value: "final_budget",
+        label: "Économiser sur le loyer",
+        description: "Un loyer plus bas compte, même avec plus de trajet.",
+      },
+      {
+        value: "final_social_activity",
+        label: "Vie sociale après les cours",
+        description: "Repas, événements, visites et amis comptent.",
+      },
+      {
+        value: "final_korean_community",
+        label: "Nourriture et infos coréennes",
+        description: "L’accès à la communauté coréenne compte.",
+      },
+      {
+        value: "final_beginner_stability",
+        label: "Installation stable au début",
+        description: "Je veux un secteur facile à gérer au départ.",
+      },
+      {
+        value: "final_subway_convenience",
+        label: "Mobilité simple en métro",
+        description: "Je veux des trajets faciles à comprendre.",
+      },
+    ],
+  },
+];
+
+const englishLanguageStudyBudgetComments: Record<string, LanguageStudyBudgetComment> = {
+  budget_400_600: {
+    label: "C$400-600",
+    comment:
+      "This is a very low budget range. You may need to compare farther areas, shared housing, and room condition carefully.",
+  },
+  budget_600_900: {
+    label: "C$600-900",
+    comment:
+      "This is a budget room-rental range. Compare school access and lower-rent areas together.",
+  },
+  budget_900_1200: {
+    label: "C$900-1,200",
+    comment:
+      "This is a practical range for comparing room rentals. Check location, roommates, and morning commute together.",
+  },
+  budget_1200_1800: {
+    label: "C$1,200-1,800",
+    comment:
+      "You may compare better rooms, basements, or some private-space options. Check price against space and route.",
+  },
+  budget_1800_plus: {
+    label: "C$1,800+",
+    comment:
+      "You may consider studios, condos, or private spaces. Still compare daily routes and budget sustainability.",
+  },
+};
+
+const frenchLanguageStudyBudgetComments: Record<string, LanguageStudyBudgetComment> = {
+  budget_400_600: {
+    label: "400-600 $ CA",
+    comment:
+      "Budget très bas. Comparez les secteurs plus éloignés, la colocation et l’état du logement avec attention.",
+  },
+  budget_600_900: {
+    label: "600-900 $ CA",
+    comment:
+      "Budget adapté aux chambres. Comparez l’accès à l’école et les zones moins chères.",
+  },
+  budget_900_1200: {
+    label: "900-1 200 $ CA",
+    comment:
+      "Fourchette pratique pour comparer des chambres. Vérifiez le quartier, les colocataires et le trajet du matin.",
+  },
+  budget_1200_1800: {
+    label: "1 200-1 800 $ CA",
+    comment:
+      "Vous pouvez comparer de meilleures chambres ou certains espaces privés. Vérifiez prix, espace et trajet.",
+  },
+  budget_1800_plus: {
+    label: "1 800 $ CA et plus",
+    comment:
+      "Vous pouvez envisager studios, condos ou espaces privés. Vérifiez aussi les trajets et la durée du budget.",
+  },
+};
+
+const englishLanguageStudyResults: Record<string, LanguageStudyResultTemplate> = {
+  languageResult01: {
+    id: "languageResult01",
+    title: "ILAC Growth / central transfer type",
+    recommendedStations: ["bloorYonge"],
+    comparisonStations: ["college", "stGeorge", "sherbourne"],
+    goodFor: "Good for ILAC Growth or unknown ILAC campus students who want to reduce morning commute stress.",
+    reason: "It works well as a central reference point for ILAC and subway connections.",
+    caution: "ILAC has multiple campuses. Confirm your assigned campus before deciding.",
+  },
+  languageResult02: {
+    id: "languageResult02",
+    title: "ILAC College / University Pathway access type",
+    recommendedStations: ["college"],
+    comparisonStations: ["stGeorge", "dundas", "christie"],
+    goodFor: "Good for ILAC University Pathway or College Street area students.",
+    reason: "It helps compare school access, city-centre life, and nearby housing areas.",
+    caution: "Confirm the real campus address and class schedule.",
+  },
+  languageResult03: {
+    id: "languageResult03",
+    title: "ILAC Dream / Sherbourne arrival type",
+    recommendedStations: ["sherbourne"],
+    comparisonStations: ["bloorYonge", "broadview", "christie"],
+    goodFor: "Good for ILAC Dream Campus students.",
+    reason: "Sherbourne is useful as the school arrival station, while housing can be compared nearby.",
+    caution: "Sherbourne is mainly an arrival reference. Compare housing around nearby stations too.",
+  },
+  languageResult04: {
+    id: "languageResult04",
+    title: "ILSC / University Avenue access type",
+    recommendedStations: ["stPatrick"],
+    comparisonStations: ["dundas", "college", "stGeorge"],
+    goodFor: "Good for ILSC Toronto students.",
+    reason: "It gives a clear school arrival reference and nearby central comparison stations.",
+    caution: "Do not look only around St Patrick. Compare nearby central areas too.",
+  },
+  languageResult05: {
+    id: "languageResult05",
+    title: "EC / Hansa midtown balance type",
+    recommendedStations: ["eglinton"],
+    comparisonStations: ["bloorYonge", "northYorkCentre", "christie"],
+    goodFor: "Good for EC English or Hansa students.",
+    reason: "It balances school access, daily convenience, and housing comparison.",
+    caution: "Check the official class location and schedule again.",
+  },
+  languageResult06: {
+    id: "languageResult06",
+    title: "Kaplan / Union arrival type",
+    recommendedStations: ["union"],
+    comparisonStations: ["bloorYonge", "college", "dundas"],
+    goodFor: "Good for Kaplan Toronto students.",
+    reason: "Union is useful as the school arrival station for the south city-centre area.",
+    caution: "Housing right around Union can be expensive. Compare a wider range.",
+  },
+  languageResult07: {
+    id: "languageResult07",
+    title: "City-centre activity type",
+    recommendedStations: ["college", "dundas"],
+    comparisonStations: ["bloorYonge", "stGeorge", "union"],
+    goodFor: "Good for students who expect many meals, events, sightseeing, and plans after class.",
+    reason: "These stations help compare a wider after-class activity range.",
+    caution: "Better activity access can raise rent pressure.",
+  },
+  languageResult08: {
+    id: "languageResult08",
+    title: "Central balance type",
+    recommendedStations: ["stGeorge"],
+    comparisonStations: ["bloorYonge", "college", "christie"],
+    goodFor: "Good if the busiest central areas feel too intense but access still matters.",
+    reason: "It balances school access, city-centre access, and housing comparison.",
+    caution: "The real commute direction can change by school location.",
+  },
+  languageResult09: {
+    id: "languageResult09",
+    title: "Korean community and social balance type",
+    recommendedStations: ["christie"],
+    comparisonStations: ["bloorYonge", "dufferin", "college"],
+    goodFor: "Good if Korean food, community access, friends, and city access all matter.",
+    reason: "It is a balanced comparison point between Korean community access and central routes.",
+    caution: "If Korean community access is not important, this may be a lower priority.",
+  },
+  languageResult10: {
+    id: "languageResult10",
+    title: "North York first-arrival stability type",
+    recommendedStations: ["northYorkCentre"],
+    comparisonStations: ["finch", "eglinton", "bloorYonge"],
+    goodFor: "Good if first-arrival stability, Korean food, and daily convenience matter.",
+    reason: "It can help compare early settlement and daily convenience.",
+    caution: "If your school is central, check the morning commute carefully.",
+  },
+  languageResult11: {
+    id: "languageResult11",
+    title: "West-side budget comparison type",
+    recommendedStations: ["dufferin"],
+    comparisonStations: ["christie", "college", "stGeorge"],
+    goodFor: "Good if you want to save rent without feeling completely far from central areas.",
+    reason: "It helps compare rent value and central access together.",
+    caution: "Check listing condition and real routes yourself.",
+  },
+  languageResult12: {
+    id: "languageResult12",
+    title: "East-side budget comparison type",
+    recommendedStations: ["broadview", "victoriaPark"],
+    comparisonStations: ["bloorYonge", "eglinton", "christie"],
+    goodFor: "Good if you want lower rent and can handle more morning travel.",
+    reason: "It helps compare east-side options while avoiding some central rent pressure.",
+    caution: "For early classes, always check real route and time on a map.",
+  },
+};
+
+const frenchLanguageStudyResults: Record<string, LanguageStudyResultTemplate> = {
+  languageResult01: {
+    id: "languageResult01",
+    title: "ILAC Growth / repère central",
+    recommendedStations: ["bloorYonge"],
+    comparisonStations: ["college", "stGeorge", "sherbourne"],
+    goodFor: "Pour ILAC Growth ou un campus ILAC encore inconnu, avec priorité au trajet du matin.",
+    reason: "Bloor-Yonge sert de repère central pour ILAC et les correspondances.",
+    caution: "ILAC a plusieurs campus. Confirmez votre campus avant de choisir.",
+  },
+  languageResult02: {
+    id: "languageResult02",
+    title: "ILAC College / accès University Pathway",
+    recommendedStations: ["college"],
+    comparisonStations: ["stGeorge", "dundas", "christie"],
+    goodFor: "Pour ILAC University Pathway ou les écoles autour de College Street.",
+    reason: "Ce secteur aide à comparer accès à l’école, centre-ville et logement.",
+    caution: "Confirmez l’adresse réelle du campus et l’horaire.",
+  },
+  languageResult03: {
+    id: "languageResult03",
+    title: "ILAC Dream / arrivée Sherbourne",
+    recommendedStations: ["sherbourne"],
+    comparisonStations: ["bloorYonge", "broadview", "christie"],
+    goodFor: "Pour les étudiants du campus ILAC Dream.",
+    reason: "Sherbourne est utile comme station d’arrivée; le logement peut se comparer autour.",
+    caution: "Sherbourne est surtout un repère d’arrivée. Comparez aussi les stations proches.",
+  },
+  languageResult04: {
+    id: "languageResult04",
+    title: "ILSC / accès University Avenue",
+    recommendedStations: ["stPatrick"],
+    comparisonStations: ["dundas", "college", "stGeorge"],
+    goodFor: "Pour les étudiants d’ILSC Toronto.",
+    reason: "St Patrick donne un repère clair pour l’arrivée à l’école.",
+    caution: "Ne regardez pas seulement St Patrick. Comparez les secteurs proches.",
+  },
+  languageResult05: {
+    id: "languageResult05",
+    title: "EC / Hansa équilibre midtown",
+    recommendedStations: ["eglinton"],
+    comparisonStations: ["bloorYonge", "northYorkCentre", "christie"],
+    goodFor: "Pour les étudiants EC English ou Hansa.",
+    reason: "Eglinton équilibre accès à l’école, vie quotidienne et comparaison de logements.",
+    caution: "Revérifiez l’adresse et l’horaire officiels.",
+  },
+  languageResult06: {
+    id: "languageResult06",
+    title: "Kaplan / arrivée Union",
+    recommendedStations: ["union"],
+    comparisonStations: ["bloorYonge", "college", "dundas"],
+    goodFor: "Pour les étudiants Kaplan Toronto.",
+    reason: "Union sert de repère d’arrivée pour le sud du centre-ville.",
+    caution: "Autour d’Union, les loyers peuvent être élevés. Comparez plus large.",
+  },
+  languageResult07: {
+    id: "languageResult07",
+    title: "Vie active au centre",
+    recommendedStations: ["college", "dundas"],
+    comparisonStations: ["bloorYonge", "stGeorge", "union"],
+    goodFor: "Pour les étudiants qui prévoient repas, sorties, visites et événements après les cours.",
+    reason: "Ces stations aident à comparer un rayon de vie actif après les cours.",
+    caution: "Un meilleur accès aux activités peut augmenter le loyer.",
+  },
+  languageResult08: {
+    id: "languageResult08",
+    title: "Équilibre central",
+    recommendedStations: ["stGeorge"],
+    comparisonStations: ["bloorYonge", "college", "christie"],
+    goodFor: "Pour ceux qui veulent l’accès central sans être dans le secteur le plus intense.",
+    reason: "St George équilibre accès à l’école, centre-ville et logement.",
+    caution: "Le vrai trajet dépend de l’adresse de l’école.",
+  },
+  languageResult09: {
+    id: "languageResult09",
+    title: "Communauté coréenne et vie sociale",
+    recommendedStations: ["christie"],
+    comparisonStations: ["bloorYonge", "dufferin", "college"],
+    goodFor: "Pour ceux qui veulent nourriture coréenne, repères communautaires et accès central.",
+    reason: "Christie offre un repère entre communauté coréenne et accès au centre.",
+    caution: "Si cette communauté n’est pas importante, ce choix peut être moins prioritaire.",
+  },
+  languageResult10: {
+    id: "languageResult10",
+    title: "Stabilité d’arrivée à North York",
+    recommendedStations: ["northYorkCentre"],
+    comparisonStations: ["finch", "eglinton", "bloorYonge"],
+    goodFor: "Pour une première arrivée avec besoin de repères, nourriture coréenne et commodités.",
+    reason: "Ce secteur aide à comparer installation initiale et confort quotidien.",
+    caution: "Si l’école est centrale, vérifiez bien le trajet du matin.",
+  },
+  languageResult11: {
+    id: "languageResult11",
+    title: "Budget côté ouest",
+    recommendedStations: ["dufferin"],
+    comparisonStations: ["christie", "college", "stGeorge"],
+    goodFor: "Pour économiser sans être complètement loin des secteurs centraux.",
+    reason: "Dufferin aide à comparer budget et accès au centre.",
+    caution: "Vérifiez vous-même l’état du logement et le trajet réel.",
+  },
+  languageResult12: {
+    id: "languageResult12",
+    title: "Budget côté est",
+    recommendedStations: ["broadview", "victoriaPark"],
+    comparisonStations: ["bloorYonge", "eglinton", "christie"],
+    goodFor: "Pour réduire le loyer et accepter un trajet du matin plus long.",
+    reason: "Ces stations aident à comparer l’est tout en évitant une partie des loyers centraux.",
+    caution: "Pour les cours tôt, vérifiez toujours le vrai trajet sur une carte.",
+  },
+};
+
+const englishHousingGlossary: ChecklistLocaleContent["languageStudy"]["glossary"] = {
+  trigger: "Terms",
+  title: "Quick housing terms",
+  closeLabel: "Close housing terms",
+  items: [
+    {
+      term: "Room rent",
+      description: [
+        "Renting one room inside a house or condo.",
+        "Kitchen, bathroom, and living room may be shared.",
+      ],
+      pictogram: "room",
+    },
+    {
+      term: "Shared house",
+      description: [
+        "Several people share one home.",
+        "Bedrooms are often private, while common areas are shared.",
+      ],
+      pictogram: "share",
+    },
+    {
+      term: "Studio",
+      description: ["A one-room private unit where bedroom and living space are not separated."],
+      pictogram: "studio",
+    },
+    {
+      term: "1BR",
+      description: ["A home with one separate bedroom and a living/kitchen area."],
+      pictogram: "oneBedroom",
+    },
+    {
+      term: "Den",
+      description: [
+        "A small extra space.",
+        "Size, door, and window conditions vary, so check if it can really work as a bedroom.",
+      ],
+      pictogram: "den",
+    },
+    {
+      term: "Basement",
+      description: [
+        "A basement or semi-basement space.",
+        "Check daylight, moisture, ceiling height, and entrance.",
+      ],
+      pictogram: "basement",
+    },
+    {
+      term: "Condo",
+      description: [
+        "A private unit in a managed apartment-style building.",
+        "Amenities may exist, but rent can be higher.",
+      ],
+      pictogram: "condo",
+    },
+  ],
+};
+
+const frenchHousingGlossary: ChecklistLocaleContent["languageStudy"]["glossary"] = {
+  trigger: "Termes",
+  title: "Repères logement",
+  closeLabel: "Fermer les termes",
+  items: [
+    {
+      term: "Chambre à louer",
+      description: [
+        "Une chambre louée dans une maison ou un condo.",
+        "Cuisine, salle de bain ou salon peuvent être partagés.",
+      ],
+      pictogram: "room",
+    },
+    {
+      term: "Maison partagée",
+      description: [
+        "Plusieurs personnes partagent le même logement.",
+        "Les chambres sont souvent privées, les espaces communs partagés.",
+      ],
+      pictogram: "share",
+    },
+    {
+      term: "Studio",
+      description: ["Logement privé d’une seule pièce, sans chambre séparée."],
+      pictogram: "studio",
+    },
+    {
+      term: "1 chambre",
+      description: ["Logement avec une chambre séparée et un espace salon/cuisine."],
+      pictogram: "oneBedroom",
+    },
+    {
+      term: "Den",
+      description: [
+        "Petit espace supplémentaire.",
+        "Taille, porte et fenêtre varient; vérifiez s’il peut servir de chambre.",
+      ],
+      pictogram: "den",
+    },
+    {
+      term: "Sous-sol",
+      description: [
+        "Espace en sous-sol ou demi-sous-sol.",
+        "Vérifiez lumière, humidité, hauteur du plafond et entrée.",
+      ],
+      pictogram: "basement",
+    },
+    {
+      term: "Condo",
+      description: [
+        "Unité privée dans un immeuble de type appartement géré.",
+        "Des commodités peuvent exister, mais le loyer peut être plus élevé.",
+      ],
+      pictogram: "condo",
+    },
+  ],
+};
 
 const englishGeneralQuestions: GeneralChecklistQuestion[] = [
   {
@@ -970,10 +2133,8 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       {
         title: "Language Study",
         description: "Organize housing areas based on language school location and morning commute.",
-        button: "Coming soon",
+        button: "Find my school area",
         action: "language",
-        notice:
-          "The language study checklist is being prepared around language school locations, morning commute burden, budget, and first-arrival stability.",
       },
       {
         title: "College / University",
@@ -1020,6 +2181,54 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       support: "Ask with MapleHouse support",
       supportNotice:
         "MapleHouse-assisted inquiry will be connected to a paid plan later. This is an MVP preview.",
+    },
+    languageStudy: {
+      intro: {
+        label: "LANGUAGE STUDY",
+        title: "Find a Toronto station area for language study",
+        paragraphs: [
+          "When studying English in Toronto, your school location is only one part of the decision.",
+          "You also need to consider morning commute, rent budget, after-class life, and Korean community access.",
+          "This is not a final answer. Use it as a starting point, and always check real commute times on a map.",
+        ],
+      },
+      ilacCampusQuestion: englishLanguageStudyIlacCampusQuestion,
+      questions: englishLanguageStudyQuestions,
+      result: {
+        eyebrow: "Language Study Result",
+        title: "Station areas to start your search",
+        description: [
+          "This recommendation is not a final answer. Use it as a starting point for comparing homes.",
+          "Always check real commute time, class schedule, listing condition, and contract terms yourself.",
+        ],
+        destinationTitle: "School arrival station",
+        comparisonTitle: "Home-search comparison stations",
+        recommendationTitle: "Recommended stations",
+        reasonTitle: "Why this fits",
+        reasonPrefix:
+          "Recommended based on school, morning commute, rent budget, and after-class life.",
+        nearbyTitle: "Nearby comparison range",
+        nearbyPrefix: "Do not look only at the recommended station. Compare nearby stations such as",
+        nearbySuffix: "as well. Listing supply and prices can change.",
+        goodForTitle: "Good for this user",
+        importantNotesTitle: "Important notes",
+        viewListings: "View listings",
+        startChecklist: "Start checklist",
+        retake: "Retake survey",
+        support: "Contact MapleHouse",
+        supportNotice:
+          "MapleHouse-assisted inquiry will be connected to a paid plan later. This is an MVP preview.",
+      },
+      legalNoticeLines: [
+        "This recommendation is only a starting point for your housing search.",
+        "Real commute time can change by class time, weather, and transit conditions.",
+        "Always check the route yourself on a map before signing a contract.",
+        "Confirm school registration, campus address, and class schedule through official school information.",
+        "MapleHouse does not provide school registration, visa advice, legal advice, brokerage, escrow, or payment transfer services.",
+      ],
+      budgetComments: englishLanguageStudyBudgetComments,
+      resultTemplates: englishLanguageStudyResults,
+      glossary: englishHousingGlossary,
     },
     generalChecklist: {
       eyebrow: "General Checklist",
@@ -1106,10 +2315,8 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         title: "Études linguistiques",
         description:
           "Organisez les zones de logement selon l’emplacement de l’école de langue et le trajet du matin.",
-        button: "En préparation",
+        button: "Trouver mon secteur",
         action: "language",
-        notice:
-          "La check-list pour les études linguistiques est en préparation autour de l’emplacement des écoles de langue, du trajet du matin, du budget et de la stabilité à l’arrivée.",
       },
       {
         title: "Collège / université",
@@ -1156,6 +2363,54 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       support: "Demander l’aide de MapleHouse",
       supportNotice:
         "La demande assistée par MapleHouse sera liée à un forfait payant plus tard. Ceci est un aperçu MVP.",
+    },
+    languageStudy: {
+      intro: {
+        label: "SÉJOUR LINGUISTIQUE",
+        title: "Trouver un secteur de station pour vos cours de langue",
+        paragraphs: [
+          "Pour un séjour linguistique à Toronto, l’emplacement de l’école n’est qu’un point de départ.",
+          "Il faut aussi tenir compte du trajet du matin, du budget, de la vie après les cours et des repères utiles au début.",
+          "Ce résultat n’est pas une réponse définitive. Utilisez-le comme point de départ et vérifiez toujours les trajets réels sur une carte.",
+        ],
+      },
+      ilacCampusQuestion: frenchLanguageStudyIlacCampusQuestion,
+      questions: frenchLanguageStudyQuestions,
+      result: {
+        eyebrow: "Résultat séjour linguistique",
+        title: "Secteurs de station pour commencer votre recherche",
+        description: [
+          "Cette recommandation n’est pas une réponse définitive. Utilisez-la comme point de départ pour comparer les logements.",
+          "Vérifiez toujours vous-même le trajet réel, l’horaire des cours, l’état de l’annonce et les conditions.",
+        ],
+        destinationTitle: "Station d’arrivée à l’école",
+        comparisonTitle: "Stations à comparer pour le logement",
+        recommendationTitle: "Stations recommandées",
+        reasonTitle: "Pourquoi ce choix",
+        reasonPrefix:
+          "Recommandé selon l’école, le trajet du matin, le budget et la vie après les cours.",
+        nearbyTitle: "Secteurs proches à comparer",
+        nearbyPrefix: "Ne regardez pas seulement la station recommandée. Comparez aussi",
+        nearbySuffix: "autour. L’offre et les prix peuvent changer.",
+        goodForTitle: "Profil concerné",
+        importantNotesTitle: "Points importants",
+        viewListings: "Voir les logements",
+        startChecklist: "Commencer la check-list",
+        retake: "Refaire le questionnaire",
+        support: "Contacter MapleHouse",
+        supportNotice:
+          "La demande assistée par MapleHouse sera liée à un forfait payant plus tard. Ceci est un aperçu MVP.",
+      },
+      legalNoticeLines: [
+        "Cette recommandation sert seulement de point de départ pour votre recherche de logement.",
+        "Le vrai trajet peut changer selon l’horaire, la météo et les conditions de transport.",
+        "Vérifiez toujours le trajet sur une carte avant de signer un contrat.",
+        "Confirmez l’inscription, l’adresse du campus et l’horaire avec les informations officielles de l’école.",
+        "MapleHouse ne fournit pas d’inscription scolaire, conseil visa, conseil juridique, courtage, escrow ou transfert d’argent.",
+      ],
+      budgetComments: frenchLanguageStudyBudgetComments,
+      resultTemplates: frenchLanguageStudyResults,
+      glossary: frenchHousingGlossary,
     },
     generalChecklist: {
       eyebrow: "Liste générale",

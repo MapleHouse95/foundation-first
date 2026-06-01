@@ -642,6 +642,14 @@ export interface LanguageStudyBudgetComment {
 
 export interface LanguageStudyCalculationResult {
   resultId: string;
+  budgetKey: Extract<
+    LanguageStudyAnswerValue,
+    | "budget_400_600"
+    | "budget_600_900"
+    | "budget_900_1200"
+    | "budget_1200_1800"
+    | "budget_1800_plus"
+  >;
   stationScores: Partial<Record<StationId, number>>;
   destinationStations: StationId[];
   recommendedStations: StationId[];
@@ -1957,6 +1965,7 @@ export function calculateLanguageStudyRecommendation(
 
   return {
     resultId,
+    budgetKey,
     stationScores,
     destinationStations,
     recommendedStations,
