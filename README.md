@@ -33,3 +33,15 @@ The project is actively being developed, with a focus on:
 ```bash
 bun install
 bun run dev
+
+## Maintainer
+
+Primary maintainer: [MapleHouse95](https://github.com/MapleHouse95)
+
+## Security
+
+This project includes trust and safety logic, user-submitted workflow patterns, and API-route handling. Please see [SECURITY.md](./SECURITY.md) before reporting security issues.
+
+## License
+
+This project is open source under the terms of the license in [LICENSE](./LICENSE).
