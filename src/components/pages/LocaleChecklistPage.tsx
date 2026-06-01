@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   ArrowRight,
   CheckCircle2,
   ChevronLeft,
   Compass,
+  HelpCircle,
   Home,
   RotateCcw,
   WalletCards,
+  X,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
@@ -106,6 +108,64 @@ const HOUSING_GUIDE = [
     icon: Compass,
   },
 ];
+
+const HOUSING_GLOSSARY = [
+  {
+    term: "룸렌트",
+    description: [
+      "집이나 콘도 안의 방 하나를 빌리는 형태입니다.",
+      "주방, 화장실, 거실은 공유할 수 있습니다.",
+    ],
+    pictogram: "room",
+  },
+  {
+    term: "쉐어하우스",
+    description: [
+      "여러 사람이 한 집을 함께 쓰는 형태입니다.",
+      "방은 개인, 공용공간은 공유하는 경우가 많습니다.",
+    ],
+    pictogram: "share",
+  },
+  {
+    term: "스튜디오",
+    description: ["침실과 거실이 분리되지 않은 원룸형 독립공간입니다."],
+    pictogram: "studio",
+  },
+  {
+    term: "1BR",
+    description: [
+      "침실 1개와 거실/주방이 분리된 집입니다.",
+      "스튜디오보다 공간이 나뉘는 경우가 많습니다.",
+    ],
+    pictogram: "oneBedroom",
+  },
+  {
+    term: "덴",
+    description: [
+      "보조 공간입니다.",
+      "창문, 문, 크기가 제각각이라 실제 침실로 쓸 수 있는지 확인해야 합니다.",
+    ],
+    pictogram: "den",
+  },
+  {
+    term: "베이스먼트",
+    description: [
+      "지하 또는 반지하 공간입니다.",
+      "채광, 습기, 천장 높이, 출입구를 꼭 확인해야 합니다.",
+    ],
+    pictogram: "basement",
+  },
+  {
+    term: "콘도",
+    description: [
+      "한국의 오피스텔이나 아파트처럼 보이는 개인 소유 유닛입니다.",
+      "헬스장, 수영장, 라운지 같은 편의시설이 있을 수 있지만 월세가 높을 수 있습니다.",
+    ],
+    pictogram: "condo",
+  },
+] as const;
+
+type HousingGlossaryPictogram = (typeof HOUSING_GLOSSARY)[number]["pictogram"];
 
 export function LocaleChecklistPage({ locale }: { locale: Locale }) {
   if (locale !== "ko") {
@@ -885,9 +945,12 @@ function KoreanChecklistPage() {
             />
 
             <div className="mt-8">
-              <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
-                {languageQuestion.title}
-              </h2>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
+                  {languageQuestion.title}
+                </h2>
+                {languageQuestion.id === "housingType" && <HousingGlossaryHelp />}
+              </div>
               {languageQuestion.intro && (
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
                   {languageQuestion.intro}
@@ -898,7 +961,7 @@ function KoreanChecklistPage() {
                   {languageQuestion.notice}
                 </p>
               )}
-              {languageQuestion.helpItems && (
+              {languageQuestion.helpItems && languageQuestion.id !== "housingType" && (
                 <details className="mt-3 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
                   <summary className="cursor-pointer font-semibold text-foreground">
                     ? {languageQuestion.helpTitle}
@@ -1360,9 +1423,7 @@ function WorkingResultSection({
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
                   {index + 1}
                 </span>
-                <span className="text-lg font-bold leading-tight text-foreground sm:text-xl">
-                  {formatStationDisplayName(station)}
-                </span>
+                <StationNameLines station={station} />
               </div>
             ))}
           </div>
@@ -1400,10 +1461,10 @@ function WorkingResultSection({
 
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Button asChild>
-          <Link to="/ko/listings">
-            이 역 근처 매물 보기
+          <a href={buildChecklistListingsHref("workingHoliday", result.stations, result.title)}>
+            매물 리스트 보기
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </a>
         </Button>
         <Button type="button" variant="outline" onClick={onStartGeneral}>
           체크리스트 시작하기
@@ -1433,8 +1494,15 @@ function LanguageStudyResultSection({
   onRestart: () => void;
   onStartGeneral: () => void;
 }) {
-  const { result, budgetComment, recommendedStations, comparisonStations } = calculation;
-  const comparisonText = comparisonStations.map((station) => formatStationDisplayName(station)).join(", ");
+  const {
+    result,
+    budgetComment,
+    destinationStations,
+    recommendedStations,
+    comparisonStations,
+  } = calculation;
+  const nearbyStations = comparisonStations.length > 0 ? comparisonStations : recommendedStations;
+  const comparisonText = nearbyStations.map((station) => formatStationDisplayName(station)).join(", ");
 
   return (
     <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
@@ -1452,22 +1520,43 @@ function LanguageStudyResultSection({
           {result.title}
         </h3>
 
-        <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
-          <p className="text-sm font-semibold text-primary">추천 기준역</p>
-          <div className="mt-4 grid gap-3">
-            {recommendedStations.map((station, index) => (
-              <div
-                key={station}
-                className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                  {index + 1}
-                </span>
-                <span className="text-lg font-bold leading-tight text-foreground [word-break:keep-all] sm:text-xl">
-                  {formatStationDisplayName(station)}
-                </span>
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {destinationStations.length > 0 && (
+            <div className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
+              <p className="text-sm font-semibold text-primary">어학원 도착 기준역</p>
+              <div className="mt-4 grid gap-3">
+                {destinationStations.map((station, index) => (
+                  <div
+                    key={station}
+                    className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                      {index + 1}
+                    </span>
+                    <StationNameLines station={station} />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+          )}
+
+          <div className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
+            <p className="text-sm font-semibold text-primary">
+              {destinationStations.length > 0 ? "집 찾기 비교 기준역" : "추천 기준역"}
+            </p>
+            <div className="mt-4 grid gap-3">
+              {recommendedStations.map((station, index) => (
+                <div
+                  key={station}
+                  className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <StationNameLines station={station} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -1499,10 +1588,16 @@ function LanguageStudyResultSection({
 
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Button asChild>
-          <Link to="/ko/listings">
+          <a
+            href={buildChecklistListingsHref(
+              "languageStudy",
+              uniqueStations([...destinationStations, ...recommendedStations]),
+              result.title,
+            )}
+          >
             매물 리스트 보기
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </a>
         </Button>
         <Button type="button" variant="outline" onClick={onStartGeneral}>
           체크리스트 시작하기
@@ -1716,12 +1811,218 @@ function TranslatedGeneralChecklistResult({
   );
 }
 
+function StationNameLines({ station }: { station: string }) {
+  const label = formatStationDisplayName(station);
+  const match = label.match(/^(.*?)\s*(\(.+\))$/);
+  const englishName = match?.[1] ?? label;
+  const koreanName = match?.[2];
+
+  return (
+    <span className="min-w-0 flex-1 leading-tight">
+      <span className="block text-base font-bold text-foreground [word-break:keep-all] sm:text-lg">
+        {englishName}
+      </span>
+      {koreanName && (
+        <span className="mt-1 block text-sm font-semibold leading-snug text-muted-foreground [word-break:keep-all]">
+          {koreanName}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function uniqueStations(stations: string[]) {
+  return Array.from(new Set(stations));
+}
+
+function buildChecklistListingsHref(
+  source: "workingHoliday" | "languageStudy",
+  stations: string[],
+  resultLabel: string,
+) {
+  const params = new URLSearchParams();
+  params.set("checklist", source);
+  params.set("stations", uniqueStations(stations).join(","));
+  params.set("label", resultLabel);
+
+  return `/ko/listings?${params.toString()}`;
+}
+
+function HousingGlossaryPictogram({ type }: { type: HousingGlossaryPictogram }) {
+  const common = {
+    className: "h-10 w-10",
+    viewBox: "0 0 48 48",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    "aria-hidden": true,
+  } as const;
+
+  if (type === "room") {
+    return (
+      <svg {...common}>
+        <rect x="7" y="9" width="34" height="30" rx="3" className="fill-white stroke-muted-foreground/45" strokeWidth="1.8" />
+        <path d="M7 22h34M22 9v30M22 30h19" className="stroke-muted-foreground/45" strokeWidth="1.6" />
+        <rect x="10" y="12" width="10" height="8" rx="1.5" className="fill-[#FFE8CC] stroke-primary" strokeWidth="2" />
+        <path d="M12.5 17.5h5" className="stroke-primary" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (type === "share") {
+    return (
+      <svg {...common}>
+        <rect x="7" y="9" width="34" height="30" rx="3" className="fill-white stroke-primary/70" strokeWidth="1.8" strokeDasharray="3 2" />
+        <path d="M7 22h34M20 9v30M31 9v30" className="stroke-muted-foreground/45" strokeWidth="1.5" />
+        <rect x="9.5" y="11.5" width="8" height="8" rx="1.5" className="fill-[#FFE8CC] stroke-primary/80" strokeWidth="1.5" />
+        <rect x="22.5" y="11.5" width="6.5" height="8" rx="1.5" className="fill-white stroke-muted-foreground/45" strokeWidth="1.3" />
+        <rect x="32.5" y="11.5" width="6" height="8" rx="1.5" className="fill-white stroke-muted-foreground/45" strokeWidth="1.3" />
+        <path d="M12 31h15M12 35h9" className="stroke-primary" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (type === "studio") {
+    return (
+      <svg {...common}>
+        <rect x="8" y="9" width="32" height="30" rx="4" className="fill-[#FFF7ED] stroke-primary/80" strokeWidth="2" />
+        <rect x="12" y="25" width="13" height="8" rx="2" className="fill-white stroke-primary/75" strokeWidth="1.6" />
+        <path d="M29 14h7M29 18h7M29 22h7" className="stroke-primary" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M13 15h9" className="stroke-muted-foreground/50" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (type === "oneBedroom") {
+    return (
+      <svg {...common}>
+        <rect x="7" y="9" width="34" height="30" rx="3" className="fill-white stroke-muted-foreground/45" strokeWidth="1.8" />
+        <path d="M23 9v30M23 25h18" className="stroke-muted-foreground/50" strokeWidth="1.7" />
+        <rect x="10" y="12" width="10" height="11" rx="1.5" className="fill-[#FFE8CC] stroke-primary" strokeWidth="1.8" />
+        <path d="M27 15h10M27 20h8" className="stroke-primary" strokeWidth="1.8" strokeLinecap="round" />
+        <rect x="28" y="28" width="8" height="7" rx="1.5" className="fill-white stroke-primary/75" strokeWidth="1.5" />
+        <circle cx="32" cy="31.5" r="1.1" className="fill-primary/70" />
+      </svg>
+    );
+  }
+
+  if (type === "den") {
+    return (
+      <svg {...common}>
+        <rect x="7" y="10" width="34" height="29" rx="3" className="fill-white stroke-muted-foreground/45" strokeWidth="1.8" />
+        <path d="M25 10v17M25 27h16" className="stroke-muted-foreground/45" strokeWidth="1.6" />
+        <rect x="28" y="13" width="10" height="10" rx="1.5" className="fill-[#FFE8CC] stroke-primary" strokeWidth="1.8" />
+        <path d="M30.5 18h5M33 18v3" className="stroke-primary" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M12 19h9M12 29h18" className="stroke-muted-foreground/50" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (type === "basement") {
+    return (
+      <svg {...common}>
+        <path d="M12 20 24 10l12 10v7H12z" className="fill-white stroke-muted-foreground/45" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M7 28h34" className="stroke-muted-foreground/55" strokeWidth="2" strokeLinecap="round" />
+        <rect x="10" y="29" width="28" height="9" rx="2" className="fill-[#FFE8CC] stroke-primary" strokeWidth="1.8" />
+        <path d="M15 34h18" className="stroke-primary" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      <rect x="13" y="8" width="22" height="32" rx="3" className="fill-white stroke-muted-foreground/45" strokeWidth="1.8" />
+      <rect x="17" y="14" width="5" height="5" rx="1" className="fill-[#FFE8CC] stroke-primary/80" strokeWidth="1.4" />
+      <rect x="26" y="14" width="5" height="5" rx="1" className="fill-[#FFE8CC] stroke-primary/80" strokeWidth="1.4" />
+      <rect x="17" y="23" width="5" height="5" rx="1" className="fill-white stroke-primary/70" strokeWidth="1.4" />
+      <rect x="26" y="23" width="5" height="5" rx="1" className="fill-white stroke-primary/70" strokeWidth="1.4" />
+      <path d="M21 39v-6h6v6" className="stroke-primary" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function HousingGlossaryHelp() {
+  const [open, setOpen] = useState(false);
+  const popoverRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeOnOutsideClick(event: PointerEvent) {
+      if (!popoverRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [open]);
+
+  return (
+    <span ref={popoverRef} className="group relative inline-flex w-fit">
+      <button
+        type="button"
+        aria-expanded={open}
+        className="inline-flex items-center gap-1 rounded-full border border-[#FFE8CC] bg-[#FFF7ED] px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        onClick={() => setOpen((current) => !current)}
+        onFocus={() => setOpen(true)}
+      >
+        <HelpCircle className="h-3.5 w-3.5" />
+        용어 보기
+      </button>
+
+      <span
+        className={cn(
+          "absolute left-0 top-[calc(100%+0.75rem)] z-50 w-[min(90vw,24rem)] rounded-3xl border border-[#FFE8CC] bg-card p-4 text-left shadow-xl",
+          open ? "block" : "hidden group-hover:block group-focus-within:block",
+        )}
+      >
+        <span className="flex items-center justify-between gap-3">
+          <span className="text-sm font-semibold text-foreground">캐나다 집 용어 빠른 설명</span>
+          <button
+            type="button"
+            className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            aria-label="용어 설명 닫기"
+            onClick={() => setOpen(false)}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </span>
+        <span className="mt-3 grid max-h-[24rem] gap-2 overflow-y-auto pr-1">
+          {HOUSING_GLOSSARY.map((item) => (
+            <span key={item.term} className="flex gap-3 rounded-2xl border border-border bg-secondary/60 p-3">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#FFE8CC] bg-[#FFF7ED]">
+                {/* TODO: Add a richer housing-type explanation page later when visual examples are ready. */}
+                <HousingGlossaryPictogram type={item.pictogram} />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-foreground [word-break:keep-all]">
+                  {item.term}
+                </span>
+                <span className="mt-1 block space-y-0.5 text-xs leading-relaxed text-muted-foreground [word-break:keep-all]">
+                  {item.description.map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </span>
+              </span>
+            </span>
+          ))}
+        </span>
+      </span>
+    </span>
+  );
+}
+
 function HousingGuideSection() {
   return (
     <section className="mt-10">
-      <h2 className="text-2xl font-semibold text-foreground [word-break:keep-all]">
-        처음 집을 볼 때 주거 형태는 이렇게 생각해보세요.
-      </h2>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <h2 className="text-2xl font-semibold text-foreground [word-break:keep-all]">
+          처음 집을 볼 때 주거 형태는 이렇게 생각해보세요.
+        </h2>
+        <HousingGlossaryHelp />
+      </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
         {HOUSING_GUIDE.map((item) => {
           const Icon = item.icon;

@@ -1,4 +1,5 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useLocation } from "@tanstack/react-router";
 import {
   ArrowRight,
   BookOpen,
@@ -19,12 +20,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
+import { formatStationDisplayName } from "@/lib/stationRecommendationData";
 
 type Status = "verified" | "needs_check" | "preparing";
 type LocalizedText = Record<Locale, string>;
 type FilterPopover = "budget" | "housing" | "moveIn" | "people" | "more" | null;
 type HousingTypeId = "room" | "studio" | "condo" | "share" | "house";
 type InquiryMethod = "direct" | "support";
+type ChecklistListingSource = "workingHoliday" | "languageStudy";
 type MoreFilterId =
   | "verified"
   | "furnished"
@@ -59,6 +62,20 @@ interface MapPinData {
   area: string;
   x: number;
   y: number;
+}
+
+interface ChecklistListingsContext {
+  source: ChecklistListingSource;
+  sourceLabel: string | null;
+  resultLabel: string | null;
+  stationItems: ChecklistStationItem[];
+}
+
+interface ChecklistStationItem {
+  id: string;
+  label: string;
+  englishName: string;
+  koreanName?: string;
 }
 
 interface LocalizedOption<T extends string> {
@@ -510,8 +527,35 @@ const STATUS_CLASS: Record<Status, string> = {
   preparing: "border-border bg-muted text-muted-foreground",
 };
 
+const CHECKLIST_SOURCE_LABELS: Record<Locale, Record<ChecklistListingSource, string>> = {
+  ko: {
+    workingHoliday: "워킹홀리데이",
+    languageStudy: "어학연수",
+  },
+  en: {
+    workingHoliday: "Working Holiday",
+    languageStudy: "Language Study",
+  },
+  fr: {
+    workingHoliday: "Permis vacances-travail",
+    languageStudy: "Études linguistiques",
+  },
+};
+
 export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const t = L[locale];
+  const location = useLocation() as { href?: string; searchStr?: string };
+  const rawChecklistContext =
+    locale === "ko" ? parseChecklistListingsContext(location.searchStr, locale) : null;
+  const [showChecklistFilters, setShowChecklistFilters] = useState(false);
+  const [removedChecklistFilters, setRemovedChecklistFilters] = useState<Set<string>>(new Set());
+  const appliedChecklistContext = rawChecklistContext
+    ? applyRemovedChecklistFilters(rawChecklistContext, removedChecklistFilters)
+    : null;
+  const checklistContext =
+    appliedChecklistContext && appliedChecklistContext.stationItems.length > 0
+      ? appliedChecklistContext
+      : null;
   const [searchValue, setSearchValue] = useState("");
   const [favs, setFavs] = useState<Set<string>>(new Set());
   const [openFilter, setOpenFilter] = useState<FilterPopover>(null);
@@ -525,6 +569,11 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const [draftMoreFilters, setDraftMoreFilters] = useState<Set<MoreFilterId>>(new Set());
   const [moreFilters, setMoreFilters] = useState<Set<MoreFilterId>>(new Set());
   const [selectedListing, setSelectedListing] = useState<MockListing | null>(null);
+
+  useEffect(() => {
+    setShowChecklistFilters(false);
+    setRemovedChecklistFilters(new Set());
+  }, [location.href]);
 
   const toggleFav = (id: string) =>
     setFavs((s) => {
@@ -556,6 +605,25 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
       label: MORE_FILTER_OPTIONS.find((option) => option.id === id)?.label[locale] ?? id,
     })),
   ];
+  const activeAreaChip = activeChips.find((chip) => chip.id === "area");
+  const userFilterChips = activeChips.filter((chip) => chip.id !== "area");
+
+  const clearChecklistRecommendation = () => {
+    setShowChecklistFilters(false);
+    if (rawChecklistContext) {
+      setRemovedChecklistFilters(
+        new Set(["source", "result", ...rawChecklistContext.stationItems.map((station) => station.id)]),
+      );
+    }
+
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("checklist");
+      url.searchParams.delete("stations");
+      url.searchParams.delete("label");
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+  };
 
   const openListing = (listing: MockListing) => {
     setSelectedListing(listing);
@@ -960,16 +1028,48 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {activeChips.map((chip) => (
-              <Chip
-                key={chip.id}
-                icon={chip.id === "area" ? <MapPin className="h-3.5 w-3.5" /> : undefined}
-                label={chip.label}
-                primary={chip.primary}
-                onRemove={chip.id === "area" ? undefined : () => removeActiveChip(chip.id)}
-              />
-            ))}
+          {checklistContext && (
+            <ChecklistRecommendationBanner
+              context={checklistContext}
+              expanded={showChecklistFilters}
+              onToggleExpanded={() => setShowChecklistFilters((current) => !current)}
+              onRemoveFilter={(filterId) => {
+                setRemovedChecklistFilters((current) => {
+                  const next = new Set(current);
+                  if (filterId === "stations" && rawChecklistContext) {
+                    rawChecklistContext.stationItems.forEach((station) => next.add(station.id));
+                  } else {
+                    next.add(filterId);
+                  }
+                  return next;
+                });
+              }}
+              onClearRecommendation={clearChecklistRecommendation}
+            />
+          )}
+
+          <div className="mt-4 space-y-2">
+            {activeAreaChip && (
+              <div className="flex flex-wrap gap-2">
+                <Chip
+                  icon={<MapPin className="h-3.5 w-3.5" />}
+                  label={activeAreaChip.label}
+                  primary={activeAreaChip.primary}
+                />
+              </div>
+            )}
+            {userFilterChips.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {userFilterChips.map((chip) => (
+                  <Chip
+                    key={chip.id}
+                    label={chip.label}
+                    primary={chip.primary}
+                    onRemove={() => removeActiveChip(chip.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <ul className="mt-4 space-y-3">
@@ -1027,6 +1127,171 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
 
       <p className="px-4 pb-6 text-center text-xs text-muted-foreground">{t.mvpNotice}</p>
     </main>
+  );
+}
+
+function parseChecklistListingsContext(
+  searchStr: string | undefined,
+  locale: Locale,
+): ChecklistListingsContext | null {
+  const searchText =
+    searchStr ?? (typeof window !== "undefined" ? window.location.search : "");
+  const params = new URLSearchParams(searchText.startsWith("?") ? searchText : `?${searchText}`);
+  const source = params.get("checklist");
+
+  if (source !== "workingHoliday" && source !== "languageStudy") {
+    return null;
+  }
+
+  const stationLabels = Array.from(
+    new Set(
+      (params.get("stations") ?? "")
+        .split(",")
+        .map((station) => station.trim())
+        .filter(Boolean),
+    ),
+  ).map((station) => {
+    const label = formatStationDisplayName(station, locale);
+    return {
+      id: `station:${station}`,
+      label,
+      ...splitStationLabel(label),
+    };
+  });
+
+  if (stationLabels.length === 0) return null;
+
+  return {
+    source,
+    sourceLabel: CHECKLIST_SOURCE_LABELS[locale][source],
+    resultLabel: params.get("label"),
+    stationItems: stationLabels,
+  };
+}
+
+function applyRemovedChecklistFilters(
+  context: ChecklistListingsContext,
+  removedFilters: Set<string>,
+): ChecklistListingsContext {
+  return {
+    ...context,
+    sourceLabel: removedFilters.has("source") ? null : context.sourceLabel,
+    resultLabel: removedFilters.has("result") ? null : context.resultLabel,
+    stationItems: context.stationItems.filter((station) => !removedFilters.has(station.id)),
+  };
+}
+
+function splitStationLabel(label: string) {
+  const match = label.match(/^(.*?)\s*(\(.+\))$/);
+  return {
+    englishName: match?.[1] ?? label,
+    koreanName: match?.[2],
+  };
+}
+
+function ChecklistRecommendationBanner({
+  context,
+  expanded,
+  onToggleExpanded,
+  onRemoveFilter,
+  onClearRecommendation,
+}: {
+  context: ChecklistListingsContext;
+  expanded: boolean;
+  onToggleExpanded: () => void;
+  onRemoveFilter: (filterId: string) => void;
+  onClearRecommendation: () => void;
+}) {
+  const sourceText = context.sourceLabel ? `${context.sourceLabel} 결과 기반` : "체크리스트 결과 기반";
+  const stationCount = context.stationItems.length;
+
+  return (
+    <section className="mt-4 overflow-hidden rounded-2xl border-2 border-[#FFD7AA] bg-white shadow-sm">
+      <div className="p-3.5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em] text-primary">
+              체크리스트 추천 적용됨
+            </p>
+            <p className="mt-1 whitespace-nowrap text-[12px] font-semibold text-foreground [word-break:keep-all] sm:text-[13px]">
+              {sourceText} · 기준역 {stationCount}개
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="체크리스트 추천 초기화"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#FFD7AA] bg-white text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            onClick={onClearRecommendation}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="border-t border-[#FFF0E0] bg-white px-3.5 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="whitespace-nowrap text-[11px] font-semibold text-primary [word-break:keep-all]">
+              추천 기준역
+            </p>
+            <button
+              type="button"
+              className="shrink-0 whitespace-nowrap text-[11px] font-semibold text-primary transition-colors hover:text-primary/80 [word-break:keep-all]"
+              onClick={onClearRecommendation}
+            >
+              추천 전체 해제
+            </button>
+          </div>
+          <div className="mt-2 space-y-1.5">
+            {context.stationItems.map((station) => (
+              <RecommendedStationFilterRow
+                key={station.id}
+                station={station}
+                onRemove={() => onRemoveFilter(station.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className="flex w-full items-center justify-center gap-1.5 border-t border-[#FFD7AA] bg-[#FFF3E6] px-3.5 py-2 text-xs font-semibold text-primary transition-colors hover:bg-[#FFE8CC]"
+        onClick={onToggleExpanded}
+      >
+        <span className="whitespace-nowrap [word-break:keep-all]">
+          {expanded ? "선택된 필터 숨기기" : "선택된 필터 보기"}
+        </span>
+        <ChevronDown
+          className={cn("h-3.5 w-3.5 shrink-0 transition-transform", expanded && "rotate-180")}
+        />
+      </button>
+    </section>
+  );
+}
+
+function RecommendedStationFilterRow({
+  station,
+  onRemove,
+}: {
+  station: ChecklistStationItem;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-[#FFE0BF] bg-white px-3 py-2">
+      <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+      <span className="min-w-0 flex-1 text-xs font-semibold leading-snug text-foreground">
+        {station.englishName}
+      </span>
+      <button
+        type="button"
+        aria-label={`${station.englishName} 삭제`}
+        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#FFE0BF] bg-white text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+        onClick={onRemove}
+      >
+        <X className="h-3 w-3" />
+      </button>
+    </div>
   );
 }
 

@@ -643,6 +643,7 @@ export interface LanguageStudyBudgetComment {
 export interface LanguageStudyCalculationResult {
   resultId: string;
   stationScores: Partial<Record<StationId, number>>;
+  destinationStations: StationId[];
   recommendedStations: StationId[];
   comparisonStations: StationId[];
   result: LanguageStudyResultTemplate;
@@ -1555,6 +1556,35 @@ function getLanguageStudyArrivalStations(answers: LanguageStudyAnswerMap): Stati
   }
 }
 
+function getLanguageStudyDestinationStations(answers: LanguageStudyAnswerMap): StationId[] {
+  if (answers.school === "school_ilac") {
+    switch (answers.ilacCampus) {
+      case "ilac_growth":
+        return ["bloorYonge"];
+      case "ilac_pathway":
+      case "ilac_heart":
+        return ["college"];
+      case "ilac_dream":
+        return ["sherbourne"];
+      case "ilac_unknown_campus":
+      default:
+        return ["bloorYonge", "college"];
+    }
+  }
+
+  switch (answers.school) {
+    case "school_ilsc":
+      return ["stPatrick"];
+    case "school_ec":
+    case "school_hansa":
+      return ["eglinton"];
+    case "school_kaplan":
+      return ["union"];
+    default:
+      return [];
+  }
+}
+
 function getLanguageStudyNearbyStations(answers: LanguageStudyAnswerMap): StationId[] {
   const arrival = getLanguageStudyArrivalStations(answers);
   const primary = arrival[0];
@@ -1912,10 +1942,15 @@ export function calculateLanguageStudyRecommendation(
   });
   const resultId = selectLanguageStudyResultId(answers, rankedStations);
   const result = LANGUAGE_STUDY_RESULT_TEMPLATES[resultId];
+  const destinationStations = getLanguageStudyDestinationStations(answers);
   const positiveStations = rankedStations.filter((station) => stationScores[station] > 0);
-  const recommendedStations =
-    positiveStations.length > 0 ? positiveStations.slice(0, 2) : result.recommendedStations;
+  const recommendedStations = (
+    positiveStations.length > 0 ? positiveStations : result.recommendedStations
+  )
+    .filter((station) => !destinationStations.includes(station))
+    .slice(0, 3);
   const comparisonStations = positiveStations
+    .filter((station) => !destinationStations.includes(station))
     .filter((station) => !recommendedStations.includes(station))
     .slice(0, 3);
   const budgetKey = answers.languageBudget as keyof typeof LANGUAGE_STUDY_BUDGET_COMMENTS;
@@ -1923,6 +1958,7 @@ export function calculateLanguageStudyRecommendation(
   return {
     resultId,
     stationScores,
+    destinationStations,
     recommendedStations,
     comparisonStations: comparisonStations.length > 0 ? comparisonStations : result.comparisonStations,
     result,
