@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, type RefObject, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -87,6 +87,11 @@ interface SavedChecklistResultState {
 
 const LEGAL_SCOPE_NOTICE_LINES = [
   "이 추천은 정답이 아니라 탐색 시작점을 잡기 위한 참고용입니다. 실제 통학/출근 시간, 매물 상태, 계약 조건, 송금 여부는 사용자가 직접 확인해야 합니다.",
+  "메이플하우스는 계약 당사자가 아니며, 법률 자문이나 부동산 중개를 제공하지 않습니다.",
+];
+
+const WORKING_HOLIDAY_LEGAL_NOTICE_LINES = [
+  "이 추천은 정답이 아니라 탐색 시작점을 잡기 위한 참고용입니다. 실제 출퇴근 시간, 매물 상태, 계약 조건, 송금 여부는 사용자가 직접 확인해야 합니다.",
   "메이플하우스는 계약 당사자가 아니며, 법률 자문이나 부동산 중개를 제공하지 않습니다.",
 ];
 
@@ -193,6 +198,70 @@ function clearChecklistResultState(checklistType?: ResultChecklistType) {
     window.sessionStorage.removeItem(CHECKLIST_RESULT_STORAGE_KEY);
   }
   clearChecklistResultUrl();
+}
+
+interface InitialKoreanChecklistState {
+  mode: KoreanMode;
+  workingAnswers: AnswerMap;
+  workingResult: CalculationResult | null;
+  languageAnswers: LanguageStudyAnswerMap;
+  languageResult: LanguageStudyCalculationResult | null;
+  studyAnswers: StudyAbroadAnswerMap;
+  studyResult: StudyAbroadCalculationResult | null;
+}
+
+function getInitialKoreanChecklistState(searchText: string): InitialKoreanChecklistState {
+  const fallback: InitialKoreanChecklistState = {
+    mode: hasResultViewSearch(searchText) ? "restoringResult" : "overview",
+    workingAnswers: {},
+    workingResult: null,
+    languageAnswers: {},
+    languageResult: null,
+    studyAnswers: {},
+    studyResult: null,
+  };
+
+  const params = getChecklistParamsFromSearch(searchText);
+  if (params.get("view") !== "result") {
+    return { ...fallback, mode: "overview" };
+  }
+
+  const checklistType = params.get("checklist");
+  const saved = readChecklistResultState();
+  if (!isResultChecklistType(checklistType) || !saved || saved.checklistType !== checklistType) {
+    return { ...fallback, mode: typeof window === "undefined" ? fallback.mode : "overview" };
+  }
+
+  if (checklistType === "workingHoliday") {
+    const answers = saved.answers as AnswerMap;
+    if (!isCompleteAnswerMap(answers)) return { ...fallback, mode: "overview" };
+    return {
+      ...fallback,
+      mode: "workingResult",
+      workingAnswers: answers,
+      workingResult: calculateStationRecommendation(answers),
+    };
+  }
+
+  if (checklistType === "languageStudy") {
+    const answers = saved.answers as LanguageStudyAnswerMap;
+    if (!isCompleteLanguageStudyAnswerMap(answers)) return { ...fallback, mode: "overview" };
+    return {
+      ...fallback,
+      mode: "languageResult",
+      languageAnswers: answers,
+      languageResult: calculateLanguageStudyRecommendation(answers),
+    };
+  }
+
+  const answers = saved.answers as StudyAbroadAnswerMap;
+  if (!isCompleteStudyAbroadAnswerMap(answers)) return { ...fallback, mode: "overview" };
+  return {
+    ...fallback,
+    mode: "studyResult",
+    studyAnswers: answers,
+    studyResult: calculateStudyAbroadRecommendation(answers),
+  };
 }
 
 const DEPARTURE_TYPES = [
@@ -345,6 +414,7 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
   const generalQuestion = generalQuestions[generalStep];
   const selectedGeneralOptions = generalQuestion ? generalAnswers[generalQuestion.id] ?? [] : [];
   const generalProgress = mode === "generalWizard" ? ((generalStep + 1) / generalQuestions.length) * 100 : 0;
+  const isHousingQuestion = mode === "languageWizard" && languageQuestion?.id === "housingType";
 
   function resetToOverview() {
     setMode("overview");
@@ -700,106 +770,55 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
         )}
 
         {mode === "languageWizard" && languageQuestion && (
-          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+          <QuestionShellWithHelper
+            helper={
+              hasQuestionSideHelper(languageQuestion) ? (
+                <QuestionSideHelper question={languageQuestion} glossary={content.languageStudy.glossary} />
+              ) : null
+            }
+          >
+            <section
+              className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8"
+              data-testid="checklist-question-card"
+            >
             <WizardHeader
               countLabel={`${languageStep + 1} / ${languageQuestions.length}`}
               title={content.languageStudy.intro.label}
               progress={languageProgress}
             />
 
-            <div className="mt-8">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <h2 className="text-2xl font-semibold leading-tight text-foreground">
-                  {languageQuestion.title}
-                </h2>
-                {languageQuestion.id === "housingType" && (
-                  <HousingGlossaryHelp glossary={content.languageStudy.glossary} />
-                )}
-              </div>
-              {languageQuestion.intro && (
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {languageQuestion.intro}
-                </p>
-              )}
-              {languageQuestion.notice && (
-                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground">
-                  {languageQuestion.notice}
-                </p>
-              )}
-              {languageQuestion.helpItems && languageQuestion.id !== "housingType" && (
-                <details className="mt-3 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground">
-                  <summary className="cursor-pointer font-semibold text-foreground">
-                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                      <HelpCircle className="h-3.5 w-3.5 text-primary" />
-                      {languageQuestion.helpTitle}
-                    </span>
-                  </summary>
-                  <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    {languageQuestion.helpItems.map((item) => (
-                      <div key={item.term} className="rounded-xl border border-[#FFE8CC] bg-card p-3">
-                        <p className="font-semibold text-foreground">{item.term}</p>
-                        <p className="mt-1">{item.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              )}
-            </div>
+            <div className="mt-8 min-w-0">
+              <div className="min-w-0">
+                <div>
+                  <h2 className="text-2xl font-semibold leading-tight text-foreground">
+                    {languageQuestion.title}
+                  </h2>
+                  {languageQuestion.intro && (
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                      {languageQuestion.intro}
+                    </p>
+                  )}
+                  {languageQuestion.notice && (
+                    <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground">
+                      {languageQuestion.notice}
+                    </p>
+                  )}
+                </div>
 
-            <div className="mt-6 grid gap-3 xl:grid-cols-2">
-              {languageQuestion.options.map((option) => {
-                const selected = selectedLanguageAnswer === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={cn(
-                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                      selected
-                        ? "border-primary bg-accent shadow-sm"
-                        : "border-border bg-card hover:border-primary hover:shadow-sm",
-                    )}
-                    onClick={() => selectLanguageAnswer(option.value)}
-                  >
-                    <AnswerMarker selected={selected} />
-                    <span className="ml-8 -mt-5 block">
-                      <span className="block text-base font-semibold text-foreground">
-                        {option.label}
-                      </span>
-                      <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                        {option.description}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {needsIlacCampus && (
-              <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 sm:p-5">
-                <h3 className="text-lg font-semibold text-foreground">
-                  {content.languageStudy.ilacCampusQuestion.title}
-                </h3>
-                {content.languageStudy.ilacCampusQuestion.notice && (
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {content.languageStudy.ilacCampusQuestion.notice}
-                  </p>
-                )}
-                <div className="mt-4 grid gap-3 xl:grid-cols-2">
-                  {content.languageStudy.ilacCampusQuestion.options.map((option) => {
-                    const campusValue = option.value as IlacCampusAnswer;
-                    const selected = languageAnswers.ilacCampus === campusValue;
+                <div className="mt-6 grid gap-3 xl:grid-cols-2">
+                  {languageQuestion.options.map((option) => {
+                    const selected = selectedLanguageAnswer === option.value;
                     return (
                       <button
                         key={option.value}
                         type="button"
                         className={cn(
-                          "rounded-2xl border bg-card p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                          "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                           selected
                             ? "border-primary bg-accent shadow-sm"
-                            : "border-[#FFE8CC] hover:border-primary hover:shadow-sm",
+                            : "border-border bg-card hover:border-primary hover:shadow-sm",
                         )}
-                        onClick={() => selectIlacCampus(campusValue)}
+                        onClick={() => selectLanguageAnswer(option.value)}
                       >
                         <AnswerMarker selected={selected} />
                         <span className="ml-8 -mt-5 block">
@@ -814,14 +833,56 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
                     );
                   })}
                 </div>
-              </div>
-            )}
 
-            {languageQuestion.footerNote && (
-              <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground">
-                {languageQuestion.footerNote}
-              </p>
-            )}
+                {needsIlacCampus && (
+                  <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 sm:p-5">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {content.languageStudy.ilacCampusQuestion.title}
+                    </h3>
+                    {content.languageStudy.ilacCampusQuestion.notice && (
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {content.languageStudy.ilacCampusQuestion.notice}
+                      </p>
+                    )}
+                    <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                      {content.languageStudy.ilacCampusQuestion.options.map((option) => {
+                        const campusValue = option.value as IlacCampusAnswer;
+                        const selected = languageAnswers.ilacCampus === campusValue;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            className={cn(
+                              "rounded-2xl border bg-card p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                              selected
+                                ? "border-primary bg-accent shadow-sm"
+                                : "border-[#FFE8CC] hover:border-primary hover:shadow-sm",
+                            )}
+                            onClick={() => selectIlacCampus(campusValue)}
+                          >
+                            <AnswerMarker selected={selected} />
+                            <span className="ml-8 -mt-5 block">
+                              <span className="block text-base font-semibold text-foreground">
+                                {option.label}
+                              </span>
+                              <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                                {option.description}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {languageQuestion.footerNote && (
+                  <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground">
+                    {languageQuestion.footerNote}
+                  </p>
+                )}
+              </div>
+            </div>
 
             <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Button
@@ -845,7 +906,8 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
-          </section>
+            </section>
+          </QuestionShellWithHelper>
         )}
 
         {mode === "languageResult" && languageResult && (
@@ -946,7 +1008,7 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
           />
         )}
 
-        <TranslatedHousingGuideSection content={content} />
+        {!isHousingQuestion && <TranslatedHousingGuideSection content={content} />}
       </Container>
     </main>
   );
@@ -955,20 +1017,30 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
 function KoreanChecklistPage() {
   const location = useLocation() as { href?: string; searchStr?: string };
   const searchText = getChecklistSearchText(location);
-  const [mode, setMode] = useState<KoreanMode>(() =>
-    hasResultViewSearch(searchText)
-      ? "restoringResult"
-      : "overview",
-  );
+  const initialStateRef = useRef<InitialKoreanChecklistState | null>(null);
+  if (initialStateRef.current === null) {
+    initialStateRef.current = getInitialKoreanChecklistState(searchText);
+  }
+  const initialState = initialStateRef.current;
+
+  const [mode, setMode] = useState<KoreanMode>(initialState.mode);
   const [workingStep, setWorkingStep] = useState(0);
-  const [workingAnswers, setWorkingAnswers] = useState<AnswerMap>({});
-  const [workingResult, setWorkingResult] = useState<CalculationResult | null>(null);
+  const [workingAnswers, setWorkingAnswers] = useState<AnswerMap>(initialState.workingAnswers);
+  const [workingResult, setWorkingResult] = useState<CalculationResult | null>(
+    initialState.workingResult,
+  );
   const [languageStep, setLanguageStep] = useState(0);
-  const [languageAnswers, setLanguageAnswers] = useState<LanguageStudyAnswerMap>({});
-  const [languageResult, setLanguageResult] = useState<LanguageStudyCalculationResult | null>(null);
+  const [languageAnswers, setLanguageAnswers] = useState<LanguageStudyAnswerMap>(
+    initialState.languageAnswers,
+  );
+  const [languageResult, setLanguageResult] = useState<LanguageStudyCalculationResult | null>(
+    initialState.languageResult,
+  );
   const [studyStep, setStudyStep] = useState(0);
-  const [studyAnswers, setStudyAnswers] = useState<StudyAbroadAnswerMap>({});
-  const [studyResult, setStudyResult] = useState<StudyAbroadCalculationResult | null>(null);
+  const [studyAnswers, setStudyAnswers] = useState<StudyAbroadAnswerMap>(initialState.studyAnswers);
+  const [studyResult, setStudyResult] = useState<StudyAbroadCalculationResult | null>(
+    initialState.studyResult,
+  );
   const [generalStep, setGeneralStep] = useState(0);
   const [generalAnswers, setGeneralAnswers] = useState<GeneralAnswers>({});
   const [notice, setNotice] = useState<string | null>(null);
@@ -1009,6 +1081,9 @@ function KoreanChecklistPage() {
   const selectedGeneralOptions = generalQuestion ? generalAnswers[generalQuestion.id] ?? [] : [];
   const generalProgress =
     mode === "generalWizard" ? ((generalStep + 1) / GENERAL_CHECKLIST_QUESTIONS.length) * 100 : 0;
+  const isHousingQuestion =
+    (mode === "languageWizard" && languageQuestion?.id === "housingType") ||
+    (mode === "studyWizard" && studyQuestion?.id === "housingType");
 
   function restoreSavedChecklistResult(checklistType: ResultChecklistType, saved: SavedChecklistResultState) {
     if (saved.checklistType !== checklistType) return false;
@@ -1293,9 +1368,7 @@ function KoreanChecklistPage() {
     <main className="bg-background">
       <Container className="py-10 sm:py-14">
         {mode === "restoringResult" && (
-          <section className="rounded-3xl border border-border bg-card p-6 text-sm font-medium text-muted-foreground shadow-sm [word-break:keep-all] sm:p-8">
-            결과를 불러오는 중이에요.
-          </section>
+          <section className="min-h-[12rem]" aria-hidden="true" />
         )}
 
         {mode === "overview" && <HeroSection onStartGeneral={startGeneralChecklist} />}
@@ -1508,102 +1581,51 @@ function KoreanChecklistPage() {
         )}
 
         {mode === "languageWizard" && languageQuestion && (
-          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+          <QuestionShellWithHelper
+            helper={hasQuestionSideHelper(languageQuestion) ? <QuestionSideHelper question={languageQuestion} /> : null}
+          >
+            <section
+              className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8"
+              data-testid="checklist-question-card"
+            >
             <WizardHeader
               countLabel={`${languageStep + 1} / ${LANGUAGE_STUDY_QUESTIONS.length}`}
               title="어학연수 기준역 추천"
               progress={languageProgress}
             />
 
-            <div className="mt-8">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
-                  {languageQuestion.title}
-                </h2>
-                {languageQuestion.id === "housingType" && <HousingGlossaryHelp />}
-              </div>
-              {languageQuestion.intro && (
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-                  {languageQuestion.intro}
-                </p>
-              )}
-              {languageQuestion.notice && (
-                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-                  {languageQuestion.notice}
-                </p>
-              )}
-              {languageQuestion.helpItems && languageQuestion.id !== "housingType" && (
-                <details className="mt-3 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-                  <summary className="cursor-pointer font-semibold text-foreground">
-                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap [word-break:keep-all]">
-                      <HelpCircle className="h-3.5 w-3.5 text-primary" />
-                      {languageQuestion.helpTitle}
-                    </span>
-                  </summary>
-                  <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    {languageQuestion.helpItems.map((item) => (
-                      <div key={item.term} className="rounded-xl border border-[#FFE8CC] bg-card p-3">
-                        <p className="font-semibold text-foreground">{item.term}</p>
-                        <p className="mt-1">{item.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              )}
-            </div>
+            <div className="mt-8 min-w-0">
+              <div className="min-w-0">
+                <div>
+                  <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
+                    {languageQuestion.title}
+                  </h2>
+                  {languageQuestion.intro && (
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                      {languageQuestion.intro}
+                    </p>
+                  )}
+                  {languageQuestion.notice && (
+                    <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                      {languageQuestion.notice}
+                    </p>
+                  )}
+                </div>
 
-            <div className="mt-6 grid gap-3 xl:grid-cols-2">
-              {languageQuestion.options.map((option) => {
-                const selected = selectedLanguageAnswer === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={cn(
-                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                      selected
-                        ? "border-primary bg-accent shadow-sm"
-                        : "border-border bg-card hover:border-primary hover:shadow-sm",
-                    )}
-                    onClick={() => selectLanguageAnswer(option.value)}
-                  >
-                    <AnswerMarker selected={selected} />
-                    <span className="ml-8 -mt-5 block [word-break:keep-all]">
-                      <span className="block text-base font-semibold text-foreground">
-                        {option.label}
-                      </span>
-                      <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                        {option.description}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {needsIlacCampus && (
-              <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 sm:p-5">
-                <h3 className="text-lg font-semibold text-foreground [word-break:keep-all]">
-                  {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-                  {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.notice}
-                </p>
-                <div className="mt-4 grid gap-3 xl:grid-cols-2">
-                  {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.options.map((option) => {
-                    const campusValue = option.value as IlacCampusAnswer;
-                    const selected = languageAnswers.ilacCampus === campusValue;
+                <div className="mt-6 grid gap-3 xl:grid-cols-2">
+                  {languageQuestion.options.map((option) => {
+                    const selected = selectedLanguageAnswer === option.value;
                     return (
                       <button
                         key={option.value}
                         type="button"
                         className={cn(
-                          "rounded-2xl border bg-card p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                          "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                           selected
                             ? "border-primary bg-accent shadow-sm"
-                            : "border-[#FFE8CC] hover:border-primary hover:shadow-sm",
+                            : "border-border bg-card hover:border-primary hover:shadow-sm",
                         )}
-                        onClick={() => selectIlacCampus(campusValue)}
+                        onClick={() => selectLanguageAnswer(option.value)}
                       >
                         <AnswerMarker selected={selected} />
                         <span className="ml-8 -mt-5 block [word-break:keep-all]">
@@ -1618,14 +1640,54 @@ function KoreanChecklistPage() {
                     );
                   })}
                 </div>
-              </div>
-            )}
 
-            {languageQuestion.footerNote && (
-              <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground [word-break:keep-all]">
-                {languageQuestion.footerNote}
-              </p>
-            )}
+                {needsIlacCampus && (
+                  <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 sm:p-5">
+                    <h3 className="text-lg font-semibold text-foreground [word-break:keep-all]">
+                      {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                      {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.notice}
+                    </p>
+                    <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                      {LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION.options.map((option) => {
+                        const campusValue = option.value as IlacCampusAnswer;
+                        const selected = languageAnswers.ilacCampus === campusValue;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            className={cn(
+                              "rounded-2xl border bg-card p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                              selected
+                                ? "border-primary bg-accent shadow-sm"
+                                : "border-[#FFE8CC] hover:border-primary hover:shadow-sm",
+                            )}
+                            onClick={() => selectIlacCampus(campusValue)}
+                          >
+                            <AnswerMarker selected={selected} />
+                            <span className="ml-8 -mt-5 block [word-break:keep-all]">
+                              <span className="block text-base font-semibold text-foreground">
+                                {option.label}
+                              </span>
+                              <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                                {option.description}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {languageQuestion.footerNote && (
+                  <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground [word-break:keep-all]">
+                    {languageQuestion.footerNote}
+                  </p>
+                )}
+              </div>
+            </div>
 
             <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Button
@@ -1647,7 +1709,8 @@ function KoreanChecklistPage() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
-          </section>
+            </section>
+          </QuestionShellWithHelper>
         )}
 
         {mode === "languageResult" && languageResult && (
@@ -1689,90 +1752,97 @@ function KoreanChecklistPage() {
         )}
 
         {mode === "studyWizard" && studyQuestion && (
-          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+          <QuestionShellWithHelper
+            helper={hasQuestionSideHelper(studyQuestion) ? <QuestionSideHelper question={studyQuestion} /> : null}
+          >
+            <section
+              className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8"
+              data-testid="checklist-question-card"
+            >
             <WizardHeader
               countLabel={`${studyStep + 1} / ${STUDY_ABROAD_QUESTIONS.length}`}
               title="유학 기준역 추천"
               progress={studyProgress}
             />
 
-            <div className="mt-8">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
-                  {studyQuestion.title}
-                </h2>
-                {studyQuestion.id === "housingType" && <HousingGlossaryHelp />}
+            <div className="mt-8 min-w-0">
+              <div className="min-w-0">
+                <div>
+                  <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
+                    {studyQuestion.title}
+                  </h2>
+                  {studyQuestion.intro && (
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                      {studyQuestion.intro}
+                    </p>
+                  )}
+                  {studyQuestion.notice && (
+                    <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                      {studyQuestion.notice}
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-6 grid gap-3 xl:grid-cols-2">
+                  {studyQuestion.options.map((option) => {
+                    const selected = selectedStudyAnswer === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={cn(
+                          "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                          selected
+                            ? "border-primary bg-accent shadow-sm"
+                            : "border-border bg-card hover:border-primary hover:shadow-sm",
+                        )}
+                        onClick={() => selectStudyAnswer(option.value)}
+                      >
+                        <AnswerMarker selected={selected} />
+                        <span className="ml-8 -mt-5 block [word-break:keep-all]">
+                          <span className="block text-base font-semibold text-foreground">
+                            {option.label}
+                          </span>
+                          <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                            {option.description}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {needsGeorgeBrownCampus && (
+                  <StudySubQuestionCard
+                    question={STUDY_ABROAD_GEORGE_BROWN_CAMPUS_QUESTION}
+                    selectedValue={studyAnswers.georgeBrownCampus}
+                    onSelect={(value) => selectGeorgeBrownCampus(value as GeorgeBrownCampusAnswer)}
+                  />
+                )}
+
+                {needsIlacHigherProgram && (
+                  <StudySubQuestionCard
+                    question={STUDY_ABROAD_ILAC_HIGHER_QUESTION}
+                    selectedValue={studyAnswers.ilacHigherProgram}
+                    onSelect={(value) => selectIlacHigherProgram(value as IlacHigherAnswer)}
+                  />
+                )}
+
+                {needsCentennialCampus && (
+                  <StudySubQuestionCard
+                    question={STUDY_ABROAD_CENTENNIAL_CAMPUS_QUESTION}
+                    selectedValue={studyAnswers.centennialCampus}
+                    onSelect={(value) => selectCentennialCampus(value as CentennialCampusAnswer)}
+                  />
+                )}
+
+                {studyQuestion.footerNote && (
+                  <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground [word-break:keep-all]">
+                    {studyQuestion.footerNote}
+                  </p>
+                )}
               </div>
-              {studyQuestion.intro && (
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-                  {studyQuestion.intro}
-                </p>
-              )}
-              {studyQuestion.notice && (
-                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-                  {studyQuestion.notice}
-                </p>
-              )}
             </div>
-
-            <div className="mt-6 grid gap-3 xl:grid-cols-2">
-              {studyQuestion.options.map((option) => {
-                const selected = selectedStudyAnswer === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={cn(
-                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                      selected
-                        ? "border-primary bg-accent shadow-sm"
-                        : "border-border bg-card hover:border-primary hover:shadow-sm",
-                    )}
-                    onClick={() => selectStudyAnswer(option.value)}
-                  >
-                    <AnswerMarker selected={selected} />
-                    <span className="ml-8 -mt-5 block [word-break:keep-all]">
-                      <span className="block text-base font-semibold text-foreground">
-                        {option.label}
-                      </span>
-                      <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                        {option.description}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {needsGeorgeBrownCampus && (
-              <StudySubQuestionCard
-                question={STUDY_ABROAD_GEORGE_BROWN_CAMPUS_QUESTION}
-                selectedValue={studyAnswers.georgeBrownCampus}
-                onSelect={(value) => selectGeorgeBrownCampus(value as GeorgeBrownCampusAnswer)}
-              />
-            )}
-
-            {needsIlacHigherProgram && (
-              <StudySubQuestionCard
-                question={STUDY_ABROAD_ILAC_HIGHER_QUESTION}
-                selectedValue={studyAnswers.ilacHigherProgram}
-                onSelect={(value) => selectIlacHigherProgram(value as IlacHigherAnswer)}
-              />
-            )}
-
-            {needsCentennialCampus && (
-              <StudySubQuestionCard
-                question={STUDY_ABROAD_CENTENNIAL_CAMPUS_QUESTION}
-                selectedValue={studyAnswers.centennialCampus}
-                onSelect={(value) => selectCentennialCampus(value as CentennialCampusAnswer)}
-              />
-            )}
-
-            {studyQuestion.footerNote && (
-              <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground [word-break:keep-all]">
-                {studyQuestion.footerNote}
-              </p>
-            )}
 
             <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Button
@@ -1794,7 +1864,8 @@ function KoreanChecklistPage() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
-          </section>
+            </section>
+          </QuestionShellWithHelper>
         )}
 
         {mode === "studyResult" && studyResult && (
@@ -1893,7 +1964,7 @@ function KoreanChecklistPage() {
           />
         )}
 
-        {mode !== "restoringResult" && <HousingGuideSection />}
+        {mode !== "restoringResult" && !isHousingQuestion && <HousingGuideSection />}
       </Container>
     </main>
   );
@@ -2259,15 +2330,20 @@ function WorkingResultSection({
   onStartGeneral: () => void;
 }) {
   const { result, budgetComment } = calculation;
+  const comparisonItems = result.nearbyItems ?? [];
+  const hasComparisonItems = comparisonItems.length > 0;
 
   return (
-    <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+    <section
+      className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8"
+      data-testid="working-result-section"
+    >
       <p className="text-sm font-semibold text-primary">Recommendation Result</p>
       <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
         당신에게 맞는 기준역 후보
       </h2>
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-        아래 추천은 정답이 아니라 집을 찾기 시작할 기준점입니다. 실제 통학/출근 시간, 매물 상태,
+        아래 추천은 정답이 아니라 집을 찾기 시작할 기준점입니다. 실제 출퇴근 시간, 매물 상태,
         계약 조건은 반드시 직접 확인해야 합니다.
       </p>
 
@@ -2281,16 +2357,22 @@ function WorkingResultSection({
         />
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <StationExplanationBlock
-            title="추천 기준역"
-            stations={result.stations}
-            items={result.reasonItems}
-            roleLabel="추천 기준역"
-          />
-          <InfoBlock
-            title="근처 비교 범위"
-            body="추천 기준역 주변의 다른 후보도 함께 비교해보세요. 실제 매물 수와 가격은 시점에 따라 달라질 수 있습니다."
-          />
+          <div className={cn(!hasComparisonItems && "lg:col-span-2")}>
+            <StationExplanationBlock
+              title="추천 기준역"
+              stations={result.stations}
+              items={result.reasonItems}
+              roleLabel="추천 기준역"
+            />
+          </div>
+          {hasComparisonItems && (
+            <StationExplanationBlock
+              title="근처 비교 범위"
+              stations={comparisonItems.map((item) => item.stationId)}
+              items={comparisonItems}
+              roleLabel="근처 비교 범위"
+            />
+          )}
           <SummaryBlock
             title="이런 분께 맞아요"
             body={result.userFitSummary}
@@ -2304,7 +2386,7 @@ function WorkingResultSection({
         </div>
       </div>
 
-      <LegalScopeNotice />
+      <LegalScopeNotice lines={WORKING_HOLIDAY_LEGAL_NOTICE_LINES} />
 
       {supportNotice && (
         <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground [word-break:keep-all]">
@@ -3011,7 +3093,7 @@ function HousingGlossaryPictogram({ type }: { type: HousingGlossaryPictogram }) 
 
 const KOREAN_HOUSING_GLOSSARY_CONTENT: HousingGlossaryContent = {
   trigger: "용어 보기",
-  title: "캐나다 집 용어 빠른 설명",
+  title: "캐나다에서 주로 쓰이는 주거 형태",
   closeLabel: "용어 설명 닫기",
   items: HOUSING_GLOSSARY,
 };
@@ -3029,18 +3111,27 @@ function HousingGlossaryHelp({ glossary = KOREAN_HOUSING_GLOSSARY_CONTENT }: { g
       }
     }
 
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
     document.addEventListener("pointerdown", closeOnOutsideClick);
-    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, [open]);
 
   return (
-    <span ref={popoverRef} className="group relative inline-flex w-fit">
+    <span ref={popoverRef} className="relative inline-flex w-fit">
       <button
         type="button"
         aria-expanded={open}
         className="inline-flex items-center gap-1 rounded-full border border-[#FFE8CC] bg-[#FFF7ED] px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         onClick={() => setOpen((current) => !current)}
-        onFocus={() => setOpen(true)}
       >
         <HelpCircle className="h-3.5 w-3.5" />
         {glossary.trigger}
@@ -3049,7 +3140,7 @@ function HousingGlossaryHelp({ glossary = KOREAN_HOUSING_GLOSSARY_CONTENT }: { g
       <span
         className={cn(
           "absolute left-0 top-[calc(100%+0.75rem)] z-50 w-[min(90vw,24rem)] rounded-3xl border border-[#FFE8CC] bg-card p-4 text-left shadow-xl",
-          open ? "block" : "hidden group-hover:block group-focus-within:block",
+          open ? "block" : "hidden",
         )}
       >
         <span className="flex items-center justify-between gap-3">
@@ -3058,7 +3149,11 @@ function HousingGlossaryHelp({ glossary = KOREAN_HOUSING_GLOSSARY_CONTENT }: { g
             type="button"
             className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             aria-label={glossary.closeLabel}
-            onClick={() => setOpen(false)}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setOpen(false);
+            }}
           >
             <X className="h-4 w-4" />
           </button>
@@ -3087,6 +3182,155 @@ function HousingGlossaryHelp({ glossary = KOREAN_HOUSING_GLOSSARY_CONTENT }: { g
         </span>
       </span>
     </span>
+  );
+}
+
+type ChecklistQuestionWithSideHelper = {
+  id: string;
+  helpTitle?: string;
+  helpItems?: { term: string; description: string }[];
+};
+
+function hasQuestionSideHelper(question: ChecklistQuestionWithSideHelper) {
+  return question.id === "housingType" || Boolean(question.helpItems?.length);
+}
+
+function QuestionShellWithHelper({
+  children,
+  helper,
+}: {
+  children: ReactNode;
+  helper?: ReactNode;
+}) {
+  const helperRailRef = useRef<HTMLDivElement>(null);
+  const [reservedHelperHeight, setReservedHelperHeight] = useState(0);
+
+  useEffect(() => {
+    if (!helper || typeof window === "undefined") {
+      setReservedHelperHeight(0);
+      return;
+    }
+
+    const wideRailQuery = window.matchMedia("(min-width: 1860px)");
+    const updateReservedHeight = () => {
+      if (!wideRailQuery.matches || !helperRailRef.current) {
+        setReservedHelperHeight(0);
+        return;
+      }
+
+      setReservedHelperHeight(Math.ceil(helperRailRef.current.getBoundingClientRect().height));
+    };
+
+    updateReservedHeight();
+
+    const helperRail = helperRailRef.current;
+    const observer = typeof ResizeObserver !== "undefined" && helperRail ? new ResizeObserver(updateReservedHeight) : null;
+    if (helperRail) {
+      observer?.observe(helperRail);
+    }
+    wideRailQuery.addEventListener("change", updateReservedHeight);
+    window.addEventListener("resize", updateReservedHeight);
+
+    return () => {
+      observer?.disconnect();
+      wideRailQuery.removeEventListener("change", updateReservedHeight);
+      window.removeEventListener("resize", updateReservedHeight);
+    };
+  }, [helper]);
+
+  return (
+    <div
+      className="relative mt-8"
+      data-testid={helper ? "checklist-question-with-rail" : undefined}
+      style={reservedHelperHeight > 0 ? { minHeight: `${reservedHelperHeight}px` } : undefined}
+    >
+      {children}
+      {helper && <QuestionSideHelperPlacement helper={helper} railRef={helperRailRef} />}
+    </div>
+  );
+}
+
+function QuestionSideHelperPlacement({
+  helper,
+  railRef,
+}: {
+  helper: ReactNode;
+  railRef: RefObject<HTMLDivElement | null>;
+}) {
+  return (
+    <>
+      <div className="mt-4 min-[1860px]:hidden" data-testid="checklist-helper-stack">
+        {helper}
+      </div>
+      <div
+        ref={railRef}
+        className="absolute left-[calc(100%+1.5rem)] top-0 hidden w-[20rem] min-[1860px]:block"
+        data-testid="checklist-helper-rail"
+      >
+        {helper}
+      </div>
+    </>
+  );
+}
+
+function QuestionSideHelper({
+  question,
+  glossary = KOREAN_HOUSING_GLOSSARY_CONTENT,
+}: {
+  question: ChecklistQuestionWithSideHelper;
+  glossary?: HousingGlossaryContent;
+}) {
+  if (question.id === "housingType") {
+    return <HousingGlossarySidePanel glossary={glossary} />;
+  }
+
+  if (!question.helpItems?.length) return null;
+
+  return (
+    <aside className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm leading-relaxed text-muted-foreground shadow-sm [word-break:keep-all] sm:p-5">
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground [word-break:keep-all]">
+        <HelpCircle className="h-4 w-4 text-primary" />
+        <span className="whitespace-nowrap">{question.helpTitle ?? "참고"}</span>
+      </div>
+      <div className="mt-4 grid gap-3">
+        {question.helpItems.map((item) => (
+          <div key={item.term} className="rounded-2xl border border-[#FFE8CC] bg-card p-3">
+            <p className="font-semibold text-foreground [word-break:keep-all]">{item.term}</p>
+            <p className="mt-1">{item.description}</p>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
+function HousingGlossarySidePanel({ glossary }: { glossary: HousingGlossaryContent }) {
+  return (
+    <aside className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 shadow-sm [word-break:keep-all] sm:p-5">
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground [word-break:keep-all]">
+        <Home className="h-4 w-4 text-primary" />
+        <span className="whitespace-nowrap">{glossary.title}</span>
+      </div>
+      <div className="mt-4 grid gap-2">
+        {glossary.items.map((item) => (
+          <div key={item.term} className="flex gap-3 rounded-2xl border border-[#FFE8CC] bg-card p-3">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#FFE8CC] bg-[#FFF7ED]">
+              <HousingGlossaryPictogram type={item.pictogram} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-foreground">{item.term}</span>
+              <span className="mt-1 block space-y-0.5 text-xs leading-relaxed text-muted-foreground">
+                {item.description.map((line) => (
+                  <span key={line} className="block">
+                    {line}
+                  </span>
+                ))}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </aside>
   );
 }
 

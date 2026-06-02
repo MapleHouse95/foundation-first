@@ -577,10 +577,10 @@ const PROVISIONAL_STATION_DISTANCE_NOTES: Record<string, Partial<Record<StationI
     },
     osgoode: {
       distanceText: "약 0.7km 안팎",
-      travelText: "OCAD 주변의 수업과 작업 생활권을 함께 보기 좋은 거리",
+      travelText: "OCAD 근처 수업과 작업 일정을 같이 확인하기 좋은 거리",
       distanceKm: 0.7,
       explanationText:
-        "오스굿 역은 OCAD와 도심 수업·작업 생활권을 같이 볼 수 있는 역이에요. 학교뿐 아니라 작업실, 전시, 도심 이동까지 함께 생각할 때 보여드려요.",
+        "오스굿 역은 OCAD 근처 수업과 작업실, 전시, 프로젝트 일정을 같이 생각할 때 참고하기 좋은 역이에요. 학교 바로 앞만 보지 않고 주변 선택지도 확인하고 싶을 때 보여드려요.",
     },
   },
   studyAbroad_uoftStGeorge: {
@@ -1251,6 +1251,7 @@ export interface StudyAbroadQuestion {
   notice?: string;
   footerNote?: string;
   helpTitle?: string;
+  helpItems?: { term: string; description: string }[];
   options: StudyAbroadAnswerOption[];
 }
 
@@ -1851,15 +1852,17 @@ export const LANGUAGE_STUDY_QUESTIONS: LanguageStudyQuestion[] = [
     helpItems: [
       {
         term: "지하철 중심 이동",
-        description: "경로를 이해하기 쉽고 빠르게 느껴질 수 있습니다.",
+        description:
+          "지하철은 경로를 이해하기 쉽고 도착 시간을 예상하기 편한 편이에요. 다만 터널 구간에서는 통신사나 구간에 따라 데이터·통화 연결이 약하거나 끊길 수 있어요.",
       },
       {
         term: "버스 포함 이동",
-        description: "지하철보다 느릴 수 있지만, 바깥을 보며 이동할 수 있고 휴대폰 사용이 편한 경우가 많습니다.",
+        description:
+          "버스는 지상으로 이동해서 바깥을 보며 위치 감을 잡기 좋아요. 데이터나 통화도 비교적 자유롭게 쓰기 쉬운 편이에요. 대신 교통 상황의 영향을 받을 수 있어요.",
       },
       {
         term: "실제 편의성",
-        description: "노선, 시간대, 날씨, 통신사, 교통 상황에 따라 달라질 수 있습니다.",
+        description: "노선, 시간대, 날씨, 통신사, 교통 상황에 따라 실제 편의성은 달라질 수 있어요.",
       },
     ],
     options: [
@@ -2437,7 +2440,7 @@ export const BUDGET_COMMENTS: Record<string, BudgetComment> = {
   budget2: {
     label: "C$600~900 / 약 60~90만 원",
     comment:
-      "절약형 룸렌트를 중심으로 비교하기 좋은 구간이에요. 학교나 어학원 바로 앞만 고집하면 선택지가 줄어들 수 있어요.",
+      "절약형 룸렌트를 중심으로 비교하기 좋은 구간이에요. 중심 상권만 고집하면 선택지가 줄어들 수 있어요.",
   },
   budget3: {
     label: "C$900~1,200 / 약 90~120만 원",
@@ -2605,7 +2608,7 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
       "룸렌트 중심으로 볼 수 있습니다.",
     ],
     nearby: "Dufferin, Broadview 근처를 비교해보세요.",
-    caution: "가격만 보고 결정하지 말고 출퇴근/통학 동선을 같이 확인해야 합니다.",
+    caution: "가격만 보고 결정하지 말고 출퇴근 동선과 실제 이동 시간을 같이 확인해야 합니다.",
   },
   result11: {
     id: "result11",
@@ -2640,7 +2643,7 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
 };
 
 export const LEGAL_SCOPE_NOTICE =
-  "이 추천은 정답이 아니라 탐색 시작점을 잡기 위한 참고용입니다. 실제 통학/출근 시간, 매물 상태, 계약 조건, 송금 여부는 사용자가 직접 확인해야 합니다. 메이플하우스는 계약 당사자가 아니며, 법률 자문이나 부동산 중개를 제공하지 않습니다.";
+  "이 추천은 정답이 아니라 탐색 시작점을 잡기 위한 참고용입니다. 실제 이동 시간, 매물 상태, 계약 조건, 송금 여부는 사용자가 직접 확인해야 합니다. 메이플하우스는 계약 당사자가 아니며, 법률 자문이나 부동산 중개를 제공하지 않습니다.";
 
 const SCORE_RULES: Partial<Record<AnswerValue, Partial<ScoreMap>>> = {
   koreanJob: { koreanCommunity: 3, budgetValue: 1 },
@@ -2784,26 +2787,26 @@ function buildWorkingHolidayReason(
   });
 
   if (answers.work === "koreanJob") {
-    lines.push("일자리 방향에서 한국 커뮤니티 기반 업장을 열어두었기 때문에 한국 생활권 접근성을 함께 봤어요.");
+    lines.push("한국 커뮤니티 기반 업장 가능성을 열어두었기 때문에 한인 생활권 접근성을 반영했어요.");
   } else if (answers.work === "localService") {
-    lines.push("현지 리테일/서비스 일을 먼저 볼 수 있도록 중심부 이동성과 비교 가능한 생활권을 함께 봅니다.");
+    lines.push("식당, 카페, 매장 같은 현지 서비스직 가능성을 고려해 상권 접근과 생활권을 같이 봤어요.");
   } else if (answers.work === "officeAdmin") {
-    lines.push("오피스나 행정 업무 가능성을 고려해 이동이 이해하기 쉬운 역을 우선 비교했어요.");
+    lines.push("사무직이나 행정 업무 가능성을 고려해 출퇴근 동선을 이해하기 쉬운 역을 우선 비교했어요.");
   } else {
-    lines.push("일자리 위치가 아직 정해지지 않았기 때문에 처음 비교하기 쉬운 기준역을 중심으로 보여드려요.");
+    lines.push("일자리 위치가 아직 정해지지 않았기 때문에 처음 정착하며 비교하기 쉬운 생활권을 중심으로 추천드렸어요.");
   }
 
   if (answers.budget === "budget1" || answers.budget === "budget2" || answers.priority === "priorityCost") {
-    lines.push("예산을 중요하게 보는 선택이 있어 중심부만 보지 않고 월세 비교 후보도 함께 보여드려요.");
+    lines.push("예산을 중요하게 보는 선택이 있어 중심부만 보지 않고 월세 부담을 낮출 후보도 추천드렸어요.");
   }
   if (answers.koreanLife === "koreanHigh" || answers.priority === "priorityCommunity") {
     lines.push("한국 음식, 정보, 커뮤니티 접근성도 주요 기준으로 봤어요.");
   }
   if (answers.downtown === "downtownDaily" || answers.priority === "priorityMobility") {
-    lines.push("도심 방문 빈도나 이동 부담을 고려해 TTC 기준 이동이 쉬운 후보를 함께 봅니다.");
+    lines.push("도심 방문 빈도와 이동 부담을 고려해 TTC 기준 출퇴근 동선이 잡히는 후보를 같이 봤어요.");
   }
   if (countAnswerValues(answers, ["unknownMobility"]) > 0) {
-    lines.push("아직 정해지지 않은 항목이 있어 처음 비교하기 쉬운 기준역을 넓게 보여드려요.");
+    lines.push("아직 정해지지 않은 항목이 있어 처음 비교하기 쉬운 기준역을 넓게 추천드렸어요.");
   }
 
   return [...lines, ...stationLines].slice(0, 4).join(" ");
@@ -2827,7 +2830,7 @@ function buildLanguageStudyReason(
     lines.push("아침 등교 부담을 줄이려는 선택이 있어 어학원 도착 기준역과 가까운 후보를 우선했어요.");
   }
   if (answers.languageBudget === "budget_400_600" || answers.languageBudget === "budget_600_900" || answers.finalPriority === "final_budget") {
-    lines.push("월세 예산을 중요하게 본 선택이 있어 예산 비교가 가능한 후보를 함께 보여드려요.");
+    lines.push("월세 예산을 중요하게 본 선택이 있어 예산 비교가 가능한 후보를 보여드려요.");
   }
   if (answers.koreanCommunity === "korean_very_important" || answers.finalPriority === "final_korean_community") {
     lines.push("한국 생활권 접근성도 반영했지만, 어학원까지의 실제 통학 경로를 함께 확인해야 합니다.");
@@ -2836,7 +2839,7 @@ function buildLanguageStudyReason(
     lines.push("도심 활동 선호가 일부 엇갈려, 활동 접근성과 집 주변 생활 균형을 함께 비교해보면 좋아요.");
   }
   if (answers.koreanCommunity === "korean_not_important" && answers.finalPriority === "final_korean_community") {
-    lines.push("한국 생활권 선호가 일부 엇갈려, 한 가지 기준에 고정하기보다 통학과 생활권을 함께 보여드려요.");
+    lines.push("한국 생활권 선호가 일부 엇갈려, 한 가지 기준에 고정하기보다 통학과 생활권을 같이 확인할 수 있게 보여드려요.");
   }
   if (countAnswerValues(answers, ["school_unknown", "commute_not_sure", "transport_not_sure", "housing_not_sure", "after_school_not_sure"]) >= 2) {
     lines.push("아직 선호가 확정되지 않은 항목이 있어 처음 비교하기 쉬운 기준역을 중심으로 보여드려요.");
@@ -2865,13 +2868,13 @@ function buildStudyAbroadReason(
     lines.push("캠퍼스 접근을 강하게 본 선택이 있어 학교 기준역과 가까운 비교 후보를 우선했어요.");
   }
   if (answers.studyBudget === "budget_400_600" || answers.studyBudget === "budget_600_900" || answers.finalPriority === "final_budget") {
-    lines.push("월세 예산을 중요하게 보는 선택이 있어 예산 비교 후보를 함께 보여드려요.");
+    lines.push("월세 예산을 중요하게 보는 선택이 있어 예산 비교 후보를 보여드려요.");
   }
   if (answers.koreanCommunity === "korean_very_important" || answers.finalPriority === "final_korean_access") {
     lines.push("한국 생활권 접근성도 참고했지만, 중심부 캠퍼스에서는 캠퍼스 지리와 통학 부담을 먼저 제한했습니다.");
   }
   if (answers.koreanCommunity === "korean_not_important" && answers.finalPriority === "final_korean_access") {
-    lines.push("생활권 선호가 일부 엇갈려, 한국 생활권만 고정하지 않고 캠퍼스 접근성과 예산 비교를 함께 보여드려요.");
+    lines.push("생활권 선호가 일부 엇갈려, 한국 생활권만 고정하지 않고 캠퍼스 접근성과 예산 비교 후보를 보여드려요.");
   }
   if (
     (answers.campusCommute === "campus_very_close" || answers.campusCommute === "campus_short") &&
@@ -2955,7 +2958,7 @@ function getStationComparisonReasonBody(station: StationId | string) {
     case "eglinton":
       return "에글린턴 역은 도심 핵심 상권보다 덜 복잡한 미드타운 생활권을 볼 때 좋은 역이에요. 마트, 카페, 음식점 같은 일상 시설도 함께 비교할 수 있어요.";
     case "northYorkCentre":
-      return "노스 요크 센터 역은 한국 음식과 생활 정보가 있는 노스욕 생활권을 볼 때 참고하기 좋은 역이에요. 한인 생활권과 장기 생활 편의를 중요하게 봤을 때 함께 보여드려요.";
+      return "노스 요크 센터 역은 한국 음식과 생활 정보가 있는 노스욕 생활권을 볼 때 참고하기 좋은 역이에요. 한인 생활권과 장기 생활 편의를 중요하게 봤을 때 먼저 보여드려요.";
     case "finch":
       return "핀치 역은 노스욕 북쪽 생활권과 한국 생활권을 함께 볼 수 있는 역이에요. 예산과 한인 생활권을 같이 고려할 때 비교해볼 수 있어요.";
     case "bloorYonge":
@@ -2978,7 +2981,7 @@ function getStationComparisonReasonBody(station: StationId | string) {
 
   const profile = STATION_PROFILE_METADATA[stationId];
   if (profile.tags.includes("koreanHub")) {
-    return "한국 음식점이나 한인마트가 있는 생활권을 같이 볼 수 있는 역이에요. 한인 생활권이 중요할 때 함께 보여드려요.";
+    return "한국 음식점이나 한인마트가 있는 생활권을 같이 볼 수 있는 역이에요. 한인 생활권이 중요할 때 먼저 보여드려요.";
   }
   if (profile.tags.includes("budgetCompare") || profile.rentAffordability >= 4) {
     return "학교나 어학원 바로 앞 월세가 부담스러울 때 선택지를 넓혀볼 수 있는 역이에요.";
@@ -2990,7 +2993,7 @@ function getStationComparisonReasonBody(station: StationId | string) {
     return "처음 도착해서 너무 복잡하지 않은 생활권부터 보고 싶을 때 참고하기 좋아요.";
   }
   if (profile.tags.includes("campusAdjacent") || profile.tags.includes("academyArrival")) {
-    return "학교나 어학원 바로 앞만 보지 않고 집을 볼 범위를 넓힐 때 함께 보여드려요.";
+    return "학교나 어학원 바로 앞만 보지 않고 집을 볼 범위를 넓힐 때 보여드려요.";
   }
 
   return "집 주변 생활과 실제 이동 부담을 같이 생각할 때 보여드려요.";
@@ -3086,18 +3089,70 @@ function getWorkingHolidayEvidence(answers: Record<QuestionId, AnswerValue>, sta
     STATION_PROFILE_METADATA[stationId].tags.includes("koreanHub") &&
     (answers.koreanLife === "koreanHigh" || answers.priority === "priorityCommunity")
   ) {
-    return "한국 생활권을 중요하게 본 답변 때문에 함께 보여드려요.";
+    return "한인 생활권을 중요하게 보신 방향에 따라 추천드렸어요.";
   }
   if (answers.budget === "budget1" || answers.budget === "budget2" || answers.priority === "priorityCost") {
-    return "월세 부담을 낮추고 싶다는 답변 때문에 함께 보여드려요.";
+    return "월세 부담을 낮추고 싶다는 방향에 따라 추천드렸어요.";
   }
   if (answers.downtown === "downtownDaily" || answers.priority === "priorityMobility") {
-    return "도시 중심지 이동이나 매일 이동 부담을 본 답변 때문에 함께 보여드려요.";
+    return "중심지 이동과 출퇴근 동선을 중요하게 보신 방향에 맞춰 추천드렸어요.";
   }
   if (answers.work === "unknownMobility") {
-    return "일자리 위치가 아직 정해지지 않아 비교하기 쉬운 기준역으로 함께 보여드려요.";
+    return "일자리 위치가 아직 정해지지 않아 처음 확인하기 쉬운 생활권을 원하신 방향에 따라 추천드렸어요.";
   }
-  return "일자리 방향, 예산, 생활권을 함께 본 답변 때문에 함께 보여드려요.";
+  return "일자리 방향, 예산, 생활권을 함께 보려는 방향에 맞춰 추천드렸어요.";
+}
+
+function getWorkingHolidayStationReasonBody(station: StationId | string) {
+  const stationId = resolveStationId(station);
+  if (!stationId) {
+    return "처음 정착할 때 일자리 방향, 월세 예산, 생활권을 함께 확인하기 좋은 기준역이에요.";
+  }
+
+  switch (stationId) {
+    case "christie":
+      return "크리스티 역은 한인 식당과 마트 접근을 같이 볼 수 있는 생활권이에요. 처음 정착하면서 한국 생활권을 가까이 두고 싶은 경우에 참고하기 좋아요.";
+    case "northYorkCentre":
+      return "노스 요크 센터 역은 한인 생활권과 생활 편의시설을 함께 확인하기 좋은 기준역이에요. 처음 정착할 때 정보 접근성을 중요하게 볼 때 참고할 수 있어요.";
+    case "finch":
+      return "핀치 역은 노스욕 북쪽 생활권과 한인 생활권을 함께 볼 수 있는 기준역이에요. 월세 예산과 생활 편의 사이를 비교하기 좋아요.";
+    case "finchWest":
+      return "핀치 웨스트 역은 월세 부담을 낮추면서 북서쪽 생활권을 확인하기 좋은 기준역이에요. 일자리 위치가 아직 정해지지 않았을 때 예산형 후보로 참고할 수 있어요.";
+    case "dufferin":
+      return "더퍼린 역은 서쪽 생활권과 중심지 이동 부담을 함께 비교하기 좋은 기준역이에요. 카페, 식당, 매장 등 서비스직 가능성이 있는 상권 접근도 함께 확인해볼 수 있어요.";
+    case "broadview":
+      return "브로드뷰 역은 동쪽 생활권을 보면서 중심부와 너무 멀어지지 않는 출퇴근 동선을 비교하기 좋은 기준역이에요.";
+    case "victoriaPark":
+      return "빅토리아 파크 역은 동쪽 예산형 생활권을 먼저 확인할 때 참고하기 좋은 기준역이에요. 월세 부담과 이동 시간을 함께 비교해볼 수 있어요.";
+    case "bloorYonge":
+      return "블루어-영 역은 여러 방향으로 이동하기 쉬운 환승 기준역이에요. 서비스직, 사무직, 중심지 상권 방향을 아직 넓게 보고 있을 때 출퇴근 동선을 잡기 좋아요.";
+    case "college":
+      return "칼리지 역은 중심 상권과 생활 편의시설을 함께 볼 수 있는 기준역이에요. 식당, 카페, 매장, 사무직 가능성이 있는 방향을 넓게 확인할 때 참고할 수 있어요.";
+    case "dundas":
+      return "던다스 역은 중심 상권 접근성이 강한 기준역이에요. 식당, 카페, 매장 등 서비스직 가능성이 있는 생활권을 먼저 확인할 때 참고하기 좋아요.";
+    case "eglinton":
+      return "에글린턴 역은 중심부보다 덜 복잡한 미드타운 생활권이에요. 월세 예산과 출퇴근 이동 부담을 균형 있게 비교하기 좋아요.";
+    case "stGeorge":
+      return "세인트 조지 역은 중심부 이동이 편한 기준역이에요. 아직 일자리 방향이 넓을 때 여러 생활권으로 이동하기 좋은 출발점으로 볼 수 있어요.";
+    default:
+      break;
+  }
+
+  const profile = STATION_PROFILE_METADATA[stationId];
+  if (profile.tags.includes("koreanHub")) {
+    return "한인 생활권과 생활 정보를 가까이 두고 싶은 경우에 참고하기 좋은 기준역이에요.";
+  }
+  if (profile.tags.includes("budgetCompare") || profile.rentAffordability >= 4) {
+    return "월세 부담을 낮추면서 처음 정착할 생활권을 비교하기 좋은 기준역이에요.";
+  }
+  if (profile.tags.includes("central") || profile.tags.includes("subwayTransfer")) {
+    return "일자리 방향이 아직 넓을 때 중심지 이동과 출퇴근 동선을 잡기 좋은 기준역이에요.";
+  }
+  if (profile.tags.includes("beginnerReference") || profile.beginnerPracticality >= 4) {
+    return "처음 정착할 때 너무 복잡하지 않은 생활권부터 확인하기 좋은 기준역이에요.";
+  }
+
+  return "일자리 방향, 월세 예산, 생활권을 함께 확인할 때 참고하기 좋은 기준역이에요.";
 }
 
 function getLanguageStudySchoolName(
@@ -3163,7 +3218,7 @@ function getLanguageStudyEvidence(
       answers.afterSchool === "after_school_korean_food" ||
       answers.finalPriority === "final_korean_community")
   ) {
-    return "한국 음식과 정보 접근을 중요하게 본 답변 때문에 함께 보여드려요.";
+    return "한국 음식과 정보 접근을 중요하게 본 답변 때문에 먼저 보여드려요.";
   }
   if (
     profile.tags.includes("budgetCompare") ||
@@ -3174,12 +3229,12 @@ function getLanguageStudyEvidence(
     return "월세 예산과 룸렌트 선택지를 함께 본 답변 때문에 보여드려요.";
   }
   if (answers.commuteRange === "commute_very_close" || answers.finalPriority === "final_school_commute") {
-    return "아침 등교 부담을 줄이고 싶다는 답변 때문에 함께 보여드려요.";
+    return "아침 등교 부담을 줄이고 싶다는 답변 때문에 보여드려요.";
   }
   if (answers.cityActivity === "city_activity_very_often" || answers.finalPriority === "final_social_activity") {
-    return "수업 후 활동과 도시 중심지 이동을 보고 싶다는 답변 때문에 함께 보여드려요.";
+    return "수업 후 활동과 도시 중심지 이동을 보고 싶다는 답변 때문에 보여드려요.";
   }
-  return "어학원 위치, 아침 이동, 예산, 생활권을 함께 본 답변 때문에 함께 보여드려요.";
+  return "어학원 위치, 아침 이동, 예산, 생활권을 함께 본 답변 때문에 보여드려요.";
 }
 
 function getStudyAbroadSchoolName(
@@ -3230,7 +3285,7 @@ function getStudyAbroadCampusReasonBody(
     return "OCAD를 다닐 때 학교 근처를 먼저 확인하기 좋은 기준역이에요. 정확한 이동 시간은 지도 길찾기로 확인해 주세요.";
   }
   if (answers.school === "school_ocad" && station === "osgoode") {
-    return "OCAD 주변의 수업과 작업 생활권을 함께 보기 좋은 기준역이에요. 학교 바로 앞만 보지 않고 주변 선택지도 비교해볼 수 있어요.";
+    return "OCAD 근처 수업과 작업실, 전시, 프로젝트 일정을 같이 생각할 때 참고하기 좋은 기준역이에요. 학교 바로 앞만 보지 않고 주변 선택지도 확인하고 싶을 때 보여드려요.";
   }
   const schoolName = getStudyAbroadSchoolName(answers);
   return `${schoolName} 주변을 먼저 확인할 때 기준으로 삼기 좋은 역이에요. 정확한 이동 시간은 지도 길찾기로 확인해 주세요.`;
@@ -3254,7 +3309,7 @@ function getStudyAbroadEvidence(
     profile.tags.includes("koreanHub") &&
     (answers.koreanCommunity === "korean_very_important" || answers.finalPriority === "final_korean_access")
   ) {
-    return "한국 음식과 정보 접근을 중요하게 본 답변 때문에 함께 보여드려요.";
+    return "한국 음식과 정보 접근을 중요하게 본 답변 때문에 먼저 보여드려요.";
   }
   if (
     profile.tags.includes("budgetCompare") ||
@@ -3265,12 +3320,12 @@ function getStudyAbroadEvidence(
     return "월세 예산과 주거 형태를 함께 비교하려는 답변 때문에 보여드려요.";
   }
   if (answers.campusCommute === "campus_very_close" || answers.finalPriority === "final_campus_commute") {
-    return "학교에 가는 부담을 줄이고 싶다는 답변 때문에 함께 보여드려요.";
+    return "학교에 가는 부담을 줄이고 싶다는 답변 때문에 보여드려요.";
   }
   if (answers.cityActivity === "city_very_often" || answers.finalPriority === "final_city_activity") {
-    return "도시 중심지 활동과 이동성을 보고 싶다는 답변 때문에 함께 보여드려요.";
+    return "도시 중심지 활동과 이동성을 보고 싶다는 답변 때문에 보여드려요.";
   }
-  return "학교 접근, 예산, 공부 환경, 생활권을 함께 본 답변 때문에 함께 보여드려요.";
+  return "학교 접근, 예산, 공부 환경, 생활권을 함께 본 답변 때문에 보여드려요.";
 }
 
 function buildStationReasonItem(
@@ -3298,7 +3353,7 @@ function buildWorkingHolidayReasonItems(
       station,
       "추천 기준역",
       getWorkingHolidayEvidence(answers, station),
-      getStationComparisonReasonBody(station),
+      getWorkingHolidayStationReasonBody(station),
     ),
   );
 }
@@ -3386,8 +3441,10 @@ function buildWorkingHolidayUserFitSummary(answers: Record<QuestionId, AnswerVal
     themes.push("아직 정해지지 않은 일자리 방향");
   }
 
-  if (themes.length === 0) return "일자리 방향, 예산, 생활권을 함께 보고 싶은 사용자에게 잘 맞아요.";
-  return `${themes.slice(0, 3).join(", ")}을 함께 보고 싶은 사용자에게 잘 맞아요. 한 역에 고정하지 않고 먼저 볼 후보를 함께 보여드려요.`;
+  if (themes.length === 0) {
+    return "일자리 방향, 월세 예산, 생활권을 기준으로 처음 정착지를 비교하려는 사용자에게 잘 맞아요.";
+  }
+  return `${themes.slice(0, 3).join(", ")}을 기준으로 처음 정착지를 비교하려는 사용자에게 잘 맞아요. 한 역에 고정하지 않고 먼저 볼 후보를 추천드렸어요.`;
 }
 
 function buildLanguageStudyUserFitSummary(
@@ -3407,7 +3464,7 @@ function buildLanguageStudyUserFitSummary(
     themes.push("수업 후 활동");
   }
   if (countAnswerValues(answers, ["school_unknown", "commute_not_sure", "transport_not_sure", "housing_not_sure", "after_school_not_sure"]) >= 2) {
-    return "아직 정해지지 않은 항목이 있어, 처음 비교하기 쉬운 기준역을 함께 보여드려요.";
+    return "아직 정해지지 않은 항목이 있어, 처음 확인하기 쉬운 기준역을 먼저 보여드려요.";
   }
   return `${(themes.length > 0 ? themes : ["어학원 위치", "예산", "생활권"]).slice(0, 3).join(", ")}을 함께 보고 싶은 사용자에게 잘 맞아요.`;
 }
@@ -3429,13 +3486,13 @@ function buildStudyAbroadUserFitSummary(
     themes.push("공부 환경");
   }
   if (countAnswerValues(answers, ["school_unknown", "campus_not_sure", "housing_not_sure", "study_not_sure"]) >= 2) {
-    return "아직 정해지지 않은 항목이 있어, 처음 비교하기 쉬운 기준역을 함께 보여드려요.";
+    return "아직 정해지지 않은 항목이 있어, 처음 확인하기 쉬운 기준역을 먼저 보여드려요.";
   }
   if (
     (answers.campusCommute === "campus_very_close" || answers.campusCommute === "campus_short") &&
     answers.finalPriority === "final_budget"
   ) {
-    return "학교 접근과 월세 예산을 함께 크게 보는 선택이 있어, 한 지점에 고정하지 않고 먼저 볼 후보를 함께 보여드려요.";
+    return "학교 접근과 월세 예산을 크게 보는 선택이 있어, 한 지점에 고정하지 않고 먼저 볼 후보를 보여드려요.";
   }
   return `${(themes.length > 0 ? themes : ["학교 접근", "예산", "생활권"]).slice(0, 3).join(", ")}을 함께 보고 싶은 사용자에게 잘 맞아요.`;
 }
@@ -4570,7 +4627,7 @@ export function calculateStationRecommendation(answers: Record<QuestionId, Answe
     reason: buildWorkingHolidayReason(answers, result),
     nearby: `${formatStationList(result.stations)}도 함께 비교해보세요. 실제 매물 수와 가격은 시점에 따라 달라질 수 있습니다.`,
     reasonItems: buildWorkingHolidayReasonItems(answers, result.stations),
-    nearbyItems: buildNearbyReasonItems(result.stations),
+    nearbyItems: [] as StationReasonItem[],
     userFitSummary: buildWorkingHolidayUserFitSummary(answers),
   };
 
