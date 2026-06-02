@@ -27,7 +27,7 @@ type LocalizedText = Record<Locale, string>;
 type FilterPopover = "budget" | "housing" | "moveIn" | "people" | "more" | null;
 type HousingTypeId = "room" | "studio" | "condo" | "share" | "house";
 type InquiryMethod = "direct" | "support";
-type ChecklistListingSource = "workingHoliday" | "languageStudy";
+type ChecklistListingSource = "workingHoliday" | "languageStudy" | "studyAbroad";
 type MoreFilterId =
   | "verified"
   | "furnished"
@@ -531,14 +531,17 @@ const CHECKLIST_SOURCE_LABELS: Record<Locale, Record<ChecklistListingSource, str
   ko: {
     workingHoliday: "워킹홀리데이",
     languageStudy: "어학연수",
+    studyAbroad: "유학",
   },
   en: {
     workingHoliday: "Working Holiday",
     languageStudy: "Language Study",
+    studyAbroad: "College / University",
   },
   fr: {
     workingHoliday: "PVT",
     languageStudy: "Séjour linguistique",
+    studyAbroad: "Collège / université",
   },
 };
 
@@ -1193,7 +1196,7 @@ function parseChecklistListingsContext(
   const params = new URLSearchParams(searchText.startsWith("?") ? searchText : `?${searchText}`);
   const source = params.get("checklist");
 
-  if (source !== "workingHoliday" && source !== "languageStudy") {
+  if (source !== "workingHoliday" && source !== "languageStudy" && source !== "studyAbroad") {
     return null;
   }
 

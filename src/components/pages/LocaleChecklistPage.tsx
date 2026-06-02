@@ -23,23 +23,38 @@ import { cn } from "@/lib/utils";
 import {
   calculateLanguageStudyRecommendation,
   calculateStationRecommendation,
+  calculateStudyAbroadRecommendation,
   formatStationDisplayName,
   GENERAL_CHECKLIST_QUESTIONS,
   type GeneralChecklistQuestionId,
+  isCompleteStudyAbroadAnswerMap,
   isCompleteAnswerMap,
   isCompleteLanguageStudyAnswerMap,
   LANGUAGE_STUDY_ILAC_CAMPUS_QUESTION,
   LANGUAGE_STUDY_INTRO,
   LANGUAGE_STUDY_QUESTIONS,
+  STUDY_ABROAD_CENTENNIAL_CAMPUS_QUESTION,
+  STUDY_ABROAD_GEORGE_BROWN_CAMPUS_QUESTION,
+  STUDY_ABROAD_ILAC_HIGHER_QUESTION,
+  STUDY_ABROAD_INTRO,
+  STUDY_ABROAD_QUESTIONS,
+  type CentennialCampusAnswer,
+  type GeorgeBrownCampusAnswer,
   type IlacCampusAnswer,
+  type IlacHigherAnswer,
   type LanguageStudyAnswerMap,
   type LanguageStudyAnswerValue,
+  type StudyAbroadAnswerMap,
+  type StudyAbroadAnswerValue,
+  type StudyAbroadSubQuestion,
+  type StationReasonItem,
   type AnswerMap,
   type AnswerValue,
   WORKING_HOLIDAY_QUESTIONS,
 } from "@/lib/stationRecommendationData";
 
 type KoreanMode =
+  | "restoringResult"
   | "overview"
   | "workingIntro"
   | "workingWizard"
@@ -47,13 +62,28 @@ type KoreanMode =
   | "languageIntro"
   | "languageWizard"
   | "languageResult"
+  | "studyIntro"
+  | "studyWizard"
+  | "studyResult"
   | "generalWizard"
   | "generalResult";
 type CalculationResult = ReturnType<typeof calculateStationRecommendation>;
 type LanguageStudyCalculationResult = ReturnType<typeof calculateLanguageStudyRecommendation>;
+type StudyAbroadCalculationResult = ReturnType<typeof calculateStudyAbroadRecommendation>;
 type GeneralAnswers = Partial<Record<GeneralChecklistQuestionId, string[]>>;
+type ResultChecklistType = "workingHoliday" | "languageStudy" | "studyAbroad";
 
 const CHECKLIST_MAIN_EVENT = "maplehouse:checklist-main";
+const CHECKLIST_RESULT_STORAGE_KEY = "maplehouse:checklist-result:v1";
+
+interface SavedChecklistResultState {
+  version: 1;
+  locale: "ko";
+  checklistType: ResultChecklistType;
+  answers: AnswerMap | LanguageStudyAnswerMap | StudyAbroadAnswerMap;
+  result: unknown;
+  createdAt: string;
+}
 
 const LEGAL_SCOPE_NOTICE_LINES = [
   "이 추천은 정답이 아니라 탐색 시작점을 잡기 위한 참고용입니다. 실제 통학/출근 시간, 매물 상태, 계약 조건, 송금 여부는 사용자가 직접 확인해야 합니다.",
@@ -67,6 +97,103 @@ const LANGUAGE_STUDY_LEGAL_NOTICE_LINES = [
   "어학원 등록 정보, 캠퍼스 주소, 수업 시간표는 반드시 어학원 공식 안내에서 다시 확인해야 합니다.",
   "메이플하우스는 학교 등록 대행, 비자 자문, 법률 자문, 부동산 중개, 송금 대행을 제공하지 않습니다.",
 ];
+
+function getChecklistResultSearchParams() {
+  if (typeof window === "undefined") return new URLSearchParams();
+  return new URLSearchParams(window.location.search);
+}
+
+function replaceChecklistSearchParams(params: URLSearchParams) {
+  if (typeof window === "undefined") return;
+
+  const query = params.toString();
+  const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+  window.history.replaceState(window.history.state, "", nextUrl);
+}
+
+function markChecklistResultUrl(checklistType: ResultChecklistType) {
+  const params = getChecklistResultSearchParams();
+  params.set("checklist", checklistType);
+  params.set("view", "result");
+  replaceChecklistSearchParams(params);
+}
+
+function clearChecklistResultUrl() {
+  const params = getChecklistResultSearchParams();
+  if (!params.has("checklist") && !params.has("view")) return;
+  params.delete("checklist");
+  params.delete("view");
+  replaceChecklistSearchParams(params);
+}
+
+function saveChecklistResultState(
+  checklistType: ResultChecklistType,
+  answers: SavedChecklistResultState["answers"],
+  result: unknown,
+) {
+  if (typeof window === "undefined") return;
+
+  const payload: SavedChecklistResultState = {
+    version: 1,
+    locale: "ko",
+    checklistType,
+    answers,
+    result,
+    createdAt: new Date().toISOString(),
+  };
+
+  window.sessionStorage.setItem(CHECKLIST_RESULT_STORAGE_KEY, JSON.stringify(payload));
+  markChecklistResultUrl(checklistType);
+}
+
+function readChecklistResultState() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.sessionStorage.getItem(CHECKLIST_RESULT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<SavedChecklistResultState>;
+    if (parsed.version !== 1 || parsed.locale !== "ko" || !parsed.checklistType || !parsed.answers) {
+      return null;
+    }
+    return parsed as SavedChecklistResultState;
+  } catch {
+    return null;
+  }
+}
+
+function isResultChecklistType(value: string | null): value is ResultChecklistType {
+  return value === "workingHoliday" || value === "languageStudy" || value === "studyAbroad";
+}
+
+function getChecklistParamsFromSearch(searchText?: string) {
+  if (!searchText) return new URLSearchParams();
+  return new URLSearchParams(searchText.startsWith("?") ? searchText : `?${searchText}`);
+}
+
+function getChecklistSearchText(location: { href?: string; searchStr?: string }) {
+  if (typeof location.searchStr === "string") return location.searchStr;
+  if (typeof location.href === "string" && location.href.includes("?")) {
+    return location.href.slice(location.href.indexOf("?"));
+  }
+  if (typeof window !== "undefined") return window.location.search;
+  return "";
+}
+
+function hasResultViewSearch(searchText?: string) {
+  const params = getChecklistParamsFromSearch(searchText);
+  return params.get("view") === "result" && isResultChecklistType(params.get("checklist"));
+}
+
+function clearChecklistResultState(checklistType?: ResultChecklistType) {
+  if (typeof window === "undefined") return;
+
+  const saved = readChecklistResultState();
+  if (!checklistType || saved?.checklistType === checklistType) {
+    window.sessionStorage.removeItem(CHECKLIST_RESULT_STORAGE_KEY);
+  }
+  clearChecklistResultUrl();
+}
 
 const DEPARTURE_TYPES = [
   {
@@ -85,9 +212,8 @@ const DEPARTURE_TYPES = [
   {
     title: "유학",
     description: "학교 위치와 장기 통학, 생활 지속성을 기준으로 생활권을 정리하는 기능입니다.",
-    button: "준비 중",
+    button: "유학 기준역 찾기",
     action: "study",
-    notice: "유학용 체크리스트는 준비 중입니다. 이번 MVP에서는 워킹홀리데이 기준 역 추천 기능을 먼저 제공합니다.",
   },
 ] as const;
 
@@ -252,8 +378,10 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    window.addEventListener(CHECKLIST_MAIN_EVENT, resetToOverview);
-    return () => window.removeEventListener(CHECKLIST_MAIN_EVENT, resetToOverview);
+    const handleChecklistMain = () => resetToOverview();
+
+    window.addEventListener(CHECKLIST_MAIN_EVENT, handleChecklistMain);
+    return () => window.removeEventListener(CHECKLIST_MAIN_EVENT, handleChecklistMain);
   }, []);
 
   function startWorkingWizard() {
@@ -826,13 +954,21 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
 
 function KoreanChecklistPage() {
   const location = useLocation() as { href?: string; searchStr?: string };
-  const [mode, setMode] = useState<KoreanMode>("overview");
+  const searchText = getChecklistSearchText(location);
+  const [mode, setMode] = useState<KoreanMode>(() =>
+    hasResultViewSearch(searchText)
+      ? "restoringResult"
+      : "overview",
+  );
   const [workingStep, setWorkingStep] = useState(0);
   const [workingAnswers, setWorkingAnswers] = useState<AnswerMap>({});
   const [workingResult, setWorkingResult] = useState<CalculationResult | null>(null);
   const [languageStep, setLanguageStep] = useState(0);
   const [languageAnswers, setLanguageAnswers] = useState<LanguageStudyAnswerMap>({});
   const [languageResult, setLanguageResult] = useState<LanguageStudyCalculationResult | null>(null);
+  const [studyStep, setStudyStep] = useState(0);
+  const [studyAnswers, setStudyAnswers] = useState<StudyAbroadAnswerMap>({});
+  const [studyResult, setStudyResult] = useState<StudyAbroadCalculationResult | null>(null);
   const [generalStep, setGeneralStep] = useState(0);
   const [generalAnswers, setGeneralAnswers] = useState<GeneralAnswers>({});
   const [notice, setNotice] = useState<string | null>(null);
@@ -853,12 +989,84 @@ function KoreanChecklistPage() {
     languageQuestion?.id === "school" && selectedLanguageAnswer === "school_ilac";
   const canGoNextLanguage = Boolean(selectedLanguageAnswer) && (!needsIlacCampus || Boolean(languageAnswers.ilacCampus));
 
+  const studyQuestion = STUDY_ABROAD_QUESTIONS[studyStep];
+  const selectedStudyAnswer = studyQuestion ? studyAnswers[studyQuestion.id] : undefined;
+  const studyProgress =
+    mode === "studyWizard" ? ((studyStep + 1) / STUDY_ABROAD_QUESTIONS.length) * 100 : 0;
+  const needsGeorgeBrownCampus =
+    studyQuestion?.id === "school" && selectedStudyAnswer === "school_georgebrown";
+  const needsIlacHigherProgram =
+    studyQuestion?.id === "school" && selectedStudyAnswer === "school_ilac_higher";
+  const needsCentennialCampus =
+    studyQuestion?.id === "school" && selectedStudyAnswer === "school_centennial";
+  const canGoNextStudy =
+    Boolean(selectedStudyAnswer) &&
+    (!needsGeorgeBrownCampus || Boolean(studyAnswers.georgeBrownCampus)) &&
+    (!needsIlacHigherProgram || Boolean(studyAnswers.ilacHigherProgram)) &&
+    (!needsCentennialCampus || Boolean(studyAnswers.centennialCampus));
+
   const generalQuestion = GENERAL_CHECKLIST_QUESTIONS[generalStep];
   const selectedGeneralOptions = generalQuestion ? generalAnswers[generalQuestion.id] ?? [] : [];
   const generalProgress =
     mode === "generalWizard" ? ((generalStep + 1) / GENERAL_CHECKLIST_QUESTIONS.length) * 100 : 0;
 
-  function resetToOverview() {
+  function restoreSavedChecklistResult(checklistType: ResultChecklistType, saved: SavedChecklistResultState) {
+    if (saved.checklistType !== checklistType) return false;
+
+    setWorkingStep(0);
+    setLanguageStep(0);
+    setStudyStep(0);
+    setGeneralStep(0);
+    setGeneralAnswers({});
+    setNotice(null);
+    setSupportNotice(false);
+
+    if (checklistType === "workingHoliday") {
+      const answers = saved.answers as AnswerMap;
+      if (!isCompleteAnswerMap(answers)) return false;
+
+      setWorkingAnswers(answers);
+      setWorkingResult(calculateStationRecommendation(answers));
+      setLanguageAnswers({});
+      setLanguageResult(null);
+      setStudyAnswers({});
+      setStudyResult(null);
+      setMode("workingResult");
+      return true;
+    }
+
+    if (checklistType === "languageStudy") {
+      const answers = saved.answers as LanguageStudyAnswerMap;
+      if (!isCompleteLanguageStudyAnswerMap(answers)) return false;
+
+      setLanguageAnswers(answers);
+      setLanguageResult(calculateLanguageStudyRecommendation(answers));
+      setWorkingAnswers({});
+      setWorkingResult(null);
+      setStudyAnswers({});
+      setStudyResult(null);
+      setMode("languageResult");
+      return true;
+    }
+
+    const answers = saved.answers as StudyAbroadAnswerMap;
+    if (!isCompleteStudyAbroadAnswerMap(answers)) return false;
+
+    setStudyAnswers(answers);
+    setStudyResult(calculateStudyAbroadRecommendation(answers));
+    setWorkingAnswers({});
+    setWorkingResult(null);
+    setLanguageAnswers({});
+    setLanguageResult(null);
+    setMode("studyResult");
+    return true;
+  }
+
+  function resetToOverview(options: { clearSaved?: boolean } = {}) {
+    if (options.clearSaved ?? true) {
+      clearChecklistResultState();
+    }
+
     setMode("overview");
     setWorkingStep(0);
     setWorkingAnswers({});
@@ -866,6 +1074,9 @@ function KoreanChecklistPage() {
     setLanguageStep(0);
     setLanguageAnswers({});
     setLanguageResult(null);
+    setStudyStep(0);
+    setStudyAnswers({});
+    setStudyResult(null);
     setGeneralStep(0);
     setGeneralAnswers({});
     setNotice(null);
@@ -877,24 +1088,41 @@ function KoreanChecklistPage() {
   }
 
   useEffect(() => {
-    const searchText =
-      location.searchStr ??
-      (typeof window !== "undefined" ? window.location.search : "");
-    const params = new URLSearchParams(searchText.startsWith("?") ? searchText : `?${searchText}`);
+    const params = getChecklistParamsFromSearch(searchText);
+
+    if (params.get("view") === "result") {
+      const checklistType = params.get("checklist");
+      const saved = readChecklistResultState();
+
+      if (isResultChecklistType(checklistType) && saved && restoreSavedChecklistResult(checklistType, saved)) {
+        return;
+      }
+
+      resetToOverview();
+      return;
+    }
 
     if (params.get("view") === "main") {
       resetToOverview();
+      return;
     }
-  }, [location.href, location.searchStr]);
+
+    if (!params.has("view") && !params.has("checklist")) {
+      resetToOverview();
+    }
+  }, [location.href, location.searchStr, searchText]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    window.addEventListener(CHECKLIST_MAIN_EVENT, resetToOverview);
-    return () => window.removeEventListener(CHECKLIST_MAIN_EVENT, resetToOverview);
+    const handleChecklistMain = () => resetToOverview();
+
+    window.addEventListener(CHECKLIST_MAIN_EVENT, handleChecklistMain);
+    return () => window.removeEventListener(CHECKLIST_MAIN_EVENT, handleChecklistMain);
   }, []);
 
   function startWorkingWizard() {
+    clearChecklistResultState("workingHoliday");
     setMode("workingWizard");
     setWorkingStep(0);
     setWorkingAnswers({});
@@ -904,6 +1132,7 @@ function KoreanChecklistPage() {
   }
 
   function startLanguageWizard() {
+    clearChecklistResultState("languageStudy");
     setMode("languageWizard");
     setLanguageStep(0);
     setLanguageAnswers({});
@@ -912,7 +1141,18 @@ function KoreanChecklistPage() {
     setNotice(null);
   }
 
+  function startStudyWizard() {
+    clearChecklistResultState("studyAbroad");
+    setMode("studyWizard");
+    setStudyStep(0);
+    setStudyAnswers({});
+    setStudyResult(null);
+    setSupportNotice(false);
+    setNotice(null);
+  }
+
   function startGeneralChecklist() {
+    clearChecklistResultState();
     setMode("generalWizard");
     setGeneralStep(0);
     setGeneralAnswers({});
@@ -940,6 +1180,31 @@ function KoreanChecklistPage() {
     setLanguageAnswers((prev) => ({ ...prev, ilacCampus: value }));
   }
 
+  function selectStudyAnswer(value: StudyAbroadAnswerValue) {
+    if (!studyQuestion) return;
+    setStudyAnswers((prev) => {
+      const next: StudyAbroadAnswerMap = { ...prev, [studyQuestion.id]: value };
+      if (studyQuestion.id === "school") {
+        if (value !== "school_georgebrown") delete next.georgeBrownCampus;
+        if (value !== "school_ilac_higher") delete next.ilacHigherProgram;
+        if (value !== "school_centennial") delete next.centennialCampus;
+      }
+      return next;
+    });
+  }
+
+  function selectGeorgeBrownCampus(value: GeorgeBrownCampusAnswer) {
+    setStudyAnswers((prev) => ({ ...prev, georgeBrownCampus: value }));
+  }
+
+  function selectIlacHigherProgram(value: IlacHigherAnswer) {
+    setStudyAnswers((prev) => ({ ...prev, ilacHigherProgram: value }));
+  }
+
+  function selectCentennialCampus(value: CentennialCampusAnswer) {
+    setStudyAnswers((prev) => ({ ...prev, centennialCampus: value }));
+  }
+
   function goNextWorking() {
     if (!workingQuestion || !selectedWorkingAnswer) return;
 
@@ -950,7 +1215,10 @@ function KoreanChecklistPage() {
 
     const nextAnswers = { ...workingAnswers, [workingQuestion.id]: selectedWorkingAnswer };
     if (!isCompleteAnswerMap(nextAnswers)) return;
-    setWorkingResult(calculateStationRecommendation(nextAnswers));
+    const nextResult = calculateStationRecommendation(nextAnswers);
+    setWorkingAnswers(nextAnswers);
+    setWorkingResult(nextResult);
+    saveChecklistResultState("workingHoliday", nextAnswers, nextResult);
     setMode("workingResult");
     setSupportNotice(false);
   }
@@ -970,8 +1238,34 @@ function KoreanChecklistPage() {
     }
 
     if (!isCompleteLanguageStudyAnswerMap(nextAnswers)) return;
-    setLanguageResult(calculateLanguageStudyRecommendation(nextAnswers));
+    const nextResult = calculateLanguageStudyRecommendation(nextAnswers);
+    setLanguageAnswers(nextAnswers);
+    setLanguageResult(nextResult);
+    saveChecklistResultState("languageStudy", nextAnswers, nextResult);
     setMode("languageResult");
+    setSupportNotice(false);
+  }
+
+  function goNextStudy() {
+    if (!studyQuestion || !canGoNextStudy || !selectedStudyAnswer) return;
+
+    const nextAnswers: StudyAbroadAnswerMap = {
+      ...studyAnswers,
+      [studyQuestion.id]: selectedStudyAnswer,
+    };
+
+    if (studyStep < STUDY_ABROAD_QUESTIONS.length - 1) {
+      setStudyAnswers(nextAnswers);
+      setStudyStep((prev) => prev + 1);
+      return;
+    }
+
+    if (!isCompleteStudyAbroadAnswerMap(nextAnswers)) return;
+    const nextResult = calculateStudyAbroadRecommendation(nextAnswers);
+    setStudyAnswers(nextAnswers);
+    setStudyResult(nextResult);
+    saveChecklistResultState("studyAbroad", nextAnswers, nextResult);
+    setMode("studyResult");
     setSupportNotice(false);
   }
 
@@ -998,6 +1292,12 @@ function KoreanChecklistPage() {
   return (
     <main className="bg-background">
       <Container className="py-10 sm:py-14">
+        {mode === "restoringResult" && (
+          <section className="rounded-3xl border border-border bg-card p-6 text-sm font-medium text-muted-foreground shadow-sm [word-break:keep-all] sm:p-8">
+            결과를 불러오는 중이에요.
+          </section>
+        )}
+
         {mode === "overview" && <HeroSection onStartGeneral={startGeneralChecklist} />}
 
         {mode === "overview" && (
@@ -1029,7 +1329,6 @@ function KoreanChecklistPage() {
                   <Button
                     type="button"
                     className="mt-auto w-full"
-                    variant={type.action === "study" ? "soft" : "default"}
                     onClick={() => {
                       if (type.action === "working") {
                         setMode("workingIntro");
@@ -1042,12 +1341,17 @@ function KoreanChecklistPage() {
                         setSupportNotice(false);
                         setNotice(null);
                       } else {
-                        setNotice(type.notice);
+                        setMode("studyIntro");
+                        setStudyStep(0);
+                        setStudyAnswers({});
+                        setStudyResult(null);
+                        setSupportNotice(false);
+                        setNotice(null);
                       }
                     }}
                   >
                     {type.button}
-                    {type.action !== "study" && <ArrowRight className="h-4 w-4" />}
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </article>
               );
@@ -1356,6 +1660,153 @@ function KoreanChecklistPage() {
           />
         )}
 
+        {mode === "studyIntro" && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              {STUDY_ABROAD_INTRO.label}
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-foreground [word-break:keep-all] sm:text-3xl">
+              {STUDY_ABROAD_INTRO.title}
+            </h2>
+            <div className="mt-5 space-y-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all] sm:text-base">
+              {STUDY_ABROAD_INTRO.paragraphs.map((paragraph, index) => (
+                <p key={paragraph} className={index >= 2 ? "font-medium text-foreground" : undefined}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button type="button" variant="outline" size="lg" onClick={showOverview}>
+                <ChevronLeft className="h-4 w-4" />
+                이전
+              </Button>
+              <Button type="button" size="lg" onClick={startStudyWizard}>
+                시작하기
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "studyWizard" && studyQuestion && (
+          <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+            <WizardHeader
+              countLabel={`${studyStep + 1} / ${STUDY_ABROAD_QUESTIONS.length}`}
+              title="유학 기준역 추천"
+              progress={studyProgress}
+            />
+
+            <div className="mt-8">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <h2 className="text-2xl font-semibold leading-tight text-foreground [word-break:keep-all]">
+                  {studyQuestion.title}
+                </h2>
+                {studyQuestion.id === "housingType" && <HousingGlossaryHelp />}
+              </div>
+              {studyQuestion.intro && (
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                  {studyQuestion.intro}
+                </p>
+              )}
+              {studyQuestion.notice && (
+                <p className="mt-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+                  {studyQuestion.notice}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-3 xl:grid-cols-2">
+              {studyQuestion.options.map((option) => {
+                const selected = selectedStudyAnswer === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={cn(
+                      "rounded-2xl border p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                      selected
+                        ? "border-primary bg-accent shadow-sm"
+                        : "border-border bg-card hover:border-primary hover:shadow-sm",
+                    )}
+                    onClick={() => selectStudyAnswer(option.value)}
+                  >
+                    <AnswerMarker selected={selected} />
+                    <span className="ml-8 -mt-5 block [word-break:keep-all]">
+                      <span className="block text-base font-semibold text-foreground">
+                        {option.label}
+                      </span>
+                      <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                        {option.description}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {needsGeorgeBrownCampus && (
+              <StudySubQuestionCard
+                question={STUDY_ABROAD_GEORGE_BROWN_CAMPUS_QUESTION}
+                selectedValue={studyAnswers.georgeBrownCampus}
+                onSelect={(value) => selectGeorgeBrownCampus(value as GeorgeBrownCampusAnswer)}
+              />
+            )}
+
+            {needsIlacHigherProgram && (
+              <StudySubQuestionCard
+                question={STUDY_ABROAD_ILAC_HIGHER_QUESTION}
+                selectedValue={studyAnswers.ilacHigherProgram}
+                onSelect={(value) => selectIlacHigherProgram(value as IlacHigherAnswer)}
+              />
+            )}
+
+            {needsCentennialCampus && (
+              <StudySubQuestionCard
+                question={STUDY_ABROAD_CENTENNIAL_CAMPUS_QUESTION}
+                selectedValue={studyAnswers.centennialCampus}
+                onSelect={(value) => selectCentennialCampus(value as CentennialCampusAnswer)}
+              />
+            )}
+
+            {studyQuestion.footerNote && (
+              <p className="mt-5 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-xs leading-relaxed text-muted-foreground [word-break:keep-all]">
+                {studyQuestion.footerNote}
+              </p>
+            )}
+
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (studyStep === 0) {
+                    showOverview();
+                    return;
+                  }
+                  setStudyStep((prev) => prev - 1);
+                }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                이전
+              </Button>
+              <Button type="button" disabled={!canGoNextStudy} onClick={goNextStudy}>
+                {studyStep === STUDY_ABROAD_QUESTIONS.length - 1 ? "결과 보기" : "다음"}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {mode === "studyResult" && studyResult && (
+          <StudyAbroadResultSection
+            calculation={studyResult}
+            supportNotice={supportNotice}
+            onSupportClick={() => setSupportNotice(true)}
+            onRestart={startStudyWizard}
+            onStartGeneral={startGeneralChecklist}
+          />
+        )}
+
         {mode === "generalWizard" && generalQuestion && (
           <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
             <WizardHeader
@@ -1442,7 +1893,7 @@ function KoreanChecklistPage() {
           />
         )}
 
-        <HousingGuideSection />
+        {mode !== "restoringResult" && <HousingGuideSection />}
       </Container>
     </main>
   );
@@ -1821,39 +2272,30 @@ function WorkingResultSection({
       </p>
 
       <div className="mt-6 rounded-3xl border border-border bg-card p-5 sm:p-6">
-          <h3 className="text-xl font-semibold text-foreground [word-break:keep-all]">{result.title}</h3>
+        <h3 className="text-xl font-semibold text-foreground [word-break:keep-all]">{result.title}</h3>
 
-        <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
-          <p className="text-sm font-semibold text-primary">추천 기준역</p>
-          <div className="mt-4 grid gap-3">
-            {result.stations.map((station, index) => (
-              <div
-                key={station}
-                className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                  {index + 1}
-                </span>
-                <StationNameLines station={station} />
-              </div>
-            ))}
-          </div>
-        </div>
+        <StationRankSection
+          className="mt-6"
+          title="추천 기준역"
+          stations={result.stations}
+        />
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <InfoBlock title="추천 이유" body={result.reason} />
-          <InfoBlock title="근처 비교 범위" body={result.nearby} />
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <h4 className="text-sm font-semibold text-foreground">이런 사용자에게 맞습니다</h4>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
-              {result.goodFor.map((item) => (
-                <li key={item} className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <span className="[word-break:keep-all]">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <StationExplanationBlock
+            title="추천 기준역"
+            stations={result.stations}
+            items={result.reasonItems}
+            roleLabel="추천 기준역"
+          />
+          <InfoBlock
+            title="근처 비교 범위"
+            body="추천 기준역 주변의 다른 후보도 함께 비교해보세요. 실제 매물 수와 가격은 시점에 따라 달라질 수 있습니다."
+          />
+          <SummaryBlock
+            title="이런 분께 맞아요"
+            body={result.userFitSummary}
+            fallback={result.goodFor.join(" ")}
+          />
           <InfoBlock title={budgetComment.label} body={budgetComment.comment} />
         </div>
 
@@ -1910,10 +2352,7 @@ function LanguageStudyResultSection({
     budgetComment,
     destinationStations,
     recommendedStations,
-    comparisonStations,
   } = calculation;
-  const nearbyStations = comparisonStations.length > 0 ? comparisonStations : recommendedStations;
-  const comparisonText = nearbyStations.map((station) => formatStationDisplayName(station)).join(", ");
 
   return (
     <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
@@ -1933,54 +2372,38 @@ function LanguageStudyResultSection({
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {destinationStations.length > 0 && (
-            <div className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
-              <p className="text-sm font-semibold text-primary">어학원 도착 기준역</p>
-              <div className="mt-4 grid gap-3">
-                {destinationStations.map((station, index) => (
-                  <div
-                    key={station}
-                    className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                      {index + 1}
-                    </span>
-                    <StationNameLines station={station} />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <StationRankSection
+              title="어학원 도착 기준역"
+              stations={destinationStations}
+            />
           )}
 
-          <div className="rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm">
-            <p className="text-sm font-semibold text-primary">
-              {destinationStations.length > 0 ? "집 찾기 비교 기준역" : "추천 기준역"}
-            </p>
-            <div className="mt-4 grid gap-3">
-              {recommendedStations.map((station, index) => (
-                <div
-                  key={station}
-                  className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                    {index + 1}
-                  </span>
-                  <StationNameLines station={station} />
-                </div>
-              ))}
-            </div>
-          </div>
+          <StationRankSection
+            title={destinationStations.length > 0 ? "집 찾기 비교 기준역" : "추천 기준역"}
+            stations={recommendedStations}
+          />
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <InfoBlock
-            title="추천 이유"
-            body={`선택하신 어학원, 아침 등교 허용 범위, 월세 예산, 수업 후 생활 패턴을 기준으로 추천했습니다. ${result.reason}`}
-          />
-          <InfoBlock
+          {destinationStations.length > 0 && (
+            <StationExplanationBlock
+              title="어학원 도착 기준역"
+              stations={destinationStations}
+              items={result.reasonItems}
+              roleLabel="어학원 도착 기준역"
+            />
+          )}
+          <StationExplanationBlock
             title="근처 비교 범위"
-            body={`추천 기준역만 보지 말고, ${comparisonText} 주변 역과 함께 비교해보세요. 실제 매물 수와 가격은 시점에 따라 달라질 수 있습니다.`}
+            stations={recommendedStations}
+            items={result.reasonItems}
+            roleLabel="집 찾기 비교 기준역"
           />
-          <InfoBlock title="이런 사용자에게 맞습니다" body={result.goodFor} />
+          <SummaryBlock
+            title="이런 분께 맞아요"
+            body={result.userFitSummary}
+            fallback={result.goodFor}
+          />
           <InfoBlock title={budgetComment.label} body={budgetComment.comment} />
         </div>
 
@@ -2003,6 +2426,132 @@ function LanguageStudyResultSection({
             href={buildChecklistListingsHref(
               "languageStudy",
               uniqueStations([...destinationStations, ...recommendedStations]),
+              result.title,
+            )}
+          >
+            매물 리스트 보기
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </Button>
+        <Button type="button" variant="outline" onClick={onStartGeneral}>
+          체크리스트 시작하기
+        </Button>
+        <Button type="button" variant="outline" onClick={onRestart}>
+          <RotateCcw className="h-4 w-4" />
+          다시 설문하기
+        </Button>
+        <Button type="button" variant="soft" onClick={onSupportClick}>
+          메이플하우스와 함께 문의하기
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function StudyAbroadResultSection({
+  calculation,
+  supportNotice,
+  onSupportClick,
+  onRestart,
+  onStartGeneral,
+}: {
+  calculation: StudyAbroadCalculationResult;
+  supportNotice: boolean;
+  onSupportClick: () => void;
+  onRestart: () => void;
+  onStartGeneral: () => void;
+}) {
+  const {
+    result,
+    budgetComment,
+    campusStations,
+    recommendedStations,
+    cautionLines,
+  } = calculation;
+  const legalLines = [
+    "이 추천은 정답이 아니라 집을 찾기 위한 탐색 시작점입니다.",
+    "실제 통학 시간과 경로는 수업 시간, 날씨, 교통 상황에 따라 달라질 수 있습니다.",
+    "계약 전에는 반드시 지도 길찾기로 직접 확인해 주세요.",
+    "학교 등록 정보, 캠퍼스 주소, 수업 시간표는 반드시 학교 공식 안내에서 다시 확인해야 합니다.",
+    "메이플하우스는 학교 등록 대행, 비자 자문, 법률 자문, 부동산 중개, 송금 대행을 제공하지 않습니다.",
+    "최종 주거 결정, 계약 여부, 송금 여부는 사용자가 직접 판단해야 합니다.",
+  ];
+
+  return (
+    <section className="mt-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+      <p className="text-sm font-semibold text-primary">Study Abroad Result</p>
+      <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground [word-break:keep-all] sm:text-3xl">
+        당신에게 맞는 기준역 후보
+      </h2>
+      <div className="mt-4 space-y-1 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+        <p>아래 추천은 정답이 아니라 집을 찾기 시작할 기준점입니다.</p>
+        <p>실제 통학 시간, 수업 시간, 매물 상태, 계약 조건은 반드시 직접 확인해야 합니다.</p>
+      </div>
+
+      <div className="mt-6 rounded-3xl border border-border bg-card p-5 sm:p-6">
+        <h3 className="text-xl font-semibold text-foreground [word-break:keep-all]">
+          {result.title}
+        </h3>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <StationRankSection
+            title="학교/캠퍼스 기준역"
+            stations={campusStations}
+          />
+
+          <StationRankSection
+            title="집 찾기 비교 기준역"
+            stations={recommendedStations}
+          />
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <StationExplanationBlock
+            title="학교/캠퍼스 기준역"
+            stations={campusStations}
+            items={result.reasonItems}
+            roleLabel="학교/캠퍼스 기준역"
+          />
+          <StationExplanationBlock
+            title="근처 비교 범위"
+            stations={recommendedStations}
+            items={result.reasonItems}
+            roleLabel="집 찾기 비교 기준역"
+          />
+          <SummaryBlock
+            title="이런 분께 맞아요"
+            body={result.userFitSummary}
+            fallback={result.goodFor}
+          />
+          <InfoBlock title={budgetComment.label} body={budgetComment.comment} />
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+          <p>
+            <span className="font-semibold text-foreground">주의:</span> {result.caution}
+          </p>
+          {cautionLines.map((line) => (
+            <p key={line} className="mt-2">
+              {line}
+            </p>
+          ))}
+        </div>
+      </div>
+
+      <LegalScopeNotice lines={legalLines} />
+
+      {supportNotice && (
+        <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground [word-break:keep-all]">
+          메이플하우스와 함께 문의하기는 유료 플랜 흐름으로 연결될 예정입니다. 현재는 MVP 미리보기 단계입니다.
+        </p>
+      )}
+
+      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Button asChild>
+          <a
+            href={buildChecklistListingsHref(
+              "studyAbroad",
+              uniqueStations([...campusStations, ...recommendedStations]),
               result.title,
             )}
           >
@@ -2248,12 +2797,114 @@ function StationNameLines({
   );
 }
 
+function StationRankSection({
+  className,
+  title,
+  stations,
+}: {
+  className?: string;
+  title: string;
+  stations: string[];
+}) {
+  if (stations.length === 0) return null;
+
+  return (
+    <div className={cn("rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-5 shadow-sm", className)}>
+      <p className="whitespace-nowrap text-sm font-semibold text-primary [word-break:keep-all]">{title}</p>
+      <div className="mt-4 grid gap-3">
+        {stations.map((station, index) => (
+          <StationRankCard key={station} station={station} index={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StationRankCard({
+  station,
+  index,
+}: {
+  station: string;
+  index: number;
+}) {
+  return (
+    <div className="flex items-center gap-4 rounded-2xl border border-[#FFE8CC] bg-card p-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+        {index + 1}
+      </span>
+      <StationNameLines station={station} />
+    </div>
+  );
+}
+
+function StationExplanationBlock({
+  title,
+  stations,
+  items,
+  roleLabel,
+}: {
+  title: string;
+  stations: string[];
+  items?: StationReasonItem[];
+  roleLabel: string;
+}) {
+  if (stations.length === 0) return null;
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <h4 className="whitespace-nowrap text-sm font-semibold text-foreground [word-break:keep-all]">
+        {title}
+      </h4>
+      <div className="mt-3 space-y-3">
+        {stations.map((station) => (
+          <StationExplanationItem
+            key={`${roleLabel}-${station}`}
+            station={station}
+            reason={findStationReason(items, station, roleLabel)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StationExplanationItem({
+  station,
+  reason,
+}: {
+  station: string;
+  reason?: StationReasonItem;
+}) {
+  return (
+    <div className="rounded-2xl border border-[#FFE8CC] bg-[#FFFDF9] p-3">
+      <StationNameLines station={station} />
+      {reason && (
+        <div className="mt-2 space-y-1.5 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+          <p>{reason.reasonBody}</p>
+          {reason.answerEvidence && <p>{reason.answerEvidence}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function findStationReason(
+  items: StationReasonItem[] | undefined,
+  station: string,
+  roleLabel: string,
+) {
+  return (
+    items?.find((item) => item.stationId === station && item.roleLabel === roleLabel) ??
+    items?.find((item) => item.stationId === station)
+  );
+}
+
 function uniqueStations(stations: string[]) {
   return Array.from(new Set(stations));
 }
 
 function buildChecklistListingsHref(
-  source: "workingHoliday" | "languageStudy",
+  source: "workingHoliday" | "languageStudy" | "studyAbroad",
   stations: string[],
   resultLabel: string,
   locale: Locale = "ko",
@@ -2514,6 +3165,57 @@ function WizardHeader({
   );
 }
 
+function StudySubQuestionCard({
+  question,
+  selectedValue,
+  onSelect,
+}: {
+  question: StudyAbroadSubQuestion;
+  selectedValue?: StudyAbroadAnswerValue;
+  onSelect: (value: StudyAbroadAnswerValue) => void;
+}) {
+  return (
+    <div className="mt-6 rounded-3xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 sm:p-5">
+      <h3 className="text-lg font-semibold text-foreground [word-break:keep-all]">
+        {question.title}
+      </h3>
+      {question.notice && (
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
+          {question.notice}
+        </p>
+      )}
+      <div className="mt-4 grid gap-3 xl:grid-cols-2">
+        {question.options.map((option) => {
+          const selected = selectedValue === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={cn(
+                "rounded-2xl border bg-card p-4 text-left transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                selected
+                  ? "border-primary bg-accent shadow-sm"
+                  : "border-[#FFE8CC] hover:border-primary hover:shadow-sm",
+              )}
+              onClick={() => onSelect(option.value)}
+            >
+              <AnswerMarker selected={selected} />
+              <span className="ml-8 -mt-5 block [word-break:keep-all]">
+                <span className="block text-base font-semibold text-foreground">
+                  {option.label}
+                </span>
+                <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                  {option.description}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function AnswerMarker({ selected }: { selected: boolean }) {
   return (
     <span
@@ -2525,6 +3227,18 @@ function AnswerMarker({ selected }: { selected: boolean }) {
       {selected && <CheckCircle2 className="h-3.5 w-3.5" />}
     </span>
   );
+}
+
+function SummaryBlock({
+  title,
+  body,
+  fallback,
+}: {
+  title: string;
+  body?: string;
+  fallback: string;
+}) {
+  return <InfoBlock title={title} body={body || fallback} />;
 }
 
 function InfoBlock({ title, body }: { title: string; body: string }) {
