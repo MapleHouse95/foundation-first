@@ -78,6 +78,20 @@ interface ChecklistStationItem {
   koreanName?: string;
 }
 
+interface ApplySelectedListingSummary {
+  listingId: string;
+  title: string;
+  area: string;
+  housingType: string;
+  rent: number;
+  currency: "CAD";
+  rentKRW: number;
+  capacity: number;
+  lastChecked: string;
+  verificationStatus: Status;
+  thumbnail: string;
+}
+
 interface LocalizedOption<T extends string> {
   id: T;
   label: LocalizedText;
@@ -274,6 +288,43 @@ const MOCK_LISTINGS: MockListing[] = [
   },
 ];
 
+const APPLY_SELECTED_LISTING_STORAGE_KEY = "maplehouse.apply.selectedListing.ko";
+
+function buildApplySelectedListingSummary(listing: MockListing): ApplySelectedListingSummary {
+  return {
+    listingId: listing.id,
+    title: listing.title.ko,
+    area: listing.area,
+    housingType: listing.roomType.ko,
+    rent: listing.priceCAD,
+    currency: "CAD",
+    rentKRW: listing.priceKRW,
+    capacity: listing.maxPeople,
+    lastChecked: listing.lastChecked,
+    verificationStatus: listing.status,
+    thumbnail: listing.imagePath,
+  };
+}
+
+function openKoreanAssistedApply(listing: MockListing) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.setItem(
+      APPLY_SELECTED_LISTING_STORAGE_KEY,
+      JSON.stringify(buildApplySelectedListingSummary(listing)),
+    );
+  } catch {
+    // Session storage is only a frontend handoff for this MVP; navigation can still continue.
+  }
+
+  const params = new URLSearchParams({
+    mode: "assisted",
+    listingId: listing.id,
+  });
+  window.location.href = `/ko/apply?${params.toString()}`;
+}
+
 const SIDEBAR_ITEMS: SidebarItem[] = [
   {
     key: "rent",
@@ -394,7 +445,7 @@ const L: Record<Locale, L10n> = {
       supportBadge: "유료 플랜 예정",
       supportDescription:
         "처음이라 불안하거나 조건 확인이 어렵다면, 메이플하우스가 질문 정리와 기본 확인 과정을 도와주는 흐름입니다.",
-      supportAction: "함께 문의 미리보기",
+      supportAction: "확인 요청서 작성하기",
       supportMessage:
         "메이플하우스와 함께 문의하기는 유료 플랜으로 연결될 예정입니다. 현재는 신청 흐름만 미리 보여주는 단계입니다.",
       footerNotice:
@@ -1815,7 +1866,13 @@ function InquiryChoiceModal({
             description={t.inquiryModal.supportDescription}
             action={t.inquiryModal.supportAction}
             active={selectedMethod === "support"}
-            onClick={() => onSelectMethod("support")}
+            onClick={() => {
+              if (locale === "ko") {
+                openKoreanAssistedApply(listing);
+                return;
+              }
+              onSelectMethod("support");
+            }}
           />
         </div>
 

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import {
   CalendarDays,
   CheckCircle2,
@@ -31,6 +31,33 @@ type FormState = {
 };
 
 type FieldKey = keyof FormState;
+
+type KoreanApplyFormState = {
+  name: string;
+  email: string;
+  contact: string;
+  currentLocation: string;
+  arrivalPlan: string;
+  moveInDate: string;
+  stayPeriod: string;
+  people: string;
+  budget: string;
+  landlordQuestions: string;
+};
+
+type SelectedListingApplySummary = {
+  listingId: string;
+  title: string;
+  area: string;
+  housingType: string;
+  rent: number;
+  currency: "CAD";
+  rentKRW: number;
+  capacity: number;
+  lastChecked: string;
+  verificationStatus: "verified" | "needs_check" | "preparing";
+  thumbnail: string;
+};
 
 type FieldText = {
   label: string;
@@ -83,6 +110,46 @@ const EMPTY_FORM: FormState = {
   conditions: "",
   requests: "",
 };
+
+const KO_SELECTED_LISTING_STORAGE_KEY = "maplehouse.apply.selectedListing.ko";
+
+const EMPTY_KO_APPLY_FORM: KoreanApplyFormState = {
+  name: "",
+  email: "",
+  contact: "",
+  currentLocation: "",
+  arrivalPlan: "",
+  moveInDate: "",
+  stayPeriod: "",
+  people: "",
+  budget: "",
+  landlordQuestions: "",
+};
+
+const KO_SELECTED_LISTING_STATUS_LABEL: Record<SelectedListingApplySummary["verificationStatus"], string> = {
+  verified: "확인 완료",
+  needs_check: "추가 확인 필요",
+  preparing: "확인 준비 중",
+};
+
+const KO_LISTING_CHECK_ITEMS = [
+  "실제 주소와 주변 위치",
+  "현재 입주 가능 여부",
+  "총 월세와 포함 항목",
+  "보증금 / 첫 달 / 마지막 달 월세 조건",
+  "룸메이트 또는 공용공간 조건",
+  "가구 포함 여부",
+  "인터넷 / 전기 / 수도 / 난방 포함 여부",
+  "사진과 실제 상태 차이",
+  "계약 전 추가로 확인할 내용",
+];
+
+const KO_SERVICE_SCOPE_ITEMS = [
+  "MapleHouse는 계약 당사자가 아니며, 문의 내용을 정리하고 확인을 돕는 서비스임을 이해했습니다.",
+  "실제 계약 여부와 송금 여부는 사용자가 직접 판단해야 함을 이해했습니다.",
+  "현재 MVP 단계에서는 실제 결제, 송금, 전자서명을 진행하지 않음을 이해했습니다.",
+  "집주인 또는 주거 제공자의 응답 가능 여부와 응답 시간은 보장되지 않을 수 있음을 이해했습니다.",
+];
 
 const CONTENT: Record<Locale, ApplyPageContent> = {
   ko: {
@@ -345,6 +412,10 @@ const SELECT_FIELDS: Array<{
 const TEXTAREA_FIELDS: FieldKey[] = ["area", "conditions", "requests"];
 
 export function LocaleApplyPage({ locale }: { locale: Locale }) {
+  if (locale === "ko") {
+    return <KoreanSelectedListingApplyPage />;
+  }
+
   const t = CONTENT[locale];
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [checked, setChecked] = useState<boolean[]>(() => t.checkboxes.map(() => false));
@@ -521,6 +592,367 @@ export function LocaleApplyPage({ locale }: { locale: Locale }) {
   );
 }
 
+function KoreanSelectedListingApplyPage() {
+  const [selectedListing, setSelectedListing] = useState<SelectedListingApplySummary | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [form, setForm] = useState<KoreanApplyFormState>(EMPTY_KO_APPLY_FORM);
+  const [selectedChecks, setSelectedChecks] = useState<string[]>([]);
+  const [scopeChecked, setScopeChecked] = useState<boolean[]>(() =>
+    KO_SERVICE_SCOPE_ITEMS.map(() => false),
+  );
+  const [previewVisible, setPreviewVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      setLoaded(true);
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const isAssistedMode = params.get("mode") === "assisted";
+    const listingId = params.get("listingId");
+
+    if (!isAssistedMode || !listingId) {
+      setLoaded(true);
+      return;
+    }
+
+    try {
+      const raw = window.sessionStorage.getItem(KO_SELECTED_LISTING_STORAGE_KEY);
+      const parsed = raw ? (JSON.parse(raw) as Partial<SelectedListingApplySummary>) : null;
+      if (
+        parsed?.listingId === listingId &&
+        typeof parsed.title === "string" &&
+        typeof parsed.area === "string" &&
+        typeof parsed.housingType === "string" &&
+        typeof parsed.rent === "number" &&
+        typeof parsed.rentKRW === "number" &&
+        typeof parsed.capacity === "number" &&
+        typeof parsed.lastChecked === "string" &&
+        typeof parsed.thumbnail === "string" &&
+        (parsed.verificationStatus === "verified" ||
+          parsed.verificationStatus === "needs_check" ||
+          parsed.verificationStatus === "preparing")
+      ) {
+        setSelectedListing(parsed as SelectedListingApplySummary);
+      }
+    } catch {
+      setSelectedListing(null);
+    } finally {
+      setLoaded(true);
+    }
+  }, []);
+
+  const summaryRows = useMemo(
+    () => [
+      { label: "선택한 매물", value: selectedListing?.title ?? "" },
+      { label: "이름", value: form.name },
+      { label: "이메일", value: form.email },
+      { label: "연락처", value: form.contact },
+      { label: "현재 거주 국가", value: form.currentLocation },
+      { label: "예상 출국/입국일", value: form.arrivalPlan },
+      { label: "희망 입주일", value: form.moveInDate },
+      { label: "예상 거주 기간", value: form.stayPeriod },
+      { label: "거주 인원", value: form.people },
+      { label: "월세 예산", value: form.budget },
+      { label: "확인 요청 항목", value: selectedChecks.join(", ") },
+    ],
+    [form, selectedChecks, selectedListing],
+  );
+
+  const updateField = (key: keyof KoreanApplyFormState, value: string) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const toggleCheckItem = (item: string, checked: boolean) => {
+    setSelectedChecks((current) =>
+      checked ? [...current, item] : current.filter((currentItem) => currentItem !== item),
+    );
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPreviewVisible(true);
+  };
+
+  if (!loaded) {
+    return (
+      <main className="bg-background">
+        <Container className="py-12 sm:py-16">
+          <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
+            <p className="text-sm font-semibold text-muted-foreground">선택한 매물 정보를 불러오고 있습니다.</p>
+          </div>
+        </Container>
+      </main>
+    );
+  }
+
+  if (!selectedListing) {
+    return <KoreanApplyEmptyState />;
+  }
+
+  return (
+    <main className="bg-background">
+      <Container className="py-12 sm:py-16 lg:py-18">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <div className="space-y-6">
+            <section className="rounded-3xl border border-primary/25 bg-card p-5 shadow-sm sm:p-6">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                선택한 매물
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
+                <img
+                  src={selectedListing.thumbnail}
+                  alt={selectedListing.title}
+                  className="h-36 w-full rounded-2xl border border-border bg-secondary object-cover sm:h-full"
+                />
+                <div className="min-w-0">
+                  <h1 className="text-2xl font-extrabold leading-tight text-foreground sm:text-3xl">
+                    메이플하우스와 함께 이 매물을 확인해볼까요?
+                  </h1>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    선택한 매물에 대해 집주인 또는 주거 제공자에게 확인하고 싶은 내용을
+                    정리해 주세요. 아직 실제 결제나 계약은 진행되지 않습니다.
+                  </p>
+                  <div className="mt-4 rounded-2xl border border-border bg-background p-4">
+                    <h2 className="text-base font-bold text-foreground">{selectedListing.title}</h2>
+                    <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                      <ListingSummaryItem label="지역" value={selectedListing.area} />
+                      <ListingSummaryItem label="주거 형태" value={selectedListing.housingType} />
+                      <ListingSummaryItem
+                        label="월세"
+                        value={`CA$${selectedListing.rent.toLocaleString("en-CA")} / 약 ${selectedListing.rentKRW.toLocaleString("ko-KR")}원`}
+                      />
+                      <ListingSummaryItem label="거주 인원" value={`${selectedListing.capacity}명까지`} />
+                      <ListingSummaryItem label="최근 확인일" value={selectedListing.lastChecked} />
+                      <ListingSummaryItem
+                        label="확인 상태"
+                        value={KO_SELECTED_LISTING_STATUS_LABEL[selectedListing.verificationStatus]}
+                      />
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6 lg:p-7"
+            >
+              <FormSection title="기본 정보" icon={<UserRound />}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TextField
+                    id="ko-selected-name"
+                    field={{ label: "이름", placeholder: "예: 김메이플", required: true }}
+                    value={form.name}
+                    onChange={(value) => updateField("name", value)}
+                  />
+                  <TextField
+                    id="ko-selected-email"
+                    field={{ label: "이메일", placeholder: "name@example.com", required: true }}
+                    value={form.email}
+                    onChange={(value) => updateField("email", value)}
+                    type="email"
+                  />
+                  <TextField
+                    id="ko-selected-contact"
+                    field={{
+                      label: "전화번호 또는 카카오톡 ID",
+                      placeholder: "카카오톡 ID, WhatsApp, 전화번호 등",
+                      required: true,
+                    }}
+                    value={form.contact}
+                    onChange={(value) => updateField("contact", value)}
+                  />
+                  <TextField
+                    id="ko-selected-location"
+                    field={{ label: "현재 거주 국가", placeholder: "예: 한국 / 캐나다" }}
+                    value={form.currentLocation}
+                    onChange={(value) => updateField("currentLocation", value)}
+                  />
+                  <TextField
+                    id="ko-selected-arrival"
+                    field={{ label: "예상 출국일 또는 입국일", placeholder: "" }}
+                    value={form.arrivalPlan}
+                    onChange={(value) => updateField("arrivalPlan", value)}
+                    type="date"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="입주 정보" icon={<Home />}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TextField
+                    id="ko-selected-move-in"
+                    field={{ label: "희망 입주일", placeholder: "" }}
+                    value={form.moveInDate}
+                    onChange={(value) => updateField("moveInDate", value)}
+                    type="date"
+                  />
+                  <TextField
+                    id="ko-selected-period"
+                    field={{ label: "예상 거주 기간", placeholder: "예: 6개월 / 1년" }}
+                    value={form.stayPeriod}
+                    onChange={(value) => updateField("stayPeriod", value)}
+                  />
+                  <SelectField
+                    id="ko-selected-people"
+                    field={{ label: "거주 인원", placeholder: "" }}
+                    value={form.people}
+                    options={["1명", "2명", "3명", "4명 이상", "가족"]}
+                    placeholder="선택"
+                    onChange={(value) => updateField("people", value)}
+                  />
+                  <SelectField
+                    id="ko-selected-budget"
+                    field={{ label: "월세 예산 범위", placeholder: "" }}
+                    value={form.budget}
+                    options={[
+                      "C$1,000 이하",
+                      "C$1,000-1,500",
+                      "C$1,500-2,000",
+                      "C$2,000-3,000",
+                      "C$3,000 이상",
+                      "아직 확실하지 않음",
+                    ]}
+                    placeholder="선택"
+                    onChange={(value) => updateField("budget", value)}
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="이 매물에서 꼭 확인하고 싶은 것" icon={<ClipboardList />}>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {KO_LISTING_CHECK_ITEMS.map((item) => (
+                    <CheckboxItem
+                      key={item}
+                      id={`ko-listing-check-${item}`}
+                      label={item}
+                      checked={selectedChecks.includes(item)}
+                      onChange={(checked) => toggleCheckItem(item, checked)}
+                    />
+                  ))}
+                </div>
+              </FormSection>
+
+              <FormSection title="집주인에게 대신 물어봐줬으면 하는 질문" icon={<MessageSquareText />}>
+                <TextareaField
+                  id="ko-selected-landlord-questions"
+                  field={{
+                    label: "추가 질문",
+                    placeholder:
+                      "예: 실제 입주 가능일, 방 크기, 공용공간 사용 규칙, 추가 비용이 궁금합니다.",
+                  }}
+                  value={form.landlordQuestions}
+                  onChange={(value) => updateField("landlordQuestions", value)}
+                />
+              </FormSection>
+
+              <FormSection title="서비스 범위 확인" icon={<CheckCircle2 />}>
+                <div className="grid gap-3 rounded-2xl border border-border bg-secondary/60 p-4">
+                  {KO_SERVICE_SCOPE_ITEMS.map((item, index) => (
+                    <CheckboxItem
+                      key={item}
+                      id={`ko-service-scope-${index}`}
+                      label={item}
+                      checked={scopeChecked[index] ?? false}
+                      required
+                      onChange={(value) =>
+                        setScopeChecked((current) =>
+                          current.map((currentValue, currentIndex) =>
+                            currentIndex === index ? value : currentValue,
+                          ),
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              </FormSection>
+
+              <div className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  입력 내용은 현재 화면에서만 미리보기로 확인되며, 실제 전송이나 저장은 하지 않습니다.
+                </p>
+                <Button type="submit" size="lg" className="min-h-11 px-5">
+                  확인 요청서 미리보기
+                </Button>
+              </div>
+
+              {previewVisible && (
+                <PreviewPanel
+                  title="요청서 초안이 준비되었습니다."
+                  body="현재 MVP에서는 실제 전송하지 않습니다. 입력한 내용은 이 화면에서만 확인할 수 있습니다."
+                  summaryTitle="요청 요약"
+                  emptyValue="미입력"
+                  rows={summaryRows}
+                />
+              )}
+            </form>
+          </div>
+
+          <aside className="space-y-4">
+            <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
+                <MapPinned className="h-5 w-5" />
+              </span>
+              <h2 className="mt-4 text-lg font-semibold text-foreground">
+                MapleHouse가 정리해볼 내용
+              </h2>
+              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
+                {[
+                  "집주인에게 확인할 질문을 정리합니다.",
+                  "계약 전 확인할 항목을 빠뜨리지 않게 돕습니다.",
+                  "실제 계약, 결제, 송금은 진행하지 않습니다.",
+                ].map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span
+                      aria-hidden
+                      className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </aside>
+        </div>
+      </Container>
+    </main>
+  );
+}
+
+function KoreanApplyEmptyState() {
+  return (
+    <main className="bg-background">
+      <Container className="py-12 sm:py-16">
+        <section className="mx-auto max-w-2xl rounded-3xl border border-border bg-card p-6 text-center shadow-sm sm:p-8">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-primary">
+            <Home className="h-6 w-6" />
+          </span>
+          <h1 className="mt-5 text-2xl font-extrabold text-foreground">
+            선택한 매물이 없습니다
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            매물 리스트에서 관심 있는 매물을 먼저 선택하면, 이곳에서 확인 요청서를 작성할 수 있습니다.
+          </p>
+          <Button asChild size="lg" className="mt-6">
+            <a href="/ko/listings">매물 보러가기</a>
+          </Button>
+        </section>
+      </Container>
+    </main>
+  );
+}
+
+function ListingSummaryItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-card px-3 py-2">
+      <dt className="text-[11px] font-medium text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-sm font-semibold text-foreground">{value}</dd>
+    </div>
+  );
+}
+
 function PreviewPanel({
   title,
   body,
@@ -689,11 +1121,13 @@ function CheckboxItem({
   id,
   label,
   checked,
+  required,
   onChange,
 }: {
   id: string;
   label: string;
   checked: boolean;
+  required?: boolean;
   onChange: (value: boolean) => void;
 }) {
   return (
@@ -702,6 +1136,7 @@ function CheckboxItem({
         id={id}
         type="checkbox"
         checked={checked}
+        required={required}
         onChange={(event) => onChange(event.target.checked)}
         className="mt-1 h-4 w-4 rounded border-input accent-primary"
       />
