@@ -580,7 +580,7 @@ const PROVISIONAL_STATION_DISTANCE_NOTES: Record<string, Partial<Record<StationI
       travelText: "OCAD 근처 수업과 작업 일정을 같이 확인하기 좋은 거리",
       distanceKm: 0.7,
       explanationText:
-        "오스굿 역은 OCAD 근처 수업과 작업실, 전시, 프로젝트 일정을 같이 생각할 때 참고하기 좋은 역이에요. 학교 바로 앞만 보지 않고 주변 선택지도 확인하고 싶을 때 보여드려요.",
+        "오스굿 역은 OCAD와 도심 수업·작업 생활권을 같이 볼 수 있는 역이에요. 학교뿐 아니라 작업실, 전시, 도심 이동까지 함께 생각할 때 추천드렸어요.",
     },
   },
   studyAbroad_uoftStGeorge: {
@@ -864,12 +864,12 @@ export const WORKING_HOLIDAY_QUESTIONS: WizardQuestion[] = [
       {
         value: "budget4",
         label: "C$1,200~1,800 / 약 120~180만 원",
-        description: "조건 좋은 룸렌트, 베이스먼트, 일부 개인공간까지 볼 수 있습니다.",
+        description: "조건 좋은 룸렌트나 일부 개인공간까지 볼 수 있습니다.",
       },
       {
         value: "budget5",
         label: "C$1,800+ / 약 180만 원 이상",
-        description: "스튜디오, 콘도, 개인공간 후보까지 고려할 수 있습니다.",
+        description: "스튜디오, 콘도, 1BR 같은 개인공간 후보까지 고려할 수 있습니다.",
       },
     ],
   },
@@ -1549,12 +1549,12 @@ export const STUDY_ABROAD_QUESTIONS: StudyAbroadQuestion[] = [
       {
         value: "budget_1200_1800",
         label: "C$1,200~1,800 / 약 120~180만 원",
-        description: "조건 좋은 룸렌트, 베이스먼트, 일부 개인공간까지 비교할 수 있습니다.",
+        description: "조건 좋은 룸렌트나 일부 개인공간까지 비교할 수 있습니다.",
       },
       {
         value: "budget_1800_plus",
         label: "C$1,800+ / 약 180만 원 이상",
-        description: "스튜디오, 콘도, 개인공간 후보까지 고려할 수 있습니다.",
+        description: "스튜디오, 콘도, 1BR 같은 개인공간 후보까지 고려할 수 있습니다.",
       },
     ],
   },
@@ -1571,7 +1571,7 @@ export const STUDY_ABROAD_QUESTIONS: StudyAbroadQuestion[] = [
       {
         value: "housing_private_space",
         label: "가능하면 개인 공간이 있는 집이 좋습니다",
-        description: "스튜디오, 콘도, 베이스먼트 같은 독립공간도 보고 싶습니다.",
+        description: "스튜디오, 콘도, 1BR 같은 독립공간을 보고 싶습니다.",
       },
       {
         value: "housing_start_simple",
@@ -1921,12 +1921,12 @@ export const LANGUAGE_STUDY_QUESTIONS: LanguageStudyQuestion[] = [
       {
         value: "budget_1200_1800",
         label: "C$1,200~1,800 / 약 120~180만 원",
-        description: "조건 좋은 룸렌트, 베이스먼트, 일부 개인공간까지 비교할 수 있습니다.",
+        description: "조건 좋은 룸렌트나 일부 개인공간까지 비교할 수 있습니다.",
       },
       {
         value: "budget_1800_plus",
         label: "C$1,800+ / 약 180만 원 이상",
-        description: "스튜디오, 콘도, 개인공간 후보까지 고려할 수 있습니다.",
+        description: "스튜디오, 콘도, 1BR 같은 개인공간 후보까지 고려할 수 있습니다.",
       },
     ],
   },
@@ -1953,7 +1953,8 @@ export const LANGUAGE_STUDY_QUESTIONS: LanguageStudyQuestion[] = [
       },
       {
         term: "베이스먼트 / Basement",
-        description: "지하 또는 반지하 공간입니다. 채광, 습기, 천장 높이, 출입구를 꼭 확인해야 합니다.",
+        description:
+          "지하 또는 반지하 공간입니다. 월세가 비교적 낮게 나오는 경우가 있지만 채광, 습기, 천장 높이, 환기, 출입구를 꼭 확인해야 합니다.",
       },
       {
         term: "덴 / Den",
@@ -1969,7 +1970,7 @@ export const LANGUAGE_STUDY_QUESTIONS: LanguageStudyQuestion[] = [
       {
         value: "housing_private_space",
         label: "가능하면 개인 공간이 있는 집이 좋습니다",
-        description: "스튜디오, 콘도, 베이스먼트 같은 독립공간도 보고 싶습니다.",
+        description: "스튜디오, 콘도, 1BR 같은 독립공간을 보고 싶습니다.",
       },
       {
         value: "housing_start_simple",
@@ -2162,12 +2163,12 @@ export const LANGUAGE_STUDY_BUDGET_COMMENTS: Record<
   budget_1200_1800: {
     label: "C$1,200~1,800 / 약 120~180만 원",
     comment:
-      "조건 좋은 룸렌트나 베이스먼트, 일부 개인공간까지 비교해볼 수 있어요. 위치가 좋아질수록 공간 조건은 달라질 수 있어요.",
+      "조건 좋은 룸렌트나 일부 개인공간까지 비교해볼 수 있어요. 위치가 좋아질수록 공간 조건은 달라질 수 있어요.",
   },
   budget_1800_plus: {
     label: "C$1,800+ / 약 180만 원 이상",
     comment:
-      "스튜디오, 콘도, 개인공간 후보까지 볼 수 있는 예산이에요. 그래도 공과금, 인터넷, 가구 포함 여부는 꼭 같이 확인하는 게 좋아요.",
+      "스튜디오, 콘도, 1BR 같은 개인공간 후보까지 볼 수 있는 예산이에요. 그래도 공과금, 인터넷, 가구 포함 여부는 꼭 같이 확인하는 게 좋아요.",
   },
 };
 
@@ -2200,12 +2201,12 @@ export const STUDY_ABROAD_BUDGET_COMMENTS: Record<
   budget_1200_1800: {
     label: "C$1,200~1,800 / 약 120~180만 원",
     comment:
-      "조건 좋은 룸렌트나 베이스먼트, 일부 개인공간까지 비교해볼 수 있어요. 위치가 좋아질수록 공간 조건은 달라질 수 있어요.",
+      "조건 좋은 룸렌트나 일부 개인공간까지 비교해볼 수 있어요. 위치가 좋아질수록 공간 조건은 달라질 수 있어요.",
   },
   budget_1800_plus: {
     label: "C$1,800+ / 약 180만 원 이상",
     comment:
-      "스튜디오, 콘도, 개인공간 후보까지 볼 수 있는 예산이에요. 그래도 공과금, 인터넷, 가구 포함 여부는 꼭 같이 확인하는 게 좋아요.",
+      "스튜디오, 콘도, 1BR 같은 개인공간 후보까지 볼 수 있는 예산이에요. 그래도 공과금, 인터넷, 가구 포함 여부는 꼭 같이 확인하는 게 좋아요.",
   },
 };
 
@@ -2450,12 +2451,12 @@ export const BUDGET_COMMENTS: Record<string, BudgetComment> = {
   budget4: {
     label: "C$1,200~1,800 / 약 120~180만 원",
     comment:
-      "조건 좋은 룸렌트나 베이스먼트, 일부 개인공간까지 비교해볼 수 있어요. 위치가 좋아질수록 공간 조건은 달라질 수 있어요.",
+      "조건 좋은 룸렌트나 일부 개인공간까지 비교해볼 수 있어요. 위치가 좋아질수록 공간 조건은 달라질 수 있어요.",
   },
   budget5: {
     label: "C$1,800+ / 약 180만 원 이상",
     comment:
-      "스튜디오, 콘도, 개인공간 후보까지 볼 수 있는 예산이에요. 그래도 공과금, 인터넷, 가구 포함 여부는 꼭 같이 확인하는 게 좋아요.",
+      "스튜디오, 콘도, 1BR 같은 개인공간 후보까지 볼 수 있는 예산이에요. 그래도 공과금, 인터넷, 가구 포함 여부는 꼭 같이 확인하는 게 좋아요.",
   },
 };
 
@@ -2465,14 +2466,14 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "한국 생활권과 예산을 함께 보는 시작점",
     stations: ["Finch", "North York Centre"],
     reason:
-      "처음 토론토에 가는 워홀러가 한국 정보 접근성과 예산 방어를 함께 고려할 때 비교해볼 만한 시작점입니다.",
+      "처음 토론토에 가는 워홀러가 한국 정보 접근성과 월세 예산을 함께 보려는 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "한인 정보나 한인 가게 접근이 중요합니다.",
       "비용을 아껴야 합니다.",
       "처음에는 너무 낯선 생활권이 부담스럽습니다.",
       "룸렌트 중심으로 보고 싶습니다.",
     ],
-    nearby: "Finch와 North York Centre 근처를 함께 비교해보세요.",
+    nearby: "Finch와 North York Centre 근처의 룸렌트와 생활 편의 조건을 함께 비교해보세요.",
     caution:
       "이 추천은 정답이 아닙니다. 실제 일자리 위치와 이동 시간은 지도 길찾기로 직접 확인해야 합니다.",
   },
@@ -2481,28 +2482,28 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "한국 생활권과 생활 편의성을 함께 보는 시작점",
     stations: ["North York Centre", "Finch"],
     reason:
-      "한국 생활권 접근성과 생활 편의성을 같이 고려할 때 무난하게 비교해볼 수 있는 기준역입니다.",
+      "한국 음식, 생활 정보, 초기 정착 편의를 가까이 두고 싶은 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "한국 정보 접근이 있으면 좋습니다.",
       "너무 외진 느낌은 피하고 싶습니다.",
       "비용도 보지만 생활 편의성도 중요합니다.",
       "처음 적응이 쉬운 쪽을 선호합니다.",
     ],
-    nearby: "North York Centre와 Finch 근처를 함께 비교해보세요.",
+    nearby: "North York Centre와 Finch 근처의 한인 생활권과 매물 조건을 함께 비교해보세요.",
     caution: "편의성이 좋아질수록 월세가 올라갈 수 있으니 예산 구간을 같이 확인해야 합니다.",
   },
   result03: {
     id: "result03",
     title: "이동 편의를 우선하는 중심 접근형",
     stations: ["Bloor-Yonge", "St George"],
-    reason: "이동성과 중심지 접근을 중요하게 보는 사용자에게 기준점이 될 수 있는 역입니다.",
+    reason: "여러 방향으로 이동하기 쉬운 역을 두고 출퇴근 동선과 중심지 접근을 비교하려는 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "통근/이동 스트레스를 줄이고 싶습니다.",
       "다운타운 또는 중심지 방문이 많을 예정입니다.",
       "예산이 어느 정도 있습니다.",
       "위치 편의성을 비용보다 더 중요하게 봅니다.",
     ],
-    nearby: "Bloor-Yonge, St George, College, Dundas 쪽을 함께 비교해보세요.",
+    nearby: "Bloor-Yonge, St George, College, Dundas 쪽의 중심지 이동과 월세 조건을 함께 비교해보세요.",
     caution:
       "중심 접근성이 좋을수록 월세 부담이 커질 수 있습니다. 가격 대비 공간이 작을 수 있으니 주거 형태를 함께 비교해야 합니다.",
   },
@@ -2511,14 +2512,14 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "이동은 중요하지만 예산 타협이 필요한 선택지",
     stations: ["Dufferin", "Finch West"],
     reason:
-      "예산을 낮추면서도 이동 연결성을 완전히 포기하고 싶지 않을 때 함께 볼 수 있어요.",
+      "월세 부담을 낮추면서도 중심지 이동을 완전히 포기하고 싶지 않은 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "예산이 낮습니다.",
       "그래도 중심지 이동을 완전히 포기하고 싶지는 않습니다.",
       "룸렌트나 룸쉐어 중심으로 볼 수 있습니다.",
       "이동 시간은 지도에서 꼼꼼히 확인할 수 있습니다.",
     ],
-    nearby: "Dufferin, Finch West 근처를 먼저 비교해보세요.",
+    nearby: "Dufferin, Finch West 근처의 예산형 룸렌트와 실제 이동 시간을 비교해보세요.",
     caution: "예산을 낮출수록 이동 시간이나 매물 상태에서 타협이 생길 수 있습니다.",
   },
   result05: {
@@ -2526,28 +2527,28 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "시내 활동과 현지 서비스직 접근을 우선하는 선택지",
     stations: ["College", "Dundas"],
     reason:
-      "현지 서비스직, 리테일, 카페, 레스토랑 등 시내 활동이 많을 가능성이 있는 사용자에게 기준점이 될 수 있습니다.",
+      "매장, 카페, 식당, 서비스직 정보를 찾아볼 때 중심지 상권 접근을 참고하기 좋은 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "현지 매장/서비스직을 우선 고려합니다.",
       "다운타운을 자주 갈 예정입니다.",
       "중심지 생활을 경험하고 싶습니다.",
       "예산이 어느 정도 있습니다.",
     ],
-    nearby: "College, Dundas, Bloor-Yonge 주변을 함께 비교해보세요.",
+    nearby: "College, Dundas, Bloor-Yonge 주변의 상권 접근성과 월세 조건을 함께 비교해보세요.",
     caution: "중심지에 가까울수록 월세가 높고 공간이 작을 수 있습니다.",
   },
   result06: {
     id: "result06",
     title: "시내 접근은 필요하지만 예산도 고려하는 선택지",
     stations: ["Dufferin", "Broadview"],
-    reason: "도시 중심지 활동은 필요하지만 중심부 월세가 부담될 때 함께 볼 수 있어요.",
+    reason: "도시 중심지 이동은 필요하지만 중심부 월세가 부담될 때 비교할 수 있는 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "현지 서비스직을 고려합니다.",
       "다운타운을 자주 갈 수 있습니다.",
       "하지만 중심지 월세는 부담됩니다.",
       "예산과 이동성 사이에서 균형이 필요합니다.",
     ],
-    nearby: "Dufferin, Broadview 근처를 비교해보세요.",
+    nearby: "Dufferin, Broadview 근처의 매물 선택지와 출퇴근 동선을 비교해보세요.",
     caution: "실제 근무지가 정해지면 이동 시간이 크게 달라질 수 있으니 지도 확인이 필수입니다.",
   },
   result07: {
@@ -2555,14 +2556,14 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "이동성과 생활 안정감을 함께 보는 균형형",
     stations: ["Eglinton", "St George"],
     reason:
-      "시내 한복판은 부담스럽지만 이동성과 생활 편의성을 함께 보고 싶은 사용자에게 비교 기준이 될 수 있습니다.",
+      "너무 중심부만 보지 않으면서 일상 시설과 이동 편의를 같이 보려는 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "이동성은 중요합니다.",
       "하지만 너무 중심지는 부담스럽습니다.",
       "생활 편의성도 필요합니다.",
       "무난한 균형형 선택지를 원합니다.",
     ],
-    nearby: "Eglinton, St George 주변을 비교해보세요.",
+    nearby: "Eglinton, St George 주변의 생활 편의와 실제 이동 시간을 비교해보세요.",
     caution: "각 매물의 실제 위치에 따라 체감 이동 시간이 크게 달라질 수 있습니다.",
   },
   result08: {
@@ -2570,14 +2571,14 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "비용과 한국 생활권을 함께 고려하는 선택지",
     stations: ["Finch", "Christie"],
     reason:
-      "예산을 아끼면서도 한국 정보 접근이나 커뮤니티 접근을 포기하고 싶지 않은 사용자에게 비교 후보가 될 수 있습니다.",
+      "월세를 아끼면서도 한국 음식과 생활 정보 접근을 포기하고 싶지 않은 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "비용을 중요하게 봅니다.",
       "한국 생활권도 필요합니다.",
       "처음 적응이 걱정됩니다.",
       "룸렌트 중심으로 볼 수 있습니다.",
     ],
-    nearby: "Finch, Christie 근처를 함께 비교해보세요.",
+    nearby: "Finch, Christie 근처의 한인 생활권과 룸렌트 조건을 함께 비교해보세요.",
     caution: "역 이름만 보고 결정하지 말고 실제 매물 위치와 이동 시간을 확인해야 합니다.",
   },
   result09: {
@@ -2600,14 +2601,14 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "비용과 중심 접근 사이의 타협형",
     stations: ["Dufferin", "Broadview"],
     reason:
-      "월세는 줄이고 싶지만 중심 접근성을 완전히 포기하고 싶지 않은 사용자에게 비교 후보가 될 수 있습니다.",
+      "월세는 줄이고 싶지만 중심지 접근성을 완전히 포기하고 싶지 않은 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "비용을 중요하게 봅니다.",
       "너무 멀리 가는 것은 부담스럽습니다.",
       "중심지 접근도 어느 정도 필요합니다.",
       "룸렌트 중심으로 볼 수 있습니다.",
     ],
-    nearby: "Dufferin, Broadview 근처를 비교해보세요.",
+    nearby: "Dufferin, Broadview 근처의 월세, 매물 상태, 이동 시간을 함께 비교해보세요.",
     caution: "가격만 보고 결정하지 말고 출퇴근 동선과 실제 이동 시간을 같이 확인해야 합니다.",
   },
   result11: {
@@ -2615,14 +2616,14 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "한국 생활권과 시내 접근을 함께 보는 선택지",
     stations: ["Christie", "St George"],
     reason:
-      "한국 생활권 접근성과 다운타운/중심지 접근을 함께 고려하고 싶은 사용자에게 비교 후보가 될 수 있습니다.",
+      "한국 생활권 접근성과 중심지 이동을 같이 보고 싶은 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "한국 정보 접근이 필요합니다.",
       "다운타운도 자주 갈 예정입니다.",
       "너무 외진 곳은 피하고 싶습니다.",
       "예산과 이동성을 함께 보고 싶습니다.",
     ],
-    nearby: "Christie, St George, Bloor-Yonge 쪽을 함께 비교해보세요.",
+    nearby: "Christie, St George, Bloor-Yonge 쪽의 한인 생활권과 중심지 이동을 함께 비교해보세요.",
     caution: "접근성이 좋아질수록 예산 부담이 커질 수 있습니다.",
   },
   result12: {
@@ -2630,14 +2631,14 @@ export const RECOMMENDATION_RESULTS: Record<string, RecommendationResult> = {
     title: "예산과 이동 스트레스 사이의 균형형",
     stations: ["Finch West", "Dufferin"],
     reason:
-      "비용을 줄이면서도 이동 스트레스를 완전히 키우고 싶지 않은 사용자에게 비교 후보가 될 수 있습니다.",
+      "비용을 줄이면서도 이동 부담이 너무 커지지 않게 보려는 방향에 맞춰 추천드렸어요.",
     goodFor: [
       "예산을 아껴야 합니다.",
       "그래도 이동성이 너무 나쁘면 안 됩니다.",
       "룸렌트 중심으로 볼 수 있습니다.",
       "실제 이동 시간을 꼼꼼히 볼 수 있습니다.",
     ],
-    nearby: "Finch West, Dufferin 근처를 비교해보세요.",
+    nearby: "Finch West, Dufferin 근처의 예산형 매물과 실제 이동 시간을 비교해보세요.",
     caution: "가격, 이동 시간, 매물 상태 중 무엇을 가장 우선할지 다시 확인해야 합니다.",
   },
 };
@@ -2727,11 +2728,13 @@ function buildStationProfileExplanation(
     anchorStations?: Array<StationId | string>;
     anchorLabel?: string;
     comparisonLabel?: string;
+    context?: "workingHoliday";
   } = {},
 ) {
   const lines: string[] = [];
   const anchorStations = options.anchorStations ?? [];
   const comparisonLabel = options.comparisonLabel ?? "집 찾기 비교 후보";
+  const isWorkingHoliday = options.context === "workingHoliday";
 
   if (anchorStations.length > 0) {
     lines.push(
@@ -2754,17 +2757,21 @@ function buildStationProfileExplanation(
     lines.push(`${formatStationList(koreanStations)}은 한국 음식, 정보, 커뮤니티 접근성을 함께 보기 좋아요.`);
   }
   if (centralStations.length > 0) {
-    lines.push(`${formatStationList(centralStations)}은 중심부 이동이나 수업 후 활동을 비교하기 좋아요.`);
+    lines.push(
+      isWorkingHoliday
+        ? `${formatStationList(centralStations)}은 중심지 상권, 출퇴근 동선, 도시 이동을 비교하기 좋아요.`
+        : `${formatStationList(centralStations)}은 중심부 이동이나 수업 후 활동을 비교하기 좋아요.`,
+    );
   }
-  if (campusStations.length > 0 && anchorStations.length === 0) {
+  if (campusStations.length > 0 && anchorStations.length === 0 && !isWorkingHoliday) {
     lines.push(`${formatStationList(campusStations)}은 학교나 도착지와 가까운 생활권을 비교하기 좋아요.`);
   }
   if (westStations.length > 0 && eastStations.length > 0) {
-    lines.push("서쪽/동쪽 비교 후보는 중심부만 보지 않고 예산과 이동 부담을 함께 보기 위해 보여드려요.");
+    lines.push("서쪽/동쪽 비교 후보는 중심부만 보지 않고 예산과 이동 부담을 함께 비교하려는 방향을 반영했어요.");
   } else if (westStations.length > 0) {
-    lines.push("서쪽 비교 후보는 중심부만 보지 않고 예산과 이동 부담을 함께 보기 위해 보여드려요.");
+    lines.push("서쪽 비교 후보는 중심부만 보지 않고 예산과 이동 부담을 함께 비교하려는 방향을 반영했어요.");
   } else if (eastStations.length > 0) {
-    lines.push("동쪽 비교 후보는 중심부만 보지 않고 예산과 이동 부담을 함께 보기 위해 보여드려요.");
+    lines.push("동쪽 비교 후보는 중심부만 보지 않고 예산과 이동 부담을 함께 비교하려는 방향을 반영했어요.");
   }
   if (beginnerStations.length > 0) {
     lines.push(`${formatStationList(beginnerStations)}은 처음 도착했을 때 생활 정보를 비교하기 쉬운 기준역이에요.`);
@@ -2784,6 +2791,7 @@ function buildWorkingHolidayReason(
   const lines: string[] = [];
   const stationLines = buildStationProfileExplanation(result.stations, {
     comparisonLabel: "워킹홀리데이 집 찾기 후보",
+    context: "workingHoliday",
   });
 
   if (answers.work === "koreanJob") {
@@ -2830,7 +2838,7 @@ function buildLanguageStudyReason(
     lines.push("아침 등교 부담을 줄이려는 선택이 있어 어학원 도착 기준역과 가까운 후보를 우선했어요.");
   }
   if (answers.languageBudget === "budget_400_600" || answers.languageBudget === "budget_600_900" || answers.finalPriority === "final_budget") {
-    lines.push("월세 예산을 중요하게 본 선택이 있어 예산 비교가 가능한 후보를 보여드려요.");
+    lines.push("월세 예산을 중요하게 본 선택이 있어 예산 비교가 가능한 역을 추천드렸어요.");
   }
   if (answers.koreanCommunity === "korean_very_important" || answers.finalPriority === "final_korean_community") {
     lines.push("한국 생활권 접근성도 반영했지만, 어학원까지의 실제 통학 경로를 함께 확인해야 합니다.");
@@ -2839,10 +2847,10 @@ function buildLanguageStudyReason(
     lines.push("도심 활동 선호가 일부 엇갈려, 활동 접근성과 집 주변 생활 균형을 함께 비교해보면 좋아요.");
   }
   if (answers.koreanCommunity === "korean_not_important" && answers.finalPriority === "final_korean_community") {
-    lines.push("한국 생활권 선호가 일부 엇갈려, 한 가지 기준에 고정하기보다 통학과 생활권을 같이 확인할 수 있게 보여드려요.");
+    lines.push("한국 생활권 선호가 일부 엇갈려, 한 가지 기준에 고정하기보다 통학과 생활권을 같이 확인할 수 있게 구성했어요.");
   }
   if (countAnswerValues(answers, ["school_unknown", "commute_not_sure", "transport_not_sure", "housing_not_sure", "after_school_not_sure"]) >= 2) {
-    lines.push("아직 선호가 확정되지 않은 항목이 있어 처음 비교하기 쉬운 기준역을 중심으로 보여드려요.");
+    lines.push("아직 선호가 확정되지 않은 항목이 있어 처음 비교하기 쉬운 기준역을 중심으로 추천드렸어요.");
   }
 
   return (lines.length > 0 ? lines : [fallbackReason]).slice(0, 4).join(" ");
@@ -2868,13 +2876,13 @@ function buildStudyAbroadReason(
     lines.push("캠퍼스 접근을 강하게 본 선택이 있어 학교 기준역과 가까운 비교 후보를 우선했어요.");
   }
   if (answers.studyBudget === "budget_400_600" || answers.studyBudget === "budget_600_900" || answers.finalPriority === "final_budget") {
-    lines.push("월세 예산을 중요하게 보는 선택이 있어 예산 비교 후보를 보여드려요.");
+    lines.push("월세 예산을 중요하게 보는 선택이 있어 예산 비교 기준역을 추천드렸어요.");
   }
   if (answers.koreanCommunity === "korean_very_important" || answers.finalPriority === "final_korean_access") {
     lines.push("한국 생활권 접근성도 참고했지만, 중심부 캠퍼스에서는 캠퍼스 지리와 통학 부담을 먼저 제한했습니다.");
   }
   if (answers.koreanCommunity === "korean_not_important" && answers.finalPriority === "final_korean_access") {
-    lines.push("생활권 선호가 일부 엇갈려, 한국 생활권만 고정하지 않고 캠퍼스 접근성과 예산 비교 후보를 보여드려요.");
+    lines.push("생활권 선호가 일부 엇갈려, 한국 생활권만 고정하지 않고 캠퍼스 접근성과 예산 비교를 함께 반영했어요.");
   }
   if (
     (answers.campusCommute === "campus_very_close" || answers.campusCommute === "campus_short") &&
@@ -2887,7 +2895,7 @@ function buildStudyAbroadReason(
     lines.push("도심 활동 선호가 일부 엇갈려, 활동 접근성과 조용한 생활권을 함께 비교해보면 좋아요.");
   }
   if (countAnswerValues(answers, ["school_unknown", "campus_not_sure", "housing_not_sure", "study_not_sure"]) >= 2) {
-    lines.push("아직 선호가 확정되지 않은 항목이 있어 처음 비교하기 쉬운 기준역을 중심으로 보여드려요.");
+    lines.push("아직 선호가 확정되지 않은 항목이 있어 처음 비교하기 쉬운 기준역을 중심으로 추천드렸어요.");
   }
 
   return (lines.length > 0 ? lines : [fallbackReason]).slice(0, 4).join(" ");
@@ -2930,7 +2938,7 @@ function getStationReasonTheme(station: StationId | string) {
   if (profile.tags.includes("central") || profile.tags.includes("subwayTransfer")) {
     return {
       title: "도시 중심지 활동",
-      body: "수업 후 약속, 식사, 행사처럼 도시 중심지 활동을 같이 생각할 때 보여드려요.",
+      body: "수업 후 약속, 식사, 행사처럼 도시 중심지 활동을 같이 생각할 때 도움이 돼요.",
     };
   }
   if (profile.tags.includes("beginnerReference") || profile.beginnerPracticality >= 4) {
@@ -2942,23 +2950,23 @@ function getStationReasonTheme(station: StationId | string) {
 
   return {
     title: "생활권 비교",
-    body: "집 주변 생활과 실제 이동 부담을 같이 생각할 때 보여드려요.",
+    body: "집 주변 생활과 실제 이동 부담을 같이 생각할 때 도움이 돼요.",
   };
 }
 
 function getStationComparisonReasonBody(station: StationId | string) {
   const stationId = resolveStationId(station);
   if (!stationId) {
-    return "처음 집을 찾을 때 주변 매물과 생활권을 함께 비교해보기 좋은 후보예요.";
+    return "처음 집을 찾을 때 주변 매물과 생활권을 함께 비교해볼 수 있어요.";
   }
 
   switch (stationId) {
     case "christie":
-      return "크리스티 역은 구 한인타운으로 알려져 있고, 한국 음식점과 한인마트를 함께 볼 수 있는 역이에요. 한인 생활권이 중요하다고 답변하셨기 때문에 보여드려요.";
+      return "크리스티 역은 구 한인타운으로 알려져 있고, 한국 음식점과 한인마트를 함께 볼 수 있는 역이에요. 한인 생활권을 중요하게 본 답변을 반영했어요.";
     case "eglinton":
       return "에글린턴 역은 도심 핵심 상권보다 덜 복잡한 미드타운 생활권을 볼 때 좋은 역이에요. 마트, 카페, 음식점 같은 일상 시설도 함께 비교할 수 있어요.";
     case "northYorkCentre":
-      return "노스 요크 센터 역은 한국 음식과 생활 정보가 있는 노스욕 생활권을 볼 때 참고하기 좋은 역이에요. 한인 생활권과 장기 생활 편의를 중요하게 봤을 때 먼저 보여드려요.";
+      return "노스 요크 센터 역은 한국 음식과 생활 정보가 있는 노스욕 생활권을 볼 때 참고하기 좋은 역이에요. 한인 생활권과 장기 생활 편의를 중요하게 본 답변을 반영했어요.";
     case "finch":
       return "핀치 역은 노스욕 북쪽 생활권과 한국 생활권을 함께 볼 수 있는 역이에요. 예산과 한인 생활권을 같이 고려할 때 비교해볼 수 있어요.";
     case "bloorYonge":
@@ -2970,7 +2978,7 @@ function getStationComparisonReasonBody(station: StationId | string) {
     case "dundas":
       return "TMU Station은 중심지 활동과 학교 주변 생활권을 함께 확인하기 좋은 기준역이에요.";
     case "dufferin":
-      return "더퍼린 역은 중심부 월세가 부담스러울 때 서쪽 생활권과 매물 선택지를 함께 비교하기 좋은 역이에요. 월세와 주거 형태를 함께 비교하려는 답변 때문에 보여드려요.";
+      return "더퍼린 역은 중심부 월세가 부담스러울 때 서쪽 생활권과 매물 선택지를 함께 비교하기 좋은 역이에요. 월세와 주거 형태를 함께 비교하려는 답변을 반영했어요.";
     case "broadview":
       return "브로드뷰 역은 동쪽 생활권을 보면서 중심부와 너무 멀어지지 않는 선택지를 비교해볼 만한 역이에요.";
     case "victoriaPark":
@@ -2981,22 +2989,22 @@ function getStationComparisonReasonBody(station: StationId | string) {
 
   const profile = STATION_PROFILE_METADATA[stationId];
   if (profile.tags.includes("koreanHub")) {
-    return "한국 음식점이나 한인마트가 있는 생활권을 같이 볼 수 있는 역이에요. 한인 생활권이 중요할 때 먼저 보여드려요.";
+    return "한국 음식점이나 한인마트가 있는 생활권을 같이 볼 수 있는 역이에요. 한인 생활권이 중요할 때 추천드렸어요.";
   }
   if (profile.tags.includes("budgetCompare") || profile.rentAffordability >= 4) {
     return "학교나 어학원 바로 앞 월세가 부담스러울 때 선택지를 넓혀볼 수 있는 역이에요.";
   }
   if (profile.tags.includes("central") || profile.tags.includes("subwayTransfer")) {
-    return "수업 후 약속, 식사, 행사처럼 도시 중심지 활동을 같이 생각할 때 보여드려요.";
+    return "수업 후 약속, 식사, 행사처럼 도시 중심지 활동을 같이 생각할 때 도움이 되는 역이에요.";
   }
   if (profile.tags.includes("beginnerReference") || profile.beginnerPracticality >= 4) {
     return "처음 도착해서 너무 복잡하지 않은 생활권부터 보고 싶을 때 참고하기 좋아요.";
   }
   if (profile.tags.includes("campusAdjacent") || profile.tags.includes("academyArrival")) {
-    return "학교나 어학원 바로 앞만 보지 않고 집을 볼 범위를 넓힐 때 보여드려요.";
+    return "학교나 어학원 바로 앞만 보지 않고 집을 볼 범위를 넓힐 때 도움이 되는 역이에요.";
   }
 
-  return "집 주변 생활과 실제 이동 부담을 같이 생각할 때 보여드려요.";
+  return "집 주변 생활과 실제 이동 부담을 같이 생각할 때 도움이 되는 역이에요.";
 }
 
 function getKoreanStationShortName(station: StationId) {
@@ -3111,27 +3119,27 @@ function getWorkingHolidayStationReasonBody(station: StationId | string) {
 
   switch (stationId) {
     case "christie":
-      return "크리스티 역은 한인 식당과 마트 접근을 같이 볼 수 있는 생활권이에요. 처음 정착하면서 한국 생활권을 가까이 두고 싶은 경우에 참고하기 좋아요.";
+      return "크리스티 역은 구 한인타운으로 알려져 있고, 한국 음식점과 한인마트를 함께 볼 수 있는 역이에요. 한인 생활권을 중요하게 보신 방향에 맞춰 추천드렸어요.";
     case "northYorkCentre":
       return "노스 요크 센터 역은 한인 생활권과 생활 편의시설을 함께 확인하기 좋은 기준역이에요. 처음 정착할 때 정보 접근성을 중요하게 볼 때 참고할 수 있어요.";
     case "finch":
       return "핀치 역은 노스욕 북쪽 생활권과 한인 생활권을 함께 볼 수 있는 기준역이에요. 월세 예산과 생활 편의 사이를 비교하기 좋아요.";
     case "finchWest":
-      return "핀치 웨스트 역은 월세 부담을 낮추면서 북서쪽 생활권을 확인하기 좋은 기준역이에요. 일자리 위치가 아직 정해지지 않았을 때 예산형 후보로 참고할 수 있어요.";
+      return "핀치 웨스트 역은 북서쪽 생활권과 월세 선택지를 넓게 볼 때 참고하기 좋은 역이에요. 이동은 조금 늘어날 수 있지만 예산을 우선하는 답변에 맞춰 추천드렸어요.";
     case "dufferin":
-      return "더퍼린 역은 서쪽 생활권과 중심지 이동 부담을 함께 비교하기 좋은 기준역이에요. 카페, 식당, 매장 등 서비스직 가능성이 있는 상권 접근도 함께 확인해볼 수 있어요.";
+      return "더퍼린 역은 중심부 월세가 부담스러울 때 서쪽 생활권과 매물 선택지를 비교하기 좋은 역이에요. 월세 부담을 낮추고 싶다는 방향에 맞춰 추천드렸어요.";
     case "broadview":
       return "브로드뷰 역은 동쪽 생활권을 보면서 중심부와 너무 멀어지지 않는 출퇴근 동선을 비교하기 좋은 기준역이에요.";
     case "victoriaPark":
       return "빅토리아 파크 역은 동쪽 예산형 생활권을 먼저 확인할 때 참고하기 좋은 기준역이에요. 월세 부담과 이동 시간을 함께 비교해볼 수 있어요.";
     case "bloorYonge":
-      return "블루어-영 역은 여러 방향으로 이동하기 쉬운 환승 기준역이에요. 서비스직, 사무직, 중심지 상권 방향을 아직 넓게 보고 있을 때 출퇴근 동선을 잡기 좋아요.";
+      return "블루어-영 역은 중심지 쪽 매장, 카페, 식당, 서비스직 정보를 찾아볼 때 참고하기 좋은 역이에요. 중심지 이동과 일자리 접근을 중요하게 본 답변에 맞춰 추천드렸어요.";
     case "college":
-      return "칼리지 역은 중심 상권과 생활 편의시설을 함께 볼 수 있는 기준역이에요. 식당, 카페, 매장, 사무직 가능성이 있는 방향을 넓게 확인할 때 참고할 수 있어요.";
+      return "칼리지 역은 중심지 쪽 매장, 카페, 식당, 서비스직 정보를 찾아볼 때 참고하기 좋은 역이에요. 중심지 이동과 일자리 접근을 중요하게 본 답변에 맞춰 추천드렸어요.";
     case "dundas":
-      return "던다스 역은 중심 상권 접근성이 강한 기준역이에요. 식당, 카페, 매장 등 서비스직 가능성이 있는 생활권을 먼저 확인할 때 참고하기 좋아요.";
+      return "던다스 역은 중심지 상권 접근성이 강한 역이에요. 매장, 카페, 식당, 서비스직 정보를 찾아볼 때 참고하기 좋은 방향으로 추천드렸어요.";
     case "eglinton":
-      return "에글린턴 역은 중심부보다 덜 복잡한 미드타운 생활권이에요. 월세 예산과 출퇴근 이동 부담을 균형 있게 비교하기 좋아요.";
+      return "에글린턴 역은 미드타운 생활권에서 일상 시설과 이동 편의를 함께 보기 좋은 역이에요. 처음 정착할 때 너무 중심부만 보지 않으려는 방향에 맞춰 추천드렸어요.";
     case "stGeorge":
       return "세인트 조지 역은 중심부 이동이 편한 기준역이에요. 아직 일자리 방향이 넓을 때 여러 생활권으로 이동하기 좋은 출발점으로 볼 수 있어요.";
     default:
@@ -3208,9 +3216,9 @@ function getLanguageStudyEvidence(
   const profile = STATION_PROFILE_METADATA[station];
   if (roleLabel.includes("어학원")) {
     if (answers.school === "school_ilac" && answers.ilacCampus === "ilac_dream") {
-      return "ILAC Dream Campus를 선택해서 먼저 보여드려요.";
+      return "ILAC Dream Campus 선택을 반영했어요.";
     }
-    return "선택한 어학원 위치를 기준으로 먼저 보여드려요.";
+    return "선택한 어학원 위치를 기준으로 추천드렸어요.";
   }
   if (
     profile.tags.includes("koreanHub") &&
@@ -3218,7 +3226,7 @@ function getLanguageStudyEvidence(
       answers.afterSchool === "after_school_korean_food" ||
       answers.finalPriority === "final_korean_community")
   ) {
-    return "한국 음식과 정보 접근을 중요하게 본 답변 때문에 먼저 보여드려요.";
+    return "한국 음식과 정보 접근을 중요하게 본 답변을 반영했어요.";
   }
   if (
     profile.tags.includes("budgetCompare") ||
@@ -3226,15 +3234,15 @@ function getLanguageStudyEvidence(
     answers.languageBudget === "budget_600_900" ||
     answers.finalPriority === "final_budget"
   ) {
-    return "월세 예산과 룸렌트 선택지를 함께 본 답변 때문에 보여드려요.";
+    return "월세 예산과 룸렌트 선택지를 함께 본 답변을 반영했어요.";
   }
   if (answers.commuteRange === "commute_very_close" || answers.finalPriority === "final_school_commute") {
-    return "아침 등교 부담을 줄이고 싶다는 답변 때문에 보여드려요.";
+    return "아침 등교 부담을 줄이고 싶다는 답변을 반영했어요.";
   }
   if (answers.cityActivity === "city_activity_very_often" || answers.finalPriority === "final_social_activity") {
-    return "수업 후 활동과 도시 중심지 이동을 보고 싶다는 답변 때문에 보여드려요.";
+    return "수업 후 활동과 도시 중심지 이동을 보고 싶다는 답변을 반영했어요.";
   }
-  return "어학원 위치, 아침 이동, 예산, 생활권을 함께 본 답변 때문에 보여드려요.";
+  return "어학원 위치, 아침 이동, 예산, 생활권을 함께 본 답변을 반영했어요.";
 }
 
 function getStudyAbroadSchoolName(
@@ -3282,10 +3290,10 @@ function getStudyAbroadCampusReasonBody(
     return buildDestinationDistanceReason(station, schoolName, note);
   }
   if (answers.school === "school_ocad" && station === "stPatrick") {
-    return "OCAD를 다닐 때 학교 근처를 먼저 확인하기 좋은 기준역이에요. 정확한 이동 시간은 지도 길찾기로 확인해 주세요.";
+    return "세인트 패트릭 역은 OCAD와 가까운 역이에요. 정확한 이동 시간은 지도 길찾기로 확인해 주세요.";
   }
   if (answers.school === "school_ocad" && station === "osgoode") {
-    return "OCAD 근처 수업과 작업실, 전시, 프로젝트 일정을 같이 생각할 때 참고하기 좋은 기준역이에요. 학교 바로 앞만 보지 않고 주변 선택지도 확인하고 싶을 때 보여드려요.";
+    return "오스굿 역은 OCAD와 도심 수업·작업 생활권을 같이 볼 수 있는 역이에요. 학교뿐 아니라 작업실, 전시, 도심 이동까지 함께 생각할 때 추천드렸어요.";
   }
   const schoolName = getStudyAbroadSchoolName(answers);
   return `${schoolName} 주변을 먼저 확인할 때 기준으로 삼기 좋은 역이에요. 정확한 이동 시간은 지도 길찾기로 확인해 주세요.`;
@@ -3302,14 +3310,14 @@ function getStudyAbroadEvidence(
 ) {
   const profile = STATION_PROFILE_METADATA[station];
   if (roleLabel.includes("학교")) {
-    if (answers.school === "school_ocad") return "학교 선택에서 OCAD를 선택해서 먼저 보여드려요.";
-    return "선택한 학교와 캠퍼스 위치를 기준으로 먼저 보여드려요.";
+    if (answers.school === "school_ocad") return "학교 선택에서 OCAD를 선택한 점을 반영했어요.";
+    return "선택한 학교와 캠퍼스 위치를 기준으로 추천드렸어요.";
   }
   if (
     profile.tags.includes("koreanHub") &&
     (answers.koreanCommunity === "korean_very_important" || answers.finalPriority === "final_korean_access")
   ) {
-    return "한국 음식과 정보 접근을 중요하게 본 답변 때문에 먼저 보여드려요.";
+    return "한국 음식과 정보 접근을 중요하게 본 답변을 반영했어요.";
   }
   if (
     profile.tags.includes("budgetCompare") ||
@@ -3317,15 +3325,15 @@ function getStudyAbroadEvidence(
     answers.studyBudget === "budget_600_900" ||
     answers.finalPriority === "final_budget"
   ) {
-    return "월세 예산과 주거 형태를 함께 비교하려는 답변 때문에 보여드려요.";
+    return "월세 예산과 주거 형태를 함께 비교하려는 답변을 반영했어요.";
   }
   if (answers.campusCommute === "campus_very_close" || answers.finalPriority === "final_campus_commute") {
-    return "학교에 가는 부담을 줄이고 싶다는 답변 때문에 보여드려요.";
+    return "학교에 가는 부담을 줄이고 싶다는 답변을 반영했어요.";
   }
   if (answers.cityActivity === "city_very_often" || answers.finalPriority === "final_city_activity") {
-    return "도시 중심지 활동과 이동성을 보고 싶다는 답변 때문에 보여드려요.";
+    return "도시 중심지 활동과 이동성을 보고 싶다는 답변을 반영했어요.";
   }
-  return "학교 접근, 예산, 공부 환경, 생활권을 함께 본 답변 때문에 보여드려요.";
+  return "학교 접근, 예산, 공부 환경, 생활권을 함께 본 답변을 반영했어요.";
 }
 
 function buildStationReasonItem(
@@ -3464,7 +3472,7 @@ function buildLanguageStudyUserFitSummary(
     themes.push("수업 후 활동");
   }
   if (countAnswerValues(answers, ["school_unknown", "commute_not_sure", "transport_not_sure", "housing_not_sure", "after_school_not_sure"]) >= 2) {
-    return "아직 정해지지 않은 항목이 있어, 처음 확인하기 쉬운 기준역을 먼저 보여드려요.";
+    return "아직 정해지지 않은 항목이 있어, 처음 확인하기 쉬운 기준역을 추천드렸어요.";
   }
   return `${(themes.length > 0 ? themes : ["어학원 위치", "예산", "생활권"]).slice(0, 3).join(", ")}을 함께 보고 싶은 사용자에게 잘 맞아요.`;
 }
@@ -3486,13 +3494,13 @@ function buildStudyAbroadUserFitSummary(
     themes.push("공부 환경");
   }
   if (countAnswerValues(answers, ["school_unknown", "campus_not_sure", "housing_not_sure", "study_not_sure"]) >= 2) {
-    return "아직 정해지지 않은 항목이 있어, 처음 확인하기 쉬운 기준역을 먼저 보여드려요.";
+    return "아직 정해지지 않은 항목이 있어, 처음 확인하기 쉬운 기준역을 추천드렸어요.";
   }
   if (
     (answers.campusCommute === "campus_very_close" || answers.campusCommute === "campus_short") &&
     answers.finalPriority === "final_budget"
   ) {
-    return "학교 접근과 월세 예산을 크게 보는 선택이 있어, 한 지점에 고정하지 않고 먼저 볼 후보를 보여드려요.";
+    return "학교 접근과 월세 예산을 크게 보는 선택이 있어, 한 지점에 고정하지 않고 비교 기준역을 추천드렸어요.";
   }
   return `${(themes.length > 0 ? themes : ["학교 접근", "예산", "생활권"]).slice(0, 3).join(", ")}을 함께 보고 싶은 사용자에게 잘 맞아요.`;
 }
@@ -4288,9 +4296,11 @@ function applyLanguageStudyAnswerScore(
   answers: Record<LanguageStudyQuestionId, LanguageStudyAnswerValue> & {
     ilacCampus?: IlacCampusAnswer;
   },
+  options: { includeKoreanCommunity?: boolean } = {},
 ) {
   const arrivalStations = getLanguageStudyArrivalStations(answers);
   const nearbyStations = getLanguageStudyNearbyStations(answers);
+  const includeKoreanCommunity = options.includeKoreanCommunity ?? true;
 
   applyLanguageStudySchoolScore(scores, answers);
 
@@ -4399,8 +4409,10 @@ function applyLanguageStudyAnswerScore(
       addStationScores(scores, ["bloorYonge", "college", "dundas", "eglinton"], 2);
       break;
     case "after_school_korean_food":
-      addStationScores(scores, ["christie", "northYorkCentre", "finch"], 3);
-      addStationScores(scores, ["eglinton", "bloorYonge"], 1);
+      if (includeKoreanCommunity) {
+        addStationScores(scores, ["christie", "northYorkCentre", "finch"], 3);
+        addStationScores(scores, ["eglinton", "bloorYonge"], 1);
+      }
       break;
     case "after_school_city_activity":
       addStationScores(scores, ["bloorYonge", "dundas", "college", "stGeorge", "union"], 3);
@@ -4414,20 +4426,22 @@ function applyLanguageStudyAnswerScore(
       break;
   }
 
-  switch (answers.koreanCommunity) {
-    case "korean_very_important":
-      addStationScores(scores, ["christie", "northYorkCentre", "finch"], 4);
-      break;
-    case "korean_somewhat":
-      addStationScore(scores, "christie", 2);
-      addStationScores(scores, ["bloorYonge", "eglinton", "northYorkCentre"], 1);
-      break;
-    case "korean_beginner_need":
-      addStationScores(scores, ["christie", "northYorkCentre", "eglinton"], 2);
-      break;
-    case "korean_not_important":
-      addStationScores(scores, ["college", "dundas", "stGeorge", "union", "bloorYonge"], 2);
-      break;
+  if (includeKoreanCommunity) {
+    switch (answers.koreanCommunity) {
+      case "korean_very_important":
+        addStationScores(scores, ["christie", "northYorkCentre", "finch"], 4);
+        break;
+      case "korean_somewhat":
+        addStationScore(scores, "christie", 2);
+        addStationScores(scores, ["bloorYonge", "eglinton", "northYorkCentre"], 1);
+        break;
+      case "korean_beginner_need":
+        addStationScores(scores, ["christie", "northYorkCentre", "eglinton"], 2);
+        break;
+      case "korean_not_important":
+        addStationScores(scores, ["college", "dundas", "stGeorge", "union", "bloorYonge"], 2);
+        break;
+    }
   }
 
   switch (answers.cityActivity) {
@@ -4473,7 +4487,9 @@ function applyLanguageStudyAnswerScore(
       addStationScores(scores, ["bloorYonge", "college", "dundas", "stGeorge", "union"], 4);
       break;
     case "final_korean_community":
-      addStationScores(scores, ["christie", "northYorkCentre", "finch"], 4);
+      if (includeKoreanCommunity) {
+        addStationScores(scores, ["christie", "northYorkCentre", "finch"], 4);
+      }
       break;
     case "final_beginner_stability":
       addStationScores(scores, ["eglinton", "northYorkCentre", "christie", "finch"], 4);
@@ -4547,9 +4563,12 @@ export function calculateLanguageStudyRecommendation(
   answers: Record<LanguageStudyQuestionId, LanguageStudyAnswerValue> & {
     ilacCampus?: IlacCampusAnswer;
   },
+  options: { includeKoreanCommunity?: boolean } = {},
 ): LanguageStudyCalculationResult {
   const stationScores = createLanguageStudyStationScores();
-  applyLanguageStudyAnswerScore(stationScores, answers);
+  applyLanguageStudyAnswerScore(stationScores, answers, {
+    includeKoreanCommunity: options.includeKoreanCommunity ?? true,
+  });
 
   const rankedStations = [...LANGUAGE_STUDY_HOUSING_STATION_POOL].sort((a, b) => {
     const scoreDiff = stationScores[b] - stationScores[a];
@@ -4599,7 +4618,10 @@ export function isCompleteAnswerMap(answers: AnswerMap): answers is Record<Quest
   return REQUIRED_QUESTION_IDS.every((id) => Boolean(answers[id]));
 }
 
-export function calculateStationRecommendation(answers: Record<QuestionId, AnswerValue>) {
+export function calculateStationRecommendation(
+  answers: Record<QuestionId, AnswerValue>,
+  options: { includeKoreanCommunity?: boolean } = {},
+) {
   const scores: ScoreMap = {
     koreanCommunity: 0,
     commuteMobility: 0,
@@ -4615,12 +4637,18 @@ export function calculateStationRecommendation(answers: Record<QuestionId, Answe
     });
   });
 
-  const topScore = Math.max(...Object.values(scores));
-  const tied = (Object.keys(scores) as Orientation[]).filter(
-    (orientation) => scores[orientation] === topScore,
+  const activeScores: ScoreMap =
+    options.includeKoreanCommunity === false
+      ? { ...scores, koreanCommunity: Number.NEGATIVE_INFINITY }
+      : scores;
+  const topScore = Math.max(...Object.values(activeScores));
+  const tied = (Object.keys(activeScores) as Orientation[]).filter(
+    (orientation) => activeScores[orientation] === topScore,
   );
   const topOrientation = resolveTopOrientation(tied, answers);
-  const resultId = selectResultId(topOrientation, answers);
+  const resultId = selectResultId(topOrientation, answers, {
+    includeKoreanCommunity: options.includeKoreanCommunity ?? true,
+  });
   const result = RECOMMENDATION_RESULTS[resultId];
   const resultWithReason = {
     ...result,
@@ -4632,7 +4660,7 @@ export function calculateStationRecommendation(answers: Record<QuestionId, Answe
   };
 
   return {
-    scores,
+    scores: activeScores,
     topOrientation,
     resultId,
     budgetKey: answers.budget,
@@ -4657,13 +4685,18 @@ function resolveTopOrientation(
   return tied[0] ?? "commuteMobility";
 }
 
-function selectResultId(topOrientation: Orientation, answers: Record<QuestionId, AnswerValue>) {
+function selectResultId(
+  topOrientation: Orientation,
+  answers: Record<QuestionId, AnswerValue>,
+  options: { includeKoreanCommunity?: boolean } = {},
+) {
   const budget = answers.budget;
   const koreanLife = answers.koreanLife;
   const priority = answers.priority;
   const downtown = answers.downtown;
+  const includeKoreanCommunity = options.includeKoreanCommunity ?? true;
 
-  if (topOrientation === "koreanCommunity") {
+  if (includeKoreanCommunity && topOrientation === "koreanCommunity") {
     if ((budget === "budget1" || budget === "budget2") && koreanLife === "koreanHigh") {
       return "result01";
     }
@@ -4683,7 +4716,7 @@ function selectResultId(topOrientation: Orientation, answers: Record<QuestionId,
   }
 
   if (budget === "budget1") return "result09";
-  if (koreanLife === "koreanHigh" || priority === "priorityCommunity") return "result08";
+  if (includeKoreanCommunity && (koreanLife === "koreanHigh" || priority === "priorityCommunity")) return "result08";
   if (priority === "priorityMobility" || downtown === "downtownWeekly") return "result12";
   return "result10";
 }

@@ -73,6 +73,13 @@ type StudyAbroadCalculationResult = ReturnType<typeof calculateStudyAbroadRecomm
 type GeneralAnswers = Partial<Record<GeneralChecklistQuestionId, string[]>>;
 type ResultChecklistType = "workingHoliday" | "languageStudy" | "studyAbroad";
 
+function hasAnswersForRenderedQuestions(
+  questions: ReadonlyArray<{ id: string }>,
+  answers: Record<string, string | undefined>,
+) {
+  return questions.every((question) => Boolean(answers[question.id]));
+}
+
 const CHECKLIST_MAIN_EVENT = "maplehouse:checklist-main";
 const CHECKLIST_RESULT_STORAGE_KEY = "maplehouse:checklist-result:v1";
 
@@ -346,7 +353,7 @@ const HOUSING_GLOSSARY = [
     term: "베이스먼트",
     description: [
       "지하 또는 반지하 공간입니다.",
-      "채광, 습기, 천장 높이, 출입구를 꼭 확인해야 합니다.",
+      "월세가 비교적 낮게 나오는 경우가 있지만 채광, 습기, 천장 높이, 환기, 출입구를 꼭 확인해야 합니다.",
     ],
     pictogram: "basement",
   },
@@ -509,8 +516,12 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
     }
 
     const nextAnswers = { ...workingAnswers, [workingQuestion.id]: selectedWorkingAnswer };
-    if (!isCompleteAnswerMap(nextAnswers)) return;
-    setWorkingResult(calculateStationRecommendation(nextAnswers));
+    if (!hasAnswersForRenderedQuestions(workingQuestions, nextAnswers)) return;
+    setWorkingResult(
+      calculateStationRecommendation(nextAnswers as Parameters<typeof calculateStationRecommendation>[0], {
+        includeKoreanCommunity: false,
+      }),
+    );
     setMode("workingResult");
     setSupportNotice(false);
   }
@@ -529,8 +540,17 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
       return;
     }
 
-    if (!isCompleteLanguageStudyAnswerMap(nextAnswers)) return;
-    setLanguageResult(calculateLanguageStudyRecommendation(nextAnswers));
+    if (
+      !hasAnswersForRenderedQuestions(languageQuestions, nextAnswers) ||
+      (nextAnswers.school === "school_ilac" && !nextAnswers.ilacCampus)
+    ) {
+      return;
+    }
+    setLanguageResult(
+      calculateLanguageStudyRecommendation(nextAnswers as Parameters<typeof calculateLanguageStudyRecommendation>[0], {
+        includeKoreanCommunity: false,
+      }),
+    );
     setMode("languageResult");
     setSupportNotice(false);
   }

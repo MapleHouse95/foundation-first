@@ -147,12 +147,6 @@ const englishWorkingQuestions: WizardQuestion[] = [
     title: "Q1. What kind of work are you most likely to look for?",
     options: [
       {
-        value: "koreanJob",
-        label: "Korean-owned or Korean community businesses",
-        description:
-          "You are open to Korean restaurants, cafes, markets, or community-based jobs.",
-      },
-      {
         value: "localService",
         label: "Local retail or service jobs",
         description: "You want to look first at local retail, cafes, restaurants, or service jobs.",
@@ -199,7 +193,7 @@ const englishWorkingQuestions: WizardQuestion[] = [
         value: "budget4",
         label: "C$1,200-1,800 / approx. ₩1,200,000-1,800,000",
         description:
-          "You may be able to compare better room rentals, basements, or some private-space options.",
+          "You may be able to compare better room rentals or some private-space options.",
       },
       {
         value: "budget5",
@@ -224,11 +218,6 @@ const englishWorkingQuestions: WizardQuestion[] = [
         description: "Reducing daily route stress is most important.",
       },
       {
-        value: "priorityCommunity",
-        label: "Community",
-        description: "Korean food, information, community, or emotional familiarity matters.",
-      },
-      {
         value: "priorityStability",
         label: "Comfort / stability",
         description: "You prefer an area that feels less unfamiliar or overwhelming.",
@@ -236,32 +225,8 @@ const englishWorkingQuestions: WizardQuestion[] = [
     ],
   },
   {
-    id: "koreanLife",
-    title: "Q4. How important is access to Korean community areas?",
-    intro:
-      "Korean community access means Korean food, Korean stores, community information, and familiar support channels.",
-    options: [
-      {
-        value: "koreanHigh",
-        label: "Very important",
-        description:
-          "At first, access to Korean information and community areas feels necessary.",
-      },
-      {
-        value: "koreanMedium",
-        label: "Helpful, but not essential",
-        description: "It would help, but you do not need to live directly near it.",
-      },
-      {
-        value: "koreanLow",
-        label: "Not very important",
-        description: "You prefer to experience more local living areas.",
-      },
-    ],
-  },
-  {
     id: "downtown",
-    title: "Q5. How often do you expect to go downtown?",
+    title: "Q4. How often do you expect to go downtown?",
     options: [
       {
         value: "downtownDaily",
@@ -287,12 +252,6 @@ const frenchWorkingQuestions: WizardQuestion[] = [
     id: "work",
     title: "Q1. Quel type de travail pensez-vous rechercher en priorité ?",
     options: [
-      {
-        value: "koreanJob",
-        label: "Commerces coréens ou liés à la communauté coréenne",
-        description:
-          "Vous êtes ouvert aux restaurants, cafés, marchés ou emplois liés à la communauté coréenne.",
-      },
       {
         value: "localService",
         label: "Commerce local ou services",
@@ -341,7 +300,7 @@ const frenchWorkingQuestions: WizardQuestion[] = [
         value: "budget4",
         label: "C$1 200-1 800 / environ ₩1 200 000-1 800 000",
         description:
-          "Vous pouvez comparer de meilleures chambres, des sous-sols ou certaines options avec espace privé.",
+          "Vous pouvez comparer de meilleures chambres ou certaines options avec espace privé.",
       },
       {
         value: "budget5",
@@ -366,12 +325,6 @@ const frenchWorkingQuestions: WizardQuestion[] = [
         description: "Réduire le stress lié aux déplacements quotidiens est le plus important.",
       },
       {
-        value: "priorityCommunity",
-        label: "Communauté",
-        description:
-          "La nourriture coréenne, les informations, la communauté ou un environnement familier sont importants.",
-      },
-      {
         value: "priorityStability",
         label: "Confort / stabilité",
         description: "Vous préférez une zone qui semble moins inconnue ou moins déstabilisante.",
@@ -379,33 +332,8 @@ const frenchWorkingQuestions: WizardQuestion[] = [
     ],
   },
   {
-    id: "koreanLife",
-    title: "Q4. L’accès à la communauté coréenne est-il important pour vous ?",
-    intro:
-      "L’accès à la communauté coréenne signifie nourriture coréenne, commerces coréens, informations communautaires et canaux d’aide familiers.",
-    options: [
-      {
-        value: "koreanHigh",
-        label: "Très important",
-        description:
-          "Au début, l’accès aux informations et à la communauté coréenne semble nécessaire.",
-      },
-      {
-        value: "koreanMedium",
-        label: "Utile, mais pas indispensable",
-        description:
-          "Cela peut aider, mais vous n’avez pas besoin de vivre directement à proximité.",
-      },
-      {
-        value: "koreanLow",
-        label: "Pas très important",
-        description: "Vous préférez découvrir davantage les zones de vie locales.",
-      },
-    ],
-  },
-  {
     id: "downtown",
-    title: "Q5. À quelle fréquence pensez-vous aller au centre-ville ?",
+    title: "Q4. À quelle fréquence pensez-vous aller au centre-ville ?",
     options: [
       {
         value: "downtownDaily",
@@ -631,7 +559,7 @@ const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
       {
         value: "budget_1200_1800",
         label: "C$1,200-1,800",
-        description: "You may compare better rooms, basements, or some private-space options.",
+        description: "You may compare better rooms or some private-space options.",
       },
       {
         value: "budget_1800_plus",
@@ -653,7 +581,7 @@ const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
       {
         value: "housing_private_space",
         label: "I prefer a more private space",
-        description: "I want to compare studios, condos, basements, or similar options.",
+        description: "I want to compare studios, condos, 1BR, or similar private options.",
       },
       {
         value: "housing_start_simple",
@@ -677,11 +605,6 @@ const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
         description: "I may eat or hang out with classmates after class.",
       },
       {
-        value: "after_school_korean_food",
-        label: "Visit Korean food or community areas",
-        description: "Korean food, friends, and information access matter to me.",
-      },
-      {
         value: "after_school_city_activity",
         label: "Explore food, attractions, and events",
         description: "I want to experience the city with new friends.",
@@ -699,35 +622,8 @@ const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
     ],
   },
   {
-    id: "koreanCommunity",
-    title: "Q7. How important is Korean community access?",
-    intro: "This means Korean food, stores, community information, and early support channels.",
-    options: [
-      {
-        value: "korean_very_important",
-        label: "Very important",
-        description: "I think I will need Korean food and information at first.",
-      },
-      {
-        value: "korean_somewhat",
-        label: "Helpful, but not required",
-        description: "It would help, but I do not need to live right next to it.",
-      },
-      {
-        value: "korean_beginner_need",
-        label: "Useful during the first stage",
-        description: "It may help while I settle in.",
-      },
-      {
-        value: "korean_not_important",
-        label: "Not very important",
-        description: "I want to experience more local areas.",
-      },
-    ],
-  },
-  {
     id: "cityActivity",
-    title: "Q8. How often do you expect to visit city-centre areas, attractions, or events?",
+    title: "Q7. How often do you expect to visit city-centre areas, attractions, or events?",
     options: [
       {
         value: "city_activity_very_often",
@@ -753,7 +649,7 @@ const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
   },
   {
     id: "partTime",
-    title: "Q9. Are you open to small part-time work if allowed?",
+    title: "Q8. Are you open to small part-time work if allowed?",
     notice:
       "Work permission depends on visa, student status, and program conditions. MapleHouse does not provide visa or job advice.",
     options: [
@@ -781,7 +677,7 @@ const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
   },
   {
     id: "finalPriority",
-    title: "Q10. If you had to choose one priority, what matters most?",
+    title: "Q9. If you had to choose one priority, what matters most?",
     options: [
       {
         value: "final_school_commute",
@@ -797,11 +693,6 @@ const englishLanguageStudyQuestions: LanguageStudyQuestion[] = [
         value: "final_social_activity",
         label: "Easy after-class social life",
         description: "Food, events, sightseeing, and friends matter.",
-      },
-      {
-        value: "final_korean_community",
-        label: "Korean food and information access",
-        description: "Being near Korean community access matters.",
       },
       {
         value: "final_beginner_stability",
@@ -976,7 +867,7 @@ const frenchLanguageStudyQuestions: LanguageStudyQuestion[] = [
       {
         value: "housing_private_space",
         label: "Je préfère un espace privé",
-        description: "Je veux comparer studios, condos, sous-sols ou options similaires.",
+        description: "Je veux comparer studios, condos, 1 chambre ou options privées similaires.",
       },
       {
         value: "housing_start_simple",
@@ -1000,11 +891,6 @@ const frenchLanguageStudyQuestions: LanguageStudyQuestion[] = [
         description: "Je pourrais manger ou sortir avec eux après les cours.",
       },
       {
-        value: "after_school_korean_food",
-        label: "Aller vers les zones coréennes",
-        description: "La nourriture, les amis et les informations coréennes comptent.",
-      },
-      {
         value: "after_school_city_activity",
         label: "Explorer restaurants, lieux et événements",
         description: "Je veux découvrir la ville avec de nouveaux amis.",
@@ -1022,35 +908,8 @@ const frenchLanguageStudyQuestions: LanguageStudyQuestion[] = [
     ],
   },
   {
-    id: "koreanCommunity",
-    title: "Q7. L’accès à la communauté coréenne est-il important pour vous?",
-    intro: "Cela signifie nourriture, magasins, informations et repères coréens au début.",
-    options: [
-      {
-        value: "korean_very_important",
-        label: "Très important",
-        description: "Je pense en avoir besoin au début.",
-      },
-      {
-        value: "korean_somewhat",
-        label: "Utile, mais pas obligatoire",
-        description: "Cela aide, mais je n’ai pas besoin d’habiter juste à côté.",
-      },
-      {
-        value: "korean_beginner_need",
-        label: "Utile au début",
-        description: "Cela peut aider pendant l’installation.",
-      },
-      {
-        value: "korean_not_important",
-        label: "Pas très important",
-        description: "Je veux découvrir davantage les zones locales.",
-      },
-    ],
-  },
-  {
     id: "cityActivity",
-    title: "Q8. À quelle fréquence pensez-vous aller dans les secteurs centraux, les attractions ou les événements?",
+    title: "Q7. À quelle fréquence pensez-vous aller dans les secteurs centraux, les attractions ou les événements?",
     options: [
       {
         value: "city_activity_very_often",
@@ -1076,7 +935,7 @@ const frenchLanguageStudyQuestions: LanguageStudyQuestion[] = [
   },
   {
     id: "partTime",
-    title: "Q9. Êtes-vous ouvert à un petit emploi à temps partiel si c’est permis?",
+    title: "Q8. Êtes-vous ouvert à un petit emploi à temps partiel si c’est permis?",
     notice:
       "Le droit de travailler dépend du visa, du statut étudiant et du programme. MapleHouse ne fournit pas de conseil visa ou emploi.",
     options: [
@@ -1104,7 +963,7 @@ const frenchLanguageStudyQuestions: LanguageStudyQuestion[] = [
   },
   {
     id: "finalPriority",
-    title: "Q10. Si vous deviez choisir une seule priorité, laquelle serait la plus importante?",
+    title: "Q9. Si vous deviez choisir une seule priorité, laquelle serait la plus importante?",
     options: [
       {
         value: "final_school_commute",
@@ -1120,11 +979,6 @@ const frenchLanguageStudyQuestions: LanguageStudyQuestion[] = [
         value: "final_social_activity",
         label: "Vie sociale après les cours",
         description: "Repas, événements, visites et amis comptent.",
-      },
-      {
-        value: "final_korean_community",
-        label: "Nourriture et infos coréennes",
-        description: "L’accès à la communauté coréenne compte.",
       },
       {
         value: "final_beginner_stability",
@@ -1159,7 +1013,7 @@ const englishLanguageStudyBudgetComments: Record<string, LanguageStudyBudgetComm
   budget_1200_1800: {
     label: "C$1,200-1,800",
     comment:
-      "You may compare better rooms, basements, or some private-space options. Check price against space and route.",
+      "You may compare better rooms or some private-space options. Check price against space and route.",
   },
   budget_1800_plus: {
     label: "C$1,800+",
@@ -1271,19 +1125,19 @@ const englishLanguageStudyResults: Record<string, LanguageStudyResultTemplate> =
   },
   languageResult09: {
     id: "languageResult09",
-    title: "Korean community and social balance type",
+    title: "West-central social balance type",
     recommendedStations: ["christie"],
     comparisonStations: ["bloorYonge", "dufferin", "college"],
-    goodFor: "Good if Korean food, community access, friends, and city access all matter.",
-    reason: "It is a balanced comparison point between Korean community access and central routes.",
-    caution: "If Korean community access is not important, this may be a lower priority.",
+    goodFor: "Good if local amenities, friends, and city access all matter.",
+    reason: "It is a balanced comparison point between west-central lifestyle access and central routes.",
+    caution: "If local amenities are not important, this may be a lower priority.",
   },
   languageResult10: {
     id: "languageResult10",
     title: "North York first-arrival stability type",
     recommendedStations: ["northYorkCentre"],
     comparisonStations: ["finch", "eglinton", "bloorYonge"],
-    goodFor: "Good if first-arrival stability, Korean food, and daily convenience matter.",
+    goodFor: "Good if first-arrival stability, local services, and daily convenience matter.",
     reason: "It can help compare early settlement and daily convenience.",
     caution: "If your school is central, check the morning commute carefully.",
   },
@@ -1382,19 +1236,19 @@ const frenchLanguageStudyResults: Record<string, LanguageStudyResultTemplate> = 
   },
   languageResult09: {
     id: "languageResult09",
-    title: "Communauté coréenne et vie sociale",
+    title: "Équilibre social côté ouest central",
     recommendedStations: ["christie"],
     comparisonStations: ["bloorYonge", "dufferin", "college"],
-    goodFor: "Pour ceux qui veulent nourriture coréenne, repères communautaires et accès central.",
-    reason: "Christie offre un repère entre communauté coréenne et accès au centre.",
-    caution: "Si cette communauté n’est pas importante, ce choix peut être moins prioritaire.",
+    goodFor: "Pour ceux qui veulent commodités locales, vie sociale et accès central.",
+    reason: "Christie sert de repère entre services du quartier et accès au centre.",
+    caution: "Si les commodités locales ne sont pas importantes, ce choix peut être moins prioritaire.",
   },
   languageResult10: {
     id: "languageResult10",
     title: "Stabilité d’arrivée à North York",
     recommendedStations: ["northYorkCentre"],
     comparisonStations: ["finch", "eglinton", "bloorYonge"],
-    goodFor: "Pour une première arrivée avec besoin de repères, nourriture coréenne et commodités.",
+    goodFor: "Pour une première arrivée avec besoin de repères pratiques, de services du quartier et de commodités.",
     reason: "Ce secteur aide à comparer installation initiale et confort quotidien.",
     caution: "Si l’école est centrale, vérifiez bien le trajet du matin.",
   },
@@ -1691,7 +1545,7 @@ const englishBudgetComments: Record<string, BudgetComment> = {
   budget4: {
     label: "C$1,200-1,800 / approx. ₩1,200,000-1,800,000",
     comment:
-      "You may compare better room rentals, basements, and some private-space options. Closer central access can still mean a higher price for less space.",
+      "You may compare better room rentals and some private-space options. Closer central access can still mean a higher price for less space.",
   },
   budget5: {
     label: "C$1,800+ / approx. ₩1,800,000+",
@@ -1719,7 +1573,7 @@ const frenchBudgetComments: Record<string, BudgetComment> = {
   budget4: {
     label: "C$1 200-1 800 / environ ₩1 200 000-1 800 000",
     comment:
-      "Vous pouvez comparer de meilleures chambres, des sous-sols et certaines options avec espace privé. Plus l’accès au centre est facile, plus le prix peut augmenter.",
+      "Vous pouvez comparer de meilleures chambres et certaines options avec espace privé. Plus l’accès au centre est facile, plus le prix peut augmenter.",
   },
   budget5: {
     label: "C$1 800+ / environ ₩1 800 000+",
@@ -1731,12 +1585,12 @@ const frenchBudgetComments: Record<string, BudgetComment> = {
 const englishResults: Record<string, RecommendationResult> = {
   result01: {
     id: "result01",
-    title: "A starting point for Korean community access and budget control",
+    title: "Budget control and practical North York comparison",
     stations: ["Finch", "North York Centre"],
     reason:
-      "These stations can be useful starting points when you want Korean information access and budget control together.",
+      "These stations can be useful starting points when you want lower rent and daily convenience together.",
     goodFor: [
-      "Korean community information or stores matter to you.",
+      "Daily convenience and local services matter to you.",
       "You need to keep rent lower.",
       "A very unfamiliar living area may feel difficult at first.",
       "You want to compare room-rental options first.",
@@ -1747,12 +1601,12 @@ const englishResults: Record<string, RecommendationResult> = {
   },
   result02: {
     id: "result02",
-    title: "A starting point for Korean community access and daily convenience",
+    title: "Daily convenience and first-arrival stability",
     stations: ["North York Centre", "Finch"],
     reason:
-      "These stations are practical comparison points when Korean community access and daily convenience both matter.",
+      "These stations are practical comparison points when daily convenience and first-arrival stability both matter.",
     goodFor: [
-      "Korean information access would help.",
+      "Local services and transit access would help.",
       "You do not want an area that feels too isolated.",
       "You care about cost but also daily convenience.",
       "You prefer an easier first adjustment period.",
@@ -1838,13 +1692,13 @@ const englishResults: Record<string, RecommendationResult> = {
   },
   result08: {
     id: "result08",
-    title: "Budget plus Korean community access",
+    title: "Budget plus daily convenience",
     stations: ["Finch", "Christie"],
     reason:
-      "These stations may fit when you want to keep costs lower while still keeping access to Korean information or community areas.",
+      "These stations may fit when you want to keep costs lower while still comparing practical local amenities.",
     goodFor: [
       "Cost matters a lot.",
-      "Korean community access is also helpful.",
+      "Daily convenience is also helpful.",
       "You are concerned about first adjustment.",
       "You can focus on room-rental options.",
     ],
@@ -1884,12 +1738,12 @@ const englishResults: Record<string, RecommendationResult> = {
   },
   result11: {
     id: "result11",
-    title: "Korean community plus downtown access",
+    title: "Local convenience plus downtown access",
     stations: ["Christie", "St George"],
     reason:
-      "These stations may be useful when you want Korean community access and downtown or central access together.",
+      "These stations may be useful when you want local convenience and downtown or central access together.",
     goodFor: [
-      "Korean information access matters.",
+      "Local services and transit access matter.",
       "You expect to go downtown often.",
       "You do not want an area that feels too isolated.",
       "You want to compare budget and mobility together.",
@@ -1917,12 +1771,12 @@ const englishResults: Record<string, RecommendationResult> = {
 const frenchResults: Record<string, RecommendationResult> = {
   result01: {
     id: "result01",
-    title: "Point de départ entre communauté coréenne et maîtrise du budget",
+    title: "Budget et commodité quotidienne à North York",
     stations: ["Finch", "North York Centre"],
     reason:
-      "Ces stations peuvent servir de points de comparaison si vous voulez combiner accès aux informations coréennes et maîtrise du budget.",
+      "Ces stations peuvent servir de points de comparaison si vous voulez combiner loyer plus bas et commodité quotidienne.",
     goodFor: [
-      "L’accès aux informations ou commerces coréens est important.",
+      "Les services du quartier et l’accès aux transports comptent.",
       "Vous devez réduire le coût du loyer.",
       "Un environnement trop inconnu peut être difficile au début.",
       "Vous voulez d’abord comparer des chambres en location.",
@@ -1933,12 +1787,12 @@ const frenchResults: Record<string, RecommendationResult> = {
   },
   result02: {
     id: "result02",
-    title: "Point de départ entre communauté coréenne et commodité quotidienne",
+    title: "Commodité quotidienne et stabilité au départ",
     stations: ["North York Centre", "Finch"],
     reason:
-      "Ces stations sont des repères pratiques lorsque l’accès à la communauté coréenne et la commodité quotidienne comptent tous les deux.",
+      "Ces stations sont des repères pratiques lorsque la commodité quotidienne et la stabilité au départ comptent toutes les deux.",
     goodFor: [
-      "L’accès aux informations coréennes serait utile.",
+      "Les services locaux et l’accès aux transports seraient utiles.",
       "Vous voulez éviter une zone qui semble trop isolée.",
       "Vous regardez le coût mais aussi la commodité.",
       "Vous préférez une adaptation plus facile au début.",
@@ -2025,13 +1879,13 @@ const frenchResults: Record<string, RecommendationResult> = {
   },
   result08: {
     id: "result08",
-    title: "Budget et accès à la communauté coréenne",
+    title: "Budget et commodités locales",
     stations: ["Finch", "Christie"],
     reason:
-      "Ces stations peuvent convenir si vous voulez réduire les coûts tout en gardant un accès aux informations ou à la communauté coréenne.",
+      "Ces stations peuvent convenir si vous voulez réduire les coûts tout en comparant des commodités locales pratiques.",
     goodFor: [
       "Le coût compte beaucoup.",
-      "L’accès à la communauté coréenne est aussi utile.",
+      "La commodité quotidienne est aussi utile.",
       "La première adaptation vous inquiète.",
       "Vous pouvez vous concentrer sur les chambres en location.",
     ],
@@ -2071,12 +1925,12 @@ const frenchResults: Record<string, RecommendationResult> = {
   },
   result11: {
     id: "result11",
-    title: "Communauté coréenne et accès au centre",
+    title: "Commodités locales et accès au centre",
     stations: ["Christie", "St George"],
     reason:
-      "Ces stations peuvent être utiles si vous voulez combiner accès à la communauté coréenne et accès au centre-ville.",
+      "Ces stations peuvent être utiles si vous voulez combiner commodités locales et accès au centre-ville.",
     goodFor: [
-      "L’accès aux informations coréennes est nécessaire.",
+      "Les services locaux et les transports comptent.",
       "Vous prévoyez d’aller souvent au centre-ville.",
       "Vous voulez éviter une zone trop isolée.",
       "Vous voulez comparer budget et mobilité ensemble.",
@@ -2126,7 +1980,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       {
         title: "Working Holiday",
         description:
-          "Get station-area suggestions based on job direction, budget, and Korean community needs.",
+          "Get station-area suggestions based on job direction, budget, and daily mobility.",
         button: "Find my stations",
         action: "working",
       },
@@ -2151,7 +2005,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       title: "Find Toronto station areas for working holiday housing",
       paragraphs: [
         "When looking for housing in Toronto for the first time, it is often easier to start with station names rather than broad neighborhood names.",
-        "Answer five questions and MapleHouse will suggest station areas that can help you start comparing listings.",
+        "Answer a few questions and MapleHouse will suggest station areas that can help you start comparing listings.",
         "This is not a final answer. Please check real routes and travel times on a map yourself.",
       ],
     },
@@ -2188,7 +2042,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         title: "Find a Toronto station area for language study",
         paragraphs: [
           "When studying English in Toronto, your school location is only one part of the decision.",
-          "You also need to consider morning commute, rent budget, after-class life, and Korean community access.",
+          "You also need to consider morning commute, rent budget, after-class life, and daily convenience.",
           "This is not a final answer. Use it as a starting point, and always check real commute times on a map.",
         ],
       },
@@ -2307,7 +2161,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       {
         title: "Permis vacances-travail",
         description:
-          "Obtenez des suggestions de zones autour de stations selon votre orientation professionnelle, votre budget et votre besoin d’accès à la communauté coréenne.",
+          "Obtenez des suggestions de zones autour de stations selon votre orientation professionnelle, votre budget et vos trajets quotidiens.",
         button: "Trouver mes stations",
         action: "working",
       },
@@ -2333,7 +2187,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       title: "Trouver des zones de stations pour un logement en permis vacances-travail",
       paragraphs: [
         "Quand on cherche un logement à Toronto pour la première fois, il est souvent plus simple de commencer par des noms de stations plutôt que par de grands quartiers.",
-        "Répondez à cinq questions et MapleHouse vous suggérera des zones autour de stations pour commencer à comparer les annonces.",
+        "Répondez à quelques questions et MapleHouse vous suggérera des zones autour de stations pour commencer à comparer les annonces.",
         "Ce n’est pas une réponse définitive. Veuillez vérifier vous-même les trajets et les temps de déplacement réels sur une carte.",
       ],
     },
