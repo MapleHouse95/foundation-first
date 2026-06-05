@@ -64,12 +64,6 @@ export function Header() {
           resetChecklist: false,
         },
         {
-          to: `/${locale}/apply`,
-          label: NAV_LABELS[locale].apply,
-          exact: false,
-          resetChecklist: false,
-        },
-        {
           to: `/${locale}/checklist`,
           label: NAV_LABELS[locale].checklist,
           exact: false,
