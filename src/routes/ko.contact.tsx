@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import { LocaleContactPage } from "@/components/pages/LocaleContactPage";
 
 export const Route = createFileRoute("/ko/contact")({
@@ -11,5 +11,15 @@ export const Route = createFileRoute("/ko/contact")({
       },
     ],
   }),
-  component: () => <LocaleContactPage locale="ko" />,
+  component: KoContactRouteComponent,
 });
+
+function KoContactRouteComponent() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  if (pathname === "/ko/contact") {
+    return <LocaleContactPage locale="ko" />;
+  }
+
+  return <Outlet />;
+}

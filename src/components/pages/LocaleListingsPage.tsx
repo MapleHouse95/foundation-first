@@ -1057,7 +1057,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
                           type="checkbox"
                           checked={draftMoreFilters.has(option.id)}
                           onChange={() => toggleDraftMoreFilter(option.id)}
-                          className="h-4 w-4 accent-[#FA7000]"
+                          className="mh-orange-checkbox"
                         />
                         <span>{option.label[locale]}</span>
                       </label>
@@ -1428,14 +1428,14 @@ function FilterTrigger({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex h-10 max-w-[13rem] items-center justify-center gap-1.5 rounded-lg border bg-background px-3 text-center text-sm font-medium text-foreground shadow-sm transition hover:border-primary/70",
+        "inline-flex h-10 max-w-[13rem] items-center justify-center gap-2 rounded-lg border bg-background pl-3.5 pr-3 text-center text-sm font-medium text-foreground shadow-sm transition hover:border-primary/70",
         open ? "border-primary text-primary" : "border-border",
         className,
       )}
     >
       {icon}
       <span className="truncate">{value ?? label}</span>
-      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
   );
 }
@@ -1444,7 +1444,7 @@ function FilterPanel({ className, children }: { className?: string; children: Re
   return (
     <div
       className={cn(
-        "absolute left-0 top-12 z-40 rounded-xl border border-border bg-popover p-4 text-popover-foreground shadow-xl",
+        "absolute left-0 top-12 z-40 rounded-xl border border-border bg-white p-4 text-foreground shadow-xl",
         className,
       )}
     >

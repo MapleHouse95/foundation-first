@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
+import { PageBreadcrumb } from "@/components/ui/page-breadcrumb";
 import {
   TRANSLATED_CHECKLIST_CONTENT,
   type ChecklistLocaleContent,
@@ -1387,6 +1388,14 @@ function KoreanChecklistPage() {
   return (
     <main className="bg-background">
       <Container className="py-10 sm:py-14">
+        <PageBreadcrumb
+          className="mb-5"
+          items={[
+            { label: "홈", to: "/ko" },
+            { label: "체크리스트" },
+          ]}
+        />
+
         {mode === "restoringResult" && (
           <section className="min-h-[12rem]" aria-hidden="true" />
         )}

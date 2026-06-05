@@ -41,6 +41,9 @@ import { Route as EnContactRouteImport } from './routes/en.contact'
 import { Route as EnChecklistRouteImport } from './routes/en.checklist'
 import { Route as EnApplyRouteImport } from './routes/en.apply'
 import { Route as EnAboutRouteImport } from './routes/en.about'
+import { Route as KoContactBoardRouteImport } from './routes/ko.contact.board'
+import { Route as KoContactBoardWriteRouteImport } from './routes/ko.contact.board.write'
+import { Route as KoContactBoardPostIdRouteImport } from './routes/ko.contact.board.$postId'
 
 const KoRoute = KoRouteImport.update({
   id: '/ko',
@@ -202,6 +205,21 @@ const EnAboutRoute = EnAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => EnRoute,
 } as any)
+const KoContactBoardRoute = KoContactBoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => KoContactRoute,
+} as any)
+const KoContactBoardWriteRoute = KoContactBoardWriteRouteImport.update({
+  id: '/write',
+  path: '/write',
+  getParentRoute: () => KoContactBoardRoute,
+} as any)
+const KoContactBoardPostIdRoute = KoContactBoardPostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => KoContactBoardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -228,7 +246,7 @@ export interface FileRoutesByFullPath {
   '/ko/about': typeof KoAboutRoute
   '/ko/apply': typeof KoApplyRoute
   '/ko/checklist': typeof KoChecklistRoute
-  '/ko/contact': typeof KoContactRoute
+  '/ko/contact': typeof KoContactRouteWithChildren
   '/ko/landlords': typeof KoLandlordsRoute
   '/ko/listings': typeof KoListingsRoute
   '/ko/login': typeof KoLoginRoute
@@ -236,6 +254,9 @@ export interface FileRoutesByFullPath {
   '/en/': typeof EnIndexRoute
   '/fr/': typeof FrIndexRoute
   '/ko/': typeof KoIndexRoute
+  '/ko/contact/board': typeof KoContactBoardRouteWithChildren
+  '/ko/contact/board/$postId': typeof KoContactBoardPostIdRoute
+  '/ko/contact/board/write': typeof KoContactBoardWriteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -259,7 +280,7 @@ export interface FileRoutesByTo {
   '/ko/about': typeof KoAboutRoute
   '/ko/apply': typeof KoApplyRoute
   '/ko/checklist': typeof KoChecklistRoute
-  '/ko/contact': typeof KoContactRoute
+  '/ko/contact': typeof KoContactRouteWithChildren
   '/ko/landlords': typeof KoLandlordsRoute
   '/ko/listings': typeof KoListingsRoute
   '/ko/login': typeof KoLoginRoute
@@ -267,6 +288,9 @@ export interface FileRoutesByTo {
   '/en': typeof EnIndexRoute
   '/fr': typeof FrIndexRoute
   '/ko': typeof KoIndexRoute
+  '/ko/contact/board': typeof KoContactBoardRouteWithChildren
+  '/ko/contact/board/$postId': typeof KoContactBoardPostIdRoute
+  '/ko/contact/board/write': typeof KoContactBoardWriteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -294,7 +318,7 @@ export interface FileRoutesById {
   '/ko/about': typeof KoAboutRoute
   '/ko/apply': typeof KoApplyRoute
   '/ko/checklist': typeof KoChecklistRoute
-  '/ko/contact': typeof KoContactRoute
+  '/ko/contact': typeof KoContactRouteWithChildren
   '/ko/landlords': typeof KoLandlordsRoute
   '/ko/listings': typeof KoListingsRoute
   '/ko/login': typeof KoLoginRoute
@@ -302,6 +326,9 @@ export interface FileRoutesById {
   '/en/': typeof EnIndexRoute
   '/fr/': typeof FrIndexRoute
   '/ko/': typeof KoIndexRoute
+  '/ko/contact/board': typeof KoContactBoardRouteWithChildren
+  '/ko/contact/board/$postId': typeof KoContactBoardPostIdRoute
+  '/ko/contact/board/write': typeof KoContactBoardWriteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -338,6 +365,9 @@ export interface FileRouteTypes {
     | '/en/'
     | '/fr/'
     | '/ko/'
+    | '/ko/contact/board'
+    | '/ko/contact/board/$postId'
+    | '/ko/contact/board/write'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -369,6 +399,9 @@ export interface FileRouteTypes {
     | '/en'
     | '/fr'
     | '/ko'
+    | '/ko/contact/board'
+    | '/ko/contact/board/$postId'
+    | '/ko/contact/board/write'
   id:
     | '__root__'
     | '/'
@@ -403,6 +436,9 @@ export interface FileRouteTypes {
     | '/en/'
     | '/fr/'
     | '/ko/'
+    | '/ko/contact/board'
+    | '/ko/contact/board/$postId'
+    | '/ko/contact/board/write'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -639,6 +675,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnAboutRouteImport
       parentRoute: typeof EnRoute
     }
+    '/ko/contact/board': {
+      id: '/ko/contact/board'
+      path: '/board'
+      fullPath: '/ko/contact/board'
+      preLoaderRoute: typeof KoContactBoardRouteImport
+      parentRoute: typeof KoContactRoute
+    }
+    '/ko/contact/board/write': {
+      id: '/ko/contact/board/write'
+      path: '/write'
+      fullPath: '/ko/contact/board/write'
+      preLoaderRoute: typeof KoContactBoardWriteRouteImport
+      parentRoute: typeof KoContactBoardRoute
+    }
+    '/ko/contact/board/$postId': {
+      id: '/ko/contact/board/$postId'
+      path: '/$postId'
+      fullPath: '/ko/contact/board/$postId'
+      preLoaderRoute: typeof KoContactBoardPostIdRouteImport
+      parentRoute: typeof KoContactBoardRoute
+    }
   }
 }
 
@@ -694,11 +751,37 @@ const FrRouteChildren: FrRouteChildren = {
 
 const FrRouteWithChildren = FrRoute._addFileChildren(FrRouteChildren)
 
+interface KoContactBoardRouteChildren {
+  KoContactBoardPostIdRoute: typeof KoContactBoardPostIdRoute
+  KoContactBoardWriteRoute: typeof KoContactBoardWriteRoute
+}
+
+const KoContactBoardRouteChildren: KoContactBoardRouteChildren = {
+  KoContactBoardPostIdRoute: KoContactBoardPostIdRoute,
+  KoContactBoardWriteRoute: KoContactBoardWriteRoute,
+}
+
+const KoContactBoardRouteWithChildren = KoContactBoardRoute._addFileChildren(
+  KoContactBoardRouteChildren,
+)
+
+interface KoContactRouteChildren {
+  KoContactBoardRoute: typeof KoContactBoardRouteWithChildren
+}
+
+const KoContactRouteChildren: KoContactRouteChildren = {
+  KoContactBoardRoute: KoContactBoardRouteWithChildren,
+}
+
+const KoContactRouteWithChildren = KoContactRoute._addFileChildren(
+  KoContactRouteChildren,
+)
+
 interface KoRouteChildren {
   KoAboutRoute: typeof KoAboutRoute
   KoApplyRoute: typeof KoApplyRoute
   KoChecklistRoute: typeof KoChecklistRoute
-  KoContactRoute: typeof KoContactRoute
+  KoContactRoute: typeof KoContactRouteWithChildren
   KoLandlordsRoute: typeof KoLandlordsRoute
   KoListingsRoute: typeof KoListingsRoute
   KoLoginRoute: typeof KoLoginRoute
@@ -710,7 +793,7 @@ const KoRouteChildren: KoRouteChildren = {
   KoAboutRoute: KoAboutRoute,
   KoApplyRoute: KoApplyRoute,
   KoChecklistRoute: KoChecklistRoute,
-  KoContactRoute: KoContactRoute,
+  KoContactRoute: KoContactRouteWithChildren,
   KoLandlordsRoute: KoLandlordsRoute,
   KoListingsRoute: KoListingsRoute,
   KoLoginRoute: KoLoginRoute,

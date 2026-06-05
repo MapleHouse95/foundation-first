@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   BadgeCheck,
@@ -21,6 +21,13 @@ import {
   WalletCards,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Container } from "@/components/layout/Container";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
@@ -725,7 +732,12 @@ function SearchModule({
               step={10}
               value={draftBudget}
               onChange={(event) => setDraftBudget(Number(event.target.value))}
-              className="mt-4 w-full accent-primary"
+              className="mh-budget-range mt-4 w-full"
+              style={
+                {
+                  "--mh-range-progress": `${(draftBudget / 400) * 100}%`,
+                } as CSSProperties
+              }
             />
             <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
               <span>{locale === "ko" ? "0만원" : "0 C$"}</span>
@@ -910,22 +922,22 @@ function PeopleField({
         <span className="mh-clamp-1 block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
           {label}
         </span>
-        <span className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card px-1.5 py-1 sm:gap-2">
+        <span className="mt-0.5 inline-flex max-w-full items-center gap-1.5">
           <button
             type="button"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-primary disabled:opacity-40"
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border bg-white text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-40"
             onClick={onDecrease}
             disabled={value <= 1}
             aria-label="decrease people"
           >
             -
           </button>
-          <span className="min-w-[4.75rem] whitespace-nowrap text-center text-xs font-semibold text-foreground sm:min-w-[5.25rem]">
+          <span className="min-w-[2.8rem] whitespace-nowrap text-center text-sm font-semibold leading-none text-foreground sm:min-w-[3.2rem]">
             {formatPeople(locale, value)}
           </span>
           <button
             type="button"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border bg-white text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
             onClick={onIncrease}
             aria-label="increase people"
           >
@@ -955,34 +967,47 @@ function GatewaySelectField({
   className?: string;
 }) {
   return (
-    <label
-      className={`relative flex h-[3.75rem] cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-1.5 transition-colors hover:border-primary hover:bg-accent/40 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary ${className}`}
-    >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
-        {icon}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
-          {label}
-        </span>
-        <select
-          className={cn(
-            "mt-0.5 w-full cursor-pointer appearance-none bg-transparent pr-6 text-sm font-medium outline-none",
-            value ? "text-foreground" : "text-muted-foreground",
-          )}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-        >
-          <option value="">{placeholder}</option>
-          {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </span>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-    </label>
+    <Select value={value || undefined} onValueChange={onChange}>
+      <SelectTrigger
+        className={cn(
+          "flex h-[3.75rem] w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-border bg-background px-3 py-1.5 text-left shadow-none transition-colors hover:border-primary hover:bg-accent/40 focus:ring-1 focus:ring-primary [&>svg]:ml-auto [&>svg]:h-4 [&>svg]:w-4",
+          className,
+        )}
+      >
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
+          {icon}
+        </div>
+        <div className="min-w-0 flex-1">
+          <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
+            {label}
+          </span>
+          <span
+            className={cn(
+              "block truncate whitespace-nowrap text-sm font-medium",
+              value ? "text-foreground" : "text-muted-foreground",
+            )}
+          >
+            <SelectValue placeholder={placeholder} />
+          </span>
+        </div>
+      </SelectTrigger>
+      <SelectContent
+        side="bottom"
+        align="start"
+        avoidCollisions={false}
+        className="rounded-xl border-border bg-white text-foreground shadow-xl"
+      >
+        {options.map((option) => (
+          <SelectItem
+            key={option}
+            value={option}
+            className="rounded-lg px-3 py-2 pr-8 text-sm font-semibold focus:bg-[#FFF3E6] focus:text-primary data-[state=checked]:bg-[#FFF3E6] data-[state=checked]:text-primary"
+          >
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
