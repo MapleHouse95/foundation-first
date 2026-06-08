@@ -73,7 +73,7 @@ const INITIAL_WRITE_FORM: ContactBoardWriteForm = {
   author: "",
   email: "",
   password: "",
-  isPrivate: true,
+  isPrivate: false,
   relatedListing: "",
   content: "",
   scopeAccepted: false,
@@ -196,6 +196,18 @@ function writeStoredPost(post: ContactBoardPost) {
   window.sessionStorage.setItem(BOARD_STORAGE_KEY, JSON.stringify([post, ...posts]));
 }
 
+function hasMeaningfulWriteDraftContent(form: ContactBoardWriteForm) {
+  return (
+    form.category !== INITIAL_WRITE_FORM.category ||
+    form.subType !== INITIAL_WRITE_FORM.subType ||
+    form.title.trim().length > 0 ||
+    form.author.trim().length > 0 ||
+    form.email.trim().length > 0 ||
+    form.relatedListing.trim().length > 0 ||
+    form.content.trim().length > 0
+  );
+}
+
 function readWriteDraft() {
   if (typeof window === "undefined") return null;
 
@@ -205,13 +217,20 @@ function readWriteDraft() {
     const parsedValue = JSON.parse(rawValue) as Partial<ContactBoardWriteDraft>;
     if (!parsedValue || typeof parsedValue !== "object") return null;
 
-    return {
+    const draft = {
       ...INITIAL_WRITE_FORM,
       ...parsedValue,
       category: parsedValue.category ?? INITIAL_WRITE_FORM.category,
       subType: parsedValue.subType ?? INITIAL_WRITE_FORM.subType,
       updatedAt: parsedValue.updatedAt ?? new Date().toISOString(),
     } satisfies ContactBoardWriteDraft;
+
+    if (!hasMeaningfulWriteDraftContent(draft)) {
+      window.sessionStorage.removeItem(WRITE_DRAFT_STORAGE_KEY);
+      return null;
+    }
+
+    return draft;
   } catch {
     return null;
   }
@@ -620,7 +639,7 @@ export function ContactBoardListPage() {
                 key={post.id}
                 type="button"
                 onClick={() => openPost(post)}
-                className={cn("grid w-full gap-2 px-4 py-4 text-left text-sm transition hover:bg-[#FFF8F1] lg:items-center", BOARD_TABLE_GRID)}
+                className={cn("grid w-full cursor-pointer gap-2 px-4 py-4 text-left text-sm transition hover:bg-[#FFF8F0] focus-visible:bg-[#FFF8F0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 lg:items-center", BOARD_TABLE_GRID)}
               >
                 <span className="text-center text-xs font-bold text-muted-foreground">{post.number}</span>
                 <span className={cn(STATUS_BADGE_CLASS, getStatusClass(post.status))}>
