@@ -2,11 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type PageBreadcrumbTo = "/ko" | "/ko/contact" | "/ko/contact/board";
-
 type PageBreadcrumbItem = {
   label: string;
-  to?: PageBreadcrumbTo;
+  to?: string;
 };
 
 export function PageBreadcrumb({

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import { LocaleLandlordsPage } from "@/components/pages/LocaleLandlordsPage";
 import { LANDLORDS_CONTENT } from "@/lib/i18n-content";
 
@@ -9,5 +9,15 @@ export const Route = createFileRoute("/ko/landlords")({
       { name: "description", content: LANDLORDS_CONTENT.ko.metaDescription },
     ],
   }),
-  component: () => <LocaleLandlordsPage locale="ko" />,
+  component: KoLandlordsRouteComponent,
 });
+
+function KoLandlordsRouteComponent() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  if (pathname === "/ko/landlords") {
+    return <LocaleLandlordsPage locale="ko" />;
+  }
+
+  return <Outlet />;
+}
