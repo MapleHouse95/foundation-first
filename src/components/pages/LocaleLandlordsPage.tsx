@@ -820,7 +820,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       nearestStation: "Station la plus proche",
       address: "Adresse détaillée",
       housingType: "Type de logement",
-      useType: "Type d’usage",
+      useType: "Type d’utilisation",
       furnished: "Meublé?",
       elevator: "Ascenseur?",
       parking: "Stationnement?",
@@ -1077,15 +1077,15 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       address: "Detailed address",
       housingType: "Housing type",
       useType: "Use type",
-      residentCondition: "Resident condition",
+      residentCondition: "Shared-living preference",
       furnished: "Furnished",
       elevator: "Elevator",
       parking: "Parking",
       laundry: "Laundry",
-      tenantPetsAllowed: "Tenant pets allowed?",
+      tenantPetsAllowed: "Are tenant pets allowed?",
       homePets: "Are there pets already living in the home?",
-      homePetType: "Please describe the pet type",
-      smokingCondition: "Smoking condition",
+      homePetType: "Pet type",
+      smokingCondition: "Smoking policy",
       listingTitle: "Listing title",
       monthlyRent: "Monthly rent",
       availableFrom: "Available from",
@@ -1107,11 +1107,11 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       living: "C. Living condition",
       pets: "D. Pets and allergy-related information",
       photos: "E. Listing photos",
-      contact: "A. Contact",
-      property: "B. Location & property",
-      room: "C. Room & rent",
-      terms: "D. Terms & utilities",
-      rules: "E. Photos, rules & questions",
+      contact: "Contact",
+      property: "Location & property",
+      room: "Room & rent",
+      terms: "Terms & utilities",
+      rules: "Photos, rules & questions",
       startRole: "1. Role",
       startIdentity: "2. Name and contact",
       startPreferences: "3. Preferences",
@@ -1126,7 +1126,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       requiredHelper:
         "Enter your role, name, contact information, preferred contact method, and language to continue.",
       addressHelper: "Do not enter access codes, passwords, or sensitive unit access details.",
-      residentHelper: "Especially important for room rentals, shared housing, and homestay-style listings.",
+      residentHelper: "Especially important for room rentals and shared housing.",
       stationPlaceholder: "Select nearest TTC station",
       stationSearchPlaceholder: "Search station name",
       stationNotClose: "Not close to a TTC station",
@@ -1160,10 +1160,10 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       cityOptions: ["Toronto", "Vancouver", "Calgary"],
       housingTypes: ["Condo", "Apartment", "House", "Townhouse", "Basement", "Homestay", "Room rental / shared housing", "Co-living", "Other"],
       useTypes: ["Entire unit", "Private room", "Shared room", "Homestay-style"],
-      residentConditions: ["No gender preference", "Female-only shared space", "Male-only shared space", "To discuss"],
+      residentConditions: ["All genders welcome", "Women only", "Men only", "To discuss"],
       petAllowed: ["Allowed", "Not allowed", "To discuss"],
       homePets: ["No", "Yes"],
-      smoking: ["Non-smoking", "Outdoor only", "To discuss"],
+      smoking: ["No smoking", "Outdoor only", "To discuss"],
       yesNoConfirm: ["Yes", "No", "To confirm"],
       minimumStay: ["1 month", "2 months", "3 months", "6 months", "Flexible"],
       occupancy: ["1 person", "2 people", "Flexible"],
@@ -1211,15 +1211,15 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       address: "Adresse détaillée",
       housingType: "Type de logement",
       useType: "Type d’usage",
-      residentCondition: "Condition de cohabitation",
+      residentCondition: "Préférence de cohabitation",
       furnished: "Meublé",
       elevator: "Ascenseur",
       parking: "Stationnement",
       laundry: "Buanderie",
       tenantPetsAllowed: "Animaux du locataire acceptés ?",
       homePets: "Y a-t-il déjà des animaux dans le logement ?",
-      homePetType: "Indiquez le type d’animal",
-      smokingCondition: "Condition liée au tabac",
+      homePetType: "Type d’animal",
+      smokingCondition: "Règle concernant le tabac",
       listingTitle: "Titre de l’annonce",
       monthlyRent: "Loyer mensuel",
       availableFrom: "Disponible à partir de",
@@ -1241,11 +1241,11 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       living: "C. Conditions de vie",
       pets: "D. Animaux et informations liées aux allergies",
       photos: "E. Photos de l’annonce",
-      contact: "A. Contact",
-      property: "B. Emplacement & logement",
-      room: "C. Chambre & loyer",
-      terms: "D. Conditions & services",
-      rules: "E. Photos, règles & questions",
+      contact: "Contact",
+      property: "Emplacement & logement",
+      room: "Chambre & loyer",
+      terms: "Conditions & services",
+      rules: "Photos, règles & questions",
       startRole: "1. Rôle",
       startIdentity: "2. Nom et coordonnées",
       startPreferences: "3. Préférences",
@@ -1260,7 +1260,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       requiredHelper:
         "Renseignez votre rôle, votre nom, vos coordonnées, votre méthode de contact et votre langue pour continuer.",
       addressHelper: "N’indiquez pas de codes d’accès, mots de passe ou informations sensibles d’accès.",
-      residentHelper: "Particulièrement important pour les chambres, logements partagés et familles d’accueil.",
+      residentHelper: "Particulièrement important pour les chambres et les logements partagés.",
       stationPlaceholder: "Choisir la station TTC la plus proche",
       stationSearchPlaceholder: "Rechercher une station",
       stationNotClose: "Pas proche d’une station TTC",
@@ -1294,7 +1294,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       cityOptions: ["Toronto", "Vancouver", "Calgary"],
       housingTypes: ["Condo", "Appartement", "Maison", "Maison en rangée", "Sous-sol", "Famille d’accueil", "Chambre / logement partagé", "Coliving", "Autre"],
       useTypes: ["Logement entier", "Chambre privée", "Chambre partagée", "Style famille d’accueil"],
-      residentConditions: ["Sans préférence", "Espace partagé réservé aux femmes", "Espace partagé réservé aux hommes", "À discuter"],
+      residentConditions: ["Aucune préférence", "Femmes seulement", "Hommes seulement", "À discuter"],
       petAllowed: ["Acceptés", "Non acceptés", "À discuter"],
       homePets: ["Non", "Oui"],
       smoking: ["Non-fumeur", "Extérieur seulement", "À discuter"],
@@ -1700,6 +1700,124 @@ const LANDLORD_REQUIREMENT_COPY = {
     conditional: "Obligatoire si applicable",
   },
 } satisfies Record<Locale, Record<FieldRequirement, string>>;
+
+const LANDLORD_DATE_COPY = {
+  ko: {
+    placeholder: "날짜 선택",
+    previousMonth: "이전 달",
+    nextMonth: "다음 달",
+    weekdays: ["월", "화", "수", "목", "금", "토", "일"],
+  },
+  en: {
+    placeholder: "Select date",
+    previousMonth: "Previous month",
+    nextMonth: "Next month",
+    weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  },
+  fr: {
+    placeholder: "Choisir une date",
+    previousMonth: "Mois précédent",
+    nextMonth: "Mois suivant",
+    weekdays: ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."],
+  },
+} satisfies Record<
+  Locale,
+  {
+    placeholder: string;
+    previousMonth: string;
+    nextMonth: string;
+    weekdays: string[];
+  }
+>;
+
+const LANDLORD_MONTH_NAMES = {
+  en: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+  fr: [
+    "janvier",
+    "février",
+    "mars",
+    "avril",
+    "mai",
+    "juin",
+    "juillet",
+    "août",
+    "septembre",
+    "octobre",
+    "novembre",
+    "décembre",
+  ],
+} as const;
+
+function parseIsoDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const date = new Date(year, month, day);
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function formatIsoDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatLandlordMonthLabel(locale: Locale, date: Date) {
+  if (locale === "ko") {
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+  }
+
+  if (locale === "fr") {
+    return `${LANDLORD_MONTH_NAMES.fr[date.getMonth()]} ${date.getFullYear()}`;
+  }
+
+  return `${LANDLORD_MONTH_NAMES.en[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function formatLandlordDisplayDate(locale: Locale, value: string) {
+  const date = parseIsoDate(value);
+  if (!date) {
+    return value;
+  }
+
+  if (locale === "ko") {
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+  }
+
+  if (locale === "fr") {
+    return `${date.getDate()} ${LANDLORD_MONTH_NAMES.fr[date.getMonth()]} ${date.getFullYear()}`;
+  }
+
+  return `${LANDLORD_MONTH_NAMES.en[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
 
 const LANDLORD_DISABLED_HELPER_COPY = {
   ko: {
@@ -2777,10 +2895,9 @@ function RoomsStep({
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
-                  <TextField
+                  <LandlordDateField
                     locale={locale}
                     label={r.fields.availableFrom}
-                    type="date"
                     value={draft.availableFrom}
                     requirement="required"
                     onChange={(availableFrom) => updateDraft({ availableFrom })}
@@ -2866,7 +2983,7 @@ function RoomsStep({
                           label={r.fields.bedSize}
                           value={draft.bedSize}
                           options={r.options.bedSize}
-                          requirement="conditional"
+                          requirement="required"
                           onChange={(bedSize) => updateDraft({ bedSize })}
                           compact
                         />
@@ -3112,7 +3229,11 @@ function PreviewStep({
               </p>
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <PreviewMetric label={r.fields.monthlyRent} value={formatCurrencyValue(draft.monthlyRent)} empty={r.helpers.empty} />
-                <PreviewMetric label={r.fields.availableFrom} value={draft.availableFrom} empty={r.helpers.empty} />
+                <PreviewMetric
+                  label={r.fields.availableFrom}
+                  value={formatLandlordDisplayDate(locale, draft.availableFrom)}
+                  empty={r.helpers.empty}
+                />
                 <PreviewMetric label={r.fields.housingType} value={draft.housingType} empty={r.helpers.empty} />
                 <PreviewMetric label={form.unitDetailLabel} value={draft.unitDetail} empty={r.helpers.empty} />
               </div>
@@ -3168,7 +3289,7 @@ function PreviewStep({
             rows={[
               [r.fields.listingTitle, draft.listingTitle],
               [r.fields.monthlyRent, formatCurrencyValue(draft.monthlyRent)],
-              [r.fields.availableFrom, draft.availableFrom],
+              [r.fields.availableFrom, formatLandlordDisplayDate(locale, draft.availableFrom)],
               [r.fields.minimumStay, draft.minimumStay],
               [r.fields.occupancy, draft.occupancy],
               [r.fields.bathroom, draft.bathroom],
@@ -3672,7 +3793,7 @@ function TextField({
   value: string;
   onChange: (value: string) => void;
   helper?: string;
-  type?: "text" | "email" | "date" | "number";
+  type?: "text" | "email" | "number";
   required?: boolean;
   requirement?: FieldRequirement;
   placeholder?: string;
@@ -3691,7 +3812,6 @@ function TextField({
         onChange={(event) => onChange(event.target.value)}
         className={cn(
           "mt-2 h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10",
-          type === "date" && "pr-3 [color-scheme:light] accent-primary",
         )}
       />
       {helper ? (
@@ -3700,6 +3820,165 @@ function TextField({
         </span>
       ) : null}
     </label>
+  );
+}
+
+function LandlordDateField({
+  locale,
+  label,
+  value,
+  onChange,
+  requirement,
+  helper,
+}: {
+  locale: Locale;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  requirement?: FieldRequirement;
+  helper?: string;
+}) {
+  const copy = LANDLORD_DATE_COPY[locale];
+  const selectedDate = parseIsoDate(value);
+  const [open, setOpen] = useState(false);
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const baseDate = selectedDate || new Date();
+    return new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+  });
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      setVisibleMonth(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
+    }
+  }, [value]);
+
+  const daysInMonth = new Date(
+    visibleMonth.getFullYear(),
+    visibleMonth.getMonth() + 1,
+    0,
+  ).getDate();
+  const firstWeekday = (new Date(
+    visibleMonth.getFullYear(),
+    visibleMonth.getMonth(),
+    1,
+  ).getDay() + 6) % 7;
+  const blanks = Array.from({ length: firstWeekday }, (_, index) => `blank-${index}`);
+  const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+
+  const moveMonth = (offset: number) => {
+    setVisibleMonth(
+      new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + offset, 1),
+    );
+  };
+
+  return (
+    <div ref={wrapperRef} className="relative min-w-0">
+      <LabelText locale={locale} label={label} requirement={requirement} />
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="mt-2 flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-white px-3 text-left text-sm font-semibold text-foreground outline-none transition hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/10"
+      >
+        <span className={cn("min-w-0 truncate", !value && "text-muted-foreground")}>
+          {value ? formatLandlordDisplayDate(locale, value) : copy.placeholder}
+        </span>
+        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+      </button>
+      {helper ? (
+        <span className="mt-1 block text-xs font-semibold leading-relaxed text-muted-foreground">
+          {helper}
+        </span>
+      ) : null}
+      {open ? (
+        <div className="absolute z-30 mt-2 w-full min-w-[18rem] rounded-2xl border border-border bg-white p-3 shadow-lg sm:min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => moveMonth(-1)}
+              aria-label={copy.previousMonth}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition hover:border-primary/30 hover:text-primary"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden />
+            </button>
+            <p className="text-sm font-extrabold text-foreground">
+              {formatLandlordMonthLabel(locale, visibleMonth)}
+            </p>
+            <button
+              type="button"
+              onClick={() => moveMonth(1)}
+              aria-label={copy.nextMonth}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition hover:border-primary/30 hover:text-primary"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
+          <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[11px] font-extrabold text-muted-foreground">
+            {copy.weekdays.map((weekday) => (
+              <span key={weekday} className="py-1">
+                {weekday}
+              </span>
+            ))}
+          </div>
+          <div className="mt-1 grid grid-cols-7 gap-1">
+            {blanks.map((blank) => (
+              <span key={blank} aria-hidden />
+            ))}
+            {days.map((day) => {
+              const date = new Date(
+                visibleMonth.getFullYear(),
+                visibleMonth.getMonth(),
+                day,
+              );
+              const isoDate = formatIsoDate(date);
+              const selected = value === isoDate;
+              return (
+                <button
+                  key={isoDate}
+                  type="button"
+                  onClick={() => {
+                    onChange(isoDate);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "flex h-9 items-center justify-center rounded-xl text-xs font-extrabold transition",
+                    selected
+                      ? "bg-primary text-white"
+                      : "text-foreground hover:bg-[#FFF8F1] hover:text-primary",
+                  )}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
