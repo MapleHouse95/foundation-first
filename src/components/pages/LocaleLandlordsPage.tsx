@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
   Building2,
   Camera,
   CheckCircle,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
@@ -42,7 +44,12 @@ type LandlordDraft = {
   firstName: string;
   lastName: string;
   email: string;
+  emailLocal: string;
+  emailDomain: string;
   contact: string;
+  phoneCountryCode: string;
+  phoneCountryCodeCustom: string;
+  phoneNumber: string;
   preferredLanguage: string;
   preferredLanguages: string[];
   preferredContactMethods: string[];
@@ -52,6 +59,8 @@ type LandlordDraft = {
   nearestStation: string;
   address: string;
   housingType: string;
+  unitDetail: string;
+  floor: string;
   useType: string;
   furnished: string;
   elevator: string;
@@ -90,6 +99,8 @@ type LandlordPhoto = {
   name: string;
   dataUrl?: string;
 };
+
+type FieldRequirement = "required" | "optional" | "conditional";
 
 type LandlordContent = {
   homeLabel: string;
@@ -218,16 +229,23 @@ const DEFAULT_DRAFT: LandlordDraft = {
   firstName: "",
   lastName: "",
   email: "",
+  emailLocal: "",
+  emailDomain: "",
   contact: "",
+  phoneCountryCode: "",
+  phoneCountryCodeCustom: "",
+  phoneNumber: "",
   preferredLanguage: "",
   preferredLanguages: [],
   preferredContactMethods: [],
   shortMessage: "",
-  city: "Toronto",
+  city: "",
   area: "",
   nearestStation: "",
   address: "",
   housingType: "",
+  unitDetail: "",
+  floor: "",
   useType: "",
   furnished: "",
   elevator: "",
@@ -280,7 +298,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       title: "임대인에게는 무료입니다",
       subtitle:
         "MapleHouse는 캐나다에서 출국 전 주거를 찾는 예비 입주자와 토론토의 임대인·주거 제공자를 연결합니다.",
-      primaryCta: "매물 등록 시작하기",
+      primaryCta: "임대인 등록 시작하기",
       secondaryCta: "등록 안내 보기",
       benefits: [
         {
@@ -352,9 +370,9 @@ const CONTENT: Record<Locale, LandlordContent> = {
       requiredHelper: "역할, 이름, 연락 가능한 정보를 입력하면 다음 단계로 이동할 수 있습니다.",
       sectionEyebrow: "LANDLORD REGISTRATION",
       start: {
-        title: "임대인 등록 문의를 시작합니다",
+        title: "임대인 등록 및 최초 매물 등록을 시작합니다",
         description:
-          "현재 화면은 등록 정보를 정리하는 미리보기 단계입니다. 입력한 정보는 브라우저 세션에만 저장됩니다.",
+          "임대인 기본 정보와 첫 번째 매물 정보를 함께 정리합니다. 이후 추가 매물은 임대인 센터에서 관리하는 구조로 확장될 예정입니다.",
         helpTitle: "먼저 확인할 정보",
         helpBody:
           "임대인 유형, 연락 방식, 선호 언어를 정리하면 이후 매물 정보와 조건을 더 빠르게 입력할 수 있습니다.",
@@ -363,7 +381,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
         title: "공간과 위치 정보를 입력하세요",
         description:
           "도시, 지역, 가까운 역, 주거 형태를 정리합니다. 민감한 출입 정보나 비밀번호는 입력하지 마세요.",
-        addressHelper: "출입 코드, 비밀번호, 정확한 인수처처럼 민감한 정보는 입력하지 마세요.",
+        addressHelper: "출입 코드, 비밀번호, 정확한 유닛 출입 정보처럼 민감한 정보는 입력하지 마세요.",
       },
       rooms: {
         title: "방, 월세, 입주 가능 정보를 정리하세요",
@@ -380,7 +398,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       preview: {
         title: "등록 문의 미리보기",
         description:
-          "MapleHouse가 검토할 수 있는 매물 정보 형태를 미리 확인합니다. 실제 제출이나 저장은 연결되어 있지 않습니다.",
+          "현재 화면은 MapleHouse 검토용 요약 미리보기입니다. 실제 세입자에게 보이는 매물 상세 화면은 별도 화면으로 구성될 예정입니다.",
         checkbox:
           "이 MVP에서는 실제 매물 등록, 계약, 결제, 송금, 파일 업로드 기능이 아직 연결되어 있지 않음을 이해했습니다.",
         submit: "미리보기 제출하기",
@@ -408,7 +426,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       city: "도시",
       area: "지역 / 동네",
       nearestStation: "가까운 역",
-      address: "주소 또는 교차로",
+      address: "상세 주소",
       housingType: "주거 형태",
       useType: "이용 형태",
       furnished: "가구 포함",
@@ -476,7 +494,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       title: "List with MapleHouse at no cost",
       subtitle:
         "Connect with tenants who are preparing their housing before arriving in Canada.",
-      primaryCta: "Start listing inquiry",
+      primaryCta: "Start landlord registration",
       secondaryCta: "View listing guide",
       benefits: [
         {
@@ -548,9 +566,9 @@ const CONTENT: Record<Locale, LandlordContent> = {
       requiredHelper: "Enter role, name, and email or contact method to continue.",
       sectionEyebrow: "LANDLORD REGISTRATION",
       start: {
-        title: "Start a listing inquiry",
+        title: "Start landlord registration and first listing",
         description:
-          "This screen organizes listing information for preview. Your draft stays in this browser session.",
+          "Organize your landlord information and first listing together. Future additional listings can be managed through a landlord center.",
         helpTitle: "What to prepare first",
         helpBody:
           "Role, contact method, and preferred language help structure the rest of the property and terms information.",
@@ -559,7 +577,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
         title: "Add property and location basics",
         description:
           "Organize the city, area, nearest station, address reference, housing type, and key amenities.",
-        addressHelper: "MVP preview only. Do not enter sensitive access codes.",
+        addressHelper: "Do not enter access codes, passwords, or sensitive unit access details.",
       },
       rooms: {
         title: "Add room, rent, and availability",
@@ -576,7 +594,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       preview: {
         title: "Listing inquiry preview",
         description:
-          "Review the draft in the format MapleHouse may later use for operator review. Nothing is sent or stored outside this session.",
+          "This is a review summary for MapleHouse. The public listing detail page shown to tenants will be structured separately.",
         checkbox:
           "I understand that this MVP does not yet process real listing submission, contracts, payments, payouts, or file uploads.",
         submit: "Submit preview",
@@ -604,7 +622,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       city: "City",
       area: "Area / neighborhood",
       nearestStation: "Nearest station",
-      address: "Address or intersection",
+      address: "Detailed address",
       housingType: "Housing type",
       useType: "Use type",
       furnished: "Furnished?",
@@ -672,7 +690,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       title: "Publier avec MapleHouse sans frais",
       subtitle:
         "Mettez votre logement en relation avec des locataires qui préparent leur arrivée au Canada.",
-      primaryCta: "Commencer une demande",
+      primaryCta: "Commencer l’inscription propriétaire",
       secondaryCta: "Voir le guide",
       benefits: [
         {
@@ -744,9 +762,9 @@ const CONTENT: Record<Locale, LandlordContent> = {
       requiredHelper: "Indiquez le rôle, le nom et l’e-mail ou un contact pour continuer.",
       sectionEyebrow: "INSCRIPTION PROPRIÉTAIRE",
       start: {
-        title: "Commencer une demande d’annonce",
+        title: "Commencer l’inscription propriétaire et la première annonce",
         description:
-          "Cet écran organise les informations de l’annonce pour aperçu. Le brouillon reste dans cette session de navigateur.",
+          "Renseignez vos informations de propriétaire et votre première annonce. Les annonces supplémentaires pourront être gérées depuis un espace propriétaire.",
         helpTitle: "À préparer d’abord",
         helpBody:
           "Le rôle, la méthode de contact et la langue préférée aident à structurer les informations du logement.",
@@ -755,7 +773,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
         title: "Ajouter les informations du logement",
         description:
           "Organisez la ville, le secteur, la station proche, l’adresse de référence, le type de logement et les équipements.",
-        addressHelper: "Aperçu MVP seulement. N’entrez pas de codes d’accès sensibles.",
+        addressHelper: "N’indiquez pas de codes d’accès, mots de passe ou informations sensibles d’accès.",
       },
       rooms: {
         title: "Ajouter la chambre, le loyer et la disponibilité",
@@ -772,7 +790,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       preview: {
         title: "Aperçu de la demande",
         description:
-          "Vérifiez le brouillon sous une forme que MapleHouse pourra utiliser plus tard pour un examen. Rien n’est envoyé ni stocké hors de cette session.",
+          "Il s’agit d’un résumé pour l’examen MapleHouse. La page publique de détail de l’annonce destinée aux locataires sera structurée séparément.",
         checkbox:
           "Je comprends que ce MVP ne traite pas encore les annonces réelles, les contrats, les paiements, les versements ou les téléversements de fichiers.",
         submit: "Envoyer l’aperçu",
@@ -800,7 +818,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
       city: "Ville",
       area: "Secteur / quartier",
       nearestStation: "Station la plus proche",
-      address: "Adresse ou intersection",
+      address: "Adresse détaillée",
       housingType: "Type de logement",
       useType: "Type d’usage",
       furnished: "Meublé?",
@@ -922,7 +940,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       city: "도시/지역",
       area: "지역 / 동네",
       nearestStation: "가까운 TTC 역",
-      address: "주소 또는 교차로",
+      address: "상세 주소",
       housingType: "주거 형태",
       useType: "이용 형태",
       residentCondition: "거주 조건",
@@ -943,7 +961,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       kitchen: "주방",
       furniture: "포함 가구",
       bedSize: "침대 크기",
-      keyDepositAmount: "키 보증금",
+      keyDepositAmount: "열쇠 보증금",
       utilitiesIncluded: "공과금",
       houseRuleItems: "하우스 룰",
       additionalNote: "추가 메모",
@@ -955,19 +973,24 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       living: "C. 생활 조건",
       pets: "D. 반려동물 및 알레르기 관련 정보",
       photos: "E. 매물 사진",
-      contact: "임대인 정보",
-      property: "위치·공간",
-      room: "방·월세",
-      terms: "조건·공과금",
-      rules: "사진·하우스 룰·확인 질문",
+      contact: "A. 임대인 정보",
+      property: "B. 위치·공간",
+      room: "C. 방·월세",
+      terms: "D. 조건·공과금",
+      rules: "E. 사진·하우스 룰·확인 질문",
+      startRole: "1. 역할",
+      startIdentity: "2. 이름과 연락처",
+      startPreferences: "3. 선호 설정",
+      startMemo: "4. 선택 메모",
     },
     helpers: {
-      startDescription: "매물 등록에 필요한 연락처, 선호 언어, 기본 메모를 먼저 정리합니다.",
+      startDescription: "임대인 기본 정보와 첫 번째 매물 정보를 함께 정리합니다. 이후 추가 매물은 임대인 센터에서 관리하는 구조로 확장될 예정입니다.",
       propertyDescription: "입주자가 위치와 생활 조건을 빠르게 판단할 수 있도록 공간 정보를 정리합니다.",
       roomsDescription: "월세, 입주 가능일, 최소 체류 기간, 방 조건을 비교하기 쉽게 입력합니다.",
       termsDescription: "계약 전에 서로 확인해야 할 비용, 공과금, 생활 규칙을 정리합니다.",
-      previewDescription: "입력한 매물 정보를 실제 등록 전 검토 화면처럼 확인합니다.",
-      requiredHelper: "역할, 성/이름 중 하나, 이메일 또는 연락처를 입력하면 다음 단계로 이동할 수 있습니다.",
+      previewDescription: "현재 화면은 MapleHouse 검토용 요약 미리보기입니다. 실제 세입자에게 보이는 매물 상세 화면은 별도 화면으로 구성될 예정입니다.",
+      requiredHelper:
+        "역할, 이름 또는 성, 연락 가능한 정보, 선호 연락 방식과 언어를 입력하면 다음 단계로 이동할 수 있습니다.",
       addressHelper: "출입 코드, 비밀번호, 정확한 유닛 출입 정보처럼 민감한 정보는 입력하지 마세요.",
       residentHelper: "룸렌트, 쉐어, 홈스테이처럼 함께 사는 경우에 특히 중요한 정보입니다.",
       stationPlaceholder: "가까운 TTC 역 선택",
@@ -978,7 +1001,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       lastMonthInfo:
         "마지막 달 보증금은 계약 전 입주자와 임대인이 직접 확인하는 항목입니다.",
       guideTermsBody:
-        "월세, 마지막 달 보증금, 키 보증금, 공과금 포함 여부는 계약 전 당사자가 직접 확인해야 합니다. MapleHouse는 계약 당사자, 법률 자문, 중개 또는 결제 보증을 제공하지 않습니다.",
+        "월세, 마지막 달 보증금, 열쇠 보증금, 공과금 포함 여부는 계약 전 당사자가 직접 확인해야 합니다. MapleHouse는 계약 당사자, 법률 자문, 중개 또는 결제 보증을 제공하지 않습니다.",
       photosTitle: "사진 업로드",
       photosHelper: "최대 20장까지 추가할 수 있습니다. 대표사진을 1장 선택해주세요.",
       uploadCta: "사진 선택",
@@ -1000,32 +1023,18 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       roles: ["임대인", "부동산/매니저", "홈스테이 제공자", "기타"],
       preferredContactMethods: ["이메일", "전화", "KakaoTalk", "WhatsApp", "기타"],
       preferredLanguages: ["한국어", "English", "Français", "상관없음"],
-      cityOptions: [
-        "Toronto",
-        "North York",
-        "Scarborough",
-        "Etobicoke",
-        "East York",
-        "York",
-        "Vaughan",
-        "Mississauga",
-        "Markham",
-        "Richmond Hill",
-        "Brampton",
-        "Oakville",
-        "기타",
-      ],
+      cityOptions: ["토론토", "밴쿠버", "캘거리"],
       housingTypes: ["콘도", "아파트", "하우스", "타운하우스", "베이스먼트", "홈스테이", "룸렌트 / 쉐어", "코리빙", "기타"],
       useTypes: ["전체 유닛", "개인 방", "공유 방", "홈스테이형"],
       residentConditions: ["성별 무관", "여성 전용", "남성 전용", "협의 필요"],
       petAllowed: ["가능", "불가", "협의 필요"],
-      homePets: ["없음", "있음", "확인 필요"],
+      homePets: ["없음", "있음"],
       smoking: ["금연", "실외만 가능", "협의 필요"],
       yesNoConfirm: ["예", "아니오", "확인 필요"],
-      minimumStay: ["6개월 이상", "1년 이상", "협의"],
+      minimumStay: ["1개월", "2개월", "3개월", "6개월", "기간 협의"],
       occupancy: ["1명", "2명", "협의"],
       bathroom: ["개인 욕실", "공용 욕실", "방 안 욕실", "협의"],
-      kitchen: ["개인 주방", "공용 주방", "간이 주방", "없음/협의"],
+      kitchen: ["개인 주방", "공용 주방", "없음/협의"],
       furniture: ["침대", "매트리스", "책상", "의자", "옷장", "침구", "조명"],
       bedSize: ["싱글", "더블", "퀸", "확인 필요"],
       utilities: ["전기/hydro", "난방", "수도", "가스", "인터넷", "세탁", "주차"],
@@ -1065,7 +1074,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       city: "City / area",
       area: "Area / neighborhood",
       nearestStation: "Nearest TTC station",
-      address: "Address or intersection",
+      address: "Detailed address",
       housingType: "Housing type",
       useType: "Use type",
       residentCondition: "Resident condition",
@@ -1096,21 +1105,26 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       location: "A. Location",
       housing: "B. Housing type",
       living: "C. Living condition",
-      pets: "D. Pet and allergy-related information",
+      pets: "D. Pets and allergy-related information",
       photos: "E. Listing photos",
-      contact: "Contact",
-      property: "Property",
-      room: "Room & rent",
-      terms: "Terms & utilities",
-      rules: "Photos, rules & questions",
+      contact: "A. Contact",
+      property: "B. Location & property",
+      room: "C. Room & rent",
+      terms: "D. Terms & utilities",
+      rules: "E. Photos, rules & questions",
+      startRole: "1. Role",
+      startIdentity: "2. Name and contact",
+      startPreferences: "3. Preferences",
+      startMemo: "4. Optional memo",
     },
     helpers: {
-      startDescription: "Start by organizing contact details, preferred languages, and a short note.",
+      startDescription: "Organize your landlord information and first listing together. Future additional listings can be managed through a landlord center.",
       propertyDescription: "Organize location and living-condition details so tenants can judge fit quickly.",
       roomsDescription: "Enter rent, availability, minimum stay, and room details in a comparison-friendly format.",
       termsDescription: "Organize costs, utilities, and house rules that both parties should confirm later.",
-      previewDescription: "Review the listing information in a wider pre-submission preview.",
-      requiredHelper: "Enter role, first or last name, and email or contact to continue.",
+      previewDescription: "This is a review summary for MapleHouse. The public listing detail page shown to tenants will be structured separately.",
+      requiredHelper:
+        "Enter your role, name, contact information, preferred contact method, and language to continue.",
       addressHelper: "Do not enter access codes, passwords, or sensitive unit access details.",
       residentHelper: "Especially important for room rentals, shared housing, and homestay-style listings.",
       stationPlaceholder: "Select nearest TTC station",
@@ -1143,32 +1157,18 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       roles: ["Landlord", "Property manager", "Homestay provider", "Other"],
       preferredContactMethods: ["Email", "Phone", "KakaoTalk", "WhatsApp", "Other"],
       preferredLanguages: ["Korean", "English", "Français", "No preference"],
-      cityOptions: [
-        "Toronto",
-        "North York",
-        "Scarborough",
-        "Etobicoke",
-        "East York",
-        "York",
-        "Vaughan",
-        "Mississauga",
-        "Markham",
-        "Richmond Hill",
-        "Brampton",
-        "Oakville",
-        "Other",
-      ],
+      cityOptions: ["Toronto", "Vancouver", "Calgary"],
       housingTypes: ["Condo", "Apartment", "House", "Townhouse", "Basement", "Homestay", "Room rental / shared housing", "Co-living", "Other"],
       useTypes: ["Entire unit", "Private room", "Shared room", "Homestay-style"],
       residentConditions: ["No gender preference", "Female-only shared space", "Male-only shared space", "To discuss"],
       petAllowed: ["Allowed", "Not allowed", "To discuss"],
-      homePets: ["No", "Yes", "To confirm"],
+      homePets: ["No", "Yes"],
       smoking: ["Non-smoking", "Outdoor only", "To discuss"],
       yesNoConfirm: ["Yes", "No", "To confirm"],
-      minimumStay: ["6+ months", "1+ year", "Flexible"],
+      minimumStay: ["1 month", "2 months", "3 months", "6 months", "Flexible"],
       occupancy: ["1 person", "2 people", "Flexible"],
       bathroom: ["Private bathroom", "Shared bathroom", "Ensuite", "To confirm"],
-      kitchen: ["Private kitchen", "Shared kitchen", "Kitchenette", "None/to confirm"],
+      kitchen: ["Private kitchen", "Shared kitchen", "None/to confirm"],
       furniture: ["Bed", "Mattress", "Desk", "Chair", "Wardrobe", "Bedding", "Lamp"],
       bedSize: ["Single", "Double", "Queen", "To confirm"],
       utilities: ["Electricity / Hydro", "Heat", "Water", "Gas", "Internet", "Laundry", "Parking"],
@@ -1208,7 +1208,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       city: "Ville / secteur",
       area: "Secteur / quartier",
       nearestStation: "Station TTC la plus proche",
-      address: "Adresse ou intersection",
+      address: "Adresse détaillée",
       housingType: "Type de logement",
       useType: "Type d’usage",
       residentCondition: "Condition de cohabitation",
@@ -1239,21 +1239,26 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       location: "A. Emplacement",
       housing: "B. Type de logement",
       living: "C. Conditions de vie",
-      pets: "D. Animaux et allergies",
+      pets: "D. Animaux et informations liées aux allergies",
       photos: "E. Photos de l’annonce",
-      contact: "Contact",
-      property: "Logement",
-      room: "Chambre & loyer",
-      terms: "Conditions & services",
-      rules: "Photos, règles & questions",
+      contact: "A. Contact",
+      property: "B. Emplacement & logement",
+      room: "C. Chambre & loyer",
+      terms: "D. Conditions & services",
+      rules: "E. Photos, règles & questions",
+      startRole: "1. Rôle",
+      startIdentity: "2. Nom et coordonnées",
+      startPreferences: "3. Préférences",
+      startMemo: "4. Note facultative",
     },
     helpers: {
-      startDescription: "Commencez par les coordonnées, les langues préférées et une courte note.",
+      startDescription: "Renseignez vos informations de propriétaire et votre première annonce. Les annonces supplémentaires pourront être gérées depuis un espace propriétaire.",
       propertyDescription: "Organisez l’emplacement et les conditions de vie pour aider le locataire à juger rapidement.",
       roomsDescription: "Indiquez le loyer, la disponibilité, la durée minimale et les détails de la chambre.",
       termsDescription: "Organisez les coûts, services et règles à confirmer entre les parties.",
-      previewDescription: "Vérifiez les informations dans un aperçu plus large avant l’envoi.",
-      requiredHelper: "Indiquez le rôle, un prénom ou nom, et un e-mail ou contact pour continuer.",
+      previewDescription: "Il s’agit d’un résumé pour l’examen MapleHouse. La page publique de détail de l’annonce destinée aux locataires sera structurée séparément.",
+      requiredHelper:
+        "Renseignez votre rôle, votre nom, vos coordonnées, votre méthode de contact et votre langue pour continuer.",
       addressHelper: "N’indiquez pas de codes d’accès, mots de passe ou informations sensibles d’accès.",
       residentHelper: "Particulièrement important pour les chambres, logements partagés et familles d’accueil.",
       stationPlaceholder: "Choisir la station TTC la plus proche",
@@ -1286,32 +1291,18 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       roles: ["Propriétaire", "Gestionnaire", "Fournisseur de famille d’accueil", "Autre"],
       preferredContactMethods: ["E-mail", "Téléphone", "KakaoTalk", "WhatsApp", "Autre"],
       preferredLanguages: ["Coréen", "Anglais", "Français", "Sans préférence"],
-      cityOptions: [
-        "Toronto",
-        "North York",
-        "Scarborough",
-        "Etobicoke",
-        "East York",
-        "York",
-        "Vaughan",
-        "Mississauga",
-        "Markham",
-        "Richmond Hill",
-        "Brampton",
-        "Oakville",
-        "Autre",
-      ],
+      cityOptions: ["Toronto", "Vancouver", "Calgary"],
       housingTypes: ["Condo", "Appartement", "Maison", "Maison en rangée", "Sous-sol", "Famille d’accueil", "Chambre / logement partagé", "Coliving", "Autre"],
       useTypes: ["Logement entier", "Chambre privée", "Chambre partagée", "Style famille d’accueil"],
       residentConditions: ["Sans préférence", "Espace partagé réservé aux femmes", "Espace partagé réservé aux hommes", "À discuter"],
       petAllowed: ["Acceptés", "Non acceptés", "À discuter"],
-      homePets: ["Non", "Oui", "À confirmer"],
+      homePets: ["Non", "Oui"],
       smoking: ["Non-fumeur", "Extérieur seulement", "À discuter"],
       yesNoConfirm: ["Oui", "Non", "À confirmer"],
-      minimumStay: ["6 mois ou plus", "1 an ou plus", "Flexible"],
+      minimumStay: ["1 mois", "2 mois", "3 mois", "6 mois", "Flexible"],
       occupancy: ["1 personne", "2 personnes", "Flexible"],
       bathroom: ["Salle de bain privée", "Salle de bain partagée", "Attenante", "À confirmer"],
-      kitchen: ["Cuisine privée", "Cuisine partagée", "Kitchenette", "Aucune/à confirmer"],
+      kitchen: ["Cuisine privée", "Cuisine partagée", "Aucune/à confirmer"],
       furniture: ["Lit", "Matelas", "Bureau", "Chaise", "Armoire", "Literie", "Lampe"],
       bedSize: ["Simple", "Double", "Queen", "À confirmer"],
       utilities: ["Électricité / hydro", "Chauffage", "Eau", "Gaz", "Internet", "Buanderie", "Stationnement"],
@@ -1435,6 +1426,392 @@ const TTC_RAPID_TRANSIT_STATIONS = [
 
 const BENEFIT_ICONS = [Building2, MessageSquareText, ClipboardList, ShieldCheck];
 
+const LANDLORD_FORM_COPY = {
+  ko: {
+    select: "선택하세요",
+    summaryName: "이름",
+    summaryContact: "연락처",
+    emailEntered: "이메일 입력됨",
+    contactEntered: "전화번호 입력됨",
+    missingSummary: "입력 대기",
+    unitDetailLabel: "세부 형식",
+    floorLabel: "층수",
+    floorSuffix: "층",
+    unitDetailPlaceholder: "세부 형식을 입력해주세요",
+    residentHelper: "룸렌트나 쉐어처럼 함께 사는 경우에 특히 중요한 정보입니다.",
+    cityOptions: ["토론토", "밴쿠버", "캘거리"],
+    housingTypes: ["하우스 / 룸렌트 / 쉐어", "콘도 / 아파트", "스튜디오", "기타"],
+    unitDetailHouse: ["개인 방", "공유 방", "베이스먼트", "1BR", "전체 하우스", "기타"],
+    unitDetailCondo: ["1BR", "1BR + Den", "2BR", "2BR + Den", "Den", "기타"],
+    unitDetailStudio: ["스튜디오", "기타"],
+    floorHouse: ["B1", "1층", "2층", "3층", "4층", "5층"],
+    useTypes: ["전체 유닛", "개인 방", "공유 방"],
+    minimumStay: ["1개월", "2개월", "3개월", "6개월", "기간 협의"],
+    occupancy: ["1명", "2명", "협의"],
+    bathroom: ["개인 욕실", "공용 욕실", "방 안 욕실", "협의"],
+    kitchen: ["개인 주방", "공용 주방", "없음/협의"],
+    furniture: ["침대", "매트리스", "책상", "의자", "옷장", "침구"],
+    keyDepositLabel: "열쇠 보증금",
+  },
+  en: {
+    select: "Select",
+    summaryName: "Name",
+    summaryContact: "Contact",
+    emailEntered: "Email entered",
+    contactEntered: "Phone/contact entered",
+    missingSummary: "Waiting for input",
+    unitDetailLabel: "Unit detail",
+    floorLabel: "Floor",
+    floorSuffix: "floor",
+    unitDetailPlaceholder: "Enter unit detail",
+    residentHelper: "Especially important for room rentals and shared housing.",
+    cityOptions: ["Toronto", "Vancouver", "Calgary"],
+    housingTypes: ["House / room rental / share", "Condo / apartment", "Studio", "Other"],
+    unitDetailHouse: ["Private room", "Shared room", "Basement", "1BR", "Entire house", "Other"],
+    unitDetailCondo: ["1BR", "1BR + Den", "2BR", "2BR + Den", "Den", "Other"],
+    unitDetailStudio: ["Studio", "Other"],
+    floorHouse: ["B1", "1st floor", "2nd floor", "3rd floor", "4th floor", "5th floor"],
+    useTypes: ["Entire unit", "Private room", "Shared room"],
+    minimumStay: ["1 month", "2 months", "3 months", "6 months", "Flexible"],
+    occupancy: ["1 person", "2 people", "Flexible"],
+    bathroom: ["Private bathroom", "Shared bathroom", "Ensuite", "To confirm"],
+    kitchen: ["Private kitchen", "Shared kitchen", "None/to confirm"],
+    furniture: ["Bed", "Mattress", "Desk", "Chair", "Wardrobe", "Bedding"],
+    keyDepositLabel: "Key deposit",
+  },
+  fr: {
+    select: "Choisir",
+    summaryName: "Nom",
+    summaryContact: "Contact",
+    emailEntered: "E-mail renseigné",
+    contactEntered: "Contact renseigné",
+    missingSummary: "En attente",
+    unitDetailLabel: "Détail du logement",
+    floorLabel: "Étage",
+    floorSuffix: "étage",
+    unitDetailPlaceholder: "Indiquez le détail du logement",
+    residentHelper: "Important surtout pour les chambres et colocations.",
+    cityOptions: ["Toronto", "Vancouver", "Calgary"],
+    housingTypes: ["Maison / chambre / colocation", "Condo / appartement", "Studio", "Autre"],
+    unitDetailHouse: ["Chambre privée", "Chambre partagée", "Sous-sol", "1 chambre", "Maison entière", "Autre"],
+    unitDetailCondo: ["1 chambre", "1 chambre + den", "2 chambres", "2 chambres + den", "Den", "Autre"],
+    unitDetailStudio: ["Studio", "Autre"],
+    floorHouse: ["B1", "1er étage", "2e étage", "3e étage", "4e étage", "5e étage"],
+    useTypes: ["Logement entier", "Chambre privée", "Chambre partagée"],
+    minimumStay: ["1 mois", "2 mois", "3 mois", "6 mois", "Flexible"],
+    occupancy: ["1 personne", "2 personnes", "Flexible"],
+    bathroom: ["Salle de bain privée", "Salle de bain partagée", "Attenante", "À confirmer"],
+    kitchen: ["Cuisine privée", "Cuisine partagée", "Aucune/à confirmer"],
+    furniture: ["Lit", "Matelas", "Bureau", "Chaise", "Armoire", "Literie"],
+    keyDepositLabel: "Dépôt de clé",
+  },
+} satisfies Record<
+  Locale,
+  {
+    select: string;
+    summaryName: string;
+    summaryContact: string;
+    emailEntered: string;
+    contactEntered: string;
+    missingSummary: string;
+    unitDetailLabel: string;
+    floorLabel: string;
+    floorSuffix: string;
+    unitDetailPlaceholder: string;
+    residentHelper: string;
+    cityOptions: string[];
+    housingTypes: string[];
+    unitDetailHouse: string[];
+    unitDetailCondo: string[];
+    unitDetailStudio: string[];
+    floorHouse: string[];
+    useTypes: string[];
+    minimumStay: string[];
+    occupancy: string[];
+    bathroom: string[];
+    kitchen: string[];
+    furniture: string[];
+    keyDepositLabel: string;
+  }
+>;
+
+const CUSTOM_SELECT_VALUE = "__custom__";
+
+const LANDLORD_CONTACT_COPY = {
+  ko: {
+    emailLabel: "이메일",
+    emailLocalPlaceholder: "아이디",
+    emailDomainCustom: "직접 입력",
+    emailDomainPlaceholder: "domain.com",
+    phoneLabel: "전화번호",
+    phoneNumberPlaceholder: "전화번호 입력",
+    customCountryCodePlaceholder: "+",
+    countryCodes: [
+      { label: "대한민국 +82", value: "+82" },
+      { label: "캐나다·미국 +1", value: "+1" },
+      { label: "프랑스 +33", value: "+33" },
+      { label: "영국 +44", value: "+44" },
+      { label: "호주 +61", value: "+61" },
+      { label: "뉴질랜드 +64", value: "+64" },
+      { label: "일본 +81", value: "+81" },
+      { label: "중국 +86", value: "+86" },
+      { label: "홍콩 +852", value: "+852" },
+      { label: "대만 +886", value: "+886" },
+      { label: "기타 직접입력", value: CUSTOM_SELECT_VALUE },
+    ],
+    emailDomains: [
+      "gmail.com",
+      "naver.com",
+      "daum.net",
+      "hanmail.net",
+      "kakao.com",
+      "outlook.com",
+      "hotmail.com",
+      "icloud.com",
+      "yahoo.com",
+    ],
+  },
+  en: {
+    emailLabel: "Email",
+    emailLocalPlaceholder: "name",
+    emailDomainCustom: "Custom",
+    emailDomainPlaceholder: "domain.com",
+    phoneLabel: "Phone number",
+    phoneNumberPlaceholder: "Phone number",
+    customCountryCodePlaceholder: "+",
+    countryCodes: [
+      { label: "Korea +82", value: "+82" },
+      { label: "Canada/US +1", value: "+1" },
+      { label: "France +33", value: "+33" },
+      { label: "United Kingdom +44", value: "+44" },
+      { label: "Australia +61", value: "+61" },
+      { label: "New Zealand +64", value: "+64" },
+      { label: "Japan +81", value: "+81" },
+      { label: "China +86", value: "+86" },
+      { label: "Hong Kong +852", value: "+852" },
+      { label: "Taiwan +886", value: "+886" },
+      { label: "Other / custom", value: CUSTOM_SELECT_VALUE },
+    ],
+    emailDomains: [
+      "gmail.com",
+      "outlook.com",
+      "hotmail.com",
+      "icloud.com",
+      "yahoo.com",
+      "naver.com",
+      "daum.net",
+      "kakao.com",
+    ],
+  },
+  fr: {
+    emailLabel: "E-mail",
+    emailLocalPlaceholder: "nom",
+    emailDomainCustom: "Saisie personnalisée",
+    emailDomainPlaceholder: "domaine.com",
+    phoneLabel: "Numéro de téléphone",
+    phoneNumberPlaceholder: "Numéro",
+    customCountryCodePlaceholder: "+",
+    countryCodes: [
+      { label: "Corée +82", value: "+82" },
+      { label: "Canada/États-Unis +1", value: "+1" },
+      { label: "France +33", value: "+33" },
+      { label: "Royaume-Uni +44", value: "+44" },
+      { label: "Australie +61", value: "+61" },
+      { label: "Nouvelle-Zélande +64", value: "+64" },
+      { label: "Japon +81", value: "+81" },
+      { label: "Chine +86", value: "+86" },
+      { label: "Hong Kong +852", value: "+852" },
+      { label: "Taïwan +886", value: "+886" },
+      { label: "Autre / personnalisé", value: CUSTOM_SELECT_VALUE },
+    ],
+    emailDomains: [
+      "gmail.com",
+      "outlook.com",
+      "hotmail.com",
+      "icloud.com",
+      "yahoo.com",
+      "naver.com",
+      "daum.net",
+      "kakao.com",
+    ],
+  },
+} satisfies Record<
+  Locale,
+  {
+    emailLabel: string;
+    emailLocalPlaceholder: string;
+    emailDomainCustom: string;
+    emailDomainPlaceholder: string;
+    phoneLabel: string;
+    phoneNumberPlaceholder: string;
+    customCountryCodePlaceholder: string;
+    countryCodes: Array<{ label: string; value: string }>;
+    emailDomains: string[];
+  }
+>;
+
+const LANDLORD_LEAVE_COPY = {
+  ko: {
+    title: "임대인 등록 작성을 중단할까요?",
+    body: "작성 중인 매물 등록 정보가 있습니다. 나가면 입력한 내용이 사라질 수 있습니다.",
+    leave: "나가기",
+    stay: "계속 작성하기",
+    save: "임시 저장하기",
+  },
+  en: {
+    title: "Leave landlord registration?",
+    body: "You have listing information in progress. If you leave, your entered details may be lost.",
+    leave: "Leave",
+    stay: "Keep writing",
+    save: "Save draft",
+  },
+  fr: {
+    title: "Quitter l’inscription propriétaire ?",
+    body: "Vous avez des informations d’annonce en cours de saisie. Si vous quittez, elles peuvent être perdues.",
+    leave: "Quitter",
+    stay: "Continuer",
+    save: "Enregistrer le brouillon",
+  },
+} satisfies Record<
+  Locale,
+  {
+    title: string;
+    body: string;
+    leave: string;
+    stay: string;
+    save: string;
+  }
+>;
+
+const LANDLORD_REQUIREMENT_COPY = {
+  ko: {
+    required: "필수",
+    optional: "선택",
+    conditional: "조건부 필수",
+  },
+  en: {
+    required: "Required",
+    optional: "Optional",
+    conditional: "Required if applicable",
+  },
+  fr: {
+    required: "Obligatoire",
+    optional: "Facultatif",
+    conditional: "Obligatoire si applicable",
+  },
+} satisfies Record<Locale, Record<FieldRequirement, string>>;
+
+const LANDLORD_DISABLED_HELPER_COPY = {
+  ko: {
+    general: "필수 항목을 모두 입력하면 다음 단계로 이동할 수 있습니다.",
+    photo: "사진은 최소 1장 이상 등록해주세요.",
+    keyDeposit: "열쇠 보증금이 없으면 0을 입력해주세요.",
+    houseRules: "하우스 룰은 최소 1개 이상 선택해주세요.",
+    houseRulesNotice:
+      "하우스 룰과 생활 조건을 충분히 적지 않아 생기는 분쟁이나 오해는 임대인이 직접 확인·관리해야 합니다.",
+    bedSize: "침대를 선택했다면 침대 크기도 선택해주세요.",
+  },
+  en: {
+    general: "Complete all required fields to continue.",
+    photo: "Please add at least one photo.",
+    keyDeposit: "Enter 0 if there is no key deposit.",
+    houseRules: "Select at least one house rule.",
+    houseRulesNotice:
+      "If house rules or living conditions are not described clearly, any later misunderstanding or dispute should be handled and confirmed by the landlord.",
+    bedSize: "Select a bed size if a bed is included.",
+  },
+  fr: {
+    general: "Renseignez tous les champs obligatoires pour continuer.",
+    photo: "Veuillez ajouter au moins une photo.",
+    keyDeposit: "Indiquez 0 s’il n’y a pas de dépôt de clé.",
+    houseRules: "Sélectionnez au moins une règle de la maison.",
+    houseRulesNotice:
+      "Si les règles de la maison ou les conditions de vie ne sont pas décrites clairement, tout malentendu ou litige ultérieur doit être confirmé et géré par le propriétaire.",
+    bedSize: "Sélectionnez la taille du lit si un lit est inclus.",
+  },
+} satisfies Record<
+  Locale,
+  {
+    general: string;
+    photo: string;
+    keyDeposit: string;
+    houseRules: string;
+    houseRulesNotice: string;
+    bedSize: string;
+  }
+>;
+
+const LANDLORD_START_OVER_COPY = {
+  ko: {
+    title: "처음부터 다시 시작할까요?",
+    body: "현재 입력한 임대인 등록 정보가 모두 초기화됩니다. 계속 진행할까요?",
+    cancel: "계속 작성하기",
+    confirm: "처음부터 다시",
+  },
+  en: {
+    title: "Start over?",
+    body: "All landlord registration information you entered will be cleared. Do you want to continue?",
+    cancel: "Keep writing",
+    confirm: "Start over",
+  },
+  fr: {
+    title: "Recommencer ?",
+    body: "Toutes les informations d’inscription propriétaire saisies seront effacées. Voulez-vous continuer ?",
+    cancel: "Continuer",
+    confirm: "Recommencer",
+  },
+} satisfies Record<
+  Locale,
+  {
+    title: string;
+    body: string;
+    cancel: string;
+    confirm: string;
+  }
+>;
+
+const LANDLORD_ROOM_SECTION_TITLES = {
+  ko: {
+    rent: "A. 방·월세",
+    living: "B. 생활 조건",
+    furniture: "C. 포함 가구",
+  },
+  en: {
+    rent: "A. Room & rent",
+    living: "B. Living condition",
+    furniture: "C. Included furniture",
+  },
+  fr: {
+    rent: "A. Chambre & loyer",
+    living: "B. Conditions de vie",
+    furniture: "C. Mobilier inclus",
+  },
+} satisfies Record<Locale, { rent: string; living: string; furniture: string }>;
+
+const LANDLORD_TERMS_SECTION_TITLES = {
+  ko: {
+    deposit: "A. 보증금",
+    utilities: "B. 공과금 (필수)",
+    rules: "C. 하우스 룰 (선택)",
+    questions: "D. 입주 전 확인 질문 (선택)",
+  },
+  en: {
+    deposit: "A. Deposit",
+    utilities: "B. Utilities (Required)",
+    rules: "C. House rules (Optional)",
+    questions: "D. Questions before move-in (Optional)",
+  },
+  fr: {
+    deposit: "A. Dépôt",
+    utilities: "B. Services (Obligatoire)",
+    rules: "C. Règles de la maison (Facultatif)",
+    questions: "D. Questions avant l’arrivée (Facultatif)",
+  },
+} satisfies Record<
+  Locale,
+  { deposit: string; utilities: string; rules: string; questions: string }
+>;
+
 export function LocaleLandlordsPage({
   locale,
   page = "landing",
@@ -1458,11 +1835,11 @@ function LandlordLandingPage({ locale }: { locale: Locale }) {
   const r = LANDLORD_REFINEMENTS[locale];
 
   return (
-    <main className="bg-[#F8F7F4] [word-break:keep-all]">
+    <main className="bg-background [word-break:keep-all]">
       <Container className="py-8 sm:py-10 lg:py-12">
         <LandlordBreadcrumb locale={locale} page="landing" />
 
-        <section className="mt-5 overflow-hidden rounded-[2rem] border border-primary/15 bg-white shadow-sm">
+        <section className="mt-5 overflow-hidden rounded-[2rem] border border-border/80 bg-white shadow-sm">
           <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:p-10">
             <div className="min-w-0">
               <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
@@ -1477,6 +1854,7 @@ function LandlordLandingPage({ locale }: { locale: Locale }) {
               <div className="mt-7 flex flex-wrap gap-3">
                 <a
                   href={landlordRoute(locale, "register")}
+                  onClick={clearLandlordDraftStorage}
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
                 >
                   {t.landing.primaryCta}
@@ -1491,7 +1869,7 @@ function LandlordLandingPage({ locale }: { locale: Locale }) {
               </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-primary/15 bg-[#FFF8F1] p-5">
+            <div className="rounded-[1.5rem] border border-border/80 bg-[#FCFCFB] p-5">
               <div className="rounded-2xl bg-white p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
                   MapleHouse Listing
@@ -1586,11 +1964,11 @@ function LandlordGuidePage({ locale }: { locale: Locale }) {
   const r = LANDLORD_REFINEMENTS[locale];
 
   return (
-    <main className="bg-[#F8F7F4] [word-break:keep-all]">
+    <main className="bg-background [word-break:keep-all]">
       <Container className="py-8 sm:py-10 lg:py-12">
         <LandlordBreadcrumb locale={locale} page="guide" />
 
-        <section className="mt-5 rounded-[2rem] border border-primary/15 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
+        <section className="mt-5 rounded-[2rem] border border-border/80 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
           <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
             LISTING GUIDE
           </p>
@@ -1661,11 +2039,95 @@ function LandlordRegisterPage({
 }) {
   const t = CONTENT[locale];
   const { draft, loaded, updateDraft, clearDraft } = useLandlordDraft();
+  const [pendingLeaveHref, setPendingLeaveHref] = useState<string | null>(null);
+  const bypassLeaveGuardRef = useRef(false);
   const stepIndex = stepIndexForPage(page);
   const draftStarted = isDraftStarted(draft);
+  const shouldProtectLeave = loaded && draftStarted;
+
+  useEffect(() => {
+    if (!shouldProtectLeave || typeof window === "undefined") {
+      return;
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (bypassLeaveGuardRef.current) {
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [shouldProtectLeave]);
+
+  useEffect(() => {
+    if (!shouldProtectLeave || typeof window === "undefined") {
+      return;
+    }
+
+    const handleClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const target = event.target as Element | null;
+      const anchor = target?.closest("a[href]") as HTMLAnchorElement | null;
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) {
+        return;
+      }
+
+      const hrefAttribute = anchor.getAttribute("href") || "";
+      if (!hrefAttribute || hrefAttribute.startsWith("#")) {
+        return;
+      }
+
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin) {
+        return;
+      }
+
+      if (isLandlordRegistrationPath(url.pathname)) {
+        return;
+      }
+
+      event.preventDefault();
+      setPendingLeaveHref(`${url.pathname}${url.search}${url.hash}`);
+    };
+
+    document.addEventListener("click", handleClick, true);
+    return () => document.removeEventListener("click", handleClick, true);
+  }, [shouldProtectLeave]);
+
+  const closeLeaveDialog = () => setPendingLeaveHref(null);
+  const goToPendingHref = () => {
+    const href = pendingLeaveHref;
+    setPendingLeaveHref(null);
+    if (href && typeof window !== "undefined") {
+      bypassLeaveGuardRef.current = true;
+      window.location.href = href;
+    }
+  };
+  const saveDraftAndLeave = () => {
+    writeLandlordDraftStorage(draft);
+    goToPendingHref();
+  };
+  const clearDraftAndLeave = () => {
+    clearDraft();
+    goToPendingHref();
+  };
 
   return (
-    <main className="bg-[#F8F7F4] [word-break:keep-all]">
+    <main className="bg-background [word-break:keep-all]">
       <Container className="py-8 sm:py-10 lg:py-12">
         <LandlordBreadcrumb locale={locale} page={page} />
         <LandlordProgress locale={locale} activeIndex={stepIndex} />
@@ -1703,6 +2165,14 @@ function LandlordRegisterPage({
           />
         ) : null}
       </Container>
+      {pendingLeaveHref ? (
+        <LandlordLeaveDialog
+          locale={locale}
+          onStay={closeLeaveDialog}
+          onSave={saveDraftAndLeave}
+          onLeave={clearDraftAndLeave}
+        />
+      ) : null}
     </main>
   );
 }
@@ -1718,10 +2188,61 @@ function RegisterStartStep({
 }) {
   const t = CONTENT[locale];
   const r = LANDLORD_REFINEMENTS[locale];
+  const contactCopy = LANDLORD_CONTACT_COPY[locale];
+  const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
   const displayLastName = draft.lastName || draft.name;
-  const canContinue = Boolean(
-    draft.role && (draft.firstName || displayLastName) && (draft.email || draft.contact),
+  const trimmedFirstName = draft.firstName.trim();
+  const trimmedLastName = displayLastName.trim();
+  const trimmedEmailLocal = draft.emailLocal.trim();
+  const trimmedEmailDomain = draft.emailDomain.trim();
+  const resolvedPhoneCountryCode = getResolvedPhoneCountryCode(draft);
+  const trimmedPhoneNumber = draft.phoneNumber.trim();
+  const selectedLanguages = draft.preferredLanguages.length
+    ? draft.preferredLanguages
+    : draft.preferredLanguage
+      ? [draft.preferredLanguage]
+      : [];
+  const roleComplete = Boolean(draft.role.trim());
+  const identityComplete = Boolean(
+    trimmedFirstName &&
+      trimmedLastName &&
+      trimmedEmailLocal &&
+      trimmedEmailDomain &&
+      resolvedPhoneCountryCode &&
+      trimmedPhoneNumber,
   );
+  const preferencesComplete = Boolean(
+    draft.preferredContactMethods.length && selectedLanguages.length,
+  );
+  const showContactSection = roleComplete;
+  const showPreferencesSection = roleComplete && identityComplete;
+  const showMemoSection = roleComplete && identityComplete && preferencesComplete;
+  const canContinue = Boolean(
+    roleComplete && identityComplete && preferencesComplete,
+  );
+  const updateEmailParts = (patch: Partial<Pick<LandlordDraft, "emailLocal" | "emailDomain">>) => {
+    const emailLocal = patch.emailLocal ?? draft.emailLocal;
+    const emailDomain = patch.emailDomain ?? draft.emailDomain;
+    updateDraft({
+      ...patch,
+      email: emailLocal.trim() && emailDomain.trim()
+        ? `${emailLocal.trim()}@${emailDomain.trim()}`
+        : "",
+    });
+  };
+  const updatePhoneParts = (
+    patch: Partial<
+      Pick<LandlordDraft, "phoneCountryCode" | "phoneCountryCodeCustom" | "phoneNumber">
+    >,
+  ) => {
+    const nextDraft = { ...draft, ...patch };
+    const countryCode = getResolvedPhoneCountryCode(nextDraft);
+    const phoneNumber = nextDraft.phoneNumber.trim();
+    updateDraft({
+      ...patch,
+      contact: countryCode && phoneNumber ? `${countryCode} ${phoneNumber}` : "",
+    });
+  };
 
   return (
     <LandlordStepLayout
@@ -1733,75 +2254,135 @@ function RegisterStartStep({
       asideBody={t.flow.start.helpBody}
       icon={<ClipboardCheck className="h-5 w-5" aria-hidden />}
     >
-      <OptionCardField
-        label={r.fields.role}
-        value={draft.role}
-        options={r.options.roles}
-        onChange={(role) => updateDraft({ role })}
-        required
+      <ProgressiveRevealSections
+        sections={[
+          {
+            id: "role",
+            title: r.sections.startRole,
+            complete: roleComplete,
+            children: (
+              <OptionCardField
+                locale={locale}
+                label={r.fields.role}
+                value={draft.role}
+                options={r.options.roles}
+                onChange={(role) => updateDraft({ role })}
+                requirement="required"
+              />
+            ),
+          },
+          ...(showContactSection
+            ? [
+                {
+                  id: "identity",
+                  title: r.sections.startIdentity,
+                  complete: identityComplete,
+                  children: (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <TextField
+                        locale={locale}
+                        label={r.fields.firstName}
+                        value={draft.firstName}
+                        onChange={(firstName) => updateDraft({ firstName })}
+                        requirement="required"
+                        autoComplete="off"
+                      />
+                      <TextField
+                        locale={locale}
+                        label={r.fields.lastName}
+                        value={displayLastName}
+                        onChange={(lastName) => updateDraft({ lastName, name: lastName })}
+                        requirement="required"
+                        autoComplete="off"
+                      />
+                      <EmailSplitField
+                        locale={locale}
+                        label={contactCopy.emailLabel}
+                        localValue={draft.emailLocal}
+                        domainValue={draft.emailDomain}
+                        onLocalChange={(emailLocal) => updateEmailParts({ emailLocal })}
+                        onDomainChange={(emailDomain) => updateEmailParts({ emailDomain })}
+                        requirement="required"
+                      />
+                      <PhoneSplitField
+                        locale={locale}
+                        label={contactCopy.phoneLabel}
+                        countryCode={draft.phoneCountryCode}
+                        customCountryCode={draft.phoneCountryCodeCustom}
+                        phoneNumber={draft.phoneNumber}
+                        onChange={updatePhoneParts}
+                        requirement="required"
+                      />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+          ...(showPreferencesSection
+            ? [
+                {
+                  id: "preferences",
+                  title: r.sections.startPreferences,
+                  complete: preferencesComplete,
+                  children: (
+                    <div className="space-y-4">
+                      <MultiChipField
+                        locale={locale}
+                        label={r.fields.preferredContactMethods}
+                        options={r.options.preferredContactMethods}
+                        values={draft.preferredContactMethods}
+                        requirement="required"
+                        onChange={(preferredContactMethods) =>
+                          updateDraft({
+                            preferredContactMethods,
+                            communicationMethod: preferredContactMethods[0] || "",
+                          })
+                        }
+                      />
+                      <MultiChipField
+                        locale={locale}
+                        label={r.fields.preferredLanguages}
+                        options={r.options.preferredLanguages}
+                        values={selectedLanguages}
+                        requirement="required"
+                        onChange={(preferredLanguages) =>
+                          updateDraft({
+                            preferredLanguages,
+                            preferredLanguage: preferredLanguages[0] || "",
+                          })
+                        }
+                      />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+          ...(showMemoSection
+            ? [
+                {
+                  id: "memo",
+                  title: r.sections.startMemo,
+                  complete: Boolean(draft.shortMessage.trim()),
+                  children: (
+                    <TextareaField
+                      locale={locale}
+                      label={r.fields.shortMessage}
+                      value={draft.shortMessage}
+                      requirement="optional"
+                      onChange={(shortMessage) => updateDraft({ shortMessage })}
+                    />
+                  ),
+                },
+              ]
+            : []),
+        ]}
       />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          label={r.fields.lastName}
-          value={displayLastName}
-          onChange={(lastName) => updateDraft({ lastName, name: lastName })}
-          required
-        />
-        <TextField
-          label={r.fields.firstName}
-          value={draft.firstName}
-          onChange={(firstName) => updateDraft({ firstName })}
-          required
-        />
-        <TextField
-          label={r.fields.email}
-          type="email"
-          value={draft.email}
-          onChange={(email) => updateDraft({ email })}
-        />
-        <TextField
-          label={r.fields.contact}
-          value={draft.contact}
-          onChange={(contact) => updateDraft({ contact })}
-        />
-      </div>
-      <MultiChipField
-        label={r.fields.preferredContactMethods}
-        options={r.options.preferredContactMethods}
-        values={draft.preferredContactMethods}
-        onChange={(preferredContactMethods) =>
-          updateDraft({
-            preferredContactMethods,
-            communicationMethod: preferredContactMethods[0] || "",
-          })
-        }
-      />
-      <MultiChipField
-        label={r.fields.preferredLanguages}
-        options={r.options.preferredLanguages}
-        values={draft.preferredLanguages.length ? draft.preferredLanguages : draft.preferredLanguage ? [draft.preferredLanguage] : []}
-        onChange={(preferredLanguages) =>
-          updateDraft({
-            preferredLanguages,
-            preferredLanguage: preferredLanguages[0] || "",
-          })
-        }
-      />
-      <TextareaField
-        label={r.fields.shortMessage}
-        value={draft.shortMessage}
-        onChange={(shortMessage) => updateDraft({ shortMessage })}
-      />
-      {!canContinue ? (
-        <p className="rounded-2xl bg-[#FFF8F1] p-3 text-sm font-semibold leading-relaxed text-muted-foreground">
-          {r.helpers.requiredHelper}
-        </p>
-      ) : null}
       <FlowActions
         locale={locale}
         backHref={landlordRoute(locale, "landing")}
         nextHref={landlordRoute(locale, "property")}
         nextDisabled={!canContinue}
+        disabledHelper={disabledCopy.general}
       />
     </LandlordStepLayout>
   );
@@ -1818,6 +2399,46 @@ function PropertyStep({
 }) {
   const t = CONTENT[locale];
   const r = LANDLORD_REFINEMENTS[locale];
+  const form = LANDLORD_FORM_COPY[locale];
+  const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
+  const unitDetailOptions = getUnitDetailOptions(locale, draft.housingType);
+  const isOtherHousing = draft.housingType === form.housingTypes[3];
+  const isHouseHousing = draft.housingType === form.housingTypes[0];
+  const locationComplete = Boolean(
+    draft.city.trim() &&
+      draft.nearestStation.trim() &&
+      draft.address.trim(),
+  );
+  const housingComplete = Boolean(
+    draft.housingType.trim() &&
+      draft.unitDetail.trim() &&
+      draft.floor.trim() &&
+      draft.useType.trim(),
+  );
+  const livingComplete = Boolean(
+    draft.residentCondition.trim() &&
+      draft.furnished.trim() &&
+      draft.elevator.trim() &&
+      draft.parking.trim(),
+  );
+  const homePetsYes = draft.homePets === r.options.homePets[1];
+  const petsComplete = Boolean(
+    draft.tenantPetsAllowed.trim() &&
+      draft.homePets.trim() &&
+      draft.smokingCondition.trim(),
+  );
+  const photosComplete = Boolean(draft.photos.length && (draft.coverPhotoId || draft.photos[0]?.id));
+  const showHousingSection = locationComplete;
+  const showLivingSection = locationComplete && housingComplete;
+  const showPetsSection = locationComplete && housingComplete && livingComplete;
+  const showPhotosSection =
+    locationComplete && housingComplete && livingComplete && petsComplete;
+  const canContinue =
+    locationComplete && housingComplete && livingComplete && petsComplete && photosComplete;
+  const propertyDisabledHelper =
+    locationComplete && housingComplete && livingComplete && petsComplete
+      ? disabledCopy.photo
+      : disabledCopy.general;
 
   return (
     <LandlordStepLayout
@@ -1829,136 +2450,260 @@ function PropertyStep({
       asideBody={t.flow.property.addressHelper}
       icon={<Home className="h-5 w-5" aria-hidden />}
     >
-      <FormSection title={r.sections.location}>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <SelectField
-          label={r.fields.city}
-          value={draft.city}
-          options={r.options.cityOptions}
-          placeholder={t.flow.selectPlaceholder}
-          onChange={(city) => updateDraft({ city })}
-        />
-        <TextField
-          label={r.fields.area}
-          value={draft.area}
-          onChange={(area) => updateDraft({ area })}
-        />
-        <SearchableStationField
-          label={r.fields.nearestStation}
-          locale={locale}
-          value={draft.nearestStation}
-          onChange={(nearestStation) => updateDraft({ nearestStation })}
-        />
-        <TextField
-          label={r.fields.address}
-          value={draft.address}
-          helper={r.helpers.addressHelper}
-          onChange={(address) => updateDraft({ address })}
-        />
-      </div>
-      </FormSection>
-      <FormSection title={r.sections.housing}>
-      <OptionCardField
-        label={r.fields.housingType}
-        value={draft.housingType}
-        options={r.options.housingTypes}
-        onChange={(housingType) => updateDraft({ housingType })}
-        compact
+      <ProgressiveRevealSections
+        sections={[
+          {
+            id: "location",
+            title: r.sections.location,
+            complete: locationComplete,
+            children: (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <SelectField
+                  locale={locale}
+                  label={r.fields.city}
+                  value={draft.city}
+                  options={form.cityOptions}
+                  placeholder={form.select}
+                  requirement="required"
+                  onChange={(city) => updateDraft({ city })}
+                />
+                <TextField
+                  locale={locale}
+                  label={r.fields.area}
+                  value={draft.area}
+                  requirement="optional"
+                  onChange={(area) => updateDraft({ area })}
+                />
+                <SearchableStationField
+                  label={r.fields.nearestStation}
+                  locale={locale}
+                  value={draft.nearestStation}
+                  requirement="required"
+                  onChange={(nearestStation) => updateDraft({ nearestStation })}
+                />
+                <TextField
+                  locale={locale}
+                  label={r.fields.address}
+                  value={draft.address}
+                  helper={r.helpers.addressHelper}
+                  requirement="required"
+                  onChange={(address) => updateDraft({ address })}
+                />
+              </div>
+            ),
+          },
+          ...(showHousingSection
+            ? [
+                {
+                  id: "housing",
+                  title: r.sections.housing,
+                  complete: housingComplete,
+                  children: (
+                    <>
+                      <OptionCardField
+                        locale={locale}
+                        label={r.fields.housingType}
+                        value={draft.housingType}
+                        options={form.housingTypes}
+                        requirement="required"
+                        onChange={(housingType) =>
+                          updateDraft({
+                            housingType,
+                            unitDetail: "",
+                            floor: "",
+                          })
+                        }
+                        compact
+                      />
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {isOtherHousing ? (
+                          <TextField
+                            locale={locale}
+                            label={form.unitDetailLabel}
+                            value={draft.unitDetail}
+                            helper={form.unitDetailPlaceholder}
+                            requirement="required"
+                            onChange={(unitDetail) => updateDraft({ unitDetail })}
+                          />
+                        ) : (
+                          <SelectField
+                            locale={locale}
+                            label={form.unitDetailLabel}
+                            value={draft.unitDetail}
+                            options={unitDetailOptions}
+                            placeholder={form.select}
+                            requirement="required"
+                            onChange={(unitDetail) => updateDraft({ unitDetail })}
+                          />
+                        )}
+                        {isHouseHousing ? (
+                          <SelectField
+                            locale={locale}
+                            label={form.floorLabel}
+                            value={draft.floor}
+                            options={form.floorHouse}
+                            placeholder={form.select}
+                            requirement="required"
+                            onChange={(floor) => updateDraft({ floor })}
+                          />
+                        ) : (
+                          <SuffixNumberField
+                            locale={locale}
+                            label={form.floorLabel}
+                            suffix={form.floorSuffix}
+                            value={draft.floor}
+                            requirement="required"
+                            onChange={(floor) => updateDraft({ floor })}
+                          />
+                        )}
+                      </div>
+                      <SelectField
+                        locale={locale}
+                        label={r.fields.useType}
+                        value={draft.useType}
+                        options={form.useTypes}
+                        placeholder={form.select}
+                        requirement="required"
+                        onChange={(useType) => updateDraft({ useType })}
+                      />
+                    </>
+                  ),
+                },
+              ]
+            : []),
+          ...(showLivingSection
+            ? [
+                {
+                  id: "living",
+                  title: r.sections.living,
+                  complete: livingComplete,
+                  children: (
+                    <>
+                      <p className="text-sm font-semibold leading-relaxed text-muted-foreground">
+                        {form.residentHelper}
+                      </p>
+                      <ChipChoiceField
+                        locale={locale}
+                        label={r.fields.residentCondition}
+                        value={draft.residentCondition}
+                        options={r.options.residentConditions}
+                        requirement="required"
+                        onChange={(residentCondition) => updateDraft({ residentCondition })}
+                      />
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <ChipChoiceField
+                          locale={locale}
+                          label={r.fields.furnished}
+                          value={draft.furnished}
+                          options={r.options.yesNoConfirm}
+                          requirement="required"
+                          onChange={(furnished) => updateDraft({ furnished })}
+                          compact
+                        />
+                        <ChipChoiceField
+                          locale={locale}
+                          label={r.fields.elevator}
+                          value={draft.elevator}
+                          options={r.options.yesNoConfirm}
+                          requirement="required"
+                          onChange={(elevator) => updateDraft({ elevator })}
+                          compact
+                        />
+                        <ChipChoiceField
+                          locale={locale}
+                          label={r.fields.parking}
+                          value={draft.parking}
+                          options={r.options.yesNoConfirm}
+                          requirement="required"
+                          onChange={(parking) => updateDraft({ parking })}
+                          compact
+                        />
+                      </div>
+                    </>
+                  ),
+                },
+              ]
+            : []),
+          ...(showPetsSection
+            ? [
+                {
+                  id: "pets",
+                  title: r.sections.pets,
+                  complete: petsComplete,
+                  children: (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <ChipChoiceField
+                        locale={locale}
+                        label={r.fields.tenantPetsAllowed}
+                        value={draft.tenantPetsAllowed}
+                        options={r.options.petAllowed}
+                        requirement="required"
+                        onChange={(tenantPetsAllowed) => updateDraft({ tenantPetsAllowed })}
+                        compact
+                      />
+                      <ChipChoiceField
+                        locale={locale}
+                        label={r.fields.homePets}
+                        value={draft.homePets}
+                        options={r.options.homePets}
+                        requirement="required"
+                        onChange={(homePets) =>
+                          updateDraft({
+                            homePets,
+                            homePetType: homePets === r.options.homePets[1] ? draft.homePetType : "",
+                          })
+                        }
+                        compact
+                      />
+                      {homePetsYes ? (
+                        <TextField
+                          locale={locale}
+                          label={r.fields.homePetType}
+                          value={draft.homePetType}
+                          requirement="optional"
+                          onChange={(homePetType) => updateDraft({ homePetType })}
+                        />
+                      ) : null}
+                      <ChipChoiceField
+                        locale={locale}
+                        label={r.fields.smokingCondition}
+                        value={draft.smokingCondition}
+                        options={r.options.smoking}
+                        requirement="required"
+                        onChange={(smokingCondition) => updateDraft({ smokingCondition })}
+                        compact
+                      />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+          ...(showPhotosSection
+            ? [
+                {
+                  id: "photos",
+                  title: r.sections.photos,
+                  complete: photosComplete,
+                  children: (
+                    <PhotoUploadField
+                      locale={locale}
+                      photos={draft.photos}
+                      coverPhotoId={draft.coverPhotoId}
+                      requirement="required"
+                      onChange={(photos, coverPhotoId) => updateDraft({ photos, coverPhotoId })}
+                    />
+                  ),
+                },
+              ]
+            : []),
+        ]}
       />
-      <ChipChoiceField
-        label={r.fields.useType}
-        value={draft.useType}
-        options={r.options.useTypes}
-        onChange={(useType) => updateDraft({ useType })}
-      />
-      </FormSection>
-      <FormSection title={r.sections.living} helper={r.helpers.residentHelper}>
-        <ChipChoiceField
-          label={r.fields.residentCondition}
-          value={draft.residentCondition}
-          options={r.options.residentConditions}
-          onChange={(residentCondition) => updateDraft({ residentCondition })}
-        />
-      <div className="grid gap-4 md:grid-cols-2">
-        <ChipChoiceField
-          label={r.fields.furnished}
-          value={draft.furnished}
-          options={r.options.yesNoConfirm}
-          onChange={(furnished) => updateDraft({ furnished })}
-          compact
-        />
-        <ChipChoiceField
-          label={r.fields.elevator}
-          value={draft.elevator}
-          options={r.options.yesNoConfirm}
-          onChange={(elevator) => updateDraft({ elevator })}
-          compact
-        />
-        <ChipChoiceField
-          label={r.fields.parking}
-          value={draft.parking}
-          options={r.options.yesNoConfirm}
-          onChange={(parking) => updateDraft({ parking })}
-          compact
-        />
-        <ChipChoiceField
-          label={r.fields.laundry}
-          value={draft.laundry}
-          options={r.options.yesNoConfirm}
-          onChange={(laundry) => updateDraft({ laundry })}
-          compact
-        />
-      </div>
-      </FormSection>
-      <FormSection title={r.sections.pets}>
-        <div className="grid gap-4 md:grid-cols-2">
-          <ChipChoiceField
-            label={r.fields.tenantPetsAllowed}
-            value={draft.tenantPetsAllowed}
-            options={r.options.petAllowed}
-            onChange={(tenantPetsAllowed) => updateDraft({ tenantPetsAllowed })}
-            compact
-          />
-          <ChipChoiceField
-            label={r.fields.homePets}
-            value={draft.homePets}
-            options={r.options.homePets}
-            onChange={(homePets) =>
-              updateDraft({
-                homePets,
-                homePetType: homePets === r.options.homePets[1] ? draft.homePetType : "",
-              })
-            }
-            compact
-          />
-          {draft.homePets === r.options.homePets[1] ? (
-            <TextField
-              label={r.fields.homePetType}
-              value={draft.homePetType}
-              onChange={(homePetType) => updateDraft({ homePetType })}
-            />
-          ) : null}
-          <ChipChoiceField
-            label={r.fields.smokingCondition}
-            value={draft.smokingCondition}
-            options={r.options.smoking}
-            onChange={(smokingCondition) => updateDraft({ smokingCondition })}
-            compact
-          />
-        </div>
-      </FormSection>
-      <FormSection title={r.sections.photos}>
-        <PhotoUploadField
-          locale={locale}
-          photos={draft.photos}
-          coverPhotoId={draft.coverPhotoId}
-          onChange={(photos, coverPhotoId) => updateDraft({ photos, coverPhotoId })}
-        />
-      </FormSection>
       <FlowActions
         locale={locale}
         backHref={landlordRoute(locale, "register")}
         nextHref={landlordRoute(locale, "rooms")}
+        nextDisabled={!canContinue}
+        disabledHelper={propertyDisabledHelper}
       />
     </LandlordStepLayout>
   );
@@ -1975,7 +2720,27 @@ function RoomsStep({
 }) {
   const t = CONTENT[locale];
   const r = LANDLORD_REFINEMENTS[locale];
-  const hasBed = draft.furniture.includes(r.options.furniture[0]);
+  const form = LANDLORD_FORM_COPY[locale];
+  const sectionTitles = LANDLORD_ROOM_SECTION_TITLES[locale];
+  const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
+  const hasBed = draft.furniture.includes(form.furniture[0]);
+  const roomRentComplete = Boolean(
+    draft.listingTitle.trim() &&
+      draft.monthlyRent.trim() &&
+      draft.availableFrom.trim() &&
+      draft.minimumStay.trim(),
+  );
+  const roomLivingComplete = Boolean(
+    draft.occupancy.trim() && draft.bathroom.trim() && draft.kitchen.trim(),
+  );
+  const showRoomLivingSection = roomRentComplete;
+  const showFurnitureSection = roomRentComplete && roomLivingComplete;
+  const furnitureComplete = !hasBed || Boolean(draft.bedSize.trim());
+  const canContinue = roomRentComplete && roomLivingComplete && furnitureComplete;
+  const roomsDisabledHelper =
+    roomRentComplete && roomLivingComplete && hasBed && !draft.bedSize.trim()
+      ? disabledCopy.bedSize
+      : disabledCopy.general;
 
   return (
     <LandlordStepLayout
@@ -1987,78 +2752,138 @@ function RoomsStep({
       asideBody={t.flow.rooms.description}
       icon={<Building2 className="h-5 w-5" aria-hidden />}
     >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          label={r.fields.listingTitle}
-          value={draft.listingTitle}
-          onChange={(listingTitle) => updateDraft({ listingTitle })}
-        />
-        <CurrencyField
-          label={r.fields.monthlyRent}
-          value={draft.monthlyRent}
-          onChange={(monthlyRent) => updateDraft({ monthlyRent })}
-        />
-        <TextField
-          label={r.fields.availableFrom}
-          type="date"
-          value={draft.availableFrom}
-          onChange={(availableFrom) => updateDraft({ availableFrom })}
-        />
-      </div>
-      <ChipChoiceField
-        label={r.fields.minimumStay}
-        tooltip={r.helpers.minimumStayTooltip}
-        value={draft.minimumStay}
-        options={r.options.minimumStay}
-        onChange={(minimumStay) => updateDraft({ minimumStay })}
+      <ProgressiveRevealSections
+        sections={[
+          {
+            id: "rent",
+            title: sectionTitles.rent,
+            complete: roomRentComplete,
+            children: (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TextField
+                    locale={locale}
+                    label={r.fields.listingTitle}
+                    value={draft.listingTitle}
+                    requirement="required"
+                    onChange={(listingTitle) => updateDraft({ listingTitle })}
+                  />
+                  <CurrencyField
+                    locale={locale}
+                    label={r.fields.monthlyRent}
+                    value={draft.monthlyRent}
+                    requirement="required"
+                    onChange={(monthlyRent) => updateDraft({ monthlyRent })}
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
+                  <TextField
+                    locale={locale}
+                    label={r.fields.availableFrom}
+                    type="date"
+                    value={draft.availableFrom}
+                    requirement="required"
+                    onChange={(availableFrom) => updateDraft({ availableFrom })}
+                  />
+                  <SelectField
+                    locale={locale}
+                    label={r.fields.minimumStay}
+                    tooltip={r.helpers.minimumStayTooltip}
+                    value={draft.minimumStay}
+                    options={form.minimumStay}
+                    placeholder={form.select}
+                    requirement="required"
+                    onChange={(minimumStay) => updateDraft({ minimumStay })}
+                  />
+                </div>
+              </>
+            ),
+          },
+          ...(showRoomLivingSection
+            ? [
+                {
+                  id: "roomDetails",
+                  title: sectionTitles.living,
+                  complete: roomLivingComplete,
+                  children: (
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <SelectField
+                        locale={locale}
+                        label={r.fields.occupancy}
+                        value={draft.occupancy}
+                        options={form.occupancy}
+                        placeholder={form.select}
+                        requirement="required"
+                        onChange={(occupancy) => updateDraft({ occupancy })}
+                      />
+                      <SelectField
+                        locale={locale}
+                        label={r.fields.bathroom}
+                        value={draft.bathroom}
+                        options={form.bathroom}
+                        placeholder={form.select}
+                        requirement="required"
+                        onChange={(bathroom) => updateDraft({ bathroom })}
+                      />
+                      <SelectField
+                        locale={locale}
+                        label={r.fields.kitchen}
+                        value={draft.kitchen}
+                        options={form.kitchen}
+                        placeholder={form.select}
+                        requirement="required"
+                        onChange={(kitchen) => updateDraft({ kitchen })}
+                      />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+          ...(showFurnitureSection
+            ? [
+                {
+                  id: "furniture",
+                  title: sectionTitles.furniture,
+                  complete: Boolean(draft.furniture.length || draft.bedSize),
+                  children: (
+                    <div className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+                      <MultiChipField
+                        locale={locale}
+                        label={r.fields.furniture}
+                        options={form.furniture}
+                        values={draft.furniture.filter((item) => form.furniture.includes(item))}
+                        requirement="optional"
+                        onChange={(furniture) =>
+                          updateDraft({
+                            furniture,
+                            bedSize: furniture.includes(form.furniture[0]) ? draft.bedSize : "",
+                          })
+                        }
+                      />
+                      {hasBed ? (
+                        <ChipChoiceField
+                          locale={locale}
+                          label={r.fields.bedSize}
+                          value={draft.bedSize}
+                          options={r.options.bedSize}
+                          requirement="conditional"
+                          onChange={(bedSize) => updateDraft({ bedSize })}
+                          compact
+                        />
+                      ) : null}
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+        ]}
       />
-      <div className="grid gap-4 md:grid-cols-3">
-        <ChipChoiceField
-          label={r.fields.occupancy}
-          value={draft.occupancy}
-          options={r.options.occupancy}
-          onChange={(occupancy) => updateDraft({ occupancy })}
-          compact
-        />
-        <ChipChoiceField
-          label={r.fields.bathroom}
-          value={draft.bathroom}
-          options={r.options.bathroom}
-          onChange={(bathroom) => updateDraft({ bathroom })}
-          compact
-        />
-        <ChipChoiceField
-          label={r.fields.kitchen}
-          value={draft.kitchen}
-          options={r.options.kitchen}
-          onChange={(kitchen) => updateDraft({ kitchen })}
-          compact
-        />
-      </div>
-      <MultiChipField
-        label={r.fields.furniture}
-        options={r.options.furniture}
-        values={draft.furniture}
-        onChange={(furniture) =>
-          updateDraft({
-            furniture,
-            bedSize: furniture.includes(r.options.furniture[0]) ? draft.bedSize : "",
-          })
-        }
-      />
-      {hasBed ? (
-        <ChipChoiceField
-          label={r.fields.bedSize}
-          value={draft.bedSize}
-          options={r.options.bedSize}
-          onChange={(bedSize) => updateDraft({ bedSize })}
-          compact
-        />
-      ) : null}
       <FlowActions
         locale={locale}
         backHref={landlordRoute(locale, "property")}
         nextHref={landlordRoute(locale, "terms")}
+        nextDisabled={!canContinue}
+        disabledHelper={roomsDisabledHelper}
       />
     </LandlordStepLayout>
   );
@@ -2075,6 +2900,33 @@ function TermsStep({
 }) {
   const t = CONTENT[locale];
   const r = LANDLORD_REFINEMENTS[locale];
+  const form = LANDLORD_FORM_COPY[locale];
+  const sectionTitles = LANDLORD_TERMS_SECTION_TITLES[locale];
+  const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
+  const utilityStatusFor = (utility: string) => {
+    if (draft.utilityStatuses?.[utility]) {
+      return draft.utilityStatuses[utility];
+    }
+    if (draft.utilitiesIncluded.includes(utility)) {
+      return "included";
+    }
+    if (draft.utilitiesSeparate.includes(utility)) {
+      return "separate";
+    }
+    return "";
+  };
+  const depositComplete = draft.keyDepositAmount.trim() !== "";
+  const utilitiesComplete = r.options.utilities.every((utility) =>
+    Boolean(utilityStatusFor(utility)),
+  );
+  const rulesComplete = true;
+  const showUtilitiesSection = depositComplete;
+  const showRulesSection = depositComplete && utilitiesComplete;
+  const showQuestionsSection = depositComplete && utilitiesComplete;
+  const canContinue = depositComplete && utilitiesComplete;
+  const termsDisabledHelper = !depositComplete
+    ? disabledCopy.keyDeposit
+    : disabledCopy.general;
 
   return (
     <LandlordStepLayout
@@ -2086,46 +2938,108 @@ function TermsStep({
       asideBody={t.flow.terms.notice}
       icon={<ShieldCheck className="h-5 w-5" aria-hidden />}
     >
-      <LandlordNotice>{r.helpers.lastMonthInfo}</LandlordNotice>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <CurrencyField
-          label={r.fields.keyDepositAmount}
-          value={draft.keyDepositAmount}
-          onChange={(keyDepositAmount) => updateDraft({ keyDepositAmount })}
-        />
-      </div>
-      <UtilityMatrix
-        locale={locale}
-        draft={draft}
-        onChange={(utilityStatuses, utilitiesIncluded, utilitiesSeparate) =>
-          updateDraft({ utilityStatuses, utilitiesIncluded, utilitiesSeparate })
-        }
-      />
-      <MultiChipField
-        label={r.fields.houseRuleItems}
-        options={r.options.houseRules}
-        values={draft.houseRuleItems.length ? draft.houseRuleItems : draft.houseRules ? [draft.houseRules] : []}
-        onChange={(houseRuleItems) =>
-          updateDraft({
-            houseRuleItems,
-            houseRules: houseRuleItems.join(", "),
-          })
-        }
-      />
-      <TextareaField
-        label={r.fields.additionalNote}
-        value={draft.additionalNote}
-        onChange={(additionalNote) => updateDraft({ additionalNote })}
-      />
-      <TextareaField
-        label={r.fields.moveInQuestions}
-        value={draft.moveInQuestions}
-        onChange={(moveInQuestions) => updateDraft({ moveInQuestions })}
+      <ProgressiveRevealSections
+        sections={[
+          {
+            id: "deposit",
+            title: sectionTitles.deposit,
+            complete: depositComplete,
+            children: (
+              <>
+                <LandlordNotice>{r.helpers.lastMonthInfo}</LandlordNotice>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <CurrencyField
+                    locale={locale}
+                    label={form.keyDepositLabel}
+                    value={draft.keyDepositAmount}
+                    requirement="required"
+                    onChange={(keyDepositAmount) => updateDraft({ keyDepositAmount })}
+                  />
+                </div>
+                <p className="text-xs font-semibold leading-relaxed text-muted-foreground">
+                  {disabledCopy.keyDeposit}
+                </p>
+              </>
+            ),
+          },
+          ...(showUtilitiesSection
+            ? [
+                {
+                  id: "utilities",
+                  title: sectionTitles.utilities,
+                  complete: utilitiesComplete,
+                  children: (
+                    <UtilityMatrix
+                      locale={locale}
+                      draft={draft}
+                      onChange={(utilityStatuses, utilitiesIncluded, utilitiesSeparate) =>
+                        updateDraft({ utilityStatuses, utilitiesIncluded, utilitiesSeparate })
+                      }
+                    />
+                  ),
+                },
+              ]
+            : []),
+          ...(showRulesSection
+            ? [
+                {
+                  id: "rules",
+                  title: sectionTitles.rules,
+                  complete: Boolean(draft.houseRuleItems.length || draft.additionalNote.trim()),
+                  children: (
+                    <>
+                      <LandlordNotice>{disabledCopy.houseRulesNotice}</LandlordNotice>
+                      <MultiChipField
+                        locale={locale}
+                        label={r.fields.houseRuleItems}
+                        options={r.options.houseRules}
+                        values={draft.houseRuleItems.length ? draft.houseRuleItems : draft.houseRules ? [draft.houseRules] : []}
+                        requirement="optional"
+                        onChange={(houseRuleItems) =>
+                          updateDraft({
+                            houseRuleItems,
+                            houseRules: houseRuleItems.join(", "),
+                          })
+                        }
+                      />
+                      <TextareaField
+                        locale={locale}
+                        label={r.fields.additionalNote}
+                        value={draft.additionalNote}
+                        requirement="optional"
+                        onChange={(additionalNote) => updateDraft({ additionalNote })}
+                      />
+                    </>
+                  ),
+                },
+              ]
+            : []),
+          ...(showQuestionsSection
+            ? [
+                {
+                  id: "moveInQuestions",
+                  title: sectionTitles.questions,
+                  complete: Boolean(draft.moveInQuestions.trim()),
+                  children: (
+                    <TextareaField
+                      locale={locale}
+                      label={r.fields.moveInQuestions}
+                      value={draft.moveInQuestions}
+                      requirement="optional"
+                      onChange={(moveInQuestions) => updateDraft({ moveInQuestions })}
+                    />
+                  ),
+                },
+              ]
+            : []),
+        ]}
       />
       <FlowActions
         locale={locale}
         backHref={landlordRoute(locale, "rooms")}
         nextHref={landlordRoute(locale, "preview")}
+        nextDisabled={!canContinue}
+        disabledHelper={termsDisabledHelper}
       />
     </LandlordStepLayout>
   );
@@ -2142,8 +3056,11 @@ function PreviewStep({
 }) {
   const [submitted, setSubmitted] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [startOverOpen, setStartOverOpen] = useState(false);
   const t = CONTENT[locale];
   const r = LANDLORD_REFINEMENTS[locale];
+  const form = LANDLORD_FORM_COPY[locale];
+  const startOverCopy = LANDLORD_START_OVER_COPY[locale];
   const utilityRows = getUtilitySummaryRows(locale, draft);
   const coverPhoto = draft.photos.find((photo) => photo.id === draft.coverPhotoId) || draft.photos[0];
 
@@ -2197,7 +3114,7 @@ function PreviewStep({
                 <PreviewMetric label={r.fields.monthlyRent} value={formatCurrencyValue(draft.monthlyRent)} empty={r.helpers.empty} />
                 <PreviewMetric label={r.fields.availableFrom} value={draft.availableFrom} empty={r.helpers.empty} />
                 <PreviewMetric label={r.fields.housingType} value={draft.housingType} empty={r.helpers.empty} />
-                <PreviewMetric label={r.fields.useType} value={draft.useType} empty={r.helpers.empty} />
+                <PreviewMetric label={form.unitDetailLabel} value={draft.unitDetail} empty={r.helpers.empty} />
               </div>
             </div>
           </div>
@@ -2211,8 +3128,8 @@ function PreviewStep({
             editLabel={r.helpers.edit}
             rows={[
               [r.fields.role, draft.role],
-              [r.fields.lastName, draft.lastName || draft.name],
               [r.fields.firstName, draft.firstName],
+              [r.fields.lastName, draft.lastName || draft.name],
               [r.fields.email, draft.email],
               [r.fields.contact, draft.contact],
               [r.fields.preferredContactMethods, joinValues(draft.preferredContactMethods)],
@@ -2231,12 +3148,13 @@ function PreviewStep({
               [r.fields.nearestStation, draft.nearestStation],
               [r.fields.address, draft.address],
               [r.fields.housingType, draft.housingType],
+              [form.unitDetailLabel, draft.unitDetail],
+              [form.floorLabel, draft.floor],
               [r.fields.useType, draft.useType],
               [r.fields.residentCondition, draft.residentCondition],
               [r.fields.furnished, draft.furnished],
               [r.fields.elevator, draft.elevator],
               [r.fields.parking, draft.parking],
-              [r.fields.laundry, draft.laundry],
               [r.fields.tenantPetsAllowed, draft.tenantPetsAllowed],
               [r.fields.homePets, [draft.homePets, draft.homePetType].filter(Boolean).join(" · ")],
               [r.fields.smokingCondition, draft.smokingCondition],
@@ -2265,7 +3183,7 @@ function PreviewStep({
             editHref={landlordRoute(locale, "terms")}
             editLabel={r.helpers.edit}
             rows={[
-              [r.fields.keyDepositAmount, formatCurrencyValue(draft.keyDepositAmount)],
+              [form.keyDepositLabel, formatCurrencyValue(draft.keyDepositAmount)],
               ...utilityRows,
             ]}
           />
@@ -2296,7 +3214,12 @@ function PreviewStep({
           <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-border bg-white text-white transition peer-checked:border-primary peer-checked:bg-primary">
             <CheckCircle className="h-3.5 w-3.5" aria-hidden />
           </span>
-          <span>{r.helpers.previewCheckbox}</span>
+          <span>
+            {r.helpers.previewCheckbox}{" "}
+            <span className="whitespace-nowrap font-extrabold text-primary">
+              ({LANDLORD_REQUIREMENT_COPY[locale].required})
+            </span>
+          </span>
         </label>
 
         {submitted ? (
@@ -2311,17 +3234,17 @@ function PreviewStep({
         ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-5">
-          <a
-            href={landlordRoute(locale, "terms")}
+          <Link
+            to={landlordRoute(locale, "terms")}
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-border bg-white px-5 py-3 text-sm font-bold text-foreground transition hover:border-primary/30 hover:text-primary"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden />
             {t.flow.back}
-          </a>
+          </Link>
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={clearDraft}
+              onClick={() => setStartOverOpen(true)}
               className="inline-flex items-center justify-center whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-5 py-3 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
             >
               {r.helpers.startOver}
@@ -2337,6 +3260,37 @@ function PreviewStep({
           </div>
         </div>
       </form>
+      {startOverOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4 py-6">
+          <section className="w-full max-w-md rounded-3xl border border-primary/20 bg-white p-5 shadow-2xl">
+            <h2 className="text-lg font-extrabold text-foreground">
+              {startOverCopy.title}
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {startOverCopy.body}
+            </p>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setStartOverOpen(false)}
+                className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-bold text-muted-foreground transition hover:border-primary/30 hover:text-primary"
+              >
+                {startOverCopy.cancel}
+              </button>
+              <Link
+                to={landlordRoute(locale, "register")}
+                onClick={() => {
+                  clearDraft();
+                  setStartOverOpen(false);
+                }}
+                className="rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary/90"
+              >
+                {startOverCopy.confirm}
+              </Link>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </LandlordStepLayout>
   );
 }
@@ -2387,13 +3341,6 @@ function LandlordProgress({
   activeIndex: number;
 }) {
   const t = CONTENT[locale];
-  const pages: Array<Exclude<LandlordRoutePage, "landing" | "guide">> = [
-    "register",
-    "property",
-    "rooms",
-    "terms",
-    "preview",
-  ];
 
   return (
     <nav
@@ -2406,15 +3353,15 @@ function LandlordProgress({
           const isComplete = index < activeIndex;
           return (
             <li key={label}>
-              <a
-                href={landlordRoute(locale, pages[index])}
+              <div
+                aria-current={isActive ? "step" : undefined}
                 className={cn(
-                  "flex min-h-12 items-center gap-2 rounded-2xl px-3 py-2 text-sm font-extrabold transition",
+                  "flex min-h-12 cursor-default items-center gap-2 rounded-2xl px-3 py-2 text-sm font-extrabold",
                   isActive
                     ? "bg-primary text-white"
                     : isComplete
                       ? "bg-[#FFF3E6] text-primary"
-                      : "bg-[#F7F7F5] text-muted-foreground hover:text-primary",
+                      : "bg-[#F7F7F5] text-muted-foreground",
                 )}
               >
                 <span
@@ -2430,7 +3377,7 @@ function LandlordProgress({
                   {index + 1}
                 </span>
                 <span className="min-w-0 leading-tight">{label}</span>
-              </a>
+              </div>
             </li>
           );
         })}
@@ -2444,41 +3391,50 @@ function FlowActions({
   backHref,
   nextHref,
   nextDisabled = false,
+  disabledHelper,
 }: {
   locale: Locale;
   backHref: string;
   nextHref: string;
   nextDisabled?: boolean;
+  disabledHelper?: string;
 }) {
   const t = CONTENT[locale];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-5">
-      <a
-        href={backHref}
-        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-border bg-white px-5 py-3 text-sm font-bold text-foreground transition hover:border-primary/30 hover:text-primary"
-      >
-        <ChevronLeft className="h-4 w-4" aria-hidden />
-        {t.flow.back}
-      </a>
-      {nextDisabled ? (
-        <button
-          type="button"
-          disabled
-          className="inline-flex cursor-not-allowed items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-muted px-5 py-3 text-sm font-bold text-muted-foreground"
+    <div className="border-t border-border/70 pt-5">
+      {nextDisabled && disabledHelper ? (
+        <p className="mb-3 rounded-2xl bg-[#FFF8F1] p-3 text-sm font-semibold leading-relaxed text-muted-foreground">
+          {disabledHelper}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link
+          to={backHref}
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-border bg-white px-5 py-3 text-sm font-bold text-foreground transition hover:border-primary/30 hover:text-primary"
         >
-          {t.flow.next}
-          <ChevronRight className="h-4 w-4" aria-hidden />
-        </button>
-      ) : (
-        <a
-          href={nextHref}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
-        >
-          {t.flow.next}
-          <ChevronRight className="h-4 w-4" aria-hidden />
-        </a>
-      )}
+          <ChevronLeft className="h-4 w-4" aria-hidden />
+          {t.flow.back}
+        </Link>
+        {nextDisabled ? (
+          <button
+            type="button"
+            disabled
+            className="inline-flex cursor-not-allowed items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-muted px-5 py-3 text-sm font-bold text-muted-foreground"
+          >
+            {t.flow.next}
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </button>
+        ) : (
+          <Link
+            to={nextHref}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+          >
+            {t.flow.next}
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
@@ -2507,32 +3463,236 @@ function FormSection({
   );
 }
 
+function FieldGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3 pt-2 first:pt-0">
+      <h2 className="text-sm font-extrabold text-foreground">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function ProgressiveRevealSections({
+  sections,
+}: {
+  sections: Array<{
+    id: string;
+    title: string;
+    complete?: boolean;
+    children: React.ReactNode;
+  }>;
+}) {
+  return (
+    <div className="space-y-3">
+      {sections.map((section, index) => {
+        const isComplete = Boolean(section.complete);
+
+        return (
+          <section
+            key={section.id}
+            className={cn(
+              "rounded-[1.5rem] border bg-white shadow-sm transition",
+              isComplete ? "border-primary/20" : "border-border/80",
+              index > 0 && "mh-landlord-reveal",
+            )}
+          >
+            <div
+              className={cn(
+                "rounded-t-[1.5rem] border-b px-4 py-3 sm:px-5",
+                isComplete
+                  ? "border-primary/10 bg-[#FFF8F1]"
+                  : "border-border/70 bg-[#FCFCFB]",
+              )}
+            >
+              <h2 className="min-w-0 text-sm font-extrabold text-foreground">
+                {section.title}
+              </h2>
+            </div>
+            <div className="px-4 py-4 sm:px-5">
+              <div className="space-y-4">{section.children}</div>
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+function LandlordLeaveDialog({
+  locale,
+  onStay,
+  onSave,
+  onLeave,
+}: {
+  locale: Locale;
+  onStay: () => void;
+  onSave: () => void;
+  onLeave: () => void;
+}) {
+  const copy = LANDLORD_LEAVE_COPY[locale];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4 py-6">
+      <section className="w-full max-w-md rounded-3xl border border-primary/20 bg-white p-5 shadow-2xl">
+        <h2 className="text-lg font-extrabold text-foreground">{copy.title}</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          {copy.body}
+        </p>
+        <div className="mt-5 flex flex-wrap justify-end gap-2">
+          <button
+            type="button"
+            onClick={onStay}
+            className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-bold text-muted-foreground transition hover:border-primary/30 hover:text-primary"
+          >
+            {copy.stay}
+          </button>
+          <button
+            type="button"
+            onClick={onSave}
+            className="rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
+          >
+            {copy.save}
+          </button>
+          <button
+            type="button"
+            onClick={onLeave}
+            className="rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary/90"
+          >
+            {copy.leave}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function AccordionSections({
+  sections,
+}: {
+  sections: Array<{
+    id: string;
+    title: string;
+    helper?: string;
+    complete?: boolean;
+    children: React.ReactNode;
+  }>;
+}) {
+  const [openId, setOpenId] = useState(sections[0]?.id || "");
+
+  useEffect(() => {
+    if (!sections.some((section) => section.id === openId)) {
+      setOpenId(sections[0]?.id || "");
+    }
+  }, [openId, sections]);
+
+  return (
+    <div className="space-y-3">
+      {sections.map((section, index) => {
+        const isOpen = openId === section.id;
+        const isComplete = Boolean(section.complete);
+
+        return (
+          <section
+            key={section.id}
+            className={cn(
+              "overflow-hidden rounded-[1.5rem] border shadow-sm transition",
+              isOpen || isComplete
+                ? "border-primary/20 bg-[#FFF8F1]"
+                : "border-border/80 bg-[#FCFCFB]",
+            )}
+          >
+            <button
+              type="button"
+              onClick={() => setOpenId(isOpen ? "" : section.id)}
+              className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left sm:px-5"
+            >
+              <span
+                className={cn(
+                  "flex h-7 min-w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold",
+                  isComplete
+                    ? "bg-primary text-white"
+                    : isOpen
+                      ? "bg-[#FFF3E6] text-primary"
+                      : "bg-white text-muted-foreground",
+                )}
+              >
+                {isComplete ? <CheckCircle className="h-4 w-4" aria-hidden /> : index + 1}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold text-foreground">
+                  {section.title}
+                </span>
+                {section.helper ? (
+                  <span className="mt-0.5 block text-xs font-semibold leading-relaxed text-muted-foreground">
+                    {section.helper}
+                  </span>
+                ) : null}
+              </span>
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 shrink-0 text-muted-foreground transition",
+                  isOpen && "rotate-180 text-primary",
+                )}
+                aria-hidden
+              />
+            </button>
+            {isOpen ? (
+              <div className="border-t border-primary/10 bg-white px-4 py-4 sm:px-5">
+                <div className="space-y-4">{section.children}</div>
+              </div>
+            ) : null}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 function TextField({
+  locale,
   label,
   value,
   onChange,
   helper,
   type = "text",
   required = false,
+  requirement,
+  placeholder,
+  inputMode,
+  autoComplete = "off",
 }: {
+  locale: Locale;
   label: string;
   value: string;
   onChange: (value: string) => void;
   helper?: string;
   type?: "text" | "email" | "date" | "number";
   required?: boolean;
+  requirement?: FieldRequirement;
+  placeholder?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  autoComplete?: string;
 }) {
   return (
     <label className="block min-w-0">
-      <span className="text-sm font-bold text-foreground">
-        {label}
-        {required ? <span className="text-primary"> *</span> : null}
-      </span>
+      <LabelText locale={locale} label={label} required={required} requirement={requirement} />
       <input
         type={type}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+        className={cn(
+          "mt-2 h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10",
+          type === "date" && "pr-3 [color-scheme:light] accent-primary",
+        )}
       />
       {helper ? (
         <span className="mt-1 block text-xs font-semibold leading-relaxed text-muted-foreground">
@@ -2543,25 +3703,258 @@ function TextField({
   );
 }
 
+function EmailSplitField({
+  locale,
+  label,
+  localValue,
+  domainValue,
+  onLocalChange,
+  onDomainChange,
+  required = false,
+  requirement,
+}: {
+  locale: Locale;
+  label: string;
+  localValue: string;
+  domainValue: string;
+  onLocalChange: (value: string) => void;
+  onDomainChange: (value: string) => void;
+  required?: boolean;
+  requirement?: FieldRequirement;
+}) {
+  const copy = LANDLORD_CONTACT_COPY[locale];
+  const domainOptions = copy.emailDomains;
+  const selectedDomain = domainOptions.includes(domainValue)
+    ? domainValue
+    : CUSTOM_SELECT_VALUE;
+  const showCustomDomain = selectedDomain === CUSTOM_SELECT_VALUE;
+  const [domainOpen, setDomainOpen] = useState(false);
+  const domainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!domainOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!domainRef.current?.contains(event.target as Node)) {
+        setDomainOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDomainOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [domainOpen]);
+
+  return (
+    <fieldset className="min-w-0 sm:col-span-2">
+      <LabelText locale={locale} label={label} required={required} requirement={requirement} />
+      <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(170px,0.75fr)] sm:items-center">
+        <input
+          type="text"
+          autoComplete="off"
+          value={localValue}
+          placeholder={copy.emailLocalPlaceholder}
+          onChange={(event) => onLocalChange(event.target.value.replace(/@/g, ""))}
+          className="h-11 min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+        />
+        <span className="flex h-4 items-center justify-center text-sm font-extrabold text-muted-foreground sm:h-auto">
+          @
+        </span>
+        <div ref={domainRef} className="relative min-w-0">
+          <div className="flex h-11 min-w-0 overflow-hidden rounded-xl border border-border bg-white transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+            {showCustomDomain ? (
+              <input
+                type="text"
+                autoComplete="off"
+                value={domainValue}
+                placeholder={copy.emailDomainPlaceholder}
+                onChange={(event) =>
+                  onDomainChange(event.target.value.replace(/@/g, "").trim())
+                }
+                className="min-w-0 flex-1 bg-white px-3 text-sm font-semibold text-foreground outline-none"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setDomainOpen((current) => !current)}
+                className="min-w-0 flex-1 truncate px-3 text-left text-sm font-semibold text-foreground outline-none"
+              >
+                {domainValue}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setDomainOpen((current) => !current)}
+              className="flex h-full w-10 shrink-0 items-center justify-center border-l border-border bg-[#FCFCFB] text-muted-foreground transition hover:text-primary"
+              aria-label={copy.emailDomainCustom}
+            >
+              <ChevronDown
+                className={cn("h-4 w-4 transition", domainOpen && "rotate-180 text-primary")}
+                aria-hidden
+              />
+            </button>
+          </div>
+          {domainOpen ? (
+            <div className="absolute left-0 right-0 top-12 z-30 max-h-56 overflow-auto rounded-xl border border-border bg-white p-1 shadow-xl">
+              <button
+                type="button"
+                onClick={() => {
+                  onDomainChange("");
+                  setDomainOpen(false);
+                }}
+                className={cn(
+                  "flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold transition hover:bg-[#FFF8F1] hover:text-primary",
+                  showCustomDomain ? "bg-[#FFF3E6] text-primary" : "text-foreground",
+                )}
+              >
+                {copy.emailDomainCustom}
+              </button>
+              {domainOptions.map((domain) => (
+                <button
+                  key={domain}
+                  type="button"
+                  onClick={() => {
+                    onDomainChange(domain);
+                    setDomainOpen(false);
+                  }}
+                  className={cn(
+                    "flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold transition hover:bg-[#FFF8F1] hover:text-primary",
+                    domainValue === domain ? "bg-[#FFF3E6] text-primary" : "text-foreground",
+                  )}
+                >
+                  {domain}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </fieldset>
+  );
+}
+
+function PhoneSplitField({
+  locale,
+  label,
+  countryCode,
+  customCountryCode,
+  phoneNumber,
+  onChange,
+  required = false,
+  requirement,
+}: {
+  locale: Locale;
+  label: string;
+  countryCode: string;
+  customCountryCode: string;
+  phoneNumber: string;
+  onChange: (
+    patch: Partial<
+      Pick<LandlordDraft, "phoneCountryCode" | "phoneCountryCodeCustom" | "phoneNumber">
+    >,
+  ) => void;
+  required?: boolean;
+  requirement?: FieldRequirement;
+}) {
+  const copy = LANDLORD_CONTACT_COPY[locale];
+  const isKnownCountryCode = copy.countryCodes.some((option) => option.value === countryCode);
+  const selectedCountryCode = isKnownCountryCode ? countryCode : "";
+  const showCustomCountryCode = selectedCountryCode === CUSTOM_SELECT_VALUE;
+
+  return (
+    <fieldset className="min-w-0 sm:col-span-2">
+      <LabelText locale={locale} label={label} required={required} requirement={requirement} />
+      <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(170px,0.55fr)_minmax(0,1fr)]">
+        <div className="grid min-w-0 gap-2">
+          <span className="relative block">
+            <select
+              value={selectedCountryCode}
+              onChange={(event) =>
+                onChange({
+                  phoneCountryCode: event.target.value,
+                  phoneCountryCodeCustom:
+                    event.target.value === CUSTOM_SELECT_VALUE ? customCountryCode : "",
+                })
+              }
+              className="h-11 w-full appearance-none rounded-xl border border-border bg-white px-3 pr-10 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+            >
+              <option value="" disabled>
+                {LANDLORD_FORM_COPY[locale].select}
+              </option>
+              {copy.countryCodes.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+          </span>
+          {showCustomCountryCode ? (
+            <input
+              type="text"
+              inputMode="tel"
+              autoComplete="off"
+              value={customCountryCode}
+              placeholder={copy.customCountryCodePlaceholder}
+              onChange={(event) =>
+                onChange({
+                  phoneCountryCodeCustom: normalizeCountryCodeInput(event.target.value),
+                })
+              }
+              className="h-11 min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+            />
+          ) : null}
+        </div>
+        <input
+          type="text"
+          inputMode="tel"
+          autoComplete="off"
+          value={phoneNumber}
+          placeholder={copy.phoneNumberPlaceholder}
+          onChange={(event) => onChange({ phoneNumber: event.target.value })}
+          className="h-11 min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+        />
+      </div>
+    </fieldset>
+  );
+}
+
 function CurrencyField({
+  locale,
   label,
   value,
   onChange,
+  requirement,
 }: {
+  locale: Locale;
   label: string;
   value: string;
   onChange: (value: string) => void;
+  requirement?: FieldRequirement;
 }) {
   return (
-    <label className="block min-w-0">
-      <span className="text-sm font-bold text-foreground">{label}</span>
+    <label className="block w-full min-w-0 max-w-[260px]">
+      <LabelText locale={locale} label={label} requirement={requirement} />
       <div className="mt-2 flex h-11 overflow-hidden rounded-xl border border-border bg-white transition focus-within:border-primary">
         <input
           type="text"
           inputMode="numeric"
           value={value}
           onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
-          className="min-w-0 flex-1 bg-white px-3 text-sm font-semibold text-foreground outline-none"
+          className="min-w-0 flex-1 bg-white px-3 text-right text-sm font-semibold text-foreground outline-none"
         />
         <span className="inline-flex items-center border-l border-border bg-[#FCFCFB] px-3 text-sm font-extrabold text-muted-foreground">
           $
@@ -2571,20 +3964,59 @@ function CurrencyField({
   );
 }
 
+function SuffixNumberField({
+  locale,
+  label,
+  value,
+  suffix,
+  onChange,
+  requirement,
+}: {
+  locale: Locale;
+  label: string;
+  value: string;
+  suffix: string;
+  onChange: (value: string) => void;
+  requirement?: FieldRequirement;
+}) {
+  return (
+    <label className="block w-full min-w-0 max-w-[260px]">
+      <LabelText locale={locale} label={label} requirement={requirement} />
+      <div className="mt-2 flex h-11 overflow-hidden rounded-xl border border-border bg-white transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+        <input
+          type="text"
+          inputMode="numeric"
+          value={value}
+          onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
+          className="min-w-0 flex-1 bg-white px-3 text-right text-sm font-semibold text-foreground outline-none"
+        />
+        <span className="inline-flex items-center border-l border-border bg-[#FCFCFB] px-3 text-sm font-extrabold text-muted-foreground">
+          {suffix}
+        </span>
+      </div>
+    </label>
+  );
+}
+
 function TextareaField({
+  locale,
   label,
   value,
   onChange,
+  requirement,
 }: {
+  locale: Locale;
   label: string;
   value: string;
   onChange: (value: string) => void;
+  requirement?: FieldRequirement;
 }) {
   return (
     <label className="block min-w-0">
-      <span className="text-sm font-bold text-foreground">{label}</span>
+      <LabelText locale={locale} label={label} requirement={requirement} />
       <textarea
         rows={4}
+        autoComplete="off"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="mt-2 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-semibold leading-relaxed text-foreground outline-none transition focus:border-primary"
@@ -2593,41 +4025,96 @@ function TextareaField({
   );
 }
 
+function LabelText({
+  locale,
+  label,
+  required,
+  requirement,
+  tooltip,
+}: {
+  locale: Locale;
+  label: string;
+  required?: boolean;
+  requirement?: FieldRequirement;
+  tooltip?: string;
+}) {
+  const resolvedRequirement = requirement ?? (required ? "required" : undefined);
+
+  return (
+    <span className="flex min-h-5 min-w-0 items-center gap-1.5 text-sm font-bold text-foreground">
+      <span className="min-w-0">{label}</span>
+      {resolvedRequirement ? (
+        <span className="shrink-0 whitespace-nowrap text-xs font-extrabold text-primary">
+          ({LANDLORD_REQUIREMENT_COPY[locale][resolvedRequirement]})
+        </span>
+      ) : null}
+      {tooltip ? (
+        <span className="group relative inline-flex shrink-0">
+          <span
+            className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition group-hover:border-primary group-hover:text-primary"
+            aria-label={tooltip}
+          >
+            <HelpCircle className="h-3.5 w-3.5" aria-hidden />
+          </span>
+          <span className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-64 -translate-x-1/2 rounded-xl border border-border bg-white p-3 text-xs font-semibold leading-relaxed text-muted-foreground shadow-lg group-hover:block group-focus-within:block">
+            {tooltip}
+          </span>
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 function SelectField({
+  locale,
   label,
   value,
   options,
   onChange,
   placeholder = "Select",
+  tooltip,
   required = false,
+  requirement,
 }: {
+  locale: Locale;
   label: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
   placeholder?: string;
+  tooltip?: string;
   required?: boolean;
+  requirement?: FieldRequirement;
 }) {
   return (
     <label className="block min-w-0">
-      <span className="text-sm font-bold text-foreground">
-        {label}
-        {required ? <span className="text-primary"> *</span> : null}
-      </span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-2 h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary"
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+      <LabelText
+        locale={locale}
+        label={label}
+        required={required}
+        requirement={requirement}
+        tooltip={tooltip}
+      />
+      <span className="relative mt-2 block">
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-11 w-full appearance-none rounded-xl border border-border bg-white px-3 pr-12 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+        >
+          <option value="" disabled>
+            {placeholder}
           </option>
-        ))}
-      </select>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
+      </span>
     </label>
   );
 }
@@ -2637,26 +4124,50 @@ function SearchableStationField({
   locale,
   value,
   onChange,
+  requirement,
 }: {
   label: string;
   locale: Locale;
   value: string;
   onChange: (value: string) => void;
+  requirement?: FieldRequirement;
 }) {
   const r = LANDLORD_REFINEMENTS[locale];
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const options = useMemo(
-    () => [r.helpers.stationNotClose, r.helpers.stationNotSure, ...TTC_RAPID_TRANSIT_STATIONS],
-    [r.helpers.stationNotClose, r.helpers.stationNotSure],
-  );
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const options = TTC_RAPID_TRANSIT_STATIONS;
   const filteredOptions = options.filter((option) =>
     option.toLowerCase().includes(query.trim().toLowerCase()),
   );
 
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
   return (
-    <div className="relative min-w-0">
-      <span className="text-sm font-bold text-foreground">{label}</span>
+    <div ref={wrapperRef} className="relative min-w-0">
+      <LabelText locale={locale} label={label} requirement={requirement} />
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
@@ -2704,25 +4215,33 @@ function SearchableStationField({
 }
 
 function OptionCardField({
+  locale,
   label,
   value,
   options,
   onChange,
   compact = false,
   required = false,
+  requirement,
 }: {
+  locale: Locale;
   label: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
   compact?: boolean;
   required?: boolean;
+  requirement?: FieldRequirement;
 }) {
   return (
     <fieldset className="min-w-0">
-      <legend className="text-sm font-bold text-foreground">
-        {label}
-        {required ? <span className="text-primary"> *</span> : null}
+      <legend>
+        <LabelText
+          locale={locale}
+          label={label}
+          required={required}
+          requirement={requirement}
+        />
       </legend>
       <div className={cn("mt-2 grid gap-2", compact ? "sm:grid-cols-3" : "sm:grid-cols-2")}>
         {options.map((option) => {
@@ -2755,38 +4274,33 @@ function OptionCardField({
 }
 
 function ChipChoiceField({
+  locale,
   label,
   value,
   options,
   onChange,
   compact = false,
   tooltip,
+  requirement,
 }: {
+  locale: Locale;
   label: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
   compact?: boolean;
   tooltip?: string;
+  requirement?: FieldRequirement;
 }) {
   return (
     <fieldset className="min-w-0">
-      <legend className="flex items-center gap-1.5 text-sm font-bold text-foreground">
-        <span>{label}</span>
-        {tooltip ? (
-          <span className="group relative inline-flex">
-            <button
-              type="button"
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition hover:border-primary hover:text-primary"
-              aria-label={tooltip}
-            >
-              <HelpCircle className="h-3.5 w-3.5" aria-hidden />
-            </button>
-            <span className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-64 -translate-x-1/2 rounded-xl border border-border bg-white p-3 text-xs font-semibold leading-relaxed text-muted-foreground shadow-lg group-hover:block group-focus-within:block">
-              {tooltip}
-            </span>
-          </span>
-        ) : null}
+      <legend>
+        <LabelText
+          locale={locale}
+          label={label}
+          requirement={requirement}
+          tooltip={tooltip}
+        />
       </legend>
       <div className={cn("mt-2 flex flex-wrap gap-2", compact ? "gap-1.5" : "gap-2")}>
         {options.map((option) => {
@@ -2854,11 +4368,8 @@ function UtilityMatrix({
   };
 
   return (
-    <fieldset className="min-w-0 rounded-2xl border border-border/80 bg-[#FCFCFB] p-4">
-      <legend className="px-1 text-sm font-extrabold text-foreground">
-        {r.fields.utilitiesIncluded}
-      </legend>
-      <div className="mt-3 grid gap-2">
+    <div className="min-w-0 rounded-2xl border border-border/80 bg-[#FCFCFB] p-4">
+      <div className="grid gap-2">
         {r.options.utilities.map((utility) => (
           <div
             key={utility}
@@ -2888,20 +4399,24 @@ function UtilityMatrix({
           </div>
         ))}
       </div>
-    </fieldset>
+    </div>
   );
 }
 
 function MultiChipField({
+  locale,
   label,
   options,
   values,
   onChange,
+  requirement,
 }: {
+  locale: Locale;
   label: string;
   options: string[];
   values: string[];
   onChange: (values: string[]) => void;
+  requirement?: FieldRequirement;
 }) {
   const toggle = (option: string) => {
     if (values.includes(option)) {
@@ -2913,7 +4428,9 @@ function MultiChipField({
 
   return (
     <fieldset className="min-w-0">
-      <legend className="text-sm font-bold text-foreground">{label}</legend>
+      <legend>
+        <LabelText locale={locale} label={label} requirement={requirement} />
+      </legend>
       <div className="mt-2 flex flex-wrap gap-2">
         {options.map((option) => {
           const selected = values.includes(option);
@@ -2943,11 +4460,13 @@ function PhotoUploadField({
   photos,
   coverPhotoId,
   onChange,
+  requirement,
 }: {
   locale: Locale;
   photos: LandlordPhoto[];
   coverPhotoId: string;
   onChange: (photos: LandlordPhoto[], coverPhotoId: string) => void;
+  requirement?: FieldRequirement;
 }) {
   const r = LANDLORD_REFINEMENTS[locale];
 
@@ -2998,8 +4517,12 @@ function PhotoUploadField({
     <div className="min-w-0">
       <div className="rounded-2xl border border-dashed border-primary/30 bg-white p-5 text-center">
         <ImagePlus className="mx-auto h-8 w-8 text-primary" aria-hidden />
-        <h3 className="mt-3 text-sm font-extrabold text-foreground">
-          {r.helpers.photosTitle}
+        <h3 className="mt-3 flex justify-center">
+          <LabelText
+            locale={locale}
+            label={r.helpers.photosTitle}
+            requirement={requirement}
+          />
         </h3>
         <p className="mx-auto mt-1 max-w-xl text-sm font-semibold leading-relaxed text-muted-foreground">
           {r.helpers.photosHelper}
@@ -3113,20 +4636,31 @@ function DraftSummaryCard({
   editHref?: string;
   editLabel?: string;
 }) {
+  const markerMatch = title.match(/^([A-E])\.\s*(.+)$/);
+  const marker = markerMatch?.[1];
+  const titleText = markerMatch?.[2] ?? title;
+
   return (
-    <article className="rounded-2xl border border-border/80 bg-white p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-extrabold text-foreground">{title}</h2>
+    <article className="overflow-hidden rounded-2xl border border-primary/15 bg-white shadow-sm">
+      <div className="flex items-center justify-between gap-3 border-b border-primary/10 bg-[#FFF3E6] px-4 py-3">
+        <h2 className="flex min-w-0 items-center gap-2 text-sm font-extrabold text-foreground">
+          {marker ? (
+            <span className="inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-primary px-2 text-xs font-extrabold text-white">
+              {marker}
+            </span>
+          ) : null}
+          <span className="min-w-0">{titleText}</span>
+        </h2>
         {editHref && editLabel ? (
-          <a
-            href={editHref}
-            className="shrink-0 whitespace-nowrap text-xs font-extrabold text-primary transition hover:text-primary/80"
+          <Link
+            to={editHref}
+            className="shrink-0 whitespace-nowrap rounded-full bg-white px-3 py-1 text-xs font-extrabold text-primary transition hover:bg-[#FFF8F1]"
           >
             {editLabel}
-          </a>
+          </Link>
         ) : null}
       </div>
-      <dl className="mt-3 space-y-2">
+      <dl className="space-y-2 bg-white p-4">
         {rows.map(([label, value]) => (
           <div key={label} className="grid gap-1 text-sm sm:grid-cols-[0.42fr_0.58fr]">
             <dt className="font-bold text-muted-foreground">{label}</dt>
@@ -3140,6 +4674,22 @@ function DraftSummaryCard({
 
 function formatCurrencyValue(value: string) {
   return value ? `$${Number(value).toLocaleString("en-CA")} CAD` : "";
+}
+
+function getUnitDetailOptions(locale: Locale, housingType: string) {
+  const form = LANDLORD_FORM_COPY[locale];
+  if (housingType === form.housingTypes[0]) {
+    return form.unitDetailHouse;
+  }
+  if (housingType === form.housingTypes[1]) {
+    return form.unitDetailCondo;
+  }
+  if (housingType === form.housingTypes[2]) {
+    return form.unitDetailStudio;
+  }
+  return [...form.unitDetailHouse, ...form.unitDetailCondo, ...form.unitDetailStudio].filter(
+    (option, index, options) => options.indexOf(option) === index,
+  );
 }
 
 function getUtilitySummaryRows(locale: Locale, draft: LandlordDraft): Array<[string, string]> {
@@ -3230,7 +4780,7 @@ function useLandlordDraft() {
       return;
     }
 
-    window.sessionStorage.setItem(LANDLORD_DRAFT_KEY, JSON.stringify(draft));
+    writeLandlordDraftStorage(draft);
   }, [draft, loaded]);
 
   const updateDraft = useMemo(
@@ -3242,24 +4792,85 @@ function useLandlordDraft() {
 
   const clearDraft = () => {
     setDraft(DEFAULT_DRAFT);
-    if (typeof window !== "undefined") {
-      window.sessionStorage.removeItem(LANDLORD_DRAFT_KEY);
-    }
+    clearLandlordDraftStorage();
   };
 
   return { draft, loaded, updateDraft, clearDraft };
 }
 
 function isDraftStarted(draft: LandlordDraft) {
-  return Boolean(draft.role || draft.name || draft.firstName || draft.lastName || draft.email || draft.contact);
+  return Boolean(
+    draft.role ||
+      draft.name ||
+      draft.firstName ||
+      draft.lastName ||
+      draft.email ||
+      draft.emailLocal ||
+      draft.emailDomain ||
+      draft.contact ||
+      draft.phoneCountryCode ||
+      draft.phoneCountryCodeCustom ||
+      draft.phoneNumber ||
+      draft.preferredLanguages.length ||
+      draft.preferredContactMethods.length ||
+      draft.shortMessage ||
+      draft.city ||
+      draft.area ||
+      draft.nearestStation ||
+      draft.address ||
+      draft.housingType ||
+      draft.unitDetail ||
+      draft.floor ||
+      draft.useType ||
+      draft.residentCondition ||
+      draft.furnished ||
+      draft.elevator ||
+      draft.parking ||
+      draft.tenantPetsAllowed ||
+      draft.homePets ||
+      draft.homePetType ||
+      draft.smokingCondition ||
+      draft.photos.length ||
+      draft.listingTitle ||
+      draft.monthlyRent ||
+      draft.availableFrom ||
+      draft.minimumStay ||
+      draft.occupancy ||
+      draft.bathroom ||
+      draft.kitchen ||
+      draft.furniture.length ||
+      draft.bedSize ||
+      draft.keyDepositAmount ||
+      draft.utilitiesIncluded.length ||
+      draft.utilitiesSeparate.length ||
+      Object.keys(draft.utilityStatuses).length ||
+      draft.houseRuleItems.length ||
+      draft.additionalNote ||
+      draft.moveInQuestions,
+  );
 }
 
 function normalizeLandlordDraft(rawDraft: Partial<LandlordDraft>): LandlordDraft {
   const draft = { ...DEFAULT_DRAFT, ...rawDraft };
+  const parsedEmail = parseLegacyEmail(draft.email);
+  const parsedPhone = parseLegacyPhone(draft.contact);
+  const phoneCountryCode =
+    draft.phoneCountryCode ||
+    parsedPhone.phoneCountryCode ||
+    "";
+  const phoneNumber = draft.phoneNumber || parsedPhone.phoneNumber || "";
   return {
     ...draft,
     firstName: draft.firstName || "",
     lastName: draft.lastName || "",
+    emailLocal: draft.emailLocal || parsedEmail.emailLocal || "",
+    emailDomain: draft.emailDomain || parsedEmail.emailDomain || "",
+    phoneCountryCode,
+    phoneCountryCodeCustom:
+      draft.phoneCountryCodeCustom ||
+      (phoneCountryCode === CUSTOM_SELECT_VALUE ? parsedPhone.phoneCountryCodeCustom : "") ||
+      "",
+    phoneNumber,
     preferredLanguages: Array.isArray(draft.preferredLanguages)
       ? draft.preferredLanguages
       : draft.preferredLanguage
@@ -3282,9 +4893,89 @@ function normalizeLandlordDraft(rawDraft: Partial<LandlordDraft>): LandlordDraft
     houseRuleItems: Array.isArray(draft.houseRuleItems)
       ? draft.houseRuleItems
       : draft.houseRules
-        ? [draft.houseRules]
-        : [],
+      ? [draft.houseRules]
+      : [],
   };
+}
+
+function clearLandlordDraftStorage() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(LANDLORD_DRAFT_KEY);
+}
+
+function writeLandlordDraftStorage(draft: LandlordDraft) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!isDraftStarted(draft)) {
+    clearLandlordDraftStorage();
+    return;
+  }
+
+  window.sessionStorage.setItem(LANDLORD_DRAFT_KEY, JSON.stringify(draft));
+}
+
+function parseLegacyEmail(email?: string) {
+  const value = email?.trim() || "";
+  const atIndex = value.indexOf("@");
+
+  if (atIndex <= 0 || atIndex === value.length - 1) {
+    return { emailLocal: "", emailDomain: "" };
+  }
+
+  return {
+    emailLocal: value.slice(0, atIndex),
+    emailDomain: value.slice(atIndex + 1),
+  };
+}
+
+function parseLegacyPhone(contact?: string) {
+  const value = contact?.trim() || "";
+  const match = value.match(/^(\+\d+)\s*(.+)$/);
+
+  if (!match) {
+    return {
+      phoneCountryCode: "",
+      phoneCountryCodeCustom: "",
+      phoneNumber: value,
+    };
+  }
+
+  const knownCodes = new Set(
+    Object.values(LANDLORD_CONTACT_COPY).flatMap((copy) =>
+      copy.countryCodes
+        .map((option) => option.value)
+        .filter((value) => value !== CUSTOM_SELECT_VALUE),
+    ),
+  );
+  const parsedCountryCode = match[1];
+
+  return {
+    phoneCountryCode: knownCodes.has(parsedCountryCode)
+      ? parsedCountryCode
+      : CUSTOM_SELECT_VALUE,
+    phoneCountryCodeCustom: knownCodes.has(parsedCountryCode) ? "" : parsedCountryCode,
+    phoneNumber: match[2],
+  };
+}
+
+function getResolvedPhoneCountryCode(draft: Pick<LandlordDraft, "phoneCountryCode" | "phoneCountryCodeCustom">) {
+  if (draft.phoneCountryCode === CUSTOM_SELECT_VALUE) {
+    const customCountryCode = draft.phoneCountryCodeCustom.trim();
+    return /\d/.test(customCountryCode) ? customCountryCode : "";
+  }
+
+  return draft.phoneCountryCode.trim();
+}
+
+function normalizeCountryCodeInput(value: string) {
+  const normalized = value.replace(/[^\d+]/g, "");
+  const digits = normalized.replace(/\+/g, "");
+  return digits ? `+${digits}` : normalized.startsWith("+") ? "+" : "";
 }
 
 function stepIndexForPage(page: Exclude<LandlordRoutePage, "landing" | "guide">) {
@@ -3296,6 +4987,12 @@ function stepIndexForPage(page: Exclude<LandlordRoutePage, "landing" | "guide">)
     "preview",
   ];
   return Math.max(0, pages.indexOf(page));
+}
+
+function isLandlordRegistrationPath(pathname: string) {
+  return /^\/(ko|en|fr)\/landlords\/register(\/(property|rooms|terms|preview))?\/?$/.test(
+    pathname,
+  );
 }
 
 function landlordRoute(locale: Locale, page: RouteKey) {

@@ -279,6 +279,22 @@
     }
   }
 
+  @keyframes mh-landlord-reveal {
+    from {
+      transform: translateY(-8px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .mh-landlord-reveal {
+    animation: mh-landlord-reveal 220ms ease-out both;
+  }
+
   .mh-clamp-1,
   .mh-clamp-2,
   .mh-clamp-3,
