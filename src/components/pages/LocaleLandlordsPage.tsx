@@ -987,9 +987,13 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
     },
     helpers: {
       startDescription: "임대인 기본 정보와 첫 번째 매물 정보를 함께 정리합니다. 이후 추가 매물은 임대인 센터에서 관리하는 구조로 확장될 예정입니다.",
+      onboardingLiteNote:
+        "필수 정보만 먼저 입력해도 첫 매물 초안을 만들 수 있습니다. 상세 조건은 임대인 센터에서 나중에 보완할 수 있습니다.",
       propertyDescription: "입주자가 위치와 생활 조건을 빠르게 판단할 수 있도록 공간 정보를 정리합니다.",
       roomsDescription: "월세, 입주 가능일, 최소 체류 기간, 방 조건을 비교하기 쉽게 입력합니다.",
       termsDescription: "계약 전에 서로 확인해야 할 비용, 공과금, 생활 규칙을 정리합니다.",
+      termsLiteNote:
+        "공과금, 보증금, 하우스 룰은 나중에 임대인 센터에서 보완할 수 있습니다. 다만 실제 계약 전에는 반드시 입주자와 서로 확인해야 합니다.",
       previewDescription: "현재 화면은 MapleHouse 검토용 요약 미리보기입니다. 실제 세입자에게 보이는 매물 상세 화면은 별도 화면으로 구성될 예정입니다.",
       requiredHelper:
         "역할, 이름 또는 성, 연락 가능한 정보, 선호 연락 방식과 언어를 입력하면 다음 단계로 이동할 수 있습니다.",
@@ -997,6 +1001,8 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       residentHelper: "룸렌트, 쉐어, 홈스테이처럼 함께 사는 경우에 특히 중요한 정보입니다.",
       stationPlaceholder: "가까운 TTC 역 선택",
       stationSearchPlaceholder: "역 이름 검색",
+      stationAutoHelper:
+        "지도 연동 후에는 상세 주소를 기준으로 가까운 역을 자동 추천할 예정입니다.",
       stationNotClose: "TTC 역과 거리가 멉니다",
       stationNotSure: "아직 모르겠습니다",
       minimumStayTooltip: "협의가 불가능하거나 최소 기간이 길어질수록 매칭 확률이 줄어들 수 있어요.",
@@ -1019,6 +1025,9 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       submitPreview: "미리보기 제출하기",
       edit: "수정",
       empty: "미입력",
+      canAddLater: "나중에 보완 가능",
+      toDiscuss: "협의",
+      listingTitleFallback: "첫 매물 초안",
       startOver: "처음부터 다시",
     },
     options: {
@@ -1121,9 +1130,13 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
     },
     helpers: {
       startDescription: "Organize your landlord information and first listing together. Future additional listings can be managed through a landlord center.",
+      onboardingLiteNote:
+        "You can create a first listing draft with only the required basics. Detailed conditions can be added later from the landlord center.",
       propertyDescription: "Organize location and living-condition details so tenants can judge fit quickly.",
       roomsDescription: "Enter rent, availability, minimum stay, and room details in a comparison-friendly format.",
       termsDescription: "Organize costs, utilities, and house rules that both parties should confirm later.",
+      termsLiteNote:
+        "Utilities, deposits, and house rules can be completed later from the landlord center. They should still be confirmed with the tenant before any agreement.",
       previewDescription: "This is a review summary for MapleHouse. The public listing detail page shown to tenants will be structured separately.",
       requiredHelper:
         "Enter your role, name, contact information, preferred contact method, and language to continue.",
@@ -1131,6 +1144,8 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       residentHelper: "Especially important for room rentals and shared housing.",
       stationPlaceholder: "Select nearest TTC station",
       stationSearchPlaceholder: "Search station name",
+      stationAutoHelper:
+        "After map integration, the nearest station can be suggested automatically from the detailed address.",
       stationNotClose: "Not close to a TTC station",
       stationNotSure: "Not sure yet",
       minimumStayTooltip: "Listings with a very long or non-flexible minimum stay may receive fewer matches.",
@@ -1153,6 +1168,9 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       submitPreview: "Submit preview",
       edit: "Edit",
       empty: "Not entered",
+      canAddLater: "Can be added later",
+      toDiscuss: "To discuss",
+      listingTitleFallback: "First listing draft",
       startOver: "Start over",
     },
     options: {
@@ -1255,9 +1273,13 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
     },
     helpers: {
       startDescription: "Renseignez vos informations de propriétaire et votre première annonce. Les annonces supplémentaires pourront être gérées depuis un espace propriétaire.",
+      onboardingLiteNote:
+        "Vous pouvez créer un premier brouillon d’annonce avec les informations essentielles. Les détails pourront être ajoutés plus tard depuis l’espace propriétaire.",
       propertyDescription: "Organisez l’emplacement et les conditions de vie pour aider le locataire à juger rapidement.",
       roomsDescription: "Indiquez le loyer, la disponibilité, la durée minimale et les détails de la chambre.",
       termsDescription: "Organisez les coûts, services et règles à confirmer entre les parties.",
+      termsLiteNote:
+        "Les services, dépôts et règles de la maison pourront être complétés plus tard depuis l’espace propriétaire. Ils devront toutefois être confirmés avec le locataire avant tout accord.",
       previewDescription: "Il s’agit d’un résumé pour l’examen MapleHouse. La page publique de détail de l’annonce destinée aux locataires sera structurée séparément.",
       requiredHelper:
         "Renseignez votre rôle, votre nom, vos coordonnées, votre méthode de contact et votre langue pour continuer.",
@@ -1265,6 +1287,8 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       residentHelper: "Particulièrement important pour les chambres et les logements partagés.",
       stationPlaceholder: "Choisir la station TTC la plus proche",
       stationSearchPlaceholder: "Rechercher une station",
+      stationAutoHelper:
+        "Après l’intégration de la carte, la station la plus proche pourra être suggérée automatiquement à partir de l’adresse détaillée.",
       stationNotClose: "Pas proche d’une station TTC",
       stationNotSure: "Pas encore sûr",
       minimumStayTooltip: "Une durée minimale très longue ou non flexible peut réduire les possibilités de mise en relation.",
@@ -1287,6 +1311,9 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       submitPreview: "Envoyer l’aperçu",
       edit: "Modifier",
       empty: "Non renseigné",
+      canAddLater: "Peut être ajouté plus tard",
+      toDiscuss: "À discuter",
+      listingTitleFallback: "Premier brouillon d’annonce",
       startOver: "Recommencer",
     },
     options: {
@@ -2134,19 +2161,19 @@ const LANDLORD_ROOM_SECTION_TITLES = {
 const LANDLORD_TERMS_SECTION_TITLES = {
   ko: {
     deposit: "A. 보증금",
-    utilities: "B. 공과금 (필수)",
+    utilities: "B. 공과금 (선택)",
     rules: "C. 하우스 룰 (선택)",
     questions: "D. 입주 전 확인 질문 (선택)",
   },
   en: {
     deposit: "A. Deposit",
-    utilities: "B. Utilities (Required)",
+    utilities: "B. Utilities (Optional)",
     rules: "C. House rules (Optional)",
     questions: "D. Questions before move-in (Optional)",
   },
   fr: {
     deposit: "A. Dépôt",
-    utilities: "B. Services (Obligatoire)",
+    utilities: "B. Services (Facultatif)",
     rules: "C. Règles de la maison (Facultatif)",
     questions: "D. Questions avant l’arrivée (Facultatif)",
   },
@@ -2805,47 +2832,31 @@ function PropertyStep({
   const isOtherHousing = draft.housingType === form.housingTypes[3];
   const isHouseHousing = draft.housingType === form.housingTypes[0];
   const stationValid = isValidStationForCity(locale, draft.city, draft.nearestStation);
-  const floorValid = isHouseHousing
-    ? Boolean(draft.floor.trim())
-    : Boolean(draft.floor.trim() && isValidDigitsOnlyInput(draft.floor.trim()));
   const propertyHasFormatError = Boolean(
     (draft.nearestStation.trim() && !stationValid) ||
       (!isHouseHousing && draft.floor.trim() && !isValidDigitsOnlyInput(draft.floor.trim())),
   );
   const locationComplete = Boolean(
     draft.city.trim() &&
-      stationValid &&
       draft.address.trim(),
   );
-  const housingComplete = Boolean(
-    draft.housingType.trim() &&
-      draft.unitDetail.trim() &&
-      floorValid &&
-      draft.useType.trim(),
-  );
-  const livingComplete = Boolean(
-    draft.residentCondition.trim() &&
-      draft.furnished.trim() &&
-      draft.elevator.trim() &&
-      draft.parking.trim(),
-  );
+  const housingComplete = Boolean(draft.housingType.trim());
+  const livingComplete = Boolean(draft.residentCondition.trim());
   const homePetsYes = draft.homePets === r.options.homePets[1];
   const petsComplete = Boolean(
-    draft.tenantPetsAllowed.trim() &&
-      draft.homePets.trim() &&
-      draft.smokingCondition.trim(),
+    draft.tenantPetsAllowed.trim() || draft.homePets.trim() || draft.smokingCondition.trim(),
   );
   const photosComplete = Boolean(draft.photos.length && (draft.coverPhotoId || draft.photos[0]?.id));
   const showHousingSection = locationComplete;
   const showLivingSection = locationComplete && housingComplete;
   const showPetsSection = locationComplete && housingComplete && livingComplete;
-  const showPhotosSection =
-    locationComplete && housingComplete && livingComplete && petsComplete;
+  const showPhotosSection = locationComplete && housingComplete && livingComplete;
+  const corePropertyComplete = locationComplete && housingComplete && livingComplete;
   const canContinue =
-    locationComplete && housingComplete && livingComplete && petsComplete && photosComplete;
+    corePropertyComplete && photosComplete && !propertyHasFormatError;
   const propertyDisabledHelper = propertyHasFormatError
     ? validationCopy.requiredFormat
-    : locationComplete && housingComplete && livingComplete && petsComplete
+    : corePropertyComplete
       ? disabledCopy.photo
       : disabledCopy.general;
 
@@ -2898,7 +2909,7 @@ function PropertyStep({
                   locale={locale}
                   city={draft.city}
                   value={draft.nearestStation}
-                  requirement="required"
+                  requirement="optional"
                   onChange={(nearestStation) => updateDraft({ nearestStation })}
                   error={
                     draft.nearestStation.trim() && !stationValid
@@ -2906,6 +2917,9 @@ function PropertyStep({
                       : undefined
                   }
                 />
+                <p className="text-xs font-semibold leading-relaxed text-muted-foreground sm:col-span-2">
+                  {r.helpers.stationAutoHelper}
+                </p>
                 <TextField
                   locale={locale}
                   label={r.fields.address}
@@ -2947,7 +2961,7 @@ function PropertyStep({
                             label={form.unitDetailLabel}
                             value={draft.unitDetail}
                             helper={form.unitDetailPlaceholder}
-                            requirement="required"
+                            requirement="optional"
                             onChange={(unitDetail) => updateDraft({ unitDetail })}
                           />
                         ) : (
@@ -2957,7 +2971,7 @@ function PropertyStep({
                             value={draft.unitDetail}
                             options={unitDetailOptions}
                             placeholder={form.select}
-                            requirement="required"
+                            requirement="optional"
                             onChange={(unitDetail) => updateDraft({ unitDetail })}
                           />
                         )}
@@ -2968,7 +2982,7 @@ function PropertyStep({
                             value={draft.floor}
                             options={form.floorHouse}
                             placeholder={form.select}
-                            requirement="required"
+                            requirement="optional"
                             onChange={(floor) => updateDraft({ floor })}
                           />
                         ) : (
@@ -2977,7 +2991,7 @@ function PropertyStep({
                             label={form.floorLabel}
                             suffix={form.floorSuffix}
                             value={draft.floor}
-                            requirement="required"
+                            requirement="optional"
                             onChange={(floor) => updateDraft({ floor })}
                             error={
                               draft.floor.trim() && !isValidDigitsOnlyInput(draft.floor.trim())
@@ -2993,7 +3007,7 @@ function PropertyStep({
                         value={draft.useType}
                         options={form.useTypes}
                         placeholder={form.select}
-                        requirement="required"
+                        requirement="optional"
                         onChange={(useType) => updateDraft({ useType })}
                       />
                     </>
@@ -3026,7 +3040,7 @@ function PropertyStep({
                           label={r.fields.furnished}
                           value={draft.furnished}
                           options={r.options.yesNoConfirm}
-                          requirement="required"
+                          requirement="optional"
                           onChange={(furnished) => updateDraft({ furnished })}
                           compact
                         />
@@ -3035,7 +3049,7 @@ function PropertyStep({
                           label={r.fields.elevator}
                           value={draft.elevator}
                           options={r.options.yesNoConfirm}
-                          requirement="required"
+                          requirement="optional"
                           onChange={(elevator) => updateDraft({ elevator })}
                           compact
                         />
@@ -3044,7 +3058,7 @@ function PropertyStep({
                           label={r.fields.parking}
                           value={draft.parking}
                           options={r.options.yesNoConfirm}
-                          requirement="required"
+                          requirement="optional"
                           onChange={(parking) => updateDraft({ parking })}
                           compact
                         />
@@ -3068,7 +3082,7 @@ function PropertyStep({
                           label={r.fields.tenantPetsAllowed}
                           value={draft.tenantPetsAllowed}
                           options={r.options.petAllowed}
-                          requirement="required"
+                          requirement="optional"
                           onChange={(tenantPetsAllowed) => updateDraft({ tenantPetsAllowed })}
                           compact
                         />
@@ -3079,7 +3093,7 @@ function PropertyStep({
                           label={r.fields.homePets}
                           value={draft.homePets}
                           options={r.options.homePets}
-                          requirement="required"
+                          requirement="optional"
                           onChange={(homePets) =>
                             updateDraft({
                               homePets,
@@ -3106,7 +3120,7 @@ function PropertyStep({
                           label={r.fields.smokingCondition}
                           value={draft.smokingCondition}
                           options={r.options.smoking}
-                          requirement="required"
+                          requirement="optional"
                           onChange={(smokingCondition) => updateDraft({ smokingCondition })}
                           compact
                         />
@@ -3170,23 +3184,17 @@ function RoomsStep({
     draft.monthlyRent.trim() && !isValidCurrencyInput(draft.monthlyRent.trim()),
   );
   const roomRentComplete = Boolean(
-    draft.listingTitle.trim() &&
-      monthlyRentValid &&
-      draft.availableFrom.trim() &&
-      draft.minimumStay.trim(),
+    monthlyRentValid && draft.availableFrom.trim(),
   );
   const roomLivingComplete = Boolean(
-    draft.occupancy.trim() && draft.bathroom.trim() && draft.kitchen.trim(),
+    draft.occupancy.trim() || draft.bathroom.trim() || draft.kitchen.trim(),
   );
   const showRoomLivingSection = roomRentComplete;
-  const showFurnitureSection = roomRentComplete && roomLivingComplete;
-  const furnitureComplete = !hasBed || Boolean(draft.bedSize.trim());
-  const canContinue = roomRentComplete && roomLivingComplete && furnitureComplete;
+  const showFurnitureSection = roomRentComplete;
+  const canContinue = roomRentComplete && !monthlyRentHasFormatError;
   const roomsDisabledHelper = monthlyRentHasFormatError
     ? validationCopy.requiredFormat
-    : roomRentComplete && roomLivingComplete && hasBed && !draft.bedSize.trim()
-      ? disabledCopy.bedSize
-      : disabledCopy.general;
+    : disabledCopy.general;
 
   return (
     <LandlordStepLayout
@@ -3211,7 +3219,7 @@ function RoomsStep({
                     locale={locale}
                     label={r.fields.listingTitle}
                     value={draft.listingTitle}
-                    requirement="required"
+                    requirement="optional"
                     onChange={(listingTitle) => updateDraft({ listingTitle })}
                   />
                   <CurrencyField
@@ -3238,7 +3246,7 @@ function RoomsStep({
                     value={draft.minimumStay}
                     options={form.minimumStay}
                     placeholder={form.select}
-                    requirement="required"
+                    requirement="optional"
                     onChange={(minimumStay) => updateDraft({ minimumStay })}
                   />
                 </div>
@@ -3259,7 +3267,7 @@ function RoomsStep({
                         value={draft.occupancy}
                         options={form.occupancy}
                         placeholder={form.select}
-                        requirement="required"
+                        requirement="optional"
                         onChange={(occupancy) => updateDraft({ occupancy })}
                       />
                       <SelectField
@@ -3268,7 +3276,7 @@ function RoomsStep({
                         value={draft.bathroom}
                         options={form.bathroom}
                         placeholder={form.select}
-                        requirement="required"
+                        requirement="optional"
                         onChange={(bathroom) => updateDraft({ bathroom })}
                       />
                       <SelectField
@@ -3277,7 +3285,7 @@ function RoomsStep({
                         value={draft.kitchen}
                         options={form.kitchen}
                         placeholder={form.select}
-                        requirement="required"
+                        requirement="optional"
                         onChange={(kitchen) => updateDraft({ kitchen })}
                       />
                     </div>
@@ -3312,7 +3320,7 @@ function RoomsStep({
                           label={r.fields.bedSize}
                           value={draft.bedSize}
                           options={r.options.bedSize}
-                          requirement="required"
+                          requirement="optional"
                           onChange={(bedSize) => updateDraft({ bedSize })}
                           compact
                         />
@@ -3350,7 +3358,6 @@ function TermsStep({
   const r = LANDLORD_REFINEMENTS[locale];
   const form = LANDLORD_FORM_COPY[locale];
   const sectionTitles = LANDLORD_TERMS_SECTION_TITLES[locale];
-  const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
   const validationCopy = LANDLORD_VALIDATION_COPY[locale];
   const utilityStatusFor = (utility: string) => {
     if (draft.utilityStatuses?.[utility]) {
@@ -3367,20 +3374,16 @@ function TermsStep({
   const keyDepositHasFormatError = Boolean(
     draft.keyDepositAmount.trim() && !isValidCurrencyInput(draft.keyDepositAmount.trim()),
   );
-  const depositComplete = isValidRequiredCurrencyInput(draft.keyDepositAmount.trim());
-  const utilitiesComplete = r.options.utilities.every((utility) =>
+  const depositComplete = Boolean(
+    draft.keyDepositAmount.trim() && isValidCurrencyInput(draft.keyDepositAmount.trim()),
+  );
+  const utilitiesComplete = r.options.utilities.some((utility) =>
     Boolean(utilityStatusFor(utility)),
   );
-  const rulesComplete = true;
-  const showUtilitiesSection = depositComplete;
-  const showRulesSection = depositComplete && utilitiesComplete;
-  const showQuestionsSection = depositComplete && utilitiesComplete;
-  const canContinue = depositComplete && utilitiesComplete;
+  const canContinue = !keyDepositHasFormatError;
   const termsDisabledHelper = keyDepositHasFormatError
     ? validationCopy.requiredFormat
-    : !depositComplete
-      ? disabledCopy.keyDeposit
-      : disabledCopy.general;
+    : undefined;
 
   return (
     <LandlordStepLayout
@@ -3406,87 +3409,71 @@ function TermsStep({
                     locale={locale}
                     label={form.keyDepositLabel}
                     value={draft.keyDepositAmount}
-                    requirement="required"
+                    requirement="optional"
                     onChange={(keyDepositAmount) => updateDraft({ keyDepositAmount })}
                     error={keyDepositHasFormatError ? validationCopy.currency : undefined}
                   />
                 </div>
-                <p className="text-xs font-semibold leading-relaxed text-muted-foreground">
-                  {disabledCopy.keyDeposit}
-                </p>
               </>
             ),
           },
-          ...(showUtilitiesSection
-            ? [
-                {
-                  id: "utilities",
-                  title: sectionTitles.utilities,
-                  complete: utilitiesComplete,
-                  children: (
-                    <UtilityMatrix
-                      locale={locale}
-                      draft={draft}
-                      onChange={(utilityStatuses, utilitiesIncluded, utilitiesSeparate) =>
-                        updateDraft({ utilityStatuses, utilitiesIncluded, utilitiesSeparate })
-                      }
-                    />
-                  ),
-                },
-              ]
-            : []),
-          ...(showRulesSection
-            ? [
-                {
-                  id: "rules",
-                  title: sectionTitles.rules,
-                  complete: Boolean(draft.houseRuleItems.length || draft.additionalNote.trim()),
-                  children: (
-                    <>
-                      <LandlordNotice>{disabledCopy.houseRulesNotice}</LandlordNotice>
-                      <MultiChipField
-                        locale={locale}
-                        label={r.fields.houseRuleItems}
-                        options={r.options.houseRules}
-                        values={draft.houseRuleItems.length ? draft.houseRuleItems : draft.houseRules ? [draft.houseRules] : []}
-                        requirement="optional"
-                        onChange={(houseRuleItems) =>
-                          updateDraft({
-                            houseRuleItems,
-                            houseRules: houseRuleItems.join(", "),
-                          })
-                        }
-                      />
-                      <TextareaField
-                        locale={locale}
-                        label={r.fields.additionalNote}
-                        value={draft.additionalNote}
-                        requirement="optional"
-                        onChange={(additionalNote) => updateDraft({ additionalNote })}
-                      />
-                    </>
-                  ),
-                },
-              ]
-            : []),
-          ...(showQuestionsSection
-            ? [
-                {
-                  id: "moveInQuestions",
-                  title: sectionTitles.questions,
-                  complete: Boolean(draft.moveInQuestions.trim()),
-                  children: (
-                    <TextareaField
-                      locale={locale}
-                      label={r.fields.moveInQuestions}
-                      value={draft.moveInQuestions}
-                      requirement="optional"
-                      onChange={(moveInQuestions) => updateDraft({ moveInQuestions })}
-                    />
-                  ),
-                },
-              ]
-            : []),
+          {
+            id: "utilities",
+            title: sectionTitles.utilities,
+            complete: utilitiesComplete,
+            children: (
+              <UtilityMatrix
+                locale={locale}
+                draft={draft}
+                onChange={(utilityStatuses, utilitiesIncluded, utilitiesSeparate) =>
+                  updateDraft({ utilityStatuses, utilitiesIncluded, utilitiesSeparate })
+                }
+              />
+            ),
+          },
+          {
+            id: "rules",
+            title: sectionTitles.rules,
+            complete: Boolean(draft.houseRuleItems.length || draft.additionalNote.trim()),
+            children: (
+              <>
+                <MultiChipField
+                  locale={locale}
+                  label={r.fields.houseRuleItems}
+                  options={r.options.houseRules}
+                  values={draft.houseRuleItems.length ? draft.houseRuleItems : draft.houseRules ? [draft.houseRules] : []}
+                  requirement="optional"
+                  onChange={(houseRuleItems) =>
+                    updateDraft({
+                      houseRuleItems,
+                      houseRules: houseRuleItems.join(", "),
+                    })
+                  }
+                />
+                <TextareaField
+                  locale={locale}
+                  label={r.fields.additionalNote}
+                  value={draft.additionalNote}
+                  requirement="optional"
+                  onChange={(additionalNote) => updateDraft({ additionalNote })}
+                />
+              </>
+            ),
+          },
+          {
+            id: "moveInQuestions",
+            title: sectionTitles.questions,
+            complete: Boolean(draft.moveInQuestions.trim()),
+            children: (
+              <TextareaField
+                locale={locale}
+                label={r.fields.moveInQuestions}
+                value={draft.moveInQuestions}
+                requirement="optional"
+                onChange={(moveInQuestions) => updateDraft({ moveInQuestions })}
+              />
+            ),
+          },
         ]}
       />
       <FlowActions
@@ -3521,6 +3508,7 @@ function PreviewStep({
   const centerRegisterCopy = LANDLORD_CENTER_REGISTER_COPY[locale];
   const utilityRows = getUtilitySummaryRows(locale, draft);
   const coverPhoto = draft.photos.find((photo) => photo.id === draft.coverPhotoId) || draft.photos[0];
+  const listingTitle = draft.listingTitle.trim() || r.helpers.listingTitleFallback;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -3562,7 +3550,7 @@ function PreviewStep({
                 MapleHouse Preview
               </p>
               <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground">
-                {draft.listingTitle || r.helpers.empty}
+                {listingTitle}
               </h2>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-muted-foreground">
                 {[draft.area, formatStationSummary(locale, draft.city, draft.nearestStation)].filter(Boolean).join(" · ") ||
@@ -3628,10 +3616,10 @@ function PreviewStep({
             editHref={landlordRoute(locale, "rooms", routeBase)}
             editLabel={r.helpers.edit}
             rows={[
-              [r.fields.listingTitle, draft.listingTitle],
+              [r.fields.listingTitle, listingTitle],
               [r.fields.monthlyRent, formatCurrencyValue(draft.monthlyRent)],
               [r.fields.availableFrom, formatLandlordDisplayDate(locale, draft.availableFrom)],
-              [r.fields.minimumStay, draft.minimumStay],
+              [r.fields.minimumStay, draft.minimumStay || r.helpers.toDiscuss],
               [r.fields.occupancy, draft.occupancy],
               [r.fields.bathroom, draft.bathroom],
               [r.fields.kitchen, draft.kitchen],
@@ -3641,7 +3629,7 @@ function PreviewStep({
           />
           <DraftSummaryCard
             title={r.sections.terms}
-            empty={r.helpers.empty}
+            empty={r.helpers.canAddLater}
             editHref={landlordRoute(locale, "terms", routeBase)}
             editLabel={r.helpers.edit}
             rows={[
@@ -3653,7 +3641,7 @@ function PreviewStep({
 
         <DraftSummaryCard
           title={r.sections.rules}
-          empty={r.helpers.empty}
+          empty={r.helpers.canAddLater}
           editHref={landlordRoute(locale, "terms", routeBase)}
           editLabel={r.helpers.edit}
           rows={[
@@ -3780,6 +3768,13 @@ function LandlordStepLayout({
   children: React.ReactNode;
 }) {
   const t = CONTENT[locale];
+  const r = LANDLORD_REFINEMENTS[locale];
+  const topNote =
+    page === "preview"
+      ? ""
+      : page === "terms"
+        ? r.helpers.termsLiteNote
+        : r.helpers.onboardingLiteNote;
 
   return (
     <section className="mx-auto mt-5 max-w-6xl">
@@ -3794,6 +3789,7 @@ function LandlordStepLayout({
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             {description}
           </p>
+          {topNote ? <LandlordNotice className="mt-4">{topNote}</LandlordNotice> : null}
         </div>
         <div className="space-y-5">{children}</div>
       </div>
