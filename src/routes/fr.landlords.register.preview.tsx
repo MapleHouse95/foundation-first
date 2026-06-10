@@ -1,5 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { LocaleLandlordsPage } from "@/components/pages/LocaleLandlordsPage";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/fr/landlords/register/preview")({
   head: () => ({
@@ -11,5 +10,5 @@ export const Route = createFileRoute("/fr/landlords/register/preview")({
       },
     ],
   }),
-  component: () => <LocaleLandlordsPage locale="fr" page="preview" />,
+  component: () => <Navigate to="/fr/landlords/center/register/preview" replace />,
 });

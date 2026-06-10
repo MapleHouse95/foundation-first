@@ -43,25 +43,55 @@ import { Route as EnApplyRouteImport } from './routes/en.apply'
 import { Route as EnAboutRouteImport } from './routes/en.about'
 import { Route as KoLandlordsRegisterRouteImport } from './routes/ko.landlords.register'
 import { Route as KoLandlordsGuideRouteImport } from './routes/ko.landlords.guide'
+import { Route as KoLandlordsCenterRouteImport } from './routes/ko.landlords.center'
 import { Route as KoContactBoardRouteImport } from './routes/ko.contact.board'
 import { Route as FrLandlordsRegisterRouteImport } from './routes/fr.landlords.register'
 import { Route as FrLandlordsGuideRouteImport } from './routes/fr.landlords.guide'
+import { Route as FrLandlordsCenterRouteImport } from './routes/fr.landlords.center'
 import { Route as EnLandlordsRegisterRouteImport } from './routes/en.landlords.register'
 import { Route as EnLandlordsGuideRouteImport } from './routes/en.landlords.guide'
+import { Route as EnLandlordsCenterRouteImport } from './routes/en.landlords.center'
 import { Route as KoLandlordsRegisterTermsRouteImport } from './routes/ko.landlords.register.terms'
 import { Route as KoLandlordsRegisterRoomsRouteImport } from './routes/ko.landlords.register.rooms'
 import { Route as KoLandlordsRegisterPropertyRouteImport } from './routes/ko.landlords.register.property'
 import { Route as KoLandlordsRegisterPreviewRouteImport } from './routes/ko.landlords.register.preview'
+import { Route as KoLandlordsCenterRegisterRouteImport } from './routes/ko.landlords.center.register'
+import { Route as KoLandlordsCenterProfileRouteImport } from './routes/ko.landlords.center.profile'
+import { Route as KoLandlordsCenterListingsRouteImport } from './routes/ko.landlords.center.listings'
+import { Route as KoLandlordsCenterInquiriesRouteImport } from './routes/ko.landlords.center.inquiries'
 import { Route as KoContactBoardWriteRouteImport } from './routes/ko.contact.board.write'
 import { Route as KoContactBoardPostIdRouteImport } from './routes/ko.contact.board.$postId'
 import { Route as FrLandlordsRegisterTermsRouteImport } from './routes/fr.landlords.register.terms'
 import { Route as FrLandlordsRegisterRoomsRouteImport } from './routes/fr.landlords.register.rooms'
 import { Route as FrLandlordsRegisterPropertyRouteImport } from './routes/fr.landlords.register.property'
 import { Route as FrLandlordsRegisterPreviewRouteImport } from './routes/fr.landlords.register.preview'
+import { Route as FrLandlordsCenterRegisterRouteImport } from './routes/fr.landlords.center.register'
+import { Route as FrLandlordsCenterProfileRouteImport } from './routes/fr.landlords.center.profile'
+import { Route as FrLandlordsCenterListingsRouteImport } from './routes/fr.landlords.center.listings'
+import { Route as FrLandlordsCenterInquiriesRouteImport } from './routes/fr.landlords.center.inquiries'
 import { Route as EnLandlordsRegisterTermsRouteImport } from './routes/en.landlords.register.terms'
 import { Route as EnLandlordsRegisterRoomsRouteImport } from './routes/en.landlords.register.rooms'
 import { Route as EnLandlordsRegisterPropertyRouteImport } from './routes/en.landlords.register.property'
 import { Route as EnLandlordsRegisterPreviewRouteImport } from './routes/en.landlords.register.preview'
+import { Route as EnLandlordsCenterRegisterRouteImport } from './routes/en.landlords.center.register'
+import { Route as EnLandlordsCenterProfileRouteImport } from './routes/en.landlords.center.profile'
+import { Route as EnLandlordsCenterListingsRouteImport } from './routes/en.landlords.center.listings'
+import { Route as EnLandlordsCenterInquiriesRouteImport } from './routes/en.landlords.center.inquiries'
+import { Route as KoLandlordsCenterRegisterTermsRouteImport } from './routes/ko.landlords.center.register.terms'
+import { Route as KoLandlordsCenterRegisterRoomsRouteImport } from './routes/ko.landlords.center.register.rooms'
+import { Route as KoLandlordsCenterRegisterPropertyRouteImport } from './routes/ko.landlords.center.register.property'
+import { Route as KoLandlordsCenterRegisterPreviewRouteImport } from './routes/ko.landlords.center.register.preview'
+import { Route as KoLandlordsCenterListingsNewRouteImport } from './routes/ko.landlords.center.listings.new'
+import { Route as FrLandlordsCenterRegisterTermsRouteImport } from './routes/fr.landlords.center.register.terms'
+import { Route as FrLandlordsCenterRegisterRoomsRouteImport } from './routes/fr.landlords.center.register.rooms'
+import { Route as FrLandlordsCenterRegisterPropertyRouteImport } from './routes/fr.landlords.center.register.property'
+import { Route as FrLandlordsCenterRegisterPreviewRouteImport } from './routes/fr.landlords.center.register.preview'
+import { Route as FrLandlordsCenterListingsNewRouteImport } from './routes/fr.landlords.center.listings.new'
+import { Route as EnLandlordsCenterRegisterTermsRouteImport } from './routes/en.landlords.center.register.terms'
+import { Route as EnLandlordsCenterRegisterRoomsRouteImport } from './routes/en.landlords.center.register.rooms'
+import { Route as EnLandlordsCenterRegisterPropertyRouteImport } from './routes/en.landlords.center.register.property'
+import { Route as EnLandlordsCenterRegisterPreviewRouteImport } from './routes/en.landlords.center.register.preview'
+import { Route as EnLandlordsCenterListingsNewRouteImport } from './routes/en.landlords.center.listings.new'
 
 const KoRoute = KoRouteImport.update({
   id: '/ko',
@@ -233,6 +263,11 @@ const KoLandlordsGuideRoute = KoLandlordsGuideRouteImport.update({
   path: '/guide',
   getParentRoute: () => KoLandlordsRoute,
 } as any)
+const KoLandlordsCenterRoute = KoLandlordsCenterRouteImport.update({
+  id: '/center',
+  path: '/center',
+  getParentRoute: () => KoLandlordsRoute,
+} as any)
 const KoContactBoardRoute = KoContactBoardRouteImport.update({
   id: '/board',
   path: '/board',
@@ -248,6 +283,11 @@ const FrLandlordsGuideRoute = FrLandlordsGuideRouteImport.update({
   path: '/guide',
   getParentRoute: () => FrLandlordsRoute,
 } as any)
+const FrLandlordsCenterRoute = FrLandlordsCenterRouteImport.update({
+  id: '/center',
+  path: '/center',
+  getParentRoute: () => FrLandlordsRoute,
+} as any)
 const EnLandlordsRegisterRoute = EnLandlordsRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -256,6 +296,11 @@ const EnLandlordsRegisterRoute = EnLandlordsRegisterRouteImport.update({
 const EnLandlordsGuideRoute = EnLandlordsGuideRouteImport.update({
   id: '/guide',
   path: '/guide',
+  getParentRoute: () => EnLandlordsRoute,
+} as any)
+const EnLandlordsCenterRoute = EnLandlordsCenterRouteImport.update({
+  id: '/center',
+  path: '/center',
   getParentRoute: () => EnLandlordsRoute,
 } as any)
 const KoLandlordsRegisterTermsRoute =
@@ -281,6 +326,30 @@ const KoLandlordsRegisterPreviewRoute =
     id: '/preview',
     path: '/preview',
     getParentRoute: () => KoLandlordsRegisterRoute,
+  } as any)
+const KoLandlordsCenterRegisterRoute =
+  KoLandlordsCenterRegisterRouteImport.update({
+    id: '/register',
+    path: '/register',
+    getParentRoute: () => KoLandlordsCenterRoute,
+  } as any)
+const KoLandlordsCenterProfileRoute =
+  KoLandlordsCenterProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => KoLandlordsCenterRoute,
+  } as any)
+const KoLandlordsCenterListingsRoute =
+  KoLandlordsCenterListingsRouteImport.update({
+    id: '/listings',
+    path: '/listings',
+    getParentRoute: () => KoLandlordsCenterRoute,
+  } as any)
+const KoLandlordsCenterInquiriesRoute =
+  KoLandlordsCenterInquiriesRouteImport.update({
+    id: '/inquiries',
+    path: '/inquiries',
+    getParentRoute: () => KoLandlordsCenterRoute,
   } as any)
 const KoContactBoardWriteRoute = KoContactBoardWriteRouteImport.update({
   id: '/write',
@@ -316,6 +385,30 @@ const FrLandlordsRegisterPreviewRoute =
     path: '/preview',
     getParentRoute: () => FrLandlordsRegisterRoute,
   } as any)
+const FrLandlordsCenterRegisterRoute =
+  FrLandlordsCenterRegisterRouteImport.update({
+    id: '/register',
+    path: '/register',
+    getParentRoute: () => FrLandlordsCenterRoute,
+  } as any)
+const FrLandlordsCenterProfileRoute =
+  FrLandlordsCenterProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => FrLandlordsCenterRoute,
+  } as any)
+const FrLandlordsCenterListingsRoute =
+  FrLandlordsCenterListingsRouteImport.update({
+    id: '/listings',
+    path: '/listings',
+    getParentRoute: () => FrLandlordsCenterRoute,
+  } as any)
+const FrLandlordsCenterInquiriesRoute =
+  FrLandlordsCenterInquiriesRouteImport.update({
+    id: '/inquiries',
+    path: '/inquiries',
+    getParentRoute: () => FrLandlordsCenterRoute,
+  } as any)
 const EnLandlordsRegisterTermsRoute =
   EnLandlordsRegisterTermsRouteImport.update({
     id: '/terms',
@@ -339,6 +432,120 @@ const EnLandlordsRegisterPreviewRoute =
     id: '/preview',
     path: '/preview',
     getParentRoute: () => EnLandlordsRegisterRoute,
+  } as any)
+const EnLandlordsCenterRegisterRoute =
+  EnLandlordsCenterRegisterRouteImport.update({
+    id: '/register',
+    path: '/register',
+    getParentRoute: () => EnLandlordsCenterRoute,
+  } as any)
+const EnLandlordsCenterProfileRoute =
+  EnLandlordsCenterProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => EnLandlordsCenterRoute,
+  } as any)
+const EnLandlordsCenterListingsRoute =
+  EnLandlordsCenterListingsRouteImport.update({
+    id: '/listings',
+    path: '/listings',
+    getParentRoute: () => EnLandlordsCenterRoute,
+  } as any)
+const EnLandlordsCenterInquiriesRoute =
+  EnLandlordsCenterInquiriesRouteImport.update({
+    id: '/inquiries',
+    path: '/inquiries',
+    getParentRoute: () => EnLandlordsCenterRoute,
+  } as any)
+const KoLandlordsCenterRegisterTermsRoute =
+  KoLandlordsCenterRegisterTermsRouteImport.update({
+    id: '/terms',
+    path: '/terms',
+    getParentRoute: () => KoLandlordsCenterRegisterRoute,
+  } as any)
+const KoLandlordsCenterRegisterRoomsRoute =
+  KoLandlordsCenterRegisterRoomsRouteImport.update({
+    id: '/rooms',
+    path: '/rooms',
+    getParentRoute: () => KoLandlordsCenterRegisterRoute,
+  } as any)
+const KoLandlordsCenterRegisterPropertyRoute =
+  KoLandlordsCenterRegisterPropertyRouteImport.update({
+    id: '/property',
+    path: '/property',
+    getParentRoute: () => KoLandlordsCenterRegisterRoute,
+  } as any)
+const KoLandlordsCenterRegisterPreviewRoute =
+  KoLandlordsCenterRegisterPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => KoLandlordsCenterRegisterRoute,
+  } as any)
+const KoLandlordsCenterListingsNewRoute =
+  KoLandlordsCenterListingsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => KoLandlordsCenterListingsRoute,
+  } as any)
+const FrLandlordsCenterRegisterTermsRoute =
+  FrLandlordsCenterRegisterTermsRouteImport.update({
+    id: '/terms',
+    path: '/terms',
+    getParentRoute: () => FrLandlordsCenterRegisterRoute,
+  } as any)
+const FrLandlordsCenterRegisterRoomsRoute =
+  FrLandlordsCenterRegisterRoomsRouteImport.update({
+    id: '/rooms',
+    path: '/rooms',
+    getParentRoute: () => FrLandlordsCenterRegisterRoute,
+  } as any)
+const FrLandlordsCenterRegisterPropertyRoute =
+  FrLandlordsCenterRegisterPropertyRouteImport.update({
+    id: '/property',
+    path: '/property',
+    getParentRoute: () => FrLandlordsCenterRegisterRoute,
+  } as any)
+const FrLandlordsCenterRegisterPreviewRoute =
+  FrLandlordsCenterRegisterPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => FrLandlordsCenterRegisterRoute,
+  } as any)
+const FrLandlordsCenterListingsNewRoute =
+  FrLandlordsCenterListingsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => FrLandlordsCenterListingsRoute,
+  } as any)
+const EnLandlordsCenterRegisterTermsRoute =
+  EnLandlordsCenterRegisterTermsRouteImport.update({
+    id: '/terms',
+    path: '/terms',
+    getParentRoute: () => EnLandlordsCenterRegisterRoute,
+  } as any)
+const EnLandlordsCenterRegisterRoomsRoute =
+  EnLandlordsCenterRegisterRoomsRouteImport.update({
+    id: '/rooms',
+    path: '/rooms',
+    getParentRoute: () => EnLandlordsCenterRegisterRoute,
+  } as any)
+const EnLandlordsCenterRegisterPropertyRoute =
+  EnLandlordsCenterRegisterPropertyRouteImport.update({
+    id: '/property',
+    path: '/property',
+    getParentRoute: () => EnLandlordsCenterRegisterRoute,
+  } as any)
+const EnLandlordsCenterRegisterPreviewRoute =
+  EnLandlordsCenterRegisterPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => EnLandlordsCenterRegisterRoute,
+  } as any)
+const EnLandlordsCenterListingsNewRoute =
+  EnLandlordsCenterListingsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => EnLandlordsCenterListingsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -374,27 +581,57 @@ export interface FileRoutesByFullPath {
   '/en/': typeof EnIndexRoute
   '/fr/': typeof FrIndexRoute
   '/ko/': typeof KoIndexRoute
+  '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
+  '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
+  '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
   '/ko/landlords/register': typeof KoLandlordsRegisterRouteWithChildren
+  '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
+  '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
+  '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
+  '/en/landlords/center/register': typeof EnLandlordsCenterRegisterRouteWithChildren
   '/en/landlords/register/preview': typeof EnLandlordsRegisterPreviewRoute
   '/en/landlords/register/property': typeof EnLandlordsRegisterPropertyRoute
   '/en/landlords/register/rooms': typeof EnLandlordsRegisterRoomsRoute
   '/en/landlords/register/terms': typeof EnLandlordsRegisterTermsRoute
+  '/fr/landlords/center/inquiries': typeof FrLandlordsCenterInquiriesRoute
+  '/fr/landlords/center/listings': typeof FrLandlordsCenterListingsRouteWithChildren
+  '/fr/landlords/center/profile': typeof FrLandlordsCenterProfileRoute
+  '/fr/landlords/center/register': typeof FrLandlordsCenterRegisterRouteWithChildren
   '/fr/landlords/register/preview': typeof FrLandlordsRegisterPreviewRoute
   '/fr/landlords/register/property': typeof FrLandlordsRegisterPropertyRoute
   '/fr/landlords/register/rooms': typeof FrLandlordsRegisterRoomsRoute
   '/fr/landlords/register/terms': typeof FrLandlordsRegisterTermsRoute
   '/ko/contact/board/$postId': typeof KoContactBoardPostIdRoute
   '/ko/contact/board/write': typeof KoContactBoardWriteRoute
+  '/ko/landlords/center/inquiries': typeof KoLandlordsCenterInquiriesRoute
+  '/ko/landlords/center/listings': typeof KoLandlordsCenterListingsRouteWithChildren
+  '/ko/landlords/center/profile': typeof KoLandlordsCenterProfileRoute
+  '/ko/landlords/center/register': typeof KoLandlordsCenterRegisterRouteWithChildren
   '/ko/landlords/register/preview': typeof KoLandlordsRegisterPreviewRoute
   '/ko/landlords/register/property': typeof KoLandlordsRegisterPropertyRoute
   '/ko/landlords/register/rooms': typeof KoLandlordsRegisterRoomsRoute
   '/ko/landlords/register/terms': typeof KoLandlordsRegisterTermsRoute
+  '/en/landlords/center/listings/new': typeof EnLandlordsCenterListingsNewRoute
+  '/en/landlords/center/register/preview': typeof EnLandlordsCenterRegisterPreviewRoute
+  '/en/landlords/center/register/property': typeof EnLandlordsCenterRegisterPropertyRoute
+  '/en/landlords/center/register/rooms': typeof EnLandlordsCenterRegisterRoomsRoute
+  '/en/landlords/center/register/terms': typeof EnLandlordsCenterRegisterTermsRoute
+  '/fr/landlords/center/listings/new': typeof FrLandlordsCenterListingsNewRoute
+  '/fr/landlords/center/register/preview': typeof FrLandlordsCenterRegisterPreviewRoute
+  '/fr/landlords/center/register/property': typeof FrLandlordsCenterRegisterPropertyRoute
+  '/fr/landlords/center/register/rooms': typeof FrLandlordsCenterRegisterRoomsRoute
+  '/fr/landlords/center/register/terms': typeof FrLandlordsCenterRegisterTermsRoute
+  '/ko/landlords/center/listings/new': typeof KoLandlordsCenterListingsNewRoute
+  '/ko/landlords/center/register/preview': typeof KoLandlordsCenterRegisterPreviewRoute
+  '/ko/landlords/center/register/property': typeof KoLandlordsCenterRegisterPropertyRoute
+  '/ko/landlords/center/register/rooms': typeof KoLandlordsCenterRegisterRoomsRoute
+  '/ko/landlords/center/register/terms': typeof KoLandlordsCenterRegisterTermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -426,27 +663,57 @@ export interface FileRoutesByTo {
   '/en': typeof EnIndexRoute
   '/fr': typeof FrIndexRoute
   '/ko': typeof KoIndexRoute
+  '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
+  '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
+  '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
   '/ko/landlords/register': typeof KoLandlordsRegisterRouteWithChildren
+  '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
+  '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
+  '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
+  '/en/landlords/center/register': typeof EnLandlordsCenterRegisterRouteWithChildren
   '/en/landlords/register/preview': typeof EnLandlordsRegisterPreviewRoute
   '/en/landlords/register/property': typeof EnLandlordsRegisterPropertyRoute
   '/en/landlords/register/rooms': typeof EnLandlordsRegisterRoomsRoute
   '/en/landlords/register/terms': typeof EnLandlordsRegisterTermsRoute
+  '/fr/landlords/center/inquiries': typeof FrLandlordsCenterInquiriesRoute
+  '/fr/landlords/center/listings': typeof FrLandlordsCenterListingsRouteWithChildren
+  '/fr/landlords/center/profile': typeof FrLandlordsCenterProfileRoute
+  '/fr/landlords/center/register': typeof FrLandlordsCenterRegisterRouteWithChildren
   '/fr/landlords/register/preview': typeof FrLandlordsRegisterPreviewRoute
   '/fr/landlords/register/property': typeof FrLandlordsRegisterPropertyRoute
   '/fr/landlords/register/rooms': typeof FrLandlordsRegisterRoomsRoute
   '/fr/landlords/register/terms': typeof FrLandlordsRegisterTermsRoute
   '/ko/contact/board/$postId': typeof KoContactBoardPostIdRoute
   '/ko/contact/board/write': typeof KoContactBoardWriteRoute
+  '/ko/landlords/center/inquiries': typeof KoLandlordsCenterInquiriesRoute
+  '/ko/landlords/center/listings': typeof KoLandlordsCenterListingsRouteWithChildren
+  '/ko/landlords/center/profile': typeof KoLandlordsCenterProfileRoute
+  '/ko/landlords/center/register': typeof KoLandlordsCenterRegisterRouteWithChildren
   '/ko/landlords/register/preview': typeof KoLandlordsRegisterPreviewRoute
   '/ko/landlords/register/property': typeof KoLandlordsRegisterPropertyRoute
   '/ko/landlords/register/rooms': typeof KoLandlordsRegisterRoomsRoute
   '/ko/landlords/register/terms': typeof KoLandlordsRegisterTermsRoute
+  '/en/landlords/center/listings/new': typeof EnLandlordsCenterListingsNewRoute
+  '/en/landlords/center/register/preview': typeof EnLandlordsCenterRegisterPreviewRoute
+  '/en/landlords/center/register/property': typeof EnLandlordsCenterRegisterPropertyRoute
+  '/en/landlords/center/register/rooms': typeof EnLandlordsCenterRegisterRoomsRoute
+  '/en/landlords/center/register/terms': typeof EnLandlordsCenterRegisterTermsRoute
+  '/fr/landlords/center/listings/new': typeof FrLandlordsCenterListingsNewRoute
+  '/fr/landlords/center/register/preview': typeof FrLandlordsCenterRegisterPreviewRoute
+  '/fr/landlords/center/register/property': typeof FrLandlordsCenterRegisterPropertyRoute
+  '/fr/landlords/center/register/rooms': typeof FrLandlordsCenterRegisterRoomsRoute
+  '/fr/landlords/center/register/terms': typeof FrLandlordsCenterRegisterTermsRoute
+  '/ko/landlords/center/listings/new': typeof KoLandlordsCenterListingsNewRoute
+  '/ko/landlords/center/register/preview': typeof KoLandlordsCenterRegisterPreviewRoute
+  '/ko/landlords/center/register/property': typeof KoLandlordsCenterRegisterPropertyRoute
+  '/ko/landlords/center/register/rooms': typeof KoLandlordsCenterRegisterRoomsRoute
+  '/ko/landlords/center/register/terms': typeof KoLandlordsCenterRegisterTermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -482,27 +749,57 @@ export interface FileRoutesById {
   '/en/': typeof EnIndexRoute
   '/fr/': typeof FrIndexRoute
   '/ko/': typeof KoIndexRoute
+  '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
+  '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
+  '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
   '/ko/landlords/register': typeof KoLandlordsRegisterRouteWithChildren
+  '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
+  '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
+  '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
+  '/en/landlords/center/register': typeof EnLandlordsCenterRegisterRouteWithChildren
   '/en/landlords/register/preview': typeof EnLandlordsRegisterPreviewRoute
   '/en/landlords/register/property': typeof EnLandlordsRegisterPropertyRoute
   '/en/landlords/register/rooms': typeof EnLandlordsRegisterRoomsRoute
   '/en/landlords/register/terms': typeof EnLandlordsRegisterTermsRoute
+  '/fr/landlords/center/inquiries': typeof FrLandlordsCenterInquiriesRoute
+  '/fr/landlords/center/listings': typeof FrLandlordsCenterListingsRouteWithChildren
+  '/fr/landlords/center/profile': typeof FrLandlordsCenterProfileRoute
+  '/fr/landlords/center/register': typeof FrLandlordsCenterRegisterRouteWithChildren
   '/fr/landlords/register/preview': typeof FrLandlordsRegisterPreviewRoute
   '/fr/landlords/register/property': typeof FrLandlordsRegisterPropertyRoute
   '/fr/landlords/register/rooms': typeof FrLandlordsRegisterRoomsRoute
   '/fr/landlords/register/terms': typeof FrLandlordsRegisterTermsRoute
   '/ko/contact/board/$postId': typeof KoContactBoardPostIdRoute
   '/ko/contact/board/write': typeof KoContactBoardWriteRoute
+  '/ko/landlords/center/inquiries': typeof KoLandlordsCenterInquiriesRoute
+  '/ko/landlords/center/listings': typeof KoLandlordsCenterListingsRouteWithChildren
+  '/ko/landlords/center/profile': typeof KoLandlordsCenterProfileRoute
+  '/ko/landlords/center/register': typeof KoLandlordsCenterRegisterRouteWithChildren
   '/ko/landlords/register/preview': typeof KoLandlordsRegisterPreviewRoute
   '/ko/landlords/register/property': typeof KoLandlordsRegisterPropertyRoute
   '/ko/landlords/register/rooms': typeof KoLandlordsRegisterRoomsRoute
   '/ko/landlords/register/terms': typeof KoLandlordsRegisterTermsRoute
+  '/en/landlords/center/listings/new': typeof EnLandlordsCenterListingsNewRoute
+  '/en/landlords/center/register/preview': typeof EnLandlordsCenterRegisterPreviewRoute
+  '/en/landlords/center/register/property': typeof EnLandlordsCenterRegisterPropertyRoute
+  '/en/landlords/center/register/rooms': typeof EnLandlordsCenterRegisterRoomsRoute
+  '/en/landlords/center/register/terms': typeof EnLandlordsCenterRegisterTermsRoute
+  '/fr/landlords/center/listings/new': typeof FrLandlordsCenterListingsNewRoute
+  '/fr/landlords/center/register/preview': typeof FrLandlordsCenterRegisterPreviewRoute
+  '/fr/landlords/center/register/property': typeof FrLandlordsCenterRegisterPropertyRoute
+  '/fr/landlords/center/register/rooms': typeof FrLandlordsCenterRegisterRoomsRoute
+  '/fr/landlords/center/register/terms': typeof FrLandlordsCenterRegisterTermsRoute
+  '/ko/landlords/center/listings/new': typeof KoLandlordsCenterListingsNewRoute
+  '/ko/landlords/center/register/preview': typeof KoLandlordsCenterRegisterPreviewRoute
+  '/ko/landlords/center/register/property': typeof KoLandlordsCenterRegisterPropertyRoute
+  '/ko/landlords/center/register/rooms': typeof KoLandlordsCenterRegisterRoomsRoute
+  '/ko/landlords/center/register/terms': typeof KoLandlordsCenterRegisterTermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -539,27 +836,57 @@ export interface FileRouteTypes {
     | '/en/'
     | '/fr/'
     | '/ko/'
+    | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
+    | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
     | '/ko/contact/board'
+    | '/ko/landlords/center'
     | '/ko/landlords/guide'
     | '/ko/landlords/register'
+    | '/en/landlords/center/inquiries'
+    | '/en/landlords/center/listings'
+    | '/en/landlords/center/profile'
+    | '/en/landlords/center/register'
     | '/en/landlords/register/preview'
     | '/en/landlords/register/property'
     | '/en/landlords/register/rooms'
     | '/en/landlords/register/terms'
+    | '/fr/landlords/center/inquiries'
+    | '/fr/landlords/center/listings'
+    | '/fr/landlords/center/profile'
+    | '/fr/landlords/center/register'
     | '/fr/landlords/register/preview'
     | '/fr/landlords/register/property'
     | '/fr/landlords/register/rooms'
     | '/fr/landlords/register/terms'
     | '/ko/contact/board/$postId'
     | '/ko/contact/board/write'
+    | '/ko/landlords/center/inquiries'
+    | '/ko/landlords/center/listings'
+    | '/ko/landlords/center/profile'
+    | '/ko/landlords/center/register'
     | '/ko/landlords/register/preview'
     | '/ko/landlords/register/property'
     | '/ko/landlords/register/rooms'
     | '/ko/landlords/register/terms'
+    | '/en/landlords/center/listings/new'
+    | '/en/landlords/center/register/preview'
+    | '/en/landlords/center/register/property'
+    | '/en/landlords/center/register/rooms'
+    | '/en/landlords/center/register/terms'
+    | '/fr/landlords/center/listings/new'
+    | '/fr/landlords/center/register/preview'
+    | '/fr/landlords/center/register/property'
+    | '/fr/landlords/center/register/rooms'
+    | '/fr/landlords/center/register/terms'
+    | '/ko/landlords/center/listings/new'
+    | '/ko/landlords/center/register/preview'
+    | '/ko/landlords/center/register/property'
+    | '/ko/landlords/center/register/rooms'
+    | '/ko/landlords/center/register/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -591,27 +918,57 @@ export interface FileRouteTypes {
     | '/en'
     | '/fr'
     | '/ko'
+    | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
+    | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
     | '/ko/contact/board'
+    | '/ko/landlords/center'
     | '/ko/landlords/guide'
     | '/ko/landlords/register'
+    | '/en/landlords/center/inquiries'
+    | '/en/landlords/center/listings'
+    | '/en/landlords/center/profile'
+    | '/en/landlords/center/register'
     | '/en/landlords/register/preview'
     | '/en/landlords/register/property'
     | '/en/landlords/register/rooms'
     | '/en/landlords/register/terms'
+    | '/fr/landlords/center/inquiries'
+    | '/fr/landlords/center/listings'
+    | '/fr/landlords/center/profile'
+    | '/fr/landlords/center/register'
     | '/fr/landlords/register/preview'
     | '/fr/landlords/register/property'
     | '/fr/landlords/register/rooms'
     | '/fr/landlords/register/terms'
     | '/ko/contact/board/$postId'
     | '/ko/contact/board/write'
+    | '/ko/landlords/center/inquiries'
+    | '/ko/landlords/center/listings'
+    | '/ko/landlords/center/profile'
+    | '/ko/landlords/center/register'
     | '/ko/landlords/register/preview'
     | '/ko/landlords/register/property'
     | '/ko/landlords/register/rooms'
     | '/ko/landlords/register/terms'
+    | '/en/landlords/center/listings/new'
+    | '/en/landlords/center/register/preview'
+    | '/en/landlords/center/register/property'
+    | '/en/landlords/center/register/rooms'
+    | '/en/landlords/center/register/terms'
+    | '/fr/landlords/center/listings/new'
+    | '/fr/landlords/center/register/preview'
+    | '/fr/landlords/center/register/property'
+    | '/fr/landlords/center/register/rooms'
+    | '/fr/landlords/center/register/terms'
+    | '/ko/landlords/center/listings/new'
+    | '/ko/landlords/center/register/preview'
+    | '/ko/landlords/center/register/property'
+    | '/ko/landlords/center/register/rooms'
+    | '/ko/landlords/center/register/terms'
   id:
     | '__root__'
     | '/'
@@ -646,27 +1003,57 @@ export interface FileRouteTypes {
     | '/en/'
     | '/fr/'
     | '/ko/'
+    | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
+    | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
     | '/ko/contact/board'
+    | '/ko/landlords/center'
     | '/ko/landlords/guide'
     | '/ko/landlords/register'
+    | '/en/landlords/center/inquiries'
+    | '/en/landlords/center/listings'
+    | '/en/landlords/center/profile'
+    | '/en/landlords/center/register'
     | '/en/landlords/register/preview'
     | '/en/landlords/register/property'
     | '/en/landlords/register/rooms'
     | '/en/landlords/register/terms'
+    | '/fr/landlords/center/inquiries'
+    | '/fr/landlords/center/listings'
+    | '/fr/landlords/center/profile'
+    | '/fr/landlords/center/register'
     | '/fr/landlords/register/preview'
     | '/fr/landlords/register/property'
     | '/fr/landlords/register/rooms'
     | '/fr/landlords/register/terms'
     | '/ko/contact/board/$postId'
     | '/ko/contact/board/write'
+    | '/ko/landlords/center/inquiries'
+    | '/ko/landlords/center/listings'
+    | '/ko/landlords/center/profile'
+    | '/ko/landlords/center/register'
     | '/ko/landlords/register/preview'
     | '/ko/landlords/register/property'
     | '/ko/landlords/register/rooms'
     | '/ko/landlords/register/terms'
+    | '/en/landlords/center/listings/new'
+    | '/en/landlords/center/register/preview'
+    | '/en/landlords/center/register/property'
+    | '/en/landlords/center/register/rooms'
+    | '/en/landlords/center/register/terms'
+    | '/fr/landlords/center/listings/new'
+    | '/fr/landlords/center/register/preview'
+    | '/fr/landlords/center/register/property'
+    | '/fr/landlords/center/register/rooms'
+    | '/fr/landlords/center/register/terms'
+    | '/ko/landlords/center/listings/new'
+    | '/ko/landlords/center/register/preview'
+    | '/ko/landlords/center/register/property'
+    | '/ko/landlords/center/register/rooms'
+    | '/ko/landlords/center/register/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -917,6 +1304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KoLandlordsGuideRouteImport
       parentRoute: typeof KoLandlordsRoute
     }
+    '/ko/landlords/center': {
+      id: '/ko/landlords/center'
+      path: '/center'
+      fullPath: '/ko/landlords/center'
+      preLoaderRoute: typeof KoLandlordsCenterRouteImport
+      parentRoute: typeof KoLandlordsRoute
+    }
     '/ko/contact/board': {
       id: '/ko/contact/board'
       path: '/board'
@@ -938,6 +1332,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrLandlordsGuideRouteImport
       parentRoute: typeof FrLandlordsRoute
     }
+    '/fr/landlords/center': {
+      id: '/fr/landlords/center'
+      path: '/center'
+      fullPath: '/fr/landlords/center'
+      preLoaderRoute: typeof FrLandlordsCenterRouteImport
+      parentRoute: typeof FrLandlordsRoute
+    }
     '/en/landlords/register': {
       id: '/en/landlords/register'
       path: '/register'
@@ -950,6 +1351,13 @@ declare module '@tanstack/react-router' {
       path: '/guide'
       fullPath: '/en/landlords/guide'
       preLoaderRoute: typeof EnLandlordsGuideRouteImport
+      parentRoute: typeof EnLandlordsRoute
+    }
+    '/en/landlords/center': {
+      id: '/en/landlords/center'
+      path: '/center'
+      fullPath: '/en/landlords/center'
+      preLoaderRoute: typeof EnLandlordsCenterRouteImport
       parentRoute: typeof EnLandlordsRoute
     }
     '/ko/landlords/register/terms': {
@@ -979,6 +1387,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/ko/landlords/register/preview'
       preLoaderRoute: typeof KoLandlordsRegisterPreviewRouteImport
       parentRoute: typeof KoLandlordsRegisterRoute
+    }
+    '/ko/landlords/center/register': {
+      id: '/ko/landlords/center/register'
+      path: '/register'
+      fullPath: '/ko/landlords/center/register'
+      preLoaderRoute: typeof KoLandlordsCenterRegisterRouteImport
+      parentRoute: typeof KoLandlordsCenterRoute
+    }
+    '/ko/landlords/center/profile': {
+      id: '/ko/landlords/center/profile'
+      path: '/profile'
+      fullPath: '/ko/landlords/center/profile'
+      preLoaderRoute: typeof KoLandlordsCenterProfileRouteImport
+      parentRoute: typeof KoLandlordsCenterRoute
+    }
+    '/ko/landlords/center/listings': {
+      id: '/ko/landlords/center/listings'
+      path: '/listings'
+      fullPath: '/ko/landlords/center/listings'
+      preLoaderRoute: typeof KoLandlordsCenterListingsRouteImport
+      parentRoute: typeof KoLandlordsCenterRoute
+    }
+    '/ko/landlords/center/inquiries': {
+      id: '/ko/landlords/center/inquiries'
+      path: '/inquiries'
+      fullPath: '/ko/landlords/center/inquiries'
+      preLoaderRoute: typeof KoLandlordsCenterInquiriesRouteImport
+      parentRoute: typeof KoLandlordsCenterRoute
     }
     '/ko/contact/board/write': {
       id: '/ko/contact/board/write'
@@ -1022,6 +1458,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrLandlordsRegisterPreviewRouteImport
       parentRoute: typeof FrLandlordsRegisterRoute
     }
+    '/fr/landlords/center/register': {
+      id: '/fr/landlords/center/register'
+      path: '/register'
+      fullPath: '/fr/landlords/center/register'
+      preLoaderRoute: typeof FrLandlordsCenterRegisterRouteImport
+      parentRoute: typeof FrLandlordsCenterRoute
+    }
+    '/fr/landlords/center/profile': {
+      id: '/fr/landlords/center/profile'
+      path: '/profile'
+      fullPath: '/fr/landlords/center/profile'
+      preLoaderRoute: typeof FrLandlordsCenterProfileRouteImport
+      parentRoute: typeof FrLandlordsCenterRoute
+    }
+    '/fr/landlords/center/listings': {
+      id: '/fr/landlords/center/listings'
+      path: '/listings'
+      fullPath: '/fr/landlords/center/listings'
+      preLoaderRoute: typeof FrLandlordsCenterListingsRouteImport
+      parentRoute: typeof FrLandlordsCenterRoute
+    }
+    '/fr/landlords/center/inquiries': {
+      id: '/fr/landlords/center/inquiries'
+      path: '/inquiries'
+      fullPath: '/fr/landlords/center/inquiries'
+      preLoaderRoute: typeof FrLandlordsCenterInquiriesRouteImport
+      parentRoute: typeof FrLandlordsCenterRoute
+    }
     '/en/landlords/register/terms': {
       id: '/en/landlords/register/terms'
       path: '/terms'
@@ -1050,8 +1514,194 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnLandlordsRegisterPreviewRouteImport
       parentRoute: typeof EnLandlordsRegisterRoute
     }
+    '/en/landlords/center/register': {
+      id: '/en/landlords/center/register'
+      path: '/register'
+      fullPath: '/en/landlords/center/register'
+      preLoaderRoute: typeof EnLandlordsCenterRegisterRouteImport
+      parentRoute: typeof EnLandlordsCenterRoute
+    }
+    '/en/landlords/center/profile': {
+      id: '/en/landlords/center/profile'
+      path: '/profile'
+      fullPath: '/en/landlords/center/profile'
+      preLoaderRoute: typeof EnLandlordsCenterProfileRouteImport
+      parentRoute: typeof EnLandlordsCenterRoute
+    }
+    '/en/landlords/center/listings': {
+      id: '/en/landlords/center/listings'
+      path: '/listings'
+      fullPath: '/en/landlords/center/listings'
+      preLoaderRoute: typeof EnLandlordsCenterListingsRouteImport
+      parentRoute: typeof EnLandlordsCenterRoute
+    }
+    '/en/landlords/center/inquiries': {
+      id: '/en/landlords/center/inquiries'
+      path: '/inquiries'
+      fullPath: '/en/landlords/center/inquiries'
+      preLoaderRoute: typeof EnLandlordsCenterInquiriesRouteImport
+      parentRoute: typeof EnLandlordsCenterRoute
+    }
+    '/ko/landlords/center/register/terms': {
+      id: '/ko/landlords/center/register/terms'
+      path: '/terms'
+      fullPath: '/ko/landlords/center/register/terms'
+      preLoaderRoute: typeof KoLandlordsCenterRegisterTermsRouteImport
+      parentRoute: typeof KoLandlordsCenterRegisterRoute
+    }
+    '/ko/landlords/center/register/rooms': {
+      id: '/ko/landlords/center/register/rooms'
+      path: '/rooms'
+      fullPath: '/ko/landlords/center/register/rooms'
+      preLoaderRoute: typeof KoLandlordsCenterRegisterRoomsRouteImport
+      parentRoute: typeof KoLandlordsCenterRegisterRoute
+    }
+    '/ko/landlords/center/register/property': {
+      id: '/ko/landlords/center/register/property'
+      path: '/property'
+      fullPath: '/ko/landlords/center/register/property'
+      preLoaderRoute: typeof KoLandlordsCenterRegisterPropertyRouteImport
+      parentRoute: typeof KoLandlordsCenterRegisterRoute
+    }
+    '/ko/landlords/center/register/preview': {
+      id: '/ko/landlords/center/register/preview'
+      path: '/preview'
+      fullPath: '/ko/landlords/center/register/preview'
+      preLoaderRoute: typeof KoLandlordsCenterRegisterPreviewRouteImport
+      parentRoute: typeof KoLandlordsCenterRegisterRoute
+    }
+    '/ko/landlords/center/listings/new': {
+      id: '/ko/landlords/center/listings/new'
+      path: '/new'
+      fullPath: '/ko/landlords/center/listings/new'
+      preLoaderRoute: typeof KoLandlordsCenterListingsNewRouteImport
+      parentRoute: typeof KoLandlordsCenterListingsRoute
+    }
+    '/fr/landlords/center/register/terms': {
+      id: '/fr/landlords/center/register/terms'
+      path: '/terms'
+      fullPath: '/fr/landlords/center/register/terms'
+      preLoaderRoute: typeof FrLandlordsCenterRegisterTermsRouteImport
+      parentRoute: typeof FrLandlordsCenterRegisterRoute
+    }
+    '/fr/landlords/center/register/rooms': {
+      id: '/fr/landlords/center/register/rooms'
+      path: '/rooms'
+      fullPath: '/fr/landlords/center/register/rooms'
+      preLoaderRoute: typeof FrLandlordsCenterRegisterRoomsRouteImport
+      parentRoute: typeof FrLandlordsCenterRegisterRoute
+    }
+    '/fr/landlords/center/register/property': {
+      id: '/fr/landlords/center/register/property'
+      path: '/property'
+      fullPath: '/fr/landlords/center/register/property'
+      preLoaderRoute: typeof FrLandlordsCenterRegisterPropertyRouteImport
+      parentRoute: typeof FrLandlordsCenterRegisterRoute
+    }
+    '/fr/landlords/center/register/preview': {
+      id: '/fr/landlords/center/register/preview'
+      path: '/preview'
+      fullPath: '/fr/landlords/center/register/preview'
+      preLoaderRoute: typeof FrLandlordsCenterRegisterPreviewRouteImport
+      parentRoute: typeof FrLandlordsCenterRegisterRoute
+    }
+    '/fr/landlords/center/listings/new': {
+      id: '/fr/landlords/center/listings/new'
+      path: '/new'
+      fullPath: '/fr/landlords/center/listings/new'
+      preLoaderRoute: typeof FrLandlordsCenterListingsNewRouteImport
+      parentRoute: typeof FrLandlordsCenterListingsRoute
+    }
+    '/en/landlords/center/register/terms': {
+      id: '/en/landlords/center/register/terms'
+      path: '/terms'
+      fullPath: '/en/landlords/center/register/terms'
+      preLoaderRoute: typeof EnLandlordsCenterRegisterTermsRouteImport
+      parentRoute: typeof EnLandlordsCenterRegisterRoute
+    }
+    '/en/landlords/center/register/rooms': {
+      id: '/en/landlords/center/register/rooms'
+      path: '/rooms'
+      fullPath: '/en/landlords/center/register/rooms'
+      preLoaderRoute: typeof EnLandlordsCenterRegisterRoomsRouteImport
+      parentRoute: typeof EnLandlordsCenterRegisterRoute
+    }
+    '/en/landlords/center/register/property': {
+      id: '/en/landlords/center/register/property'
+      path: '/property'
+      fullPath: '/en/landlords/center/register/property'
+      preLoaderRoute: typeof EnLandlordsCenterRegisterPropertyRouteImport
+      parentRoute: typeof EnLandlordsCenterRegisterRoute
+    }
+    '/en/landlords/center/register/preview': {
+      id: '/en/landlords/center/register/preview'
+      path: '/preview'
+      fullPath: '/en/landlords/center/register/preview'
+      preLoaderRoute: typeof EnLandlordsCenterRegisterPreviewRouteImport
+      parentRoute: typeof EnLandlordsCenterRegisterRoute
+    }
+    '/en/landlords/center/listings/new': {
+      id: '/en/landlords/center/listings/new'
+      path: '/new'
+      fullPath: '/en/landlords/center/listings/new'
+      preLoaderRoute: typeof EnLandlordsCenterListingsNewRouteImport
+      parentRoute: typeof EnLandlordsCenterListingsRoute
+    }
   }
 }
+
+interface EnLandlordsCenterListingsRouteChildren {
+  EnLandlordsCenterListingsNewRoute: typeof EnLandlordsCenterListingsNewRoute
+}
+
+const EnLandlordsCenterListingsRouteChildren: EnLandlordsCenterListingsRouteChildren =
+  {
+    EnLandlordsCenterListingsNewRoute: EnLandlordsCenterListingsNewRoute,
+  }
+
+const EnLandlordsCenterListingsRouteWithChildren =
+  EnLandlordsCenterListingsRoute._addFileChildren(
+    EnLandlordsCenterListingsRouteChildren,
+  )
+
+interface EnLandlordsCenterRegisterRouteChildren {
+  EnLandlordsCenterRegisterPreviewRoute: typeof EnLandlordsCenterRegisterPreviewRoute
+  EnLandlordsCenterRegisterPropertyRoute: typeof EnLandlordsCenterRegisterPropertyRoute
+  EnLandlordsCenterRegisterRoomsRoute: typeof EnLandlordsCenterRegisterRoomsRoute
+  EnLandlordsCenterRegisterTermsRoute: typeof EnLandlordsCenterRegisterTermsRoute
+}
+
+const EnLandlordsCenterRegisterRouteChildren: EnLandlordsCenterRegisterRouteChildren =
+  {
+    EnLandlordsCenterRegisterPreviewRoute:
+      EnLandlordsCenterRegisterPreviewRoute,
+    EnLandlordsCenterRegisterPropertyRoute:
+      EnLandlordsCenterRegisterPropertyRoute,
+    EnLandlordsCenterRegisterRoomsRoute: EnLandlordsCenterRegisterRoomsRoute,
+    EnLandlordsCenterRegisterTermsRoute: EnLandlordsCenterRegisterTermsRoute,
+  }
+
+const EnLandlordsCenterRegisterRouteWithChildren =
+  EnLandlordsCenterRegisterRoute._addFileChildren(
+    EnLandlordsCenterRegisterRouteChildren,
+  )
+
+interface EnLandlordsCenterRouteChildren {
+  EnLandlordsCenterInquiriesRoute: typeof EnLandlordsCenterInquiriesRoute
+  EnLandlordsCenterListingsRoute: typeof EnLandlordsCenterListingsRouteWithChildren
+  EnLandlordsCenterProfileRoute: typeof EnLandlordsCenterProfileRoute
+  EnLandlordsCenterRegisterRoute: typeof EnLandlordsCenterRegisterRouteWithChildren
+}
+
+const EnLandlordsCenterRouteChildren: EnLandlordsCenterRouteChildren = {
+  EnLandlordsCenterInquiriesRoute: EnLandlordsCenterInquiriesRoute,
+  EnLandlordsCenterListingsRoute: EnLandlordsCenterListingsRouteWithChildren,
+  EnLandlordsCenterProfileRoute: EnLandlordsCenterProfileRoute,
+  EnLandlordsCenterRegisterRoute: EnLandlordsCenterRegisterRouteWithChildren,
+}
+
+const EnLandlordsCenterRouteWithChildren =
+  EnLandlordsCenterRoute._addFileChildren(EnLandlordsCenterRouteChildren)
 
 interface EnLandlordsRegisterRouteChildren {
   EnLandlordsRegisterPreviewRoute: typeof EnLandlordsRegisterPreviewRoute
@@ -1071,11 +1721,13 @@ const EnLandlordsRegisterRouteWithChildren =
   EnLandlordsRegisterRoute._addFileChildren(EnLandlordsRegisterRouteChildren)
 
 interface EnLandlordsRouteChildren {
+  EnLandlordsCenterRoute: typeof EnLandlordsCenterRouteWithChildren
   EnLandlordsGuideRoute: typeof EnLandlordsGuideRoute
   EnLandlordsRegisterRoute: typeof EnLandlordsRegisterRouteWithChildren
 }
 
 const EnLandlordsRouteChildren: EnLandlordsRouteChildren = {
+  EnLandlordsCenterRoute: EnLandlordsCenterRouteWithChildren,
   EnLandlordsGuideRoute: EnLandlordsGuideRoute,
   EnLandlordsRegisterRoute: EnLandlordsRegisterRouteWithChildren,
 }
@@ -1110,6 +1762,59 @@ const EnRouteChildren: EnRouteChildren = {
 
 const EnRouteWithChildren = EnRoute._addFileChildren(EnRouteChildren)
 
+interface FrLandlordsCenterListingsRouteChildren {
+  FrLandlordsCenterListingsNewRoute: typeof FrLandlordsCenterListingsNewRoute
+}
+
+const FrLandlordsCenterListingsRouteChildren: FrLandlordsCenterListingsRouteChildren =
+  {
+    FrLandlordsCenterListingsNewRoute: FrLandlordsCenterListingsNewRoute,
+  }
+
+const FrLandlordsCenterListingsRouteWithChildren =
+  FrLandlordsCenterListingsRoute._addFileChildren(
+    FrLandlordsCenterListingsRouteChildren,
+  )
+
+interface FrLandlordsCenterRegisterRouteChildren {
+  FrLandlordsCenterRegisterPreviewRoute: typeof FrLandlordsCenterRegisterPreviewRoute
+  FrLandlordsCenterRegisterPropertyRoute: typeof FrLandlordsCenterRegisterPropertyRoute
+  FrLandlordsCenterRegisterRoomsRoute: typeof FrLandlordsCenterRegisterRoomsRoute
+  FrLandlordsCenterRegisterTermsRoute: typeof FrLandlordsCenterRegisterTermsRoute
+}
+
+const FrLandlordsCenterRegisterRouteChildren: FrLandlordsCenterRegisterRouteChildren =
+  {
+    FrLandlordsCenterRegisterPreviewRoute:
+      FrLandlordsCenterRegisterPreviewRoute,
+    FrLandlordsCenterRegisterPropertyRoute:
+      FrLandlordsCenterRegisterPropertyRoute,
+    FrLandlordsCenterRegisterRoomsRoute: FrLandlordsCenterRegisterRoomsRoute,
+    FrLandlordsCenterRegisterTermsRoute: FrLandlordsCenterRegisterTermsRoute,
+  }
+
+const FrLandlordsCenterRegisterRouteWithChildren =
+  FrLandlordsCenterRegisterRoute._addFileChildren(
+    FrLandlordsCenterRegisterRouteChildren,
+  )
+
+interface FrLandlordsCenterRouteChildren {
+  FrLandlordsCenterInquiriesRoute: typeof FrLandlordsCenterInquiriesRoute
+  FrLandlordsCenterListingsRoute: typeof FrLandlordsCenterListingsRouteWithChildren
+  FrLandlordsCenterProfileRoute: typeof FrLandlordsCenterProfileRoute
+  FrLandlordsCenterRegisterRoute: typeof FrLandlordsCenterRegisterRouteWithChildren
+}
+
+const FrLandlordsCenterRouteChildren: FrLandlordsCenterRouteChildren = {
+  FrLandlordsCenterInquiriesRoute: FrLandlordsCenterInquiriesRoute,
+  FrLandlordsCenterListingsRoute: FrLandlordsCenterListingsRouteWithChildren,
+  FrLandlordsCenterProfileRoute: FrLandlordsCenterProfileRoute,
+  FrLandlordsCenterRegisterRoute: FrLandlordsCenterRegisterRouteWithChildren,
+}
+
+const FrLandlordsCenterRouteWithChildren =
+  FrLandlordsCenterRoute._addFileChildren(FrLandlordsCenterRouteChildren)
+
 interface FrLandlordsRegisterRouteChildren {
   FrLandlordsRegisterPreviewRoute: typeof FrLandlordsRegisterPreviewRoute
   FrLandlordsRegisterPropertyRoute: typeof FrLandlordsRegisterPropertyRoute
@@ -1128,11 +1833,13 @@ const FrLandlordsRegisterRouteWithChildren =
   FrLandlordsRegisterRoute._addFileChildren(FrLandlordsRegisterRouteChildren)
 
 interface FrLandlordsRouteChildren {
+  FrLandlordsCenterRoute: typeof FrLandlordsCenterRouteWithChildren
   FrLandlordsGuideRoute: typeof FrLandlordsGuideRoute
   FrLandlordsRegisterRoute: typeof FrLandlordsRegisterRouteWithChildren
 }
 
 const FrLandlordsRouteChildren: FrLandlordsRouteChildren = {
+  FrLandlordsCenterRoute: FrLandlordsCenterRouteWithChildren,
   FrLandlordsGuideRoute: FrLandlordsGuideRoute,
   FrLandlordsRegisterRoute: FrLandlordsRegisterRouteWithChildren,
 }
@@ -1193,6 +1900,59 @@ const KoContactRouteWithChildren = KoContactRoute._addFileChildren(
   KoContactRouteChildren,
 )
 
+interface KoLandlordsCenterListingsRouteChildren {
+  KoLandlordsCenterListingsNewRoute: typeof KoLandlordsCenterListingsNewRoute
+}
+
+const KoLandlordsCenterListingsRouteChildren: KoLandlordsCenterListingsRouteChildren =
+  {
+    KoLandlordsCenterListingsNewRoute: KoLandlordsCenterListingsNewRoute,
+  }
+
+const KoLandlordsCenterListingsRouteWithChildren =
+  KoLandlordsCenterListingsRoute._addFileChildren(
+    KoLandlordsCenterListingsRouteChildren,
+  )
+
+interface KoLandlordsCenterRegisterRouteChildren {
+  KoLandlordsCenterRegisterPreviewRoute: typeof KoLandlordsCenterRegisterPreviewRoute
+  KoLandlordsCenterRegisterPropertyRoute: typeof KoLandlordsCenterRegisterPropertyRoute
+  KoLandlordsCenterRegisterRoomsRoute: typeof KoLandlordsCenterRegisterRoomsRoute
+  KoLandlordsCenterRegisterTermsRoute: typeof KoLandlordsCenterRegisterTermsRoute
+}
+
+const KoLandlordsCenterRegisterRouteChildren: KoLandlordsCenterRegisterRouteChildren =
+  {
+    KoLandlordsCenterRegisterPreviewRoute:
+      KoLandlordsCenterRegisterPreviewRoute,
+    KoLandlordsCenterRegisterPropertyRoute:
+      KoLandlordsCenterRegisterPropertyRoute,
+    KoLandlordsCenterRegisterRoomsRoute: KoLandlordsCenterRegisterRoomsRoute,
+    KoLandlordsCenterRegisterTermsRoute: KoLandlordsCenterRegisterTermsRoute,
+  }
+
+const KoLandlordsCenterRegisterRouteWithChildren =
+  KoLandlordsCenterRegisterRoute._addFileChildren(
+    KoLandlordsCenterRegisterRouteChildren,
+  )
+
+interface KoLandlordsCenterRouteChildren {
+  KoLandlordsCenterInquiriesRoute: typeof KoLandlordsCenterInquiriesRoute
+  KoLandlordsCenterListingsRoute: typeof KoLandlordsCenterListingsRouteWithChildren
+  KoLandlordsCenterProfileRoute: typeof KoLandlordsCenterProfileRoute
+  KoLandlordsCenterRegisterRoute: typeof KoLandlordsCenterRegisterRouteWithChildren
+}
+
+const KoLandlordsCenterRouteChildren: KoLandlordsCenterRouteChildren = {
+  KoLandlordsCenterInquiriesRoute: KoLandlordsCenterInquiriesRoute,
+  KoLandlordsCenterListingsRoute: KoLandlordsCenterListingsRouteWithChildren,
+  KoLandlordsCenterProfileRoute: KoLandlordsCenterProfileRoute,
+  KoLandlordsCenterRegisterRoute: KoLandlordsCenterRegisterRouteWithChildren,
+}
+
+const KoLandlordsCenterRouteWithChildren =
+  KoLandlordsCenterRoute._addFileChildren(KoLandlordsCenterRouteChildren)
+
 interface KoLandlordsRegisterRouteChildren {
   KoLandlordsRegisterPreviewRoute: typeof KoLandlordsRegisterPreviewRoute
   KoLandlordsRegisterPropertyRoute: typeof KoLandlordsRegisterPropertyRoute
@@ -1211,11 +1971,13 @@ const KoLandlordsRegisterRouteWithChildren =
   KoLandlordsRegisterRoute._addFileChildren(KoLandlordsRegisterRouteChildren)
 
 interface KoLandlordsRouteChildren {
+  KoLandlordsCenterRoute: typeof KoLandlordsCenterRouteWithChildren
   KoLandlordsGuideRoute: typeof KoLandlordsGuideRoute
   KoLandlordsRegisterRoute: typeof KoLandlordsRegisterRouteWithChildren
 }
 
 const KoLandlordsRouteChildren: KoLandlordsRouteChildren = {
+  KoLandlordsCenterRoute: KoLandlordsCenterRouteWithChildren,
   KoLandlordsGuideRoute: KoLandlordsGuideRoute,
   KoLandlordsRegisterRoute: KoLandlordsRegisterRouteWithChildren,
 }

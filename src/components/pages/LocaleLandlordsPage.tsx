@@ -37,6 +37,7 @@ export type LandlordRoutePage =
   | "preview";
 
 type RouteKey = LandlordRoutePage;
+type LandlordRegistrationRouteBase = "public" | "center";
 
 type LandlordDraft = {
   role: string;
@@ -101,6 +102,7 @@ type LandlordPhoto = {
 };
 
 type FieldRequirement = "required" | "optional" | "conditional";
+type LandlordCityKey = "toronto" | "vancouver" | "calgary";
 
 type LandlordContent = {
   homeLabel: string;
@@ -297,9 +299,9 @@ const CONTENT: Record<Locale, LandlordContent> = {
       eyebrow: "LANDLORDS / HOUSING PROVIDERS",
       title: "임대인에게는 무료입니다",
       subtitle:
-        "MapleHouse는 캐나다에서 출국 전 주거를 찾는 예비 입주자와 토론토의 임대인·주거 제공자를 연결합니다.",
-      primaryCta: "임대인 등록 시작하기",
-      secondaryCta: "등록 안내 보기",
+        "MapleHouse는 캐나다에서 출국 전 주거를 찾는 예비 입주자와 임대인·주거 제공자를 연결합니다.",
+      primaryCta: "임대인 등록 및 첫 매물 등록하기",
+      secondaryCta: "임대인 센터 보기",
       benefits: [
         {
           title: "리스팅 비용 $0",
@@ -491,11 +493,11 @@ const CONTENT: Record<Locale, LandlordContent> = {
     },
     landing: {
       eyebrow: "LANDLORDS / HOUSING PROVIDERS",
-      title: "List with MapleHouse at no cost",
+      title: "Free for landlords",
       subtitle:
-        "Connect with tenants who are preparing their housing before arriving in Canada.",
-      primaryCta: "Start landlord registration",
-      secondaryCta: "View listing guide",
+        "MapleHouse connects landlords and housing providers with tenants looking for housing before arrival in Canada.",
+      primaryCta: "Register as a landlord and add your first listing",
+      secondaryCta: "View landlord center",
       benefits: [
         {
           title: "$0 listing fee",
@@ -687,11 +689,11 @@ const CONTENT: Record<Locale, LandlordContent> = {
     },
     landing: {
       eyebrow: "PROPRIÉTAIRES / FOURNISSEURS DE LOGEMENT",
-      title: "Publier avec MapleHouse sans frais",
+      title: "Gratuit pour les propriétaires",
       subtitle:
-        "Mettez votre logement en relation avec des locataires qui préparent leur arrivée au Canada.",
-      primaryCta: "Commencer l’inscription propriétaire",
-      secondaryCta: "Voir le guide",
+        "MapleHouse met en relation les propriétaires et fournisseurs de logement avec des locataires qui cherchent un logement avant leur arrivée au Canada.",
+      primaryCta: "S’inscrire comme propriétaire et ajouter une première annonce",
+      secondaryCta: "Voir l’espace propriétaire",
       benefits: [
         {
           title: "Aucun frais d’annonce",
@@ -939,7 +941,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       shortMessage: "간단한 메모",
       city: "도시/지역",
       area: "지역 / 동네",
-      nearestStation: "가까운 TTC 역",
+      nearestStation: "가까운 지하철/전철역",
       address: "상세 주소",
       housingType: "주거 형태",
       useType: "이용 형태",
@@ -1073,7 +1075,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       shortMessage: "Short message",
       city: "City / area",
       area: "Area / neighborhood",
-      nearestStation: "Nearest TTC station",
+      nearestStation: "Nearest rapid transit station",
       address: "Detailed address",
       housingType: "Housing type",
       useType: "Use type",
@@ -1207,7 +1209,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       shortMessage: "Message court",
       city: "Ville / secteur",
       area: "Secteur / quartier",
-      nearestStation: "Station TTC la plus proche",
+      nearestStation: "Station de transport rapide la plus proche",
       address: "Adresse détaillée",
       housingType: "Type de logement",
       useType: "Type d’usage",
@@ -1312,7 +1314,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
   },
 };
 
-const TTC_RAPID_TRANSIT_STATIONS = [
+const TORONTO_TTC_STATIONS = [
   "Aga Khan Park & Museum",
   "Albion",
   "Avenue",
@@ -1422,6 +1424,111 @@ const TTC_RAPID_TRANSIT_STATIONS = [
   "York Mills",
   "York University",
   "Yorkdale",
+].sort((a, b) => a.localeCompare(b));
+
+const VANCOUVER_SKYTRAIN_STATIONS = [
+  "22nd Street",
+  "29th Avenue",
+  "Aberdeen",
+  "Braid",
+  "Brentwood Town Centre",
+  "Bridgeport",
+  "Broadway-City Hall",
+  "Burquitlam",
+  "Burrard",
+  "Capstan",
+  "Columbia",
+  "Commercial-Broadway",
+  "Coquitlam Central",
+  "Edmonds",
+  "Gateway",
+  "Gilmore",
+  "Granville",
+  "Holdom",
+  "Inlet Centre",
+  "Joyce-Collingwood",
+  "King Edward",
+  "King George",
+  "Lafarge Lake-Douglas",
+  "Lake City Way",
+  "Langara-49th Avenue",
+  "Lansdowne",
+  "Lincoln",
+  "Lougheed Town Centre",
+  "Main Street-Science World",
+  "Marine Drive",
+  "Metrotown",
+  "Moody Centre",
+  "Nanaimo",
+  "New Westminster",
+  "Oakridge-41st Avenue",
+  "Olympic Village",
+  "Patterson",
+  "Production Way-University",
+  "Renfrew",
+  "Richmond-Brighouse",
+  "Royal Oak",
+  "Rupert",
+  "Sapperton",
+  "Scott Road",
+  "Sea Island Centre",
+  "Sperling-Burnaby Lake",
+  "Stadium-Chinatown",
+  "Surrey Central",
+  "Templeton",
+  "Vancouver City Centre",
+  "VCC-Clark",
+  "Waterfront",
+  "Yaletown-Roundhouse",
+  "YVR-Airport",
+].sort((a, b) => a.localeCompare(b));
+
+const CALGARY_CTRAIN_STATIONS = [
+  "1 Street SW",
+  "3 Street SW",
+  "4 Street SW",
+  "6 Street SW",
+  "7 Street SW",
+  "8 Street SW",
+  "39 Avenue",
+  "45 Street",
+  "69 Street",
+  "Anderson",
+  "Banff Trail",
+  "Barlow/Max Bell",
+  "Brentwood",
+  "Bridgeland/Memorial",
+  "Calgary Zoo",
+  "Canyon Meadows",
+  "Centre Street",
+  "Chinook",
+  "City Hall/Bow Valley College",
+  "Crowfoot",
+  "Dalhousie",
+  "Downtown West-Kerby",
+  "Erlton/Stampede",
+  "Fish Creek-Lacombe",
+  "Franklin",
+  "Heritage",
+  "Lions Park",
+  "Marlborough",
+  "Martindale",
+  "McKnight-Westwinds",
+  "Rundle",
+  "SAIT/AUArts/Jubilee",
+  "Saddletowne",
+  "Shaganappi Point",
+  "Shawnessy",
+  "Sirocco",
+  "Somerset-Bridlewood",
+  "Southland",
+  "Sunalta",
+  "Sunnyside",
+  "Tuscany",
+  "University",
+  "Victoria Park/Stampede",
+  "Westbrook",
+  "Whitehorn",
 ].sort((a, b) => a.localeCompare(b));
 
 const BENEFIT_ICONS = [Building2, MessageSquareText, ClipboardList, ShieldCheck];
@@ -1683,6 +1790,42 @@ const LANDLORD_LEAVE_COPY = {
   }
 >;
 
+const LANDLORD_CENTER_REGISTER_COPY = {
+  ko: {
+    centerLabel: "임대인 센터",
+    registrationLabel: "임대인 등록",
+    title: "임대인 등록 및 최초 매물 등록을 시작합니다",
+    description:
+      "임대인 기본 정보와 첫 번째 매물 정보를 함께 정리합니다. 이후 추가 매물은 임대인 센터에서 관리할 수 있도록 확장할 예정입니다.",
+    backToCenter: "임대인 센터로 돌아가기",
+  },
+  en: {
+    centerLabel: "Landlord center",
+    registrationLabel: "Landlord registration",
+    title: "Start landlord registration and first listing",
+    description:
+      "Organize your landlord profile and first listing together. Future additional listings can be managed from the landlord center.",
+    backToCenter: "Back to landlord center",
+  },
+  fr: {
+    centerLabel: "Espace propriétaire",
+    registrationLabel: "Inscription propriétaire",
+    title: "Commencer l’inscription propriétaire et la première annonce",
+    description:
+      "Renseignez votre profil propriétaire et votre première annonce. Les annonces supplémentaires pourront être gérées depuis l’espace propriétaire.",
+    backToCenter: "Retour à l’espace propriétaire",
+  },
+} satisfies Record<
+  Locale,
+  {
+    centerLabel: string;
+    registrationLabel: string;
+    title: string;
+    description: string;
+    backToCenter: string;
+  }
+>;
+
 const LANDLORD_REQUIREMENT_COPY = {
   ko: {
     required: "필수",
@@ -1760,6 +1903,88 @@ const LANDLORD_MONTH_NAMES = {
     "décembre",
   ],
 } as const;
+
+const LANDLORD_VALIDATION_COPY = {
+  ko: {
+    numbersOnly: "숫자만 입력해주세요.",
+    currency: "숫자만 입력해주세요.",
+    emailLocal: "이메일 아이디 형식이 올바르지 않습니다.",
+    emailDomain: "올바른 도메인 형식이 아닙니다.",
+    phone: "숫자만 입력해주세요.",
+    countryCode: "국가 번호 형식이 올바르지 않습니다.",
+    requiredFormat: "필수 항목을 올바른 형식으로 입력해주세요.",
+    stationForCity: "선택한 도시의 역을 선택해주세요.",
+  },
+  en: {
+    numbersOnly: "Enter numbers only.",
+    currency: "Enter numbers only.",
+    emailLocal: "Enter a valid email name.",
+    emailDomain: "Enter a valid domain, such as gmail.com.",
+    phone: "Enter numbers only.",
+    countryCode: "Enter a valid country code.",
+    requiredFormat: "Complete required fields in the correct format.",
+    stationForCity: "Select a station for the selected city.",
+  },
+  fr: {
+    numbersOnly: "Saisissez uniquement des chiffres.",
+    currency: "Saisissez uniquement des chiffres.",
+    emailLocal: "Saisissez un identifiant e-mail valide.",
+    emailDomain: "Saisissez un domaine valide, par exemple gmail.com.",
+    phone: "Saisissez uniquement des chiffres.",
+    countryCode: "Saisissez un indicatif pays valide.",
+    requiredFormat: "Renseignez les champs obligatoires au bon format.",
+    stationForCity: "Choisissez une station correspondant à la ville sélectionnée.",
+  },
+} satisfies Record<
+  Locale,
+  {
+    numbersOnly: string;
+    currency: string;
+    emailLocal: string;
+    emailDomain: string;
+    phone: string;
+    countryCode: string;
+    requiredFormat: string;
+    stationForCity: string;
+  }
+>;
+
+const LANDLORD_STATION_COPY = {
+  ko: {
+    genericPlaceholder: "도시를 먼저 선택해주세요",
+    searchPlaceholder: "역 이름 검색",
+    placeholders: {
+      toronto: "가까운 TTC 역 선택",
+      vancouver: "가까운 SkyTrain 역 선택",
+      calgary: "가까운 CTrain 역 선택",
+    },
+  },
+  en: {
+    genericPlaceholder: "Select a city first",
+    searchPlaceholder: "Search station name",
+    placeholders: {
+      toronto: "Select nearest TTC station",
+      vancouver: "Select nearest SkyTrain station",
+      calgary: "Select nearest CTrain station",
+    },
+  },
+  fr: {
+    genericPlaceholder: "Choisir d’abord une ville",
+    searchPlaceholder: "Rechercher une station",
+    placeholders: {
+      toronto: "Choisir la station TTC la plus proche",
+      vancouver: "Choisir la station SkyTrain la plus proche",
+      calgary: "Choisir la station CTrain la plus proche",
+    },
+  },
+} satisfies Record<
+  Locale,
+  {
+    genericPlaceholder: string;
+    searchPlaceholder: string;
+    placeholders: Record<LandlordCityKey, string>;
+  }
+>;
 
 function parseIsoDate(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
@@ -1933,16 +2158,18 @@ const LANDLORD_TERMS_SECTION_TITLES = {
 export function LocaleLandlordsPage({
   locale,
   page = "landing",
+  registrationBase = "public",
 }: {
   locale: Locale;
   page?: LandlordRoutePage;
+  registrationBase?: LandlordRegistrationRouteBase;
 }) {
   if (page === "guide") {
     return <LandlordGuidePage locale={locale} />;
   }
 
   if (page !== "landing") {
-    return <LandlordRegisterPage locale={locale} page={page} />;
+    return <LandlordRegisterPage locale={locale} page={page} routeBase={registrationBase} />;
   }
 
   return <LandlordLandingPage locale={locale} />;
@@ -1971,18 +2198,11 @@ function LandlordLandingPage({ locale }: { locale: Locale }) {
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <a
-                  href={landlordRoute(locale, "register")}
-                  onClick={clearLandlordDraftStorage}
+                  href={landlordRoute(locale, "landing", "center")}
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
                 >
                   {t.landing.primaryCta}
                   <ArrowRight className="h-4 w-4" aria-hidden />
-                </a>
-                <a
-                  href={landlordRoute(locale, "guide")}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-5 py-3 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
-                >
-                  {t.landing.secondaryCta}
                 </a>
               </div>
             </div>
@@ -2151,9 +2371,11 @@ function LandlordGuidePage({ locale }: { locale: Locale }) {
 function LandlordRegisterPage({
   locale,
   page,
+  routeBase,
 }: {
   locale: Locale;
   page: Exclude<LandlordRoutePage, "landing" | "guide">;
+  routeBase: LandlordRegistrationRouteBase;
 }) {
   const t = CONTENT[locale];
   const { draft, loaded, updateDraft, clearDraft } = useLandlordDraft();
@@ -2162,6 +2384,7 @@ function LandlordRegisterPage({
   const stepIndex = stepIndexForPage(page);
   const draftStarted = isDraftStarted(draft);
   const shouldProtectLeave = loaded && draftStarted;
+  const route = (targetPage: RouteKey) => landlordRoute(locale, targetPage, routeBase);
 
   useEffect(() => {
     if (!shouldProtectLeave || typeof window === "undefined") {
@@ -2247,7 +2470,7 @@ function LandlordRegisterPage({
   return (
     <main className="bg-background [word-break:keep-all]">
       <Container className="py-8 sm:py-10 lg:py-12">
-        <LandlordBreadcrumb locale={locale} page={page} />
+        <LandlordBreadcrumb locale={locale} page={page} registrationBase={routeBase} />
         <LandlordProgress locale={locale} activeIndex={stepIndex} />
 
         {loaded && !draftStarted && page !== "register" ? (
@@ -2255,7 +2478,7 @@ function LandlordRegisterPage({
             <strong className="block text-foreground">{t.flow.draftNoticeTitle}</strong>
             <span className="mt-1 block">{t.flow.draftNoticeBody}</span>
             <a
-              href={landlordRoute(locale, "register")}
+              href={route("register")}
               className="mt-3 inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white"
             >
               {t.flow.backToStart}
@@ -2264,21 +2487,42 @@ function LandlordRegisterPage({
         ) : null}
 
         {page === "register" ? (
-          <RegisterStartStep locale={locale} draft={draft} updateDraft={updateDraft} />
+          <RegisterStartStep
+            locale={locale}
+            draft={draft}
+            routeBase={routeBase}
+            updateDraft={updateDraft}
+          />
         ) : null}
         {page === "property" ? (
-          <PropertyStep locale={locale} draft={draft} updateDraft={updateDraft} />
+          <PropertyStep
+            locale={locale}
+            draft={draft}
+            routeBase={routeBase}
+            updateDraft={updateDraft}
+          />
         ) : null}
         {page === "rooms" ? (
-          <RoomsStep locale={locale} draft={draft} updateDraft={updateDraft} />
+          <RoomsStep
+            locale={locale}
+            draft={draft}
+            routeBase={routeBase}
+            updateDraft={updateDraft}
+          />
         ) : null}
         {page === "terms" ? (
-          <TermsStep locale={locale} draft={draft} updateDraft={updateDraft} />
+          <TermsStep
+            locale={locale}
+            draft={draft}
+            routeBase={routeBase}
+            updateDraft={updateDraft}
+          />
         ) : null}
         {page === "preview" ? (
           <PreviewStep
             locale={locale}
             draft={draft}
+            routeBase={routeBase}
             clearDraft={clearDraft}
           />
         ) : null}
@@ -2298,23 +2542,40 @@ function LandlordRegisterPage({
 function RegisterStartStep({
   locale,
   draft,
+  routeBase,
   updateDraft,
 }: {
   locale: Locale;
   draft: LandlordDraft;
+  routeBase: LandlordRegistrationRouteBase;
   updateDraft: (patch: Partial<LandlordDraft>) => void;
 }) {
   const t = CONTENT[locale];
   const r = LANDLORD_REFINEMENTS[locale];
   const contactCopy = LANDLORD_CONTACT_COPY[locale];
   const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
+  const validationCopy = LANDLORD_VALIDATION_COPY[locale];
   const displayLastName = draft.lastName || draft.name;
   const trimmedFirstName = draft.firstName.trim();
   const trimmedLastName = displayLastName.trim();
   const trimmedEmailLocal = draft.emailLocal.trim();
   const trimmedEmailDomain = draft.emailDomain.trim();
   const resolvedPhoneCountryCode = getResolvedPhoneCountryCode(draft);
+  const activePhoneCountryCode = draft.phoneCountryCode === CUSTOM_SELECT_VALUE
+    ? draft.phoneCountryCodeCustom.trim()
+    : resolvedPhoneCountryCode;
   const trimmedPhoneNumber = draft.phoneNumber.trim();
+  const emailLocalValid = Boolean(trimmedEmailLocal && validateEmailLocal(trimmedEmailLocal));
+  const emailDomainValid = Boolean(trimmedEmailDomain && validateEmailDomain(trimmedEmailDomain));
+  const phoneCountryCodeValid = Boolean(
+    activePhoneCountryCode && validateCountryCode(activePhoneCountryCode),
+  );
+  const phoneNumberValid = Boolean(trimmedPhoneNumber && validatePhoneNumber(trimmedPhoneNumber));
+  const identityHasFormatError = Boolean(
+    (trimmedEmailLocal && !emailLocalValid) ||
+      (trimmedEmailDomain && !emailDomainValid) ||
+      (activePhoneCountryCode && !phoneCountryCodeValid),
+  );
   const selectedLanguages = draft.preferredLanguages.length
     ? draft.preferredLanguages
     : draft.preferredLanguage
@@ -2324,10 +2585,10 @@ function RegisterStartStep({
   const identityComplete = Boolean(
     trimmedFirstName &&
       trimmedLastName &&
-      trimmedEmailLocal &&
-      trimmedEmailDomain &&
-      resolvedPhoneCountryCode &&
-      trimmedPhoneNumber,
+      emailLocalValid &&
+      emailDomainValid &&
+      phoneCountryCodeValid &&
+      phoneNumberValid,
   );
   const preferencesComplete = Boolean(
     draft.preferredContactMethods.length && selectedLanguages.length,
@@ -2338,11 +2599,18 @@ function RegisterStartStep({
   const canContinue = Boolean(
     roleComplete && identityComplete && preferencesComplete,
   );
+  const startDisabledHelper = identityHasFormatError
+    ? validationCopy.requiredFormat
+    : disabledCopy.general;
+  const centerRegisterCopy = LANDLORD_CENTER_REGISTER_COPY[locale];
+  const isCenterFlow = routeBase === "center";
   const updateEmailParts = (patch: Partial<Pick<LandlordDraft, "emailLocal" | "emailDomain">>) => {
-    const emailLocal = patch.emailLocal ?? draft.emailLocal;
-    const emailDomain = patch.emailDomain ?? draft.emailDomain;
+    const emailLocal = (patch.emailLocal ?? draft.emailLocal).replace(/@/g, "");
+    const emailDomain = (patch.emailDomain ?? draft.emailDomain).replace(/@/g, "").trim();
     updateDraft({
       ...patch,
+      emailLocal,
+      emailDomain,
       email: emailLocal.trim() && emailDomain.trim()
         ? `${emailLocal.trim()}@${emailDomain.trim()}`
         : "",
@@ -2353,11 +2621,15 @@ function RegisterStartStep({
       Pick<LandlordDraft, "phoneCountryCode" | "phoneCountryCodeCustom" | "phoneNumber">
     >,
   ) => {
-    const nextDraft = { ...draft, ...patch };
+    const normalizedPatch = { ...patch };
+    if (patch.phoneNumber !== undefined) {
+      normalizedPatch.phoneNumber = normalizePhoneNumber(patch.phoneNumber);
+    }
+    const nextDraft = { ...draft, ...normalizedPatch };
     const countryCode = getResolvedPhoneCountryCode(nextDraft);
     const phoneNumber = nextDraft.phoneNumber.trim();
     updateDraft({
-      ...patch,
+      ...normalizedPatch,
       contact: countryCode && phoneNumber ? `${countryCode} ${phoneNumber}` : "",
     });
   };
@@ -2366,8 +2638,8 @@ function RegisterStartStep({
     <LandlordStepLayout
       locale={locale}
       page="register"
-      title={t.flow.start.title}
-      description={r.helpers.startDescription}
+      title={isCenterFlow ? centerRegisterCopy.title : t.flow.start.title}
+      description={isCenterFlow ? centerRegisterCopy.description : r.helpers.startDescription}
       asideTitle={t.flow.start.helpTitle}
       asideBody={t.flow.start.helpBody}
       icon={<ClipboardCheck className="h-5 w-5" aria-hidden />}
@@ -2421,6 +2693,8 @@ function RegisterStartStep({
                         onLocalChange={(emailLocal) => updateEmailParts({ emailLocal })}
                         onDomainChange={(emailDomain) => updateEmailParts({ emailDomain })}
                         requirement="required"
+                        localError={trimmedEmailLocal && !emailLocalValid ? validationCopy.emailLocal : undefined}
+                        domainError={trimmedEmailDomain && !emailDomainValid ? validationCopy.emailDomain : undefined}
                       />
                       <PhoneSplitField
                         locale={locale}
@@ -2430,6 +2704,11 @@ function RegisterStartStep({
                         phoneNumber={draft.phoneNumber}
                         onChange={updatePhoneParts}
                         requirement="required"
+                        countryCodeError={
+                          activePhoneCountryCode && !phoneCountryCodeValid
+                            ? validationCopy.countryCode
+                            : undefined
+                        }
                       />
                     </div>
                   ),
@@ -2497,10 +2776,10 @@ function RegisterStartStep({
       />
       <FlowActions
         locale={locale}
-        backHref={landlordRoute(locale, "landing")}
-        nextHref={landlordRoute(locale, "property")}
+        backHref={landlordRoute(locale, "landing", routeBase)}
+        nextHref={landlordRoute(locale, "property", routeBase)}
         nextDisabled={!canContinue}
-        disabledHelper={disabledCopy.general}
+        disabledHelper={startDisabledHelper}
       />
     </LandlordStepLayout>
   );
@@ -2509,28 +2788,39 @@ function RegisterStartStep({
 function PropertyStep({
   locale,
   draft,
+  routeBase,
   updateDraft,
 }: {
   locale: Locale;
   draft: LandlordDraft;
+  routeBase: LandlordRegistrationRouteBase;
   updateDraft: (patch: Partial<LandlordDraft>) => void;
 }) {
   const t = CONTENT[locale];
   const r = LANDLORD_REFINEMENTS[locale];
   const form = LANDLORD_FORM_COPY[locale];
   const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
+  const validationCopy = LANDLORD_VALIDATION_COPY[locale];
   const unitDetailOptions = getUnitDetailOptions(locale, draft.housingType);
   const isOtherHousing = draft.housingType === form.housingTypes[3];
   const isHouseHousing = draft.housingType === form.housingTypes[0];
+  const stationValid = isValidStationForCity(locale, draft.city, draft.nearestStation);
+  const floorValid = isHouseHousing
+    ? Boolean(draft.floor.trim())
+    : Boolean(draft.floor.trim() && isValidDigitsOnlyInput(draft.floor.trim()));
+  const propertyHasFormatError = Boolean(
+    (draft.nearestStation.trim() && !stationValid) ||
+      (!isHouseHousing && draft.floor.trim() && !isValidDigitsOnlyInput(draft.floor.trim())),
+  );
   const locationComplete = Boolean(
     draft.city.trim() &&
-      draft.nearestStation.trim() &&
+      stationValid &&
       draft.address.trim(),
   );
   const housingComplete = Boolean(
     draft.housingType.trim() &&
       draft.unitDetail.trim() &&
-      draft.floor.trim() &&
+      floorValid &&
       draft.useType.trim(),
   );
   const livingComplete = Boolean(
@@ -2553,8 +2843,9 @@ function PropertyStep({
     locationComplete && housingComplete && livingComplete && petsComplete;
   const canContinue =
     locationComplete && housingComplete && livingComplete && petsComplete && photosComplete;
-  const propertyDisabledHelper =
-    locationComplete && housingComplete && livingComplete && petsComplete
+  const propertyDisabledHelper = propertyHasFormatError
+    ? validationCopy.requiredFormat
+    : locationComplete && housingComplete && livingComplete && petsComplete
       ? disabledCopy.photo
       : disabledCopy.general;
 
@@ -2583,7 +2874,17 @@ function PropertyStep({
                   options={form.cityOptions}
                   placeholder={form.select}
                   requirement="required"
-                  onChange={(city) => updateDraft({ city })}
+                  onChange={(city) => {
+                    const nextStations = getRapidTransitStationsForCity(
+                      getLandlordCityKey(locale, city),
+                    );
+                    updateDraft({
+                      city,
+                      nearestStation: nextStations.includes(draft.nearestStation)
+                        ? draft.nearestStation
+                        : "",
+                    });
+                  }}
                 />
                 <TextField
                   locale={locale}
@@ -2595,9 +2896,15 @@ function PropertyStep({
                 <SearchableStationField
                   label={r.fields.nearestStation}
                   locale={locale}
+                  city={draft.city}
                   value={draft.nearestStation}
                   requirement="required"
                   onChange={(nearestStation) => updateDraft({ nearestStation })}
+                  error={
+                    draft.nearestStation.trim() && !stationValid
+                      ? validationCopy.stationForCity
+                      : undefined
+                  }
                 />
                 <TextField
                   locale={locale}
@@ -2672,6 +2979,11 @@ function PropertyStep({
                             value={draft.floor}
                             requirement="required"
                             onChange={(floor) => updateDraft({ floor })}
+                            error={
+                              draft.floor.trim() && !isValidDigitsOnlyInput(draft.floor.trim())
+                                ? validationCopy.numbersOnly
+                                : undefined
+                            }
                           />
                         )}
                       </div>
@@ -2750,47 +3062,55 @@ function PropertyStep({
                   complete: petsComplete,
                   children: (
                     <div className="grid gap-4 md:grid-cols-2">
-                      <ChipChoiceField
-                        locale={locale}
-                        label={r.fields.tenantPetsAllowed}
-                        value={draft.tenantPetsAllowed}
-                        options={r.options.petAllowed}
-                        requirement="required"
-                        onChange={(tenantPetsAllowed) => updateDraft({ tenantPetsAllowed })}
-                        compact
-                      />
-                      <ChipChoiceField
-                        locale={locale}
-                        label={r.fields.homePets}
-                        value={draft.homePets}
-                        options={r.options.homePets}
-                        requirement="required"
-                        onChange={(homePets) =>
-                          updateDraft({
-                            homePets,
-                            homePetType: homePets === r.options.homePets[1] ? draft.homePetType : "",
-                          })
-                        }
-                        compact
-                      />
-                      {homePetsYes ? (
-                        <TextField
+                      <div className="md:col-start-1 md:row-start-1">
+                        <ChipChoiceField
                           locale={locale}
-                          label={r.fields.homePetType}
-                          value={draft.homePetType}
-                          requirement="optional"
-                          onChange={(homePetType) => updateDraft({ homePetType })}
+                          label={r.fields.tenantPetsAllowed}
+                          value={draft.tenantPetsAllowed}
+                          options={r.options.petAllowed}
+                          requirement="required"
+                          onChange={(tenantPetsAllowed) => updateDraft({ tenantPetsAllowed })}
+                          compact
                         />
+                      </div>
+                      <div className="md:col-start-2 md:row-start-1">
+                        <ChipChoiceField
+                          locale={locale}
+                          label={r.fields.homePets}
+                          value={draft.homePets}
+                          options={r.options.homePets}
+                          requirement="required"
+                          onChange={(homePets) =>
+                            updateDraft({
+                              homePets,
+                              homePetType: homePets === r.options.homePets[1] ? draft.homePetType : "",
+                            })
+                          }
+                          compact
+                        />
+                      </div>
+                      {homePetsYes ? (
+                        <div className="md:col-start-2 md:row-start-2">
+                          <TextField
+                            locale={locale}
+                            label={r.fields.homePetType}
+                            value={draft.homePetType}
+                            requirement="optional"
+                            onChange={(homePetType) => updateDraft({ homePetType })}
+                          />
+                        </div>
                       ) : null}
-                      <ChipChoiceField
-                        locale={locale}
-                        label={r.fields.smokingCondition}
-                        value={draft.smokingCondition}
-                        options={r.options.smoking}
-                        requirement="required"
-                        onChange={(smokingCondition) => updateDraft({ smokingCondition })}
-                        compact
-                      />
+                      <div className="md:col-start-1 md:row-start-2">
+                        <ChipChoiceField
+                          locale={locale}
+                          label={r.fields.smokingCondition}
+                          value={draft.smokingCondition}
+                          options={r.options.smoking}
+                          requirement="required"
+                          onChange={(smokingCondition) => updateDraft({ smokingCondition })}
+                          compact
+                        />
+                      </div>
                     </div>
                   ),
                 },
@@ -2818,8 +3138,8 @@ function PropertyStep({
       />
       <FlowActions
         locale={locale}
-        backHref={landlordRoute(locale, "register")}
-        nextHref={landlordRoute(locale, "rooms")}
+        backHref={landlordRoute(locale, "register", routeBase)}
+        nextHref={landlordRoute(locale, "rooms", routeBase)}
         nextDisabled={!canContinue}
         disabledHelper={propertyDisabledHelper}
       />
@@ -2830,10 +3150,12 @@ function PropertyStep({
 function RoomsStep({
   locale,
   draft,
+  routeBase,
   updateDraft,
 }: {
   locale: Locale;
   draft: LandlordDraft;
+  routeBase: LandlordRegistrationRouteBase;
   updateDraft: (patch: Partial<LandlordDraft>) => void;
 }) {
   const t = CONTENT[locale];
@@ -2841,10 +3163,15 @@ function RoomsStep({
   const form = LANDLORD_FORM_COPY[locale];
   const sectionTitles = LANDLORD_ROOM_SECTION_TITLES[locale];
   const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
+  const validationCopy = LANDLORD_VALIDATION_COPY[locale];
   const hasBed = draft.furniture.includes(form.furniture[0]);
+  const monthlyRentValid = isValidRequiredCurrencyInput(draft.monthlyRent.trim());
+  const monthlyRentHasFormatError = Boolean(
+    draft.monthlyRent.trim() && !isValidCurrencyInput(draft.monthlyRent.trim()),
+  );
   const roomRentComplete = Boolean(
     draft.listingTitle.trim() &&
-      draft.monthlyRent.trim() &&
+      monthlyRentValid &&
       draft.availableFrom.trim() &&
       draft.minimumStay.trim(),
   );
@@ -2855,8 +3182,9 @@ function RoomsStep({
   const showFurnitureSection = roomRentComplete && roomLivingComplete;
   const furnitureComplete = !hasBed || Boolean(draft.bedSize.trim());
   const canContinue = roomRentComplete && roomLivingComplete && furnitureComplete;
-  const roomsDisabledHelper =
-    roomRentComplete && roomLivingComplete && hasBed && !draft.bedSize.trim()
+  const roomsDisabledHelper = monthlyRentHasFormatError
+    ? validationCopy.requiredFormat
+    : roomRentComplete && roomLivingComplete && hasBed && !draft.bedSize.trim()
       ? disabledCopy.bedSize
       : disabledCopy.general;
 
@@ -2892,6 +3220,7 @@ function RoomsStep({
                     value={draft.monthlyRent}
                     requirement="required"
                     onChange={(monthlyRent) => updateDraft({ monthlyRent })}
+                    error={monthlyRentHasFormatError ? validationCopy.currency : undefined}
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
@@ -2997,8 +3326,8 @@ function RoomsStep({
       />
       <FlowActions
         locale={locale}
-        backHref={landlordRoute(locale, "property")}
-        nextHref={landlordRoute(locale, "terms")}
+        backHref={landlordRoute(locale, "property", routeBase)}
+        nextHref={landlordRoute(locale, "terms", routeBase)}
         nextDisabled={!canContinue}
         disabledHelper={roomsDisabledHelper}
       />
@@ -3009,10 +3338,12 @@ function RoomsStep({
 function TermsStep({
   locale,
   draft,
+  routeBase,
   updateDraft,
 }: {
   locale: Locale;
   draft: LandlordDraft;
+  routeBase: LandlordRegistrationRouteBase;
   updateDraft: (patch: Partial<LandlordDraft>) => void;
 }) {
   const t = CONTENT[locale];
@@ -3020,6 +3351,7 @@ function TermsStep({
   const form = LANDLORD_FORM_COPY[locale];
   const sectionTitles = LANDLORD_TERMS_SECTION_TITLES[locale];
   const disabledCopy = LANDLORD_DISABLED_HELPER_COPY[locale];
+  const validationCopy = LANDLORD_VALIDATION_COPY[locale];
   const utilityStatusFor = (utility: string) => {
     if (draft.utilityStatuses?.[utility]) {
       return draft.utilityStatuses[utility];
@@ -3032,7 +3364,10 @@ function TermsStep({
     }
     return "";
   };
-  const depositComplete = draft.keyDepositAmount.trim() !== "";
+  const keyDepositHasFormatError = Boolean(
+    draft.keyDepositAmount.trim() && !isValidCurrencyInput(draft.keyDepositAmount.trim()),
+  );
+  const depositComplete = isValidRequiredCurrencyInput(draft.keyDepositAmount.trim());
   const utilitiesComplete = r.options.utilities.every((utility) =>
     Boolean(utilityStatusFor(utility)),
   );
@@ -3041,9 +3376,11 @@ function TermsStep({
   const showRulesSection = depositComplete && utilitiesComplete;
   const showQuestionsSection = depositComplete && utilitiesComplete;
   const canContinue = depositComplete && utilitiesComplete;
-  const termsDisabledHelper = !depositComplete
-    ? disabledCopy.keyDeposit
-    : disabledCopy.general;
+  const termsDisabledHelper = keyDepositHasFormatError
+    ? validationCopy.requiredFormat
+    : !depositComplete
+      ? disabledCopy.keyDeposit
+      : disabledCopy.general;
 
   return (
     <LandlordStepLayout
@@ -3071,6 +3408,7 @@ function TermsStep({
                     value={draft.keyDepositAmount}
                     requirement="required"
                     onChange={(keyDepositAmount) => updateDraft({ keyDepositAmount })}
+                    error={keyDepositHasFormatError ? validationCopy.currency : undefined}
                   />
                 </div>
                 <p className="text-xs font-semibold leading-relaxed text-muted-foreground">
@@ -3153,8 +3491,8 @@ function TermsStep({
       />
       <FlowActions
         locale={locale}
-        backHref={landlordRoute(locale, "rooms")}
-        nextHref={landlordRoute(locale, "preview")}
+        backHref={landlordRoute(locale, "rooms", routeBase)}
+        nextHref={landlordRoute(locale, "preview", routeBase)}
         nextDisabled={!canContinue}
         disabledHelper={termsDisabledHelper}
       />
@@ -3165,10 +3503,12 @@ function TermsStep({
 function PreviewStep({
   locale,
   draft,
+  routeBase,
   clearDraft,
 }: {
   locale: Locale;
   draft: LandlordDraft;
+  routeBase: LandlordRegistrationRouteBase;
   clearDraft: () => void;
 }) {
   const [submitted, setSubmitted] = useState(false);
@@ -3178,6 +3518,7 @@ function PreviewStep({
   const r = LANDLORD_REFINEMENTS[locale];
   const form = LANDLORD_FORM_COPY[locale];
   const startOverCopy = LANDLORD_START_OVER_COPY[locale];
+  const centerRegisterCopy = LANDLORD_CENTER_REGISTER_COPY[locale];
   const utilityRows = getUtilitySummaryRows(locale, draft);
   const coverPhoto = draft.photos.find((photo) => photo.id === draft.coverPhotoId) || draft.photos[0];
 
@@ -3224,7 +3565,7 @@ function PreviewStep({
                 {draft.listingTitle || r.helpers.empty}
               </h2>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-muted-foreground">
-                {[draft.area, draft.nearestStation].filter(Boolean).join(" · ") ||
+                {[draft.area, formatStationSummary(locale, draft.city, draft.nearestStation)].filter(Boolean).join(" · ") ||
                   r.helpers.empty}
               </p>
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -3245,7 +3586,7 @@ function PreviewStep({
           <DraftSummaryCard
             title={r.sections.contact}
             empty={r.helpers.empty}
-            editHref={landlordRoute(locale, "register")}
+            editHref={landlordRoute(locale, "register", routeBase)}
             editLabel={r.helpers.edit}
             rows={[
               [r.fields.role, draft.role],
@@ -3261,12 +3602,12 @@ function PreviewStep({
           <DraftSummaryCard
             title={r.sections.property}
             empty={r.helpers.empty}
-            editHref={landlordRoute(locale, "property")}
+            editHref={landlordRoute(locale, "property", routeBase)}
             editLabel={r.helpers.edit}
             rows={[
               [r.fields.city, draft.city],
               [r.fields.area, draft.area],
-              [r.fields.nearestStation, draft.nearestStation],
+              [r.fields.nearestStation, formatStationSummary(locale, draft.city, draft.nearestStation)],
               [r.fields.address, draft.address],
               [r.fields.housingType, draft.housingType],
               [form.unitDetailLabel, draft.unitDetail],
@@ -3284,7 +3625,7 @@ function PreviewStep({
           <DraftSummaryCard
             title={r.sections.room}
             empty={r.helpers.empty}
-            editHref={landlordRoute(locale, "rooms")}
+            editHref={landlordRoute(locale, "rooms", routeBase)}
             editLabel={r.helpers.edit}
             rows={[
               [r.fields.listingTitle, draft.listingTitle],
@@ -3301,7 +3642,7 @@ function PreviewStep({
           <DraftSummaryCard
             title={r.sections.terms}
             empty={r.helpers.empty}
-            editHref={landlordRoute(locale, "terms")}
+            editHref={landlordRoute(locale, "terms", routeBase)}
             editLabel={r.helpers.edit}
             rows={[
               [form.keyDepositLabel, formatCurrencyValue(draft.keyDepositAmount)],
@@ -3313,7 +3654,7 @@ function PreviewStep({
         <DraftSummaryCard
           title={r.sections.rules}
           empty={r.helpers.empty}
-          editHref={landlordRoute(locale, "terms")}
+          editHref={landlordRoute(locale, "terms", routeBase)}
           editLabel={r.helpers.edit}
           rows={[
             [r.helpers.coverLabel, coverPhoto?.name || ""],
@@ -3356,7 +3697,7 @@ function PreviewStep({
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-5">
           <Link
-            to={landlordRoute(locale, "terms")}
+            to={landlordRoute(locale, "terms", routeBase)}
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-border bg-white px-5 py-3 text-sm font-bold text-foreground transition hover:border-primary/30 hover:text-primary"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -3370,6 +3711,12 @@ function PreviewStep({
             >
               {r.helpers.startOver}
             </button>
+            <Link
+              to={landlordRoute(locale, "landing", "center")}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-5 py-3 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
+            >
+              {centerRegisterCopy.backToCenter}
+            </Link>
             <button
               type="submit"
               disabled={!confirmed}
@@ -3399,7 +3746,7 @@ function PreviewStep({
                 {startOverCopy.cancel}
               </button>
               <Link
-                to={landlordRoute(locale, "register")}
+                to={landlordRoute(locale, "register", routeBase)}
                 onClick={() => {
                   clearDraft();
                   setStartOverOpen(false);
@@ -3617,8 +3964,9 @@ function ProgressiveRevealSections({
         return (
           <section
             key={section.id}
+            style={{ zIndex: sections.length - index }}
             className={cn(
-              "rounded-[1.5rem] border bg-white shadow-sm transition",
+              "relative overflow-visible rounded-[1.5rem] border bg-white shadow-sm transition",
               isComplete ? "border-primary/20" : "border-border/80",
               index > 0 && "mh-landlord-reveal",
             )}
@@ -3668,10 +4016,10 @@ function LandlordLeaveDialog({
         <div className="mt-5 flex flex-wrap justify-end gap-2">
           <button
             type="button"
-            onClick={onStay}
+            onClick={onLeave}
             className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-bold text-muted-foreground transition hover:border-primary/30 hover:text-primary"
           >
-            {copy.stay}
+            {copy.leave}
           </button>
           <button
             type="button"
@@ -3682,10 +4030,10 @@ function LandlordLeaveDialog({
           </button>
           <button
             type="button"
-            onClick={onLeave}
+            onClick={onStay}
             className="rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary/90"
           >
-            {copy.leave}
+            {copy.stay}
           </button>
         </div>
       </section>
@@ -3897,7 +4245,7 @@ function LandlordDateField({
   };
 
   return (
-    <div ref={wrapperRef} className="relative min-w-0">
+    <div ref={wrapperRef} className={cn("relative min-w-0", open && "z-[120]")}>
       <LabelText locale={locale} label={label} requirement={requirement} />
       <button
         type="button"
@@ -3915,7 +4263,7 @@ function LandlordDateField({
         </span>
       ) : null}
       {open ? (
-        <div className="absolute z-30 mt-2 w-full min-w-[18rem] rounded-2xl border border-border bg-white p-3 shadow-lg sm:min-w-0">
+        <div className="absolute z-[130] mt-2 w-full min-w-[18rem] rounded-2xl border border-border bg-white p-3 shadow-lg sm:min-w-0">
           <div className="flex items-center justify-between gap-2">
             <button
               type="button"
@@ -3991,6 +4339,8 @@ function EmailSplitField({
   onDomainChange,
   required = false,
   requirement,
+  localError,
+  domainError,
 }: {
   locale: Locale;
   label: string;
@@ -4000,6 +4350,8 @@ function EmailSplitField({
   onDomainChange: (value: string) => void;
   required?: boolean;
   requirement?: FieldRequirement;
+  localError?: string;
+  domainError?: string;
 }) {
   const copy = LANDLORD_CONTACT_COPY[locale];
   const domainOptions = copy.emailDomains;
@@ -4037,20 +4389,35 @@ function EmailSplitField({
   return (
     <fieldset className="min-w-0 sm:col-span-2">
       <LabelText locale={locale} label={label} required={required} requirement={requirement} />
-      <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(170px,0.75fr)] sm:items-center">
-        <input
-          type="text"
-          autoComplete="off"
-          value={localValue}
-          placeholder={copy.emailLocalPlaceholder}
-          onChange={(event) => onLocalChange(event.target.value.replace(/@/g, ""))}
-          className="h-11 min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-        />
-        <span className="flex h-4 items-center justify-center text-sm font-extrabold text-muted-foreground sm:h-auto">
+      <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(170px,0.75fr)] sm:items-start">
+        <div className="min-w-0">
+          <input
+            type="text"
+            autoComplete="off"
+            value={localValue}
+            placeholder={copy.emailLocalPlaceholder}
+            onChange={(event) => onLocalChange(event.target.value.replace(/@/g, ""))}
+            className={cn(
+              "h-11 w-full min-w-0 rounded-xl border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10",
+              localError ? "border-red-300" : "border-border",
+            )}
+          />
+          {localError ? (
+            <span className="mt-1 block text-xs font-semibold leading-relaxed text-red-600">
+              {localError}
+            </span>
+          ) : null}
+        </div>
+        <span className="flex h-4 items-center justify-center text-sm font-extrabold text-muted-foreground sm:h-11">
           @
         </span>
-        <div ref={domainRef} className="relative min-w-0">
-          <div className="flex h-11 min-w-0 overflow-hidden rounded-xl border border-border bg-white transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+        <div ref={domainRef} className={cn("relative min-w-0", domainOpen && "z-[120]")}>
+          <div
+            className={cn(
+              "flex h-11 min-w-0 overflow-hidden rounded-xl border bg-white transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10",
+              domainError ? "border-red-300" : "border-border",
+            )}
+          >
             {showCustomDomain ? (
               <input
                 type="text"
@@ -4083,8 +4450,13 @@ function EmailSplitField({
               />
             </button>
           </div>
+          {domainError ? (
+            <span className="mt-1 block text-xs font-semibold leading-relaxed text-red-600">
+              {domainError}
+            </span>
+          ) : null}
           {domainOpen ? (
-            <div className="absolute left-0 right-0 top-12 z-30 max-h-56 overflow-auto rounded-xl border border-border bg-white p-1 shadow-xl">
+            <div className="absolute left-0 right-0 top-12 z-[130] max-h-56 overflow-auto rounded-xl border border-border bg-white p-1 shadow-xl">
               <button
                 type="button"
                 onClick={() => {
@@ -4131,6 +4503,8 @@ function PhoneSplitField({
   onChange,
   required = false,
   requirement,
+  countryCodeError,
+  phoneError,
 }: {
   locale: Locale;
   label: string;
@@ -4144,68 +4518,160 @@ function PhoneSplitField({
   ) => void;
   required?: boolean;
   requirement?: FieldRequirement;
+  countryCodeError?: string;
+  phoneError?: string;
 }) {
   const copy = LANDLORD_CONTACT_COPY[locale];
-  const isKnownCountryCode = copy.countryCodes.some((option) => option.value === countryCode);
-  const selectedCountryCode = isKnownCountryCode ? countryCode : "";
+  const validationCopy = LANDLORD_VALIDATION_COPY[locale];
+  const countryCodeOptions = copy.countryCodes;
+  const [phoneInputError, setPhoneInputError] = useState("");
+  const [countryCodeOpen, setCountryCodeOpen] = useState(false);
+  const countryCodeRef = useRef<HTMLDivElement>(null);
+  const isKnownCountryCode = countryCodeOptions.some((option) => option.value === countryCode);
+  const selectedCountryCode = isKnownCountryCode
+    ? countryCode
+    : countryCode
+      ? CUSTOM_SELECT_VALUE
+      : "";
   const showCustomCountryCode = selectedCountryCode === CUSTOM_SELECT_VALUE;
+  const selectedCountryCodeLabel =
+    countryCodeOptions.find((option) => option.value === selectedCountryCode)?.label ||
+    LANDLORD_FORM_COPY[locale].select;
+  const visiblePhoneError = phoneInputError || phoneError;
+
+  useEffect(() => {
+    if (!countryCodeOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!countryCodeRef.current?.contains(event.target as Node)) {
+        setCountryCodeOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setCountryCodeOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [countryCodeOpen]);
 
   return (
     <fieldset className="min-w-0 sm:col-span-2">
       <LabelText locale={locale} label={label} required={required} requirement={requirement} />
-      <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(170px,0.55fr)_minmax(0,1fr)]">
-        <div className="grid min-w-0 gap-2">
-          <span className="relative block">
-            <select
-              value={selectedCountryCode}
-              onChange={(event) =>
-                onChange({
-                  phoneCountryCode: event.target.value,
-                  phoneCountryCodeCustom:
-                    event.target.value === CUSTOM_SELECT_VALUE ? customCountryCode : "",
-                })
-              }
-              className="h-11 w-full appearance-none rounded-xl border border-border bg-white px-3 pr-10 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+      <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(170px,0.55fr)_minmax(0,1fr)] sm:items-start">
+        <div
+          ref={countryCodeRef}
+          className={cn("relative min-w-0", countryCodeOpen && "z-[120]")}
+        >
+          <div
+            className={cn(
+              "flex h-11 min-w-0 overflow-hidden rounded-xl border bg-white transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10",
+              countryCodeError ? "border-red-300" : "border-border",
+            )}
+          >
+            {showCustomCountryCode ? (
+              <input
+                type="text"
+                inputMode="tel"
+                autoComplete="off"
+                value={customCountryCode}
+                placeholder={copy.customCountryCodePlaceholder}
+                onChange={(event) =>
+                  onChange({
+                    phoneCountryCode: CUSTOM_SELECT_VALUE,
+                    phoneCountryCodeCustom: event.target.value.trim(),
+                  })
+                }
+                className="min-w-0 flex-1 bg-white px-3 text-sm font-semibold text-foreground outline-none"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setCountryCodeOpen((current) => !current)}
+                className={cn(
+                  "min-w-0 flex-1 truncate px-3 text-left text-sm font-semibold outline-none",
+                  selectedCountryCode ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {selectedCountryCode ? selectedCountryCodeLabel : LANDLORD_FORM_COPY[locale].select}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setCountryCodeOpen((current) => !current)}
+              className="flex h-full w-10 shrink-0 items-center justify-center border-l border-border bg-[#FCFCFB] text-muted-foreground transition hover:text-primary"
+              aria-label={selectedCountryCodeLabel}
             >
-              <option value="" disabled>
-                {LANDLORD_FORM_COPY[locale].select}
-              </option>
-              {copy.countryCodes.map((option) => (
-                <option key={option.value} value={option.value}>
+              <ChevronDown
+                className={cn("h-4 w-4 transition", countryCodeOpen && "rotate-180 text-primary")}
+                aria-hidden
+              />
+            </button>
+          </div>
+          {countryCodeError ? (
+            <span className="mt-1 block text-xs font-semibold leading-relaxed text-red-600">
+              {countryCodeError}
+            </span>
+          ) : null}
+          {countryCodeOpen ? (
+            <div className="absolute left-0 right-0 top-12 z-[130] max-h-60 overflow-auto rounded-xl border border-border bg-white p-1 shadow-xl">
+              {countryCodeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange({
+                      phoneCountryCode: option.value,
+                      phoneCountryCodeCustom:
+                        option.value === CUSTOM_SELECT_VALUE ? customCountryCode : "",
+                    });
+                    setCountryCodeOpen(false);
+                  }}
+                  className={cn(
+                    "flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold transition hover:bg-[#FFF8F1] hover:text-primary",
+                    selectedCountryCode === option.value
+                      ? "bg-[#FFF3E6] text-primary"
+                      : "text-foreground",
+                  )}
+                >
                   {option.label}
-                </option>
+                </button>
               ))}
-            </select>
-            <ChevronDown
-              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden
-            />
-          </span>
-          {showCustomCountryCode ? (
-            <input
-              type="text"
-              inputMode="tel"
-              autoComplete="off"
-              value={customCountryCode}
-              placeholder={copy.customCountryCodePlaceholder}
-              onChange={(event) =>
-                onChange({
-                  phoneCountryCodeCustom: normalizeCountryCodeInput(event.target.value),
-                })
-              }
-              className="h-11 min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-            />
+            </div>
           ) : null}
         </div>
-        <input
-          type="text"
-          inputMode="tel"
-          autoComplete="off"
-          value={phoneNumber}
-          placeholder={copy.phoneNumberPlaceholder}
-          onChange={(event) => onChange({ phoneNumber: event.target.value })}
-          className="h-11 min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-        />
+        <div className="min-w-0">
+          <input
+            type="text"
+            inputMode="tel"
+            autoComplete="off"
+            value={phoneNumber}
+            placeholder={copy.phoneNumberPlaceholder}
+            onChange={(event) => {
+              const nextValue = event.target.value;
+              const digitsOnly = normalizePhoneNumber(nextValue);
+              setPhoneInputError(nextValue === digitsOnly ? "" : validationCopy.numbersOnly);
+              onChange({ phoneNumber: digitsOnly });
+            }}
+            className={cn(
+              "h-11 w-full min-w-0 rounded-xl border bg-white px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10",
+              visiblePhoneError ? "border-red-300" : "border-border",
+            )}
+          />
+          {visiblePhoneError ? (
+            <span className="mt-1 block text-xs font-semibold leading-relaxed text-red-600">
+              {visiblePhoneError}
+            </span>
+          ) : null}
+        </div>
       </div>
     </fieldset>
   );
@@ -4217,28 +4683,43 @@ function CurrencyField({
   value,
   onChange,
   requirement,
+  error,
 }: {
   locale: Locale;
   label: string;
   value: string;
   onChange: (value: string) => void;
   requirement?: FieldRequirement;
+  error?: string;
 }) {
   return (
     <label className="block w-full min-w-0 max-w-[260px]">
       <LabelText locale={locale} label={label} requirement={requirement} />
-      <div className="mt-2 flex h-11 overflow-hidden rounded-xl border border-border bg-white transition focus-within:border-primary">
+      <div
+        className={cn(
+          "mt-2 flex h-11 overflow-hidden rounded-xl border bg-white transition focus-within:border-primary",
+          error ? "border-red-300" : "border-border",
+        )}
+      >
         <input
           type="text"
           inputMode="numeric"
           value={value}
-          onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
+          onChange={(event) => {
+            const nextValue = event.target.value;
+            onChange(isValidCurrencyInput(nextValue) ? normalizeCurrencyInput(nextValue) : nextValue);
+          }}
           className="min-w-0 flex-1 bg-white px-3 text-right text-sm font-semibold text-foreground outline-none"
         />
         <span className="inline-flex items-center border-l border-border bg-[#FCFCFB] px-3 text-sm font-extrabold text-muted-foreground">
           $
         </span>
       </div>
+      {error ? (
+        <span className="mt-1 block text-xs font-semibold leading-relaxed text-red-600">
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -4250,6 +4731,7 @@ function SuffixNumberField({
   suffix,
   onChange,
   requirement,
+  error,
 }: {
   locale: Locale;
   label: string;
@@ -4257,22 +4739,33 @@ function SuffixNumberField({
   suffix: string;
   onChange: (value: string) => void;
   requirement?: FieldRequirement;
+  error?: string;
 }) {
   return (
     <label className="block w-full min-w-0 max-w-[260px]">
       <LabelText locale={locale} label={label} requirement={requirement} />
-      <div className="mt-2 flex h-11 overflow-hidden rounded-xl border border-border bg-white transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+      <div
+        className={cn(
+          "mt-2 flex h-11 overflow-hidden rounded-xl border bg-white transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10",
+          error ? "border-red-300" : "border-border",
+        )}
+      >
         <input
           type="text"
           inputMode="numeric"
           value={value}
-          onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
+          onChange={(event) => onChange(event.target.value)}
           className="min-w-0 flex-1 bg-white px-3 text-right text-sm font-semibold text-foreground outline-none"
         />
         <span className="inline-flex items-center border-l border-border bg-[#FCFCFB] px-3 text-sm font-extrabold text-muted-foreground">
           {suffix}
         </span>
       </div>
+      {error ? (
+        <span className="mt-1 block text-xs font-semibold leading-relaxed text-red-600">
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -4335,7 +4828,7 @@ function LabelText({
           >
             <HelpCircle className="h-3.5 w-3.5" aria-hidden />
           </span>
-          <span className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-64 -translate-x-1/2 rounded-xl border border-border bg-white p-3 text-xs font-semibold leading-relaxed text-muted-foreground shadow-lg group-hover:block group-focus-within:block">
+          <span className="pointer-events-none absolute left-1/2 top-7 z-[130] hidden w-64 -translate-x-1/2 rounded-xl border border-border bg-white p-3 text-xs font-semibold leading-relaxed text-muted-foreground shadow-lg group-hover:block group-focus-within:block">
             {tooltip}
           </span>
         </span>
@@ -4401,24 +4894,32 @@ function SelectField({
 function SearchableStationField({
   label,
   locale,
+  city,
   value,
   onChange,
   requirement,
+  error,
 }: {
   label: string;
   locale: Locale;
+  city: string;
   value: string;
   onChange: (value: string) => void;
   requirement?: FieldRequirement;
+  error?: string;
 }) {
-  const r = LANDLORD_REFINEMENTS[locale];
+  const cityKey = getLandlordCityKey(locale, city);
+  const stationCopy = LANDLORD_STATION_COPY[locale];
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const options = TTC_RAPID_TRANSIT_STATIONS;
+  const options = getRapidTransitStationsForCity(cityKey);
   const filteredOptions = options.filter((option) =>
     option.toLowerCase().includes(query.trim().toLowerCase()),
   );
+  const placeholder = cityKey
+    ? stationCopy.placeholders[cityKey]
+    : stationCopy.genericPlaceholder;
 
   useEffect(() => {
     if (!open) {
@@ -4445,25 +4946,33 @@ function SearchableStationField({
   }, [open]);
 
   return (
-    <div ref={wrapperRef} className="relative min-w-0">
+    <div ref={wrapperRef} className={cn("relative min-w-0", open && "z-[120]")}>
       <LabelText locale={locale} label={label} requirement={requirement} />
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="mt-2 flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-white px-3 text-left text-sm font-semibold text-foreground outline-none transition hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/10"
+        className={cn(
+          "mt-2 flex h-11 w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 text-left text-sm font-semibold text-foreground outline-none transition hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/10",
+          error ? "border-red-300" : "border-border",
+        )}
       >
         <span className={cn("min-w-0 truncate", !value && "text-muted-foreground")}>
-          {value || r.helpers.stationPlaceholder}
+          {value || placeholder}
         </span>
         <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
       </button>
+      {error ? (
+        <span className="mt-1 block text-xs font-semibold leading-relaxed text-red-600">
+          {error}
+        </span>
+      ) : null}
       {open ? (
-        <div className="absolute z-30 mt-2 w-full rounded-2xl border border-border bg-white p-3 shadow-lg">
+        <div className="absolute z-[130] mt-2 w-full rounded-2xl border border-border bg-white p-3 shadow-lg">
           <input
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={r.helpers.stationSearchPlaceholder}
+            placeholder={stationCopy.searchPlaceholder}
             className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm font-semibold outline-none transition focus:border-primary"
           />
           <div className="mt-2 max-h-64 overflow-y-auto pr-1">
@@ -4486,6 +4995,11 @@ function SearchableStationField({
                 {option}
               </button>
             ))}
+            {!filteredOptions.length ? (
+              <p className="px-3 py-2 text-sm font-semibold text-muted-foreground">
+                {placeholder}
+              </p>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -4952,7 +5466,129 @@ function DraftSummaryCard({
 }
 
 function formatCurrencyValue(value: string) {
-  return value ? `$${Number(value).toLocaleString("en-CA")} CAD` : "";
+  if (!value) {
+    return "";
+  }
+  const normalized = normalizeCurrencyInput(value);
+  return /^\d+$/.test(normalized)
+    ? `$${Number(normalized).toLocaleString("en-CA")} CAD`
+    : value;
+}
+
+function normalizeCurrencyInput(value: string) {
+  return value === "" ? "" : value.replace(/,/g, "");
+}
+
+function isValidCurrencyInput(value: string) {
+  if (value === "") {
+    return true;
+  }
+  return /^(?:\d+|\d{1,3}(?:,\d{3})+)$/.test(value);
+}
+
+function isValidRequiredCurrencyInput(value: string) {
+  return value.trim() !== "" && isValidCurrencyInput(value);
+}
+
+function validateEmailLocal(value: string) {
+  return /^[A-Za-z0-9._%+-]+$/.test(value);
+}
+
+function validateEmailDomain(value: string) {
+  if (!/^[A-Za-z0-9.-]+$/.test(value) || value.includes("@")) {
+    return false;
+  }
+
+  const labels = value.split(".");
+  if (labels.length < 2 || labels.some((label) => label.length === 0)) {
+    return false;
+  }
+
+  return /^[A-Za-z]{2,}$/.test(labels[labels.length - 1]);
+}
+
+function normalizePhoneNumber(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function hasValidPhoneCharacters(value: string) {
+  return /^\d*$/.test(value);
+}
+
+function validatePhoneNumber(value: string) {
+  if (!hasValidPhoneCharacters(value)) {
+    return false;
+  }
+  const digits = normalizePhoneNumber(value);
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+function validateCountryCode(value: string) {
+  return /^\+\d{1,4}$/.test(value);
+}
+
+function isValidDigitsOnlyInput(value: string) {
+  return value === "" || /^\d+$/.test(value);
+}
+
+function getLandlordCityKey(locale: Locale, city: string): LandlordCityKey | null {
+  const cityOptions = LANDLORD_FORM_COPY[locale].cityOptions;
+  const index = cityOptions.indexOf(city);
+
+  if (index === 0) {
+    return "toronto";
+  }
+  if (index === 1) {
+    return "vancouver";
+  }
+  if (index === 2) {
+    return "calgary";
+  }
+
+  return null;
+}
+
+function getRapidTransitStationsForCity(cityKey: LandlordCityKey | null) {
+  if (cityKey === "vancouver") {
+    return VANCOUVER_SKYTRAIN_STATIONS;
+  }
+  if (cityKey === "calgary") {
+    return CALGARY_CTRAIN_STATIONS;
+  }
+  if (cityKey === "toronto") {
+    return TORONTO_TTC_STATIONS;
+  }
+  return [];
+}
+
+function isValidStationForCity(locale: Locale, city: string, station: string) {
+  if (!station.trim()) {
+    return false;
+  }
+  return getRapidTransitStationsForCity(getLandlordCityKey(locale, city)).includes(station);
+}
+
+function getRapidTransitSystemName(cityKey: LandlordCityKey | null) {
+  if (cityKey === "vancouver") {
+    return "SkyTrain";
+  }
+  if (cityKey === "calgary") {
+    return "CTrain";
+  }
+  if (cityKey === "toronto") {
+    return "TTC";
+  }
+  return "";
+}
+
+function formatStationSummary(locale: Locale, city: string, station: string) {
+  if (!station) {
+    return "";
+  }
+
+  const cityKey = getLandlordCityKey(locale, city);
+  const systemName = getRapidTransitSystemName(cityKey);
+  return systemName ? `${city} · ${systemName} · ${station}` : station;
 }
 
 function getUnitDetailOptions(locale: Locale, housingType: string) {
@@ -5015,8 +5651,40 @@ function LandlordNotice({
   );
 }
 
-function LandlordBreadcrumb({ locale, page }: { locale: Locale; page: LandlordRoutePage }) {
+function LandlordBreadcrumb({
+  locale,
+  page,
+  registrationBase = "public",
+}: {
+  locale: Locale;
+  page: LandlordRoutePage;
+  registrationBase?: LandlordRegistrationRouteBase;
+}) {
   const t = CONTENT[locale];
+  const centerRegisterCopy = LANDLORD_CENTER_REGISTER_COPY[locale];
+
+  if (page !== "landing" && page !== "guide" && registrationBase === "center") {
+    const items = [
+      { label: t.homeLabel, to: `/${locale}` },
+      {
+        label: centerRegisterCopy.centerLabel,
+        to: landlordRoute(locale, "landing", "center"),
+      },
+      page === "register"
+        ? { label: centerRegisterCopy.registrationLabel, to: undefined }
+        : {
+            label: centerRegisterCopy.registrationLabel,
+            to: landlordRoute(locale, "register", "center"),
+          },
+    ];
+
+    if (page !== "register") {
+      items.push({ label: t.routeLabels[page], to: undefined });
+    }
+
+    return <PageBreadcrumb items={items} />;
+  }
+
   const items = [
     { label: t.homeLabel, to: `/${locale}` },
     { label: t.landlordsLabel, to: page === "landing" ? undefined : landlordRoute(locale, "landing") },
@@ -5244,17 +5912,10 @@ function parseLegacyPhone(contact?: string) {
 
 function getResolvedPhoneCountryCode(draft: Pick<LandlordDraft, "phoneCountryCode" | "phoneCountryCodeCustom">) {
   if (draft.phoneCountryCode === CUSTOM_SELECT_VALUE) {
-    const customCountryCode = draft.phoneCountryCodeCustom.trim();
-    return /\d/.test(customCountryCode) ? customCountryCode : "";
+    return draft.phoneCountryCodeCustom.trim();
   }
 
   return draft.phoneCountryCode.trim();
-}
-
-function normalizeCountryCodeInput(value: string) {
-  const normalized = value.replace(/[^\d+]/g, "");
-  const digits = normalized.replace(/\+/g, "");
-  return digits ? `+${digits}` : normalized.startsWith("+") ? "+" : "";
 }
 
 function stepIndexForPage(page: Exclude<LandlordRoutePage, "landing" | "guide">) {
@@ -5269,28 +5930,33 @@ function stepIndexForPage(page: Exclude<LandlordRoutePage, "landing" | "guide">)
 }
 
 function isLandlordRegistrationPath(pathname: string) {
-  return /^\/(ko|en|fr)\/landlords\/register(\/(property|rooms|terms|preview))?\/?$/.test(
+  return /^\/(ko|en|fr)\/landlords\/(?:center\/)?register(\/(property|rooms|terms|preview))?\/?$/.test(
     pathname,
   );
 }
 
-function landlordRoute(locale: Locale, page: RouteKey) {
+function landlordRoute(
+  locale: Locale,
+  page: RouteKey,
+  routeBase: LandlordRegistrationRouteBase = "public",
+) {
   const base = `/${locale}/landlords`;
+  const registerBase = routeBase === "center" ? `${base}/center/register` : `${base}/register`;
 
   switch (page) {
     case "landing":
-      return base;
+      return routeBase === "center" ? `${base}/center` : base;
     case "guide":
       return `${base}/guide`;
     case "register":
-      return `${base}/register`;
+      return registerBase;
     case "property":
-      return `${base}/register/property`;
+      return `${registerBase}/property`;
     case "rooms":
-      return `${base}/register/rooms`;
+      return `${registerBase}/rooms`;
     case "terms":
-      return `${base}/register/terms`;
+      return `${registerBase}/terms`;
     case "preview":
-      return `${base}/register/preview`;
+      return `${registerBase}/preview`;
   }
 }

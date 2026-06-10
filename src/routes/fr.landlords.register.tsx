@@ -1,5 +1,4 @@
-import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
-import { LocaleLandlordsPage } from "@/components/pages/LocaleLandlordsPage";
+import { Navigate, Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/fr/landlords/register")({
   head: () => ({
@@ -18,7 +17,7 @@ function FrLandlordsRegisterRouteComponent() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   if (pathname === "/fr/landlords/register") {
-    return <LocaleLandlordsPage locale="fr" page="register" />;
+    return <Navigate to="/fr/landlords/center/register" replace />;
   }
 
   return <Outlet />;
