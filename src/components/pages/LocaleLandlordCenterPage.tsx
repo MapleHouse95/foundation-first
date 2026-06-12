@@ -13,7 +13,9 @@ import {
   UserRound,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import type { Locale } from "@/lib/i18n";
+import { getMockListingThumbnailImage } from "@/lib/mockListingImages";
 import { cn } from "@/lib/utils";
 
 const LANDLORD_CENTER_DRAFT_KEY = "maplehouse.landlordDraft.v1";
@@ -125,6 +127,7 @@ type CenterCopy = {
     addListing: string;
     goRegister: string;
     viewDetails: string;
+    previewPublicPage: string;
   };
   dashboard: {
     title: string;
@@ -279,6 +282,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       addListing: "새 매물 등록하기",
       goRegister: "임대인 등록으로 이동",
       viewDetails: "자세히 보기",
+      previewPublicPage: "공개페이지 미리보기",
     },
     dashboard: {
       title: "임대인 센터",
@@ -450,6 +454,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       addListing: "Add new listing",
       goRegister: "Go to landlord registration",
       viewDetails: "View details",
+      previewPublicPage: "Public preview",
     },
     dashboard: {
       title: "Landlord center",
@@ -478,7 +483,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       detailsIncomplete: "Details incomplete",
       detailsPartial: "Some details added",
       completeBeforeInquiry: "Complete before inquiry",
-      viewDraft: "View draft",
+      viewDraft: "View",
       completeDetails: "Complete details",
       noCoverPhoto: "No cover photo",
       fields: {
@@ -503,7 +508,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       notice:
         "The first onboarding step keeps listing creation quick. Before moving toward real inquiries, reservations, or agreements, these details should be completed.",
       checklistTitle: "Details to complete",
-      cta: "Complete listing details",
+      cta: "Complete details",
       checklistItems: [
         "Utilities",
         "Deposits",
@@ -620,6 +625,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       addListing: "Ajouter une annonce",
       goRegister: "Aller à l’inscription propriétaire",
       viewDetails: "Voir le détail",
+      previewPublicPage: "Aperçu public",
     },
     dashboard: {
       title: "Espace propriétaire",
@@ -648,8 +654,8 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       detailsIncomplete: "Détails incomplets",
       detailsPartial: "Certains détails ajoutés",
       completeBeforeInquiry: "À compléter avant une demande",
-      viewDraft: "Voir le brouillon",
-      completeDetails: "Compléter les détails",
+      viewDraft: "Voir",
+      completeDetails: "Compléter",
       noCoverPhoto: "Aucune photo principale",
       fields: {
         listingTitle: "Titre de l’annonce",
@@ -673,7 +679,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       notice:
         "La première étape d’inscription reste volontairement rapide. Avant de passer à une demande, une réservation ou un accord réel, ces détails devront être complétés.",
       checklistTitle: "Détails à compléter",
-      cta: "Compléter les détails de l’annonce",
+      cta: "Compléter",
       checklistItems: [
         "Services",
         "Dépôts",
@@ -1077,24 +1083,31 @@ function ListingsPanel({
               <StatusPill>{detailStatus}</StatusPill>
               <StatusPill>{copy.listings.completeBeforeInquiry}</StatusPill>
             </div>
-            <h2 className="mt-3 break-words text-2xl font-black text-foreground">
+            <h2 className="mt-3 break-words text-2xl font-black leading-tight text-foreground">
               {title}
             </h2>
             <p className="mt-2 text-sm font-bold text-muted-foreground">
               {displayValue(draft.city, copy.common.emptyValue)}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex min-w-0 flex-wrap gap-2">
             <Link
               to={centerRoute(locale, "listingDraft")}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
+              className="inline-flex max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
             >
               {copy.listings.viewDraft}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
+              to={`/${locale}/listings/draft`}
+              className="inline-flex max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
+            >
+              {copy.common.previewPublicPage}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
               to={centerRoute(locale, "listingDetails")}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+              className="inline-flex max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
             >
               {copy.listings.completeDetails}
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -1103,7 +1116,11 @@ function ListingsPanel({
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[236px_minmax(0,1fr)] lg:items-stretch">
-          <ListingPhotoFrame coverPhoto={coverPhoto} label={copy.listings.noCoverPhoto} />
+          <ListingPhotoFrame
+            coverPhoto={coverPhoto}
+            label={copy.listings.noCoverPhoto}
+            mockSrc={getMockListingThumbnailImage(getDraftMockImageSeed(draft))}
+          />
 
           <div className="min-w-0">
             <dl className="grid h-full gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -1170,22 +1187,36 @@ function ListingDraftPanel({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <StatusPill>{copy.listings.firstDraftLabel}</StatusPill>
-            <h2 className="mt-3 text-2xl font-black text-foreground">{title}</h2>
+            <h2 className="mt-3 break-words text-2xl font-black leading-tight text-foreground">{title}</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
               {copy.draftDetail.notice}
             </p>
           </div>
-          <Link
-            to={centerRoute(locale, "listingDetails")}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
-          >
-            {copy.draftDetail.cta}
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
+          <div className="flex min-w-0 flex-wrap gap-2">
+            <Link
+              to={`/${locale}/listings/draft`}
+              className="inline-flex max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
+            >
+              {copy.common.previewPublicPage}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              to={centerRoute(locale, "listingDetails")}
+              className="inline-flex max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+            >
+              {copy.draftDetail.cta}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)] lg:items-stretch">
-          <ListingPhotoFrame coverPhoto={coverPhoto} label={copy.listings.noCoverPhoto} size="large" />
+          <ListingPhotoFrame
+            coverPhoto={coverPhoto}
+            label={copy.listings.noCoverPhoto}
+            mockSrc={getMockListingThumbnailImage(getDraftMockImageSeed(draft))}
+            size="large"
+          />
 
           <div className="min-w-0">
             <dl className="grid h-full gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -1306,22 +1337,36 @@ function ListingDetailsPanel({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <StatusPill>{copy.listings.firstDraftLabel}</StatusPill>
-              <h2 className="mt-3 text-2xl font-black text-foreground">{title}</h2>
+              <h2 className="mt-3 break-words text-2xl font-black leading-tight text-foreground">{title}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
                 {copy.draftDetail.notice}
               </p>
             </div>
-            <Link
-              to={centerRoute(locale, "listingDetails")}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
-            >
-              {copy.draftDetail.cta}
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
+            <div className="flex min-w-0 flex-wrap gap-2">
+              <Link
+                to={`/${locale}/listings/draft`}
+                className="inline-flex max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
+              >
+                {copy.common.previewPublicPage}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+              <Link
+                to={centerRoute(locale, "listingDetails")}
+                className="inline-flex max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+              >
+                {copy.draftDetail.cta}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
           </div>
 
           <div className="mt-5 grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)] lg:items-stretch">
-            <ListingPhotoFrame coverPhoto={coverPhoto} label={copy.listings.noCoverPhoto} size="large" />
+            <ListingPhotoFrame
+              coverPhoto={coverPhoto}
+              label={copy.listings.noCoverPhoto}
+              mockSrc={getMockListingThumbnailImage(getDraftMockImageSeed(draft))}
+              size="large"
+            />
 
             <div className="min-w-0">
               <dl className="grid h-full gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -1686,7 +1731,7 @@ function EmptyCard({
 
 function StatusPill({ children }: { children: string }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-primary/20 bg-[#FFF8F1] px-3 py-1 text-xs font-extrabold text-primary">
+    <span className="inline-flex max-w-full items-center rounded-full border border-primary/20 bg-[#FFF8F1] px-3 py-1 text-xs font-extrabold leading-tight text-primary [overflow-wrap:break-word]">
       {children}
     </span>
   );
@@ -1694,8 +1739,8 @@ function StatusPill({ children }: { children: string }) {
 
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-[#FAFAFA] p-4">
-      <dt className="text-xs font-bold text-muted-foreground">{label}</dt>
+    <div className="min-w-0 rounded-2xl border border-border bg-[#FAFAFA] p-4">
+      <dt className="text-xs font-bold leading-snug text-muted-foreground [overflow-wrap:break-word]">{label}</dt>
       <dd className="mt-1 min-h-5 break-words text-sm font-bold text-foreground">{value}</dd>
     </div>
   );
@@ -1704,36 +1749,36 @@ function InfoTile({ label, value }: { label: string; value: string }) {
 function ListingPhotoFrame({
   coverPhoto,
   label,
+  mockSrc,
   size = "card",
 }: {
   coverPhoto: LandlordCenterPhoto | null;
   label: string;
+  mockSrc?: string;
   size?: "card" | "large";
 }) {
+  const imageSrc = coverPhoto?.dataUrl || mockSrc;
+
   return (
-    <div
+    <ListingImageFrame
+      src={imageSrc}
+      alt=""
       className={cn(
-        "relative flex w-full items-center justify-center overflow-hidden rounded-2xl border border-border bg-[#F8FAFC] shadow-sm",
+        "flex w-full items-center justify-center rounded-2xl border border-border bg-[#F8FAFC] shadow-sm",
         size === "large"
           ? "aspect-[16/9] lg:h-[220px] lg:w-[290px] lg:aspect-auto"
           : "aspect-[16/9] lg:h-[170px] lg:w-[236px] lg:aspect-auto",
       )}
-    >
-      {coverPhoto?.dataUrl ? (
-        <img
-          src={coverPhoto.dataUrl}
-          alt=""
-          className="h-full w-full object-cover object-center"
-        />
-      ) : (
-        <div className="flex flex-col items-center gap-3 px-4 text-center text-primary">
+      fallback={
+        <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-4 text-center text-primary">
           <Camera className={cn("h-8 w-8", size === "large" ? "sm:h-10 sm:w-10" : "")} aria-hidden />
           <span className="text-xs font-extrabold uppercase tracking-[0.12em]">
             {label}
           </span>
         </div>
-      )}
-    </div>
+      }
+    >
+    </ListingImageFrame>
   );
 }
 
@@ -2008,6 +2053,18 @@ function getCoverPhoto(draft: LandlordCenterDraft) {
   const photos = draft.photos?.filter((photo) => photo.dataUrl || photo.name) || [];
   if (!photos.length) return null;
   return photos.find((photo) => photo.id && photo.id === draft.coverPhotoId) || photos[0];
+}
+
+function getDraftMockImageSeed(draft: LandlordCenterDraft) {
+  return [
+    "landlord-center-listing",
+    draft.listingTitle,
+    draft.city,
+    draft.area,
+    draft.nearestStation,
+  ]
+    .filter(Boolean)
+    .join("|");
 }
 
 function formatPhotoCount(photos: LandlordCenterPhoto[] | undefined, emptyValue: string) {

@@ -41,13 +41,19 @@ import { Route as EnContactRouteImport } from './routes/en.contact'
 import { Route as EnChecklistRouteImport } from './routes/en.checklist'
 import { Route as EnApplyRouteImport } from './routes/en.apply'
 import { Route as EnAboutRouteImport } from './routes/en.about'
+import { Route as KoListingsDraftRouteImport } from './routes/ko.listings_.draft'
+import { Route as KoListingsListingIdRouteImport } from './routes/ko.listings_.$listingId'
 import { Route as KoLandlordsRegisterRouteImport } from './routes/ko.landlords.register'
 import { Route as KoLandlordsGuideRouteImport } from './routes/ko.landlords.guide'
 import { Route as KoLandlordsCenterRouteImport } from './routes/ko.landlords.center'
 import { Route as KoContactBoardRouteImport } from './routes/ko.contact.board'
+import { Route as FrListingsDraftRouteImport } from './routes/fr.listings_.draft'
+import { Route as FrListingsListingIdRouteImport } from './routes/fr.listings_.$listingId'
 import { Route as FrLandlordsRegisterRouteImport } from './routes/fr.landlords.register'
 import { Route as FrLandlordsGuideRouteImport } from './routes/fr.landlords.guide'
 import { Route as FrLandlordsCenterRouteImport } from './routes/fr.landlords.center'
+import { Route as EnListingsDraftRouteImport } from './routes/en.listings_.draft'
+import { Route as EnListingsListingIdRouteImport } from './routes/en.listings_.$listingId'
 import { Route as EnLandlordsRegisterRouteImport } from './routes/en.landlords.register'
 import { Route as EnLandlordsGuideRouteImport } from './routes/en.landlords.guide'
 import { Route as EnLandlordsCenterRouteImport } from './routes/en.landlords.center'
@@ -259,6 +265,16 @@ const EnAboutRoute = EnAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => EnRoute,
 } as any)
+const KoListingsDraftRoute = KoListingsDraftRouteImport.update({
+  id: '/listings_/draft',
+  path: '/listings/draft',
+  getParentRoute: () => KoRoute,
+} as any)
+const KoListingsListingIdRoute = KoListingsListingIdRouteImport.update({
+  id: '/listings_/$listingId',
+  path: '/listings/$listingId',
+  getParentRoute: () => KoRoute,
+} as any)
 const KoLandlordsRegisterRoute = KoLandlordsRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -279,6 +295,16 @@ const KoContactBoardRoute = KoContactBoardRouteImport.update({
   path: '/board',
   getParentRoute: () => KoContactRoute,
 } as any)
+const FrListingsDraftRoute = FrListingsDraftRouteImport.update({
+  id: '/listings_/draft',
+  path: '/listings/draft',
+  getParentRoute: () => FrRoute,
+} as any)
+const FrListingsListingIdRoute = FrListingsListingIdRouteImport.update({
+  id: '/listings_/$listingId',
+  path: '/listings/$listingId',
+  getParentRoute: () => FrRoute,
+} as any)
 const FrLandlordsRegisterRoute = FrLandlordsRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -293,6 +319,16 @@ const FrLandlordsCenterRoute = FrLandlordsCenterRouteImport.update({
   id: '/center',
   path: '/center',
   getParentRoute: () => FrLandlordsRoute,
+} as any)
+const EnListingsDraftRoute = EnListingsDraftRouteImport.update({
+  id: '/listings_/draft',
+  path: '/listings/draft',
+  getParentRoute: () => EnRoute,
+} as any)
+const EnListingsListingIdRoute = EnListingsListingIdRouteImport.update({
+  id: '/listings_/$listingId',
+  path: '/listings/$listingId',
+  getParentRoute: () => EnRoute,
 } as any)
 const EnLandlordsRegisterRoute = EnLandlordsRegisterRouteImport.update({
   id: '/register',
@@ -626,13 +662,19 @@ export interface FileRoutesByFullPath {
   '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
+  '/en/listings/$listingId': typeof EnListingsListingIdRoute
+  '/en/listings/draft': typeof EnListingsDraftRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
+  '/fr/listings/$listingId': typeof FrListingsListingIdRoute
+  '/fr/listings/draft': typeof FrListingsDraftRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
   '/ko/landlords/register': typeof KoLandlordsRegisterRouteWithChildren
+  '/ko/listings/$listingId': typeof KoListingsListingIdRoute
+  '/ko/listings/draft': typeof KoListingsDraftRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
   '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
@@ -714,13 +756,19 @@ export interface FileRoutesByTo {
   '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
+  '/en/listings/$listingId': typeof EnListingsListingIdRoute
+  '/en/listings/draft': typeof EnListingsDraftRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
+  '/fr/listings/$listingId': typeof FrListingsListingIdRoute
+  '/fr/listings/draft': typeof FrListingsDraftRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
   '/ko/landlords/register': typeof KoLandlordsRegisterRouteWithChildren
+  '/ko/listings/$listingId': typeof KoListingsListingIdRoute
+  '/ko/listings/draft': typeof KoListingsDraftRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
   '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
@@ -806,13 +854,19 @@ export interface FileRoutesById {
   '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
+  '/en/listings_/$listingId': typeof EnListingsListingIdRoute
+  '/en/listings_/draft': typeof EnListingsDraftRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
+  '/fr/listings_/$listingId': typeof FrListingsListingIdRoute
+  '/fr/listings_/draft': typeof FrListingsDraftRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
   '/ko/landlords/register': typeof KoLandlordsRegisterRouteWithChildren
+  '/ko/listings_/$listingId': typeof KoListingsListingIdRoute
+  '/ko/listings_/draft': typeof KoListingsDraftRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
   '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
@@ -899,13 +953,19 @@ export interface FileRouteTypes {
     | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
+    | '/en/listings/$listingId'
+    | '/en/listings/draft'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
+    | '/fr/listings/$listingId'
+    | '/fr/listings/draft'
     | '/ko/contact/board'
     | '/ko/landlords/center'
     | '/ko/landlords/guide'
     | '/ko/landlords/register'
+    | '/ko/listings/$listingId'
+    | '/ko/listings/draft'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
     | '/en/landlords/center/profile'
@@ -987,13 +1047,19 @@ export interface FileRouteTypes {
     | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
+    | '/en/listings/$listingId'
+    | '/en/listings/draft'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
+    | '/fr/listings/$listingId'
+    | '/fr/listings/draft'
     | '/ko/contact/board'
     | '/ko/landlords/center'
     | '/ko/landlords/guide'
     | '/ko/landlords/register'
+    | '/ko/listings/$listingId'
+    | '/ko/listings/draft'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
     | '/en/landlords/center/profile'
@@ -1078,13 +1144,19 @@ export interface FileRouteTypes {
     | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
+    | '/en/listings_/$listingId'
+    | '/en/listings_/draft'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
+    | '/fr/listings_/$listingId'
+    | '/fr/listings_/draft'
     | '/ko/contact/board'
     | '/ko/landlords/center'
     | '/ko/landlords/guide'
     | '/ko/landlords/register'
+    | '/ko/listings_/$listingId'
+    | '/ko/listings_/draft'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
     | '/en/landlords/center/profile'
@@ -1368,6 +1440,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnAboutRouteImport
       parentRoute: typeof EnRoute
     }
+    '/ko/listings_/draft': {
+      id: '/ko/listings_/draft'
+      path: '/listings/draft'
+      fullPath: '/ko/listings/draft'
+      preLoaderRoute: typeof KoListingsDraftRouteImport
+      parentRoute: typeof KoRoute
+    }
+    '/ko/listings_/$listingId': {
+      id: '/ko/listings_/$listingId'
+      path: '/listings/$listingId'
+      fullPath: '/ko/listings/$listingId'
+      preLoaderRoute: typeof KoListingsListingIdRouteImport
+      parentRoute: typeof KoRoute
+    }
     '/ko/landlords/register': {
       id: '/ko/landlords/register'
       path: '/register'
@@ -1396,6 +1482,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KoContactBoardRouteImport
       parentRoute: typeof KoContactRoute
     }
+    '/fr/listings_/draft': {
+      id: '/fr/listings_/draft'
+      path: '/listings/draft'
+      fullPath: '/fr/listings/draft'
+      preLoaderRoute: typeof FrListingsDraftRouteImport
+      parentRoute: typeof FrRoute
+    }
+    '/fr/listings_/$listingId': {
+      id: '/fr/listings_/$listingId'
+      path: '/listings/$listingId'
+      fullPath: '/fr/listings/$listingId'
+      preLoaderRoute: typeof FrListingsListingIdRouteImport
+      parentRoute: typeof FrRoute
+    }
     '/fr/landlords/register': {
       id: '/fr/landlords/register'
       path: '/register'
@@ -1416,6 +1516,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/fr/landlords/center'
       preLoaderRoute: typeof FrLandlordsCenterRouteImport
       parentRoute: typeof FrLandlordsRoute
+    }
+    '/en/listings_/draft': {
+      id: '/en/listings_/draft'
+      path: '/listings/draft'
+      fullPath: '/en/listings/draft'
+      preLoaderRoute: typeof EnListingsDraftRouteImport
+      parentRoute: typeof EnRoute
+    }
+    '/en/listings_/$listingId': {
+      id: '/en/listings_/$listingId'
+      path: '/listings/$listingId'
+      fullPath: '/en/listings/$listingId'
+      preLoaderRoute: typeof EnListingsListingIdRouteImport
+      parentRoute: typeof EnRoute
     }
     '/en/landlords/register': {
       id: '/en/landlords/register'
@@ -1884,6 +1998,8 @@ interface EnRouteChildren {
   EnLoginRoute: typeof EnLoginRoute
   EnSignupRoute: typeof EnSignupRoute
   EnIndexRoute: typeof EnIndexRoute
+  EnListingsListingIdRoute: typeof EnListingsListingIdRoute
+  EnListingsDraftRoute: typeof EnListingsDraftRoute
 }
 
 const EnRouteChildren: EnRouteChildren = {
@@ -1896,6 +2012,8 @@ const EnRouteChildren: EnRouteChildren = {
   EnLoginRoute: EnLoginRoute,
   EnSignupRoute: EnSignupRoute,
   EnIndexRoute: EnIndexRoute,
+  EnListingsListingIdRoute: EnListingsListingIdRoute,
+  EnListingsDraftRoute: EnListingsDraftRoute,
 }
 
 const EnRouteWithChildren = EnRoute._addFileChildren(EnRouteChildren)
@@ -2014,6 +2132,8 @@ interface FrRouteChildren {
   FrLoginRoute: typeof FrLoginRoute
   FrSignupRoute: typeof FrSignupRoute
   FrIndexRoute: typeof FrIndexRoute
+  FrListingsListingIdRoute: typeof FrListingsListingIdRoute
+  FrListingsDraftRoute: typeof FrListingsDraftRoute
 }
 
 const FrRouteChildren: FrRouteChildren = {
@@ -2026,6 +2146,8 @@ const FrRouteChildren: FrRouteChildren = {
   FrLoginRoute: FrLoginRoute,
   FrSignupRoute: FrSignupRoute,
   FrIndexRoute: FrIndexRoute,
+  FrListingsListingIdRoute: FrListingsListingIdRoute,
+  FrListingsDraftRoute: FrListingsDraftRoute,
 }
 
 const FrRouteWithChildren = FrRoute._addFileChildren(FrRouteChildren)
@@ -2170,6 +2292,8 @@ interface KoRouteChildren {
   KoLoginRoute: typeof KoLoginRoute
   KoSignupRoute: typeof KoSignupRoute
   KoIndexRoute: typeof KoIndexRoute
+  KoListingsListingIdRoute: typeof KoListingsListingIdRoute
+  KoListingsDraftRoute: typeof KoListingsDraftRoute
 }
 
 const KoRouteChildren: KoRouteChildren = {
@@ -2182,6 +2306,8 @@ const KoRouteChildren: KoRouteChildren = {
   KoLoginRoute: KoLoginRoute,
   KoSignupRoute: KoSignupRoute,
   KoIndexRoute: KoIndexRoute,
+  KoListingsListingIdRoute: KoListingsListingIdRoute,
+  KoListingsDraftRoute: KoListingsDraftRoute,
 }
 
 const KoRouteWithChildren = KoRoute._addFileChildren(KoRouteChildren)

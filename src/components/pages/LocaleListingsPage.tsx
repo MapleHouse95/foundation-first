@@ -18,12 +18,14 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
 import { formatStationDisplayName } from "@/lib/stationRecommendationData";
+import { getMockListingThumbnailImage } from "@/lib/mockListingImages";
 
-type Status = "verified" | "needs_check" | "preparing";
-type LocalizedText = Record<Locale, string>;
+export type Status = "verified" | "needs_check" | "preparing";
+export type LocalizedText = Record<Locale, string>;
 type FilterPopover = "budget" | "housing" | "moveIn" | "people" | "more" | null;
 type HousingTypeId = "room" | "studio" | "condo" | "share" | "house";
 type InquiryMethod = "direct" | "support";
@@ -36,7 +38,7 @@ type MoreFilterId =
   | "transit"
   | "contract";
 
-interface MockListing {
+export interface MockListing {
   id: string;
   title: LocalizedText;
   area: string;
@@ -78,7 +80,7 @@ interface ChecklistStationItem {
   koreanName?: string;
 }
 
-interface ApplySelectedListingSummary {
+export interface ApplySelectedListingSummary {
   listingId: string;
   title: string;
   area: string;
@@ -129,6 +131,7 @@ interface L10n {
   mapActiveArea: string;
   consultationCta: string;
   checklistCta: string;
+  viewDetailPage: string;
   detailLabel: string;
   closeDetail: string;
   sampleImage: string;
@@ -150,7 +153,7 @@ interface L10n {
   };
 }
 
-const MOCK_LISTINGS: MockListing[] = [
+export const MOCK_LISTINGS: MockListing[] = [
   {
     id: "L-001",
     title: {
@@ -166,7 +169,7 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "verified",
     lastChecked: "2026-05-15",
     registered: "2026-04-02",
-    imagePath: "/listings/koreatown-studio.svg",
+    imagePath: getMockListingThumbnailImage("L-001"),
     description: {
       ko: "Koreatown 생활권을 먼저 확인해보고 싶은 1인 거주자용 mock 매물입니다.",
       en: "A mock listing for one person who wants to start around Koreatown.",
@@ -193,7 +196,7 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "verified",
     lastChecked: "2026-05-12",
     registered: "2026-03-20",
-    imagePath: "/listings/downtown-condo.svg",
+    imagePath: getMockListingThumbnailImage("L-002"),
     description: {
       ko: "다운타운 접근성과 생활 편의성을 비교해보기 위한 콘도 mock 매물입니다.",
       en: "A mock condo listing for comparing downtown access and daily convenience.",
@@ -220,7 +223,7 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "needs_check",
     lastChecked: "2026-04-29",
     registered: "2026-03-01",
-    imagePath: "/listings/northyork-share.svg",
+    imagePath: getMockListingThumbnailImage("L-003"),
     description: {
       ko: "North York에서 예산을 낮춰 비교해볼 수 있는 셰어하우스 mock 매물입니다.",
       en: "A mock share-house listing for comparing lower-budget options in North York.",
@@ -247,7 +250,7 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "preparing",
     lastChecked: "2026-05-10",
     registered: "2026-05-08",
-    imagePath: "/listings/midtown-2br.svg",
+    imagePath: getMockListingThumbnailImage("L-004"),
     description: {
       ko: "Midtown 생활권과 2인 이상 거주 가능성을 비교하기 위한 mock 매물입니다.",
       en: "A mock listing for comparing Midtown options for two or more people.",
@@ -274,7 +277,7 @@ const MOCK_LISTINGS: MockListing[] = [
     status: "verified",
     lastChecked: "2026-05-14",
     registered: "2026-04-18",
-    imagePath: "/listings/annex-studio.svg",
+    imagePath: getMockListingThumbnailImage("L-005"),
     description: {
       ko: "Annex 주변 생활권과 스튜디오 조건을 비교하기 위한 mock 매물입니다.",
       en: "A mock studio listing for comparing the Annex area and studio conditions.",
@@ -288,9 +291,9 @@ const MOCK_LISTINGS: MockListing[] = [
   },
 ];
 
-const APPLY_SELECTED_LISTING_STORAGE_KEY = "maplehouse.apply.selectedListing.ko";
+export const APPLY_SELECTED_LISTING_STORAGE_KEY = "maplehouse.apply.selectedListing.ko";
 
-function buildApplySelectedListingSummary(listing: MockListing): ApplySelectedListingSummary {
+export function buildApplySelectedListingSummary(listing: MockListing): ApplySelectedListingSummary {
   return {
     listingId: listing.id,
     title: listing.title.ko,
@@ -426,6 +429,7 @@ const L: Record<Locale, L10n> = {
     mapActiveArea: "활성 지역 · Downtown Toronto",
     consultationCta: "이 매물 문의하기",
     checklistCta: "체크리스트 보기",
+    viewDetailPage: "상세페이지 보기",
     detailLabel: "매물 상세",
     closeDetail: "상세 닫기",
     sampleImage: "sample image",
@@ -484,6 +488,7 @@ const L: Record<Locale, L10n> = {
     mapActiveArea: "Active area · Downtown Toronto",
     consultationCta: "Ask about this listing",
     checklistCta: "View checklist",
+    viewDetailPage: "View details",
     detailLabel: "Listing details",
     closeDetail: "Close details",
     sampleImage: "sample image",
@@ -544,6 +549,7 @@ const L: Record<Locale, L10n> = {
     mapActiveArea: "Zone active · Downtown Toronto",
     consultationCta: "Se renseigner sur ce logement",
     checklistCta: "Voir la liste",
+    viewDetailPage: "Voir les détails",
     detailLabel: "Détails du logement",
     closeDetail: "Fermer les détails",
     sampleImage: "image d'exemple",
@@ -1428,13 +1434,13 @@ function FilterTrigger({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex h-10 max-w-[13rem] items-center justify-center gap-2 rounded-lg border bg-background pl-3.5 pr-3 text-center text-sm font-medium text-foreground shadow-sm transition hover:border-primary/70",
+        "inline-flex h-10 max-w-[13rem] min-w-0 items-center justify-center gap-2 rounded-lg border bg-background pl-3.5 pr-3 text-center text-sm font-medium text-foreground shadow-sm transition hover:border-primary/70",
         open ? "border-primary text-primary" : "border-border",
         className,
       )}
     >
       {icon}
-      <span className="truncate">{value ?? label}</span>
+      <span className="min-w-0 truncate">{value ?? label}</span>
       <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
   );
@@ -1467,14 +1473,14 @@ function Chip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium",
+        "inline-flex max-w-full items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium leading-tight",
         primary
           ? "border-primary/20 bg-accent text-primary"
           : "border-border bg-background text-muted-foreground",
       )}
     >
       {icon}
-      {label}
+      <span className="min-w-0 [overflow-wrap:break-word]">{label}</span>
       {onRemove && (
         <button
           type="button"
@@ -1519,7 +1525,7 @@ function ListingCard({
           onOpenDetail(listing);
         }
       }}
-      className="mh-interactive-card cursor-pointer rounded-2xl border border-border bg-card p-3 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      className="mh-interactive-card cursor-pointer overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
       <div className="flex gap-3">
         <MockListingImage
@@ -1536,7 +1542,7 @@ function ListingCard({
               <h2 className="mh-clamp-2 text-sm font-bold text-foreground">
                 {listing.title[locale]}
               </h2>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 min-w-0 text-xs leading-5 text-muted-foreground [overflow-wrap:break-word]">
                 {listing.area} · {listing.roomType[locale]} · {t.maxPeopleLabel(listing.maxPeople)}
               </p>
             </div>
@@ -1553,11 +1559,11 @@ function ListingCard({
             </button>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <div className="mt-3 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
             <span className="text-base font-extrabold text-primary">
               {fmtKRW(listing.priceKRW)}
             </span>
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="min-w-0 text-xs font-medium leading-4 text-muted-foreground">
               {fmtCAD(listing.priceCAD)}/mo
             </span>
           </div>
@@ -1588,32 +1594,25 @@ function MockListingImage({
   badgeClassName?: string;
   showSampleLabel?: boolean;
 }) {
-  const [failed, setFailed] = useState(false);
-
   return (
-    <div
+    <ListingImageFrame
+      src={listing.imagePath}
+      alt={listing.title[locale]}
       className={cn(
-        "relative overflow-hidden rounded-xl border border-border bg-muted",
+        "rounded-xl border border-border bg-muted",
         className,
       )}
-    >
-      {!failed && (
-        <img
-          src={listing.imagePath}
-          alt={listing.title[locale]}
-          onError={() => setFailed(true)}
-          className={cn("h-full w-full object-cover", imageClassName)}
-        />
-      )}
-      {failed && (
+      imageClassName={imageClassName}
+      fallback={
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.8),rgba(226,229,232,0.78))]">
           <div className="absolute inset-x-4 top-1/2 h-px -translate-y-1/2 bg-border" />
           <div className="absolute inset-y-4 left-1/2 w-px -translate-x-1/2 bg-border" />
         </div>
-      )}
+      }
+    >
       <span
         className={cn(
-          "absolute rounded-full border px-2 py-0.5 text-[10px] font-bold",
+          "absolute max-w-[calc(100%-1rem)] truncate rounded-full border px-2 py-0.5 text-[10px] font-bold",
           STATUS_CLASS[listing.status],
           badgeClassName,
         )}
@@ -1625,7 +1624,7 @@ function MockListingImage({
           {t.sampleImage}
         </span>
       )}
-    </div>
+    </ListingImageFrame>
   );
 }
 
@@ -1679,22 +1678,22 @@ function ListingDetailDrawer({
             showSampleLabel
           />
 
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-semibold text-primary">{listing.area}</p>
-            <h3 className="mt-1 text-2xl font-extrabold text-foreground">
+            <h3 className="mh-clamp-3 mt-1 text-2xl font-extrabold leading-tight text-foreground">
               {listing.title[locale]}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 min-w-0 text-sm leading-6 text-muted-foreground [overflow-wrap:break-word]">
               {listing.area} · {listing.roomType[locale]} · {t.maxPeopleLabel(listing.maxPeople)}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-background p-4">
-            <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <div className="min-w-0 rounded-2xl border border-border bg-background p-4">
+            <div className="flex min-w-0 flex-wrap items-end gap-x-3 gap-y-1">
               <span className="text-2xl font-extrabold text-primary">
                 {fmtKRW(listing.priceKRW)}
               </span>
-              <span className="text-sm font-semibold text-muted-foreground">
+              <span className="min-w-0 text-sm font-semibold leading-5 text-muted-foreground">
                 {fmtCAD(listing.priceCAD)}/mo
               </span>
             </div>
@@ -1724,10 +1723,11 @@ function ListingDetailDrawer({
             </ul>
           </section>
 
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <Button
               type="button"
               size="lg"
+              className="min-w-0 flex-1 whitespace-normal leading-tight"
               onClick={() => {
                 setInquiryModalOpen(true);
                 setInquiryPreview(null);
@@ -1735,9 +1735,13 @@ function ListingDetailDrawer({
             >
               {t.consultationCta}
             </Button>
-            <Button type="button" variant="outline" size="lg">
-              {t.checklistCta}
-            </Button>
+            <a
+              href={`/${locale}/listings/${listing.id}`}
+              className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-center text-sm font-medium leading-tight text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              {t.viewDetailPage}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </a>
           </div>
 
           <p className="text-xs text-muted-foreground">{t.mvpNotice}</p>
@@ -1804,8 +1808,8 @@ function InquiryChoiceModal({
         className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-border bg-card p-5 shadow-2xl sm:p-6"
       >
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 id="inquiry-choice-title" className="text-xl font-extrabold text-foreground">
+          <div className="min-w-0">
+            <h2 id="inquiry-choice-title" className="break-words text-xl font-extrabold text-foreground">
               {t.inquiryModal.title}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -1822,7 +1826,7 @@ function InquiryChoiceModal({
           </button>
         </div>
 
-        <div className="mt-5 flex gap-3 rounded-2xl border border-border bg-secondary p-3 sm:p-4">
+        <div className="mt-5 flex min-w-0 gap-3 rounded-2xl border border-border bg-secondary p-3 sm:p-4">
           <MockListingImage
             listing={listing}
             locale={locale}
@@ -1836,9 +1840,9 @@ function InquiryChoiceModal({
               {listing.title[locale]}
             </p>
             <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs text-muted-foreground">
-              <span>{listing.area}</span>
+              <span className="min-w-0 [overflow-wrap:break-word]">{listing.area}</span>
               <span>·</span>
-              <span>{listing.roomType[locale]}</span>
+              <span className="min-w-0 [overflow-wrap:break-word]">{listing.roomType[locale]}</span>
               <span>·</span>
               <span>{t.maxPeopleLabel(listing.maxPeople)}</span>
             </div>
@@ -1910,20 +1914,20 @@ function InquiryOptionCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex h-full flex-col rounded-2xl border p-4 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        "flex h-full min-w-0 flex-col rounded-2xl border p-4 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         active
           ? "border-primary bg-accent shadow-md"
           : "border-border bg-card hover:border-primary hover:bg-accent hover:shadow-md",
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-extrabold text-foreground">{title}</h3>
-        <span className="shrink-0 rounded-full border border-primary/20 bg-accent px-2.5 py-1 text-[11px] font-bold text-primary">
+      <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+        <h3 className="min-w-0 break-words text-base font-extrabold text-foreground">{title}</h3>
+        <span className="max-w-full shrink-0 rounded-full border border-primary/20 bg-accent px-2.5 py-1 text-[11px] font-bold leading-tight text-primary [overflow-wrap:break-word]">
           {badge}
         </span>
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
-      <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-bold text-primary">
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground [overflow-wrap:break-word]">{description}</p>
+      <span className="mt-auto inline-flex min-w-0 items-center gap-1.5 pt-4 text-sm font-bold leading-tight text-primary">
         {action}
         <ArrowRight className="h-4 w-4" />
       </span>
