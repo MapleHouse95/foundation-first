@@ -1069,44 +1069,44 @@ function ListingsPanel({
         </Link>
       </div>
 
-      <article className="rounded-3xl border border-primary/20 bg-white p-4 shadow-sm sm:p-5">
-        <div className="grid gap-5 lg:grid-cols-[250px_minmax(0,1fr)] lg:items-stretch">
+      <article className="rounded-3xl border border-primary/20 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap gap-2">
+              <StatusPill>{copy.listings.firstDraftLabel}</StatusPill>
+              <StatusPill>{detailStatus}</StatusPill>
+              <StatusPill>{copy.listings.completeBeforeInquiry}</StatusPill>
+            </div>
+            <h2 className="mt-3 break-words text-2xl font-black text-foreground">
+              {title}
+            </h2>
+            <p className="mt-2 text-sm font-bold text-muted-foreground">
+              {displayValue(draft.city, copy.common.emptyValue)}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to={centerRoute(locale, "listingDraft")}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
+            >
+              {copy.listings.viewDraft}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              to={centerRoute(locale, "listingDetails")}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+            >
+              {copy.listings.completeDetails}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-5 lg:grid-cols-[236px_minmax(0,1fr)] lg:items-stretch">
           <ListingPhotoFrame coverPhoto={coverPhoto} label={copy.listings.noCoverPhoto} />
 
-          <div className="min-w-0 py-1 sm:py-2">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap gap-2">
-                  <StatusPill>{copy.listings.firstDraftLabel}</StatusPill>
-                  <StatusPill>{detailStatus}</StatusPill>
-                  <StatusPill>{copy.listings.completeBeforeInquiry}</StatusPill>
-                </div>
-                <h2 className="mt-3 break-words text-2xl font-black text-foreground">
-                  {title}
-                </h2>
-                <p className="mt-2 text-sm font-bold text-muted-foreground">
-                  {displayValue(draft.city, copy.common.emptyValue)}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  to={centerRoute(locale, "listingDraft")}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-primary/25 bg-white px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-[#FFF8F1]"
-                >
-                  {copy.listings.viewDraft}
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </Link>
-                <Link
-                  to={centerRoute(locale, "listingDetails")}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
-                >
-                  {copy.listings.completeDetails}
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </Link>
-              </div>
-            </div>
-
-            <dl className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="min-w-0">
+            <dl className="grid h-full gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {rows.map(([label, value]) => (
                 <InfoTile
                   key={label}
@@ -1166,29 +1166,29 @@ function ListingDraftPanel({
 
   return (
     <section className="space-y-5">
-      <article className="rounded-3xl border border-primary/20 bg-white p-4 shadow-sm sm:p-5">
-        <div className="grid gap-6 lg:grid-cols-[310px_minmax(0,1fr)] lg:items-start">
+      <article className="rounded-3xl border border-primary/20 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <StatusPill>{copy.listings.firstDraftLabel}</StatusPill>
+            <h2 className="mt-3 text-2xl font-black text-foreground">{title}</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+              {copy.draftDetail.notice}
+            </p>
+          </div>
+          <Link
+            to={centerRoute(locale, "listingDetails")}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+          >
+            {copy.draftDetail.cta}
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+
+        <div className="mt-5 grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)] lg:items-stretch">
           <ListingPhotoFrame coverPhoto={coverPhoto} label={copy.listings.noCoverPhoto} size="large" />
 
-          <div className="min-w-0 py-1 sm:px-2 sm:py-3">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <StatusPill>{copy.listings.firstDraftLabel}</StatusPill>
-                <h2 className="mt-3 text-2xl font-black text-foreground">{title}</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
-                  {copy.draftDetail.notice}
-                </p>
-              </div>
-              <Link
-                to={centerRoute(locale, "listingDetails")}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
-              >
-                {copy.draftDetail.cta}
-                <ArrowRight className="h-4 w-4" aria-hidden />
-              </Link>
-            </div>
-
-            <dl className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="min-w-0">
+            <dl className="grid h-full gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {rows.map(([label, value]) => (
                 <InfoTile
                   key={label}
@@ -1285,9 +1285,58 @@ function ListingDetailsPanel({
     setSaved(true);
   };
 
+  const title = getListingTitle(copy, draft);
+  const coverPhoto = getCoverPhoto(draft);
+  const detailStatus = listingDetailsHasData(form)
+    ? copy.listings.detailsPartial
+    : copy.listings.detailsIncomplete;
+  const summaryRows: Array<[string, unknown]> = [
+    [copy.listings.fields.city, draft.city],
+    [copy.listings.fields.address, draft.address || form.area || draft.area],
+    [copy.listings.fields.housingType, draft.housingType],
+    [copy.listings.fields.monthlyRent, formatCurrency(draft.monthlyRent)],
+    [copy.listings.fields.availableFrom, draft.availableFrom],
+    [copy.listings.fields.detailsStatus, detailStatus],
+  ];
+
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="space-y-5">
+        <article className="rounded-3xl border border-primary/20 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
+              <StatusPill>{copy.listings.firstDraftLabel}</StatusPill>
+              <h2 className="mt-3 text-2xl font-black text-foreground">{title}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+                {copy.draftDetail.notice}
+              </p>
+            </div>
+            <Link
+              to={centerRoute(locale, "listingDetails")}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+            >
+              {copy.draftDetail.cta}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+
+          <div className="mt-5 grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)] lg:items-stretch">
+            <ListingPhotoFrame coverPhoto={coverPhoto} label={copy.listings.noCoverPhoto} size="large" />
+
+            <div className="min-w-0">
+              <dl className="grid h-full gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {summaryRows.map(([label, value]) => (
+                  <InfoTile
+                    key={label}
+                    label={label}
+                    value={displayValue(value, copy.common.emptyValue)}
+                  />
+                ))}
+              </dl>
+            </div>
+          </div>
+        </article>
+
         <DetailSection title={copy.detailForm.sections.location}>
           <div className="grid gap-4 md:grid-cols-2">
             <CenterField
@@ -1664,31 +1713,26 @@ function ListingPhotoFrame({
   return (
     <div
       className={cn(
-        "rounded-[24px] border border-border bg-[#F8FAFC] p-3",
-        size === "large" ? "lg:p-4" : "",
+        "relative flex w-full items-center justify-center overflow-hidden rounded-2xl border border-border bg-[#F8FAFC] shadow-sm",
+        size === "large"
+          ? "aspect-[16/9] lg:h-[220px] lg:w-[290px] lg:aspect-auto"
+          : "aspect-[16/9] lg:h-[170px] lg:w-[236px] lg:aspect-auto",
       )}
     >
-      <div
-        className={cn(
-          "relative flex w-full items-center justify-center overflow-hidden rounded-2xl border border-white bg-white shadow-sm",
-          size === "large" ? "aspect-[4/3]" : "aspect-[16/10] lg:aspect-[4/3]",
-        )}
-      >
-        {coverPhoto?.dataUrl ? (
-          <img
-            src={coverPhoto.dataUrl}
-            alt=""
-            className="h-full w-full object-cover object-center"
-          />
-        ) : (
-          <div className="flex flex-col items-center gap-3 px-4 text-center text-primary">
-            <Camera className={cn("h-8 w-8", size === "large" ? "sm:h-10 sm:w-10" : "")} aria-hidden />
-            <span className="text-xs font-extrabold uppercase tracking-[0.12em]">
-              {label}
-            </span>
-          </div>
-        )}
-      </div>
+      {coverPhoto?.dataUrl ? (
+        <img
+          src={coverPhoto.dataUrl}
+          alt=""
+          className="h-full w-full object-cover object-center"
+        />
+      ) : (
+        <div className="flex flex-col items-center gap-3 px-4 text-center text-primary">
+          <Camera className={cn("h-8 w-8", size === "large" ? "sm:h-10 sm:w-10" : "")} aria-hidden />
+          <span className="text-xs font-extrabold uppercase tracking-[0.12em]">
+            {label}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
