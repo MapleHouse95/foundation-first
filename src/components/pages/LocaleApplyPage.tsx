@@ -1,18 +1,34 @@
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useBlocker, useLocation } from "@tanstack/react-router";
 import {
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   Home,
   Mail,
+  MapPin,
   MapPinned,
   MessageSquareText,
   UserRound,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
+import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
+import {
+  buildSelectedInquiryPayload,
+  MOCK_INQUIRY_DRAFT_STORAGE_KEY,
+  readSelectedInquiryPayload,
+  saveSelectedInquiryPayload,
+  type MockInquiryDraftPayload,
+  type SelectedInquiryPayload,
+} from "@/lib/mockInquiryStorage";
+import { getStableMockListingGalleryImages } from "@/lib/mockListingImages";
+import { MOCK_LISTINGS } from "./LocaleListingsPage";
 
 type FormState = {
   name: string;
@@ -57,6 +73,87 @@ type SelectedListingApplySummary = {
   lastChecked: string;
   verificationStatus: "verified" | "needs_check" | "preparing";
   thumbnail: string;
+};
+
+type SelectedInquiryApplyFormState = {
+  name: string;
+  email: string;
+  phone: string;
+  preferredMoveInDate: string;
+  stayLength: string;
+  people: string;
+  questions: string;
+  request: string;
+};
+
+type SelectedInquiryApplyCopy = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  selectedTitle: string;
+  detailsTitle: string;
+  noListingTitle: string;
+  noListingBody: string;
+  fallback: string;
+  summaryLabels: {
+    listingTitle: string;
+    area: string;
+    rent: string;
+    housingType: string;
+    room: string;
+    moveInDate: string;
+    people: string;
+  };
+  fields: Record<keyof SelectedInquiryApplyFormState, FieldText>;
+  agreementTitle: string;
+  agreements: string[];
+  submit: string;
+  successTitle: string;
+  successBody: string;
+  backToListings: string;
+};
+
+type ApplyDatePickerCopy = {
+  title: string;
+  previousMonth: string;
+  nextMonth: string;
+  weekdays: string[];
+  unavailableLabel: string;
+  reset: string;
+  apply: string;
+  close: string;
+};
+
+type LeaveInquiryModalCopy = {
+  title: string;
+  description: string;
+  leave: string;
+  saveDraft: string;
+  keepWriting: string;
+};
+
+type SavedSelectedInquiryDraft = {
+  listingId: string;
+  locale: Locale;
+  mode: "assisted";
+  form: SelectedInquiryApplyFormState;
+  checked: boolean[];
+  name?: string;
+  email?: string;
+  phone?: string;
+  moveInDate?: string;
+  stayDuration?: string;
+  people?: string;
+  confirmText?: string;
+  requestText?: string;
+  checkboxes?: boolean[];
+  savedAt: string;
+};
+
+type MockApplyProfile = {
+  name: string;
+  email: string;
+  phone: string;
 };
 
 type FieldText = {
@@ -124,6 +221,215 @@ const EMPTY_KO_APPLY_FORM: KoreanApplyFormState = {
   people: "",
   budget: "",
   landlordQuestions: "",
+};
+
+const EMPTY_SELECTED_INQUIRY_FORM: SelectedInquiryApplyFormState = {
+  name: "",
+  email: "",
+  phone: "",
+  preferredMoveInDate: "",
+  stayLength: "",
+  people: "",
+  questions: "",
+  request: "",
+};
+
+const MOCK_APPLY_PROFILE_STORAGE_KEY = "maplehouse_mock_current_user_profile";
+const DEFAULT_MOCK_APPLY_PROFILE: MockApplyProfile = {
+  name: "MEHA KIM",
+  email: "name@example.com",
+  phone: "",
+};
+
+const HISTORY_BACK_PENDING_HREF = "__maplehouse_apply_history_back__";
+
+const SELECTED_INQUIRY_DETAIL_BUTTON: Record<Locale, string> = {
+  ko: "매물 상세 페이지로 이동",
+  en: "Go to listing detail",
+  fr: "Voir la page du logement",
+};
+
+const SELECTED_INQUIRY_DRAFT_RESTORE_NOTICE: Record<Locale, string> = {
+  ko: "임시 저장된 문의 내용을 불러왔습니다.",
+  en: "Your saved inquiry draft has been restored.",
+  fr: "Votre brouillon de demande a été restauré.",
+};
+
+const LEAVE_INQUIRY_MODAL_COPY: Record<Locale, LeaveInquiryModalCopy> = {
+  ko: {
+    title: "문의 작성을 중단할까요?",
+    description:
+      "작성 중인 문의 내용이 있습니다. 나가면 입력한 내용이 사라질 수 있습니다.",
+    leave: "나가기",
+    saveDraft: "임시 저장하기",
+    keepWriting: "계속 작성하기",
+  },
+  en: {
+    title: "Stop writing this inquiry?",
+    description:
+      "You have an inquiry draft in progress. If you leave, your entered content may be lost.",
+    leave: "Leave",
+    saveDraft: "Save draft",
+    keepWriting: "Keep writing",
+  },
+  fr: {
+    title: "Arrêter la rédaction de cette demande ?",
+    description:
+      "Vous avez une demande en cours de rédaction. Si vous quittez cette page, les informations saisies peuvent être perdues.",
+    leave: "Quitter",
+    saveDraft: "Enregistrer le brouillon",
+    keepWriting: "Continuer",
+  },
+};
+
+const SELECTED_INQUIRY_COPY: Record<Locale, SelectedInquiryApplyCopy> = {
+  ko: {
+    eyebrow: "MapleHouse 문의",
+    title: "문의 신청",
+    subtitle: "선택한 매물과 방 정보를 바탕으로 문의 내용을 정리합니다. 실제 전송은 아직 연결되어 있지 않습니다.",
+    selectedTitle: "선택한 매물",
+    detailsTitle: "매물 상세 정보",
+    noListingTitle: "선택한 매물이 없습니다.",
+    noListingBody: "매물 상세페이지에서 문의할 매물을 먼저 선택해 주세요.",
+    fallback: "확인 필요",
+    summaryLabels: {
+      listingTitle: "매물",
+      area: "지역",
+      rent: "월세",
+      housingType: "주거 형태",
+      room: "선택한 방",
+      moveInDate: "입주 희망일",
+      people: "인원",
+    },
+    fields: {
+      name: { label: "이름", placeholder: "예: MEHA KIM", required: true },
+      email: { label: "이메일", placeholder: "name@example.com", required: true },
+      phone: { label: "전화번호", placeholder: "숫자 중심으로 입력해 주세요" },
+      preferredMoveInDate: { label: "입주 희망일", placeholder: "" },
+      stayLength: { label: "체류 기간", placeholder: "예: 6개월 / 1년" },
+      people: { label: "인원", placeholder: "예: 1명" },
+      questions: { label: "꼭 확인하고 싶은 내용", placeholder: "계약 조건, 공과금, 룸메이트, 주소 등 확인할 내용을 적어주세요." },
+      request: { label: "추가 요청사항", placeholder: "추가로 MapleHouse에 전달할 내용을 적어주세요." },
+    },
+    agreementTitle: "MVP 안내 확인",
+    agreements: [
+      "MapleHouse는 현재 MVP 단계에서 문의 확인 흐름을 미리보기로 제공하며, 실제 계약·결제·송금 기능은 아직 연결되어 있지 않음을 이해했습니다.",
+      "최종 계약 여부, 입금 여부, 입주 여부는 사용자가 직접 확인해야 함을 이해했습니다.",
+    ],
+    submit: "문의 초안 만들기",
+    successTitle: "문의 초안이 생성되었습니다.",
+    successBody: "실제 전송, 결제, 예약, 계약 기능은 아직 연결되어 있지 않습니다.",
+    backToListings: "매물 보러가기",
+  },
+  en: {
+    eyebrow: "MapleHouse inquiry",
+    title: "Inquiry request",
+    subtitle: "We will organize your inquiry based on the selected listing and room. Real sending is not connected yet.",
+    selectedTitle: "Selected listing",
+    detailsTitle: "Listing details",
+    noListingTitle: "No listing selected.",
+    noListingBody: "Please choose a listing from the listing detail page first.",
+    fallback: "To confirm",
+    summaryLabels: {
+      listingTitle: "Listing",
+      area: "Area",
+      rent: "Rent",
+      housingType: "Housing type",
+      room: "Selected room",
+      moveInDate: "Preferred move-in date",
+      people: "People",
+    },
+    fields: {
+      name: { label: "Name", placeholder: "Your name", required: true },
+      email: { label: "Email", placeholder: "name@example.com", required: true },
+      phone: { label: "Phone number", placeholder: "Enter your phone number" },
+      preferredMoveInDate: { label: "Preferred move-in date", placeholder: "" },
+      stayLength: { label: "Stay length", placeholder: "Example: 6 months / 1 year" },
+      people: { label: "Number of people", placeholder: "Example: 1" },
+      questions: { label: "Questions to confirm", placeholder: "Contract terms, utilities, roommates, exact address, and other details." },
+      request: { label: "Additional request", placeholder: "Anything else you want MapleHouse to know." },
+    },
+    agreementTitle: "MVP scope confirmation",
+    agreements: [
+      "I understand that MapleHouse currently provides this inquiry flow as an MVP preview, and real contract, payment, and payout features are not connected yet.",
+      "I understand that final contract, payment, and move-in decisions must be confirmed by the user.",
+    ],
+    submit: "Create inquiry draft",
+    successTitle: "Inquiry draft created.",
+    successBody: "Real sending, payment, reservation, and contract features are not connected yet.",
+    backToListings: "View listings",
+  },
+  fr: {
+    eyebrow: "Demande MapleHouse",
+    title: "Demande de renseignements",
+    subtitle: "Nous organisons votre demande à partir de l’annonce et de la chambre choisies. L’envoi réel n’est pas encore connecté.",
+    selectedTitle: "Logement sélectionné",
+    detailsTitle: "Détails du logement",
+    noListingTitle: "Aucun logement sélectionné.",
+    noListingBody: "Choisissez d’abord un logement depuis la page de détail.",
+    fallback: "À confirmer",
+    summaryLabels: {
+      listingTitle: "Logement",
+      area: "Secteur",
+      rent: "Loyer",
+      housingType: "Type de logement",
+      room: "Chambre choisie",
+      moveInDate: "Date d’arrivée souhaitée",
+      people: "Personnes",
+    },
+    fields: {
+      name: { label: "Nom", placeholder: "Votre nom", required: true },
+      email: { label: "E-mail", placeholder: "nom@example.com", required: true },
+      phone: { label: "Numéro de téléphone", placeholder: "Votre numéro" },
+      preferredMoveInDate: { label: "Date d’arrivée souhaitée", placeholder: "" },
+      stayLength: { label: "Durée du séjour", placeholder: "Ex. 6 mois / 1 an" },
+      people: { label: "Nombre de personnes", placeholder: "Ex. 1" },
+      questions: { label: "Questions à vérifier", placeholder: "Contrat, charges, colocataires, adresse exacte et autres détails." },
+      request: { label: "Demande supplémentaire", placeholder: "Autre information à transmettre à MapleHouse." },
+    },
+    agreementTitle: "Confirmation du périmètre MVP",
+    agreements: [
+      "Je comprends que MapleHouse propose actuellement ce flux de demande comme aperçu MVP, et que les fonctions réelles de contrat, paiement et virement ne sont pas encore connectées.",
+      "Je comprends que la décision finale de contrat, de paiement et d’arrivée doit être vérifiée par l’utilisateur.",
+    ],
+    submit: "Créer un brouillon de demande",
+    successTitle: "Brouillon de demande créé.",
+    successBody: "L’envoi réel, le paiement, la réservation et le contrat ne sont pas encore connectés.",
+    backToListings: "Voir les logements",
+  },
+};
+
+const APPLY_DATE_PICKER_COPY: Record<Locale, ApplyDatePickerCopy> = {
+  ko: {
+    title: "입주 희망일 선택",
+    previousMonth: "이전 달",
+    nextMonth: "다음 달",
+    weekdays: ["일", "월", "화", "수", "목", "금", "토"],
+    unavailableLabel: "선택 불가 예시 날짜",
+    reset: "초기화",
+    apply: "적용하기",
+    close: "닫기",
+  },
+  en: {
+    title: "Select preferred move-in date",
+    previousMonth: "Previous month",
+    nextMonth: "Next month",
+    weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    unavailableLabel: "Example unavailable dates",
+    reset: "Reset",
+    apply: "Apply",
+    close: "Close",
+  },
+  fr: {
+    title: "Choisir la date d’arrivée souhaitée",
+    previousMonth: "Mois précédent",
+    nextMonth: "Mois suivant",
+    weekdays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+    unavailableLabel: "Exemples de dates indisponibles",
+    reset: "Réinitialiser",
+    apply: "Appliquer",
+    close: "Fermer",
+  },
 };
 
 const KO_SELECTED_LISTING_STATUS_LABEL: Record<SelectedListingApplySummary["verificationStatus"], string> = {
@@ -411,11 +717,214 @@ const SELECT_FIELDS: Array<{
 ];
 const TEXTAREA_FIELDS: FieldKey[] = ["area", "conditions", "requests"];
 
+function buildSelectedInquiryFromMockListing(locale: Locale, listingId: string) {
+  const listing = MOCK_LISTINGS.find((item) => item.id === listingId);
+  if (!listing) return null;
+
+  const galleryUrls = getStableMockListingGalleryImages(listing.id, 5);
+  return buildSelectedInquiryPayload({
+    locale,
+    listingId: listing.id,
+    listingTitle: listing.title[locale],
+    city: "Toronto",
+    area: listing.area,
+    rentCad: listing.priceCAD,
+    rentKrw: listing.priceKRW,
+    housingType: listing.roomType[locale],
+    roomName: SELECTED_INQUIRY_COPY[locale].fallback,
+    roomType: listing.roomType[locale],
+    selectedMoveInDate: "",
+    selectedGuestCount: listing.maxPeople,
+    thumbnailUrl: galleryUrls[0] ?? listing.imagePath,
+    galleryUrls,
+    source: "listings_drawer",
+  });
+}
+
+function normalizeSearchString(searchStr?: string) {
+  if (searchStr !== undefined) return searchStr.startsWith("?") ? searchStr.slice(1) : searchStr;
+  if (typeof window === "undefined") return "";
+  return window.location.search.startsWith("?") ? window.location.search.slice(1) : window.location.search;
+}
+
+function getInitialSelectedInquiryState(locale: Locale, searchStr?: string) {
+  const params = new URLSearchParams(normalizeSearchString(searchStr));
+  const wantsAssistedMode = params.get("mode") === "assisted";
+  const queryListingId = params.get("listingId");
+  if (!wantsAssistedMode) {
+    return { loaded: true, shouldRender: false, inquiry: null };
+  }
+
+  try {
+    const storedInquiry = readSelectedInquiryPayload({ locale, listingId: queryListingId });
+    if (storedInquiry) {
+      return {
+        loaded: true,
+        shouldRender: true,
+        inquiry: storedInquiry,
+      };
+    }
+
+    if (wantsAssistedMode && queryListingId) {
+      const restoredInquiry = buildSelectedInquiryFromMockListing(locale, queryListingId);
+      if (restoredInquiry) {
+        saveSelectedInquiryPayload(restoredInquiry);
+        return { loaded: true, shouldRender: true, inquiry: restoredInquiry };
+      }
+    }
+
+    return { loaded: true, shouldRender: true, inquiry: null };
+  } catch {
+    return { loaded: true, shouldRender: true, inquiry: null };
+  }
+}
+
+function readMockApplyProfile(): MockApplyProfile {
+  if (typeof window === "undefined") return DEFAULT_MOCK_APPLY_PROFILE;
+
+  try {
+    const raw = window.sessionStorage.getItem(MOCK_APPLY_PROFILE_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Partial<MockApplyProfile>) : null;
+    return {
+      name: typeof parsed?.name === "string" && parsed.name.trim()
+        ? parsed.name
+        : DEFAULT_MOCK_APPLY_PROFILE.name,
+      email: typeof parsed?.email === "string" && parsed.email.trim()
+        ? parsed.email
+        : DEFAULT_MOCK_APPLY_PROFILE.email,
+      phone: typeof parsed?.phone === "string"
+        ? parsed.phone
+        : DEFAULT_MOCK_APPLY_PROFILE.phone,
+    };
+  } catch {
+    return DEFAULT_MOCK_APPLY_PROFILE;
+  }
+}
+
+function getSelectedInquiryDraftKey(locale: Locale, listingId: string) {
+  return `maplehouse.applyDraft.${locale}.${listingId}`;
+}
+
+function readSelectedInquiryDraft(locale: Locale, listingId: string) {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.sessionStorage.getItem(getSelectedInquiryDraftKey(locale, listingId));
+    const parsed = raw ? (JSON.parse(raw) as Partial<SavedSelectedInquiryDraft>) : null;
+    const parsedLocale = typeof parsed?.locale === "string" ? parsed.locale : null;
+    if (
+      !parsed ||
+      parsed.mode !== "assisted" ||
+      parsed.listingId !== listingId ||
+      (parsedLocale !== null && parsedLocale !== locale)
+    ) {
+      return null;
+    }
+
+    return {
+      listingId,
+      locale,
+      mode: "assisted" as const,
+      form: {
+        ...EMPTY_SELECTED_INQUIRY_FORM,
+        ...(parsed.form ?? {}),
+        name: parsed.form?.name ?? parsed.name ?? EMPTY_SELECTED_INQUIRY_FORM.name,
+        email: parsed.form?.email ?? parsed.email ?? EMPTY_SELECTED_INQUIRY_FORM.email,
+        phone: parsed.form?.phone ?? parsed.phone ?? EMPTY_SELECTED_INQUIRY_FORM.phone,
+        preferredMoveInDate:
+          parsed.form?.preferredMoveInDate ??
+          parsed.moveInDate ??
+          EMPTY_SELECTED_INQUIRY_FORM.preferredMoveInDate,
+        stayLength:
+          parsed.form?.stayLength ??
+          parsed.stayDuration ??
+          EMPTY_SELECTED_INQUIRY_FORM.stayLength,
+        people: parsed.form?.people ?? parsed.people ?? EMPTY_SELECTED_INQUIRY_FORM.people,
+        questions:
+          parsed.form?.questions ??
+          parsed.confirmText ??
+          EMPTY_SELECTED_INQUIRY_FORM.questions,
+        request:
+          parsed.form?.request ??
+          parsed.requestText ??
+          EMPTY_SELECTED_INQUIRY_FORM.request,
+      },
+      checked: Array.isArray(parsed.checked)
+        ? parsed.checked.map(Boolean)
+        : Array.isArray(parsed.checkboxes)
+          ? parsed.checkboxes.map(Boolean)
+          : [],
+      savedAt: typeof parsed.savedAt === "string" ? parsed.savedAt : "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveSelectedInquiryDraft(
+  locale: Locale,
+  listingId: string,
+  form: SelectedInquiryApplyFormState,
+  checked: boolean[],
+) {
+  if (typeof window === "undefined") return;
+
+  const draft: SavedSelectedInquiryDraft = {
+    listingId,
+    locale,
+    mode: "assisted",
+    form,
+    checked,
+    name: form.name,
+    email: form.email,
+    phone: form.phone,
+    moveInDate: form.preferredMoveInDate,
+    stayDuration: form.stayLength,
+    people: form.people,
+    confirmText: form.questions,
+    requestText: form.request,
+    checkboxes: checked,
+    savedAt: new Date().toISOString(),
+  };
+  window.sessionStorage.setItem(getSelectedInquiryDraftKey(locale, listingId), JSON.stringify(draft));
+}
+
+function clearSelectedInquiryDraft(locale: Locale, listingId: string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(getSelectedInquiryDraftKey(locale, listingId));
+}
+
+function useSelectedInquiryForApply(locale: Locale, searchStr?: string) {
+  const [state, setState] = useState(() => getInitialSelectedInquiryState(locale, searchStr));
+
+  useEffect(() => {
+    setState(getInitialSelectedInquiryState(locale, searchStr));
+  }, [locale, searchStr]);
+
+  return state;
+}
+
 export function LocaleApplyPage({ locale }: { locale: Locale }) {
+  const location = useLocation() as { searchStr?: string };
+  const selectedInquiryState = useSelectedInquiryForApply(locale, location.searchStr);
+  if (selectedInquiryState.shouldRender) {
+    return (
+      <SelectedInquiryApplyPage
+        locale={locale}
+        loaded={selectedInquiryState.loaded}
+        selectedInquiry={selectedInquiryState.inquiry}
+      />
+    );
+  }
+
   if (locale === "ko") {
     return <KoreanSelectedListingApplyPage />;
   }
 
+  return <StandardApplyPage locale={locale} />;
+}
+
+function StandardApplyPage({ locale }: { locale: Locale }) {
   const t = CONTENT[locale];
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [checked, setChecked] = useState<boolean[]>(() => t.checkboxes.map(() => false));
@@ -590,6 +1099,904 @@ export function LocaleApplyPage({ locale }: { locale: Locale }) {
       </Container>
     </main>
   );
+}
+
+function SelectedInquiryApplyPage({
+  locale,
+  loaded,
+  selectedInquiry,
+}: {
+  locale: Locale;
+  loaded: boolean;
+  selectedInquiry: SelectedInquiryPayload | null;
+}) {
+  const t = SELECTED_INQUIRY_COPY[locale];
+  const dateCopy = APPLY_DATE_PICKER_COPY[locale];
+  const [form, setForm] = useState<SelectedInquiryApplyFormState>(EMPTY_SELECTED_INQUIRY_FORM);
+  const [checked, setChecked] = useState<boolean[]>(() => t.agreements.map(() => false));
+  const [successVisible, setSuccessVisible] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [pendingNavigationHref, setPendingNavigationHref] = useState<string | null>(null);
+  const allowNavigationRef = useRef(false);
+  const historyGuardActiveRef = useRef(false);
+  const shouldProtectLeaving = Boolean(selectedInquiry) && !successVisible;
+  const routeBlocker = useBlocker({
+    disabled: !shouldProtectLeaving,
+    enableBeforeUnload: false,
+    withResolver: true,
+    shouldBlockFn: ({ current, next }) =>
+      shouldProtectLeaving &&
+      !allowNavigationRef.current &&
+      (current.pathname !== next.pathname ||
+        JSON.stringify(current.search) !== JSON.stringify(next.search)),
+  });
+
+  useEffect(() => {
+    if (!selectedInquiry) return;
+    const restoredDraft = readSelectedInquiryDraft(locale, selectedInquiry.listingId);
+    if (restoredDraft) {
+      setForm(restoredDraft.form);
+      setChecked(t.agreements.map((_, index) => restoredDraft.checked[index] ?? false));
+      setDraftRestored(true);
+      setSuccessVisible(false);
+      return;
+    }
+
+    const profile = readMockApplyProfile();
+    setForm({
+      ...EMPTY_SELECTED_INQUIRY_FORM,
+      name: profile.name,
+      email: profile.email,
+      phone: profile.phone,
+      preferredMoveInDate: selectedInquiry.selectedMoveInDate || "",
+      people: selectedInquiry.selectedGuestCount
+        ? String(selectedInquiry.selectedGuestCount)
+        : "",
+    });
+    setChecked(t.agreements.map(() => false));
+    setDraftRestored(false);
+    setSuccessVisible(false);
+  }, [locale, selectedInquiry, t.agreements]);
+
+  const updateField = (key: keyof SelectedInquiryApplyFormState, value: string) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const canSubmit = checked.every(Boolean);
+
+  const summaryRows = selectedInquiry
+    ? [
+        { label: t.summaryLabels.listingTitle, value: selectedInquiry.listingTitle || t.fallback },
+        { label: t.summaryLabels.area, value: selectedInquiry.area || t.fallback },
+        {
+          label: t.summaryLabels.rent,
+          value: formatSelectedInquiryRent(locale, selectedInquiry.rentCad, selectedInquiry.rentKrw),
+        },
+        { label: t.summaryLabels.housingType, value: selectedInquiry.housingType || t.fallback },
+        { label: t.summaryLabels.room, value: selectedInquiry.roomName || t.fallback },
+        { label: t.summaryLabels.moveInDate, value: formatSelectedDateLabel(locale, form.preferredMoveInDate, t.fallback) },
+        {
+          label: t.summaryLabels.people,
+          value: form.people
+            ? form.people
+            : selectedInquiry.selectedGuestCount
+              ? String(selectedInquiry.selectedGuestCount)
+            : t.fallback,
+        },
+      ]
+    : [];
+
+  const draftRows = [
+    { label: t.fields.name.label, value: form.name },
+    { label: t.fields.email.label, value: form.email },
+    { label: t.fields.phone.label, value: form.phone },
+    { label: t.fields.preferredMoveInDate.label, value: form.preferredMoveInDate },
+    { label: t.fields.stayLength.label, value: form.stayLength },
+    { label: t.fields.people.label, value: form.people },
+    { label: t.fields.questions.label, value: form.questions },
+    { label: t.fields.request.label, value: form.request },
+  ];
+
+  const detailHref = selectedInquiry
+    ? `/${locale}/listings/${selectedInquiry.listingId}`
+    : `/${locale}/listings`;
+
+  const navigateToHref = (href: string) => {
+    if (typeof window === "undefined") return;
+    allowNavigationRef.current = true;
+    window.location.href = href;
+  };
+
+  const requestNavigation = (href: string) => {
+    if (typeof window === "undefined") return;
+    const destination = new URL(href, window.location.origin).href;
+
+    if (shouldProtectLeaving) {
+      setPendingNavigationHref(destination);
+      return;
+    }
+
+    navigateToHref(destination);
+  };
+
+  const saveCurrentDraft = () => {
+    if (!selectedInquiry) return;
+    saveSelectedInquiryDraft(locale, selectedInquiry.listingId, form, checked);
+  };
+
+  const handleLeaveWithoutSaving = () => {
+    const destination = pendingNavigationHref;
+    setPendingNavigationHref(null);
+    if (routeBlocker.status === "blocked") {
+      allowNavigationRef.current = true;
+      routeBlocker.proceed();
+      return;
+    }
+    if (destination === HISTORY_BACK_PENDING_HREF && typeof window !== "undefined") {
+      allowNavigationRef.current = true;
+      window.history.go(-2);
+      return;
+    }
+    if (destination) navigateToHref(destination);
+  };
+
+  const handleSaveDraftAndLeave = () => {
+    const destination = pendingNavigationHref;
+    saveCurrentDraft();
+    setPendingNavigationHref(null);
+    if (routeBlocker.status === "blocked") {
+      allowNavigationRef.current = true;
+      routeBlocker.proceed();
+      return;
+    }
+    if (destination === HISTORY_BACK_PENDING_HREF && typeof window !== "undefined") {
+      allowNavigationRef.current = true;
+      window.history.go(-2);
+      return;
+    }
+    if (destination) navigateToHref(destination);
+  };
+
+  const handleKeepWriting = () => {
+    if (routeBlocker.status === "blocked") routeBlocker.reset();
+    setPendingNavigationHref(null);
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (shouldProtectLeaving && !historyGuardActiveRef.current) {
+      window.history.pushState({ maplehouseApplyGuard: true }, "", window.location.href);
+      historyGuardActiveRef.current = true;
+    }
+    if (!shouldProtectLeaving) {
+      historyGuardActiveRef.current = false;
+    }
+  }, [shouldProtectLeaving]);
+
+  useEffect(() => {
+    if (!shouldProtectLeaving || typeof window === "undefined") return;
+
+    const handlePopState = () => {
+      if (allowNavigationRef.current) return;
+      setPendingNavigationHref(HISTORY_BACK_PENDING_HREF);
+      window.history.pushState({ maplehouseApplyGuard: true }, "", window.location.href);
+      historyGuardActiveRef.current = true;
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [shouldProtectLeaving]);
+
+  useEffect(() => {
+    if (!shouldProtectLeaving || typeof window === "undefined") return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (allowNavigationRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [shouldProtectLeaving]);
+
+  useEffect(() => {
+    if (!shouldProtectLeaving || typeof document === "undefined" || typeof window === "undefined") return;
+
+    const handleDocumentClick = (event: globalThis.MouseEvent) => {
+      if (allowNavigationRef.current || event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const target = event.target instanceof Element ? event.target : null;
+      const anchor = target?.closest("a[href]") as HTMLAnchorElement | null;
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      const rawHref = anchor.getAttribute("href") ?? "";
+      const normalizedHref = rawHref.trim().toLowerCase();
+      if (
+        normalizedHref === "" ||
+        normalizedHref.startsWith("#") ||
+        normalizedHref.startsWith("mailto:") ||
+        normalizedHref.startsWith("tel:")
+      ) {
+        return;
+      }
+
+      const destination = new URL(rawHref || anchor.href, window.location.href);
+      if (destination.origin !== window.location.origin) return;
+      if (
+        destination.pathname === window.location.pathname &&
+        destination.search === window.location.search &&
+        destination.hash === window.location.hash
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      setPendingNavigationHref(destination.href);
+    };
+
+    document.addEventListener("click", handleDocumentClick, true);
+    return () => document.removeEventListener("click", handleDocumentClick, true);
+  }, [shouldProtectLeaving]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!selectedInquiry || !canSubmit) return;
+
+    const draft: MockInquiryDraftPayload = {
+      selectedInquiry: {
+        ...selectedInquiry,
+        selectedMoveInDate: form.preferredMoveInDate,
+        selectedGuestCount: Number(form.people) || selectedInquiry.selectedGuestCount,
+      },
+      form,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      window.sessionStorage.setItem(MOCK_INQUIRY_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch {
+      // MVP preview only; the success state still communicates that no real sending happened.
+    }
+    clearSelectedInquiryDraft(locale, selectedInquiry.listingId);
+    setDraftRestored(false);
+    setSuccessVisible(true);
+  };
+
+  if (!loaded) {
+    return (
+      <main className="bg-background">
+        <Container className="py-12 sm:py-16">
+          <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
+            <p className="text-sm font-semibold text-muted-foreground">{t.fallback}</p>
+          </div>
+        </Container>
+      </main>
+    );
+  }
+
+  if (!selectedInquiry) {
+    return (
+      <main className="bg-background">
+        <Container className="py-12 sm:py-16">
+          <section className="mx-auto max-w-2xl rounded-3xl border border-border bg-card p-6 text-center shadow-sm sm:p-8">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-primary">
+              <Home className="h-6 w-6" />
+            </span>
+            <h1 className="mt-5 text-2xl font-bold text-foreground">{t.noListingTitle}</h1>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              {t.noListingBody}
+            </p>
+            <Button asChild size="lg" className="mt-6">
+              <a href={`/${locale}/listings`}>{t.backToListings}</a>
+            </Button>
+          </section>
+        </Container>
+      </main>
+    );
+  }
+
+  return (
+    <main className="bg-background">
+      <Container className="py-12 sm:py-16 lg:py-18">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            {t.eyebrow}
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+            {t.title}
+          </h1>
+          <p className="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {t.subtitle}
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6 lg:p-7"
+          >
+            <section className="rounded-3xl border border-primary/20 bg-[#FFFDF9] p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
+                  {t.selectedTitle}
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-auto shrink-0 rounded-none bg-transparent px-0 py-0 text-xs font-semibold text-[#FA7000] shadow-none hover:bg-transparent hover:text-[#E76600] hover:underline focus-visible:ring-[#FA7000]"
+                  onClick={() => requestNavigation(detailHref)}
+                >
+                  {SELECTED_INQUIRY_DETAIL_BUTTON[locale]}
+                </Button>
+              </div>
+              <SelectedListingMiniGallery
+                className="mt-4"
+                title={selectedInquiry.listingTitle}
+                images={getSelectedInquiryImageUrls(selectedInquiry)}
+                fallback={t.fallback}
+              />
+            </section>
+
+            {draftRestored ? (
+              <p className="mt-4 rounded-2xl border border-primary/20 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold leading-relaxed text-primary">
+                {SELECTED_INQUIRY_DRAFT_RESTORE_NOTICE[locale]}
+              </p>
+            ) : null}
+
+            <FormSection title={t.title} icon={<MessageSquareText />}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <TextField
+                  id={`${locale}-inquiry-name`}
+                  field={t.fields.name}
+                  value={form.name}
+                  onChange={(value) => updateField("name", value)}
+                />
+                <TextField
+                  id={`${locale}-inquiry-email`}
+                  field={t.fields.email}
+                  value={form.email}
+                  onChange={(value) => updateField("email", value)}
+                  type="email"
+                />
+                <TextField
+                  id={`${locale}-inquiry-phone`}
+                  field={t.fields.phone}
+                  value={form.phone}
+                  onChange={(value) => updateField("phone", value)}
+                />
+                <DateSelectField
+                  id={`${locale}-inquiry-move-in`}
+                  field={t.fields.preferredMoveInDate}
+                  value={form.preferredMoveInDate}
+                  locale={locale}
+                  fallback={t.fallback}
+                  onOpen={() => setDatePickerOpen(true)}
+                />
+                <TextField
+                  id={`${locale}-inquiry-stay-length`}
+                  field={t.fields.stayLength}
+                  value={form.stayLength}
+                  onChange={(value) => updateField("stayLength", value)}
+                />
+                <TextField
+                  id={`${locale}-inquiry-people`}
+                  field={t.fields.people}
+                  value={form.people}
+                  onChange={(value) => updateField("people", value)}
+                />
+              </div>
+              <div className="mt-4 grid gap-4">
+                <TextareaField
+                  id={`${locale}-inquiry-questions`}
+                  field={t.fields.questions}
+                  value={form.questions}
+                  onChange={(value) => updateField("questions", value)}
+                />
+                <TextareaField
+                  id={`${locale}-inquiry-request`}
+                  field={t.fields.request}
+                  value={form.request}
+                  onChange={(value) => updateField("request", value)}
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title={t.agreementTitle} icon={<CheckCircle2 />}>
+              <div className="grid gap-3 rounded-2xl border border-border bg-secondary/60 p-4">
+                {t.agreements.map((item, index) => (
+                  <CheckboxItem
+                    key={item}
+                    id={`${locale}-inquiry-agreement-${index}`}
+                    label={item}
+                    checked={checked[index] ?? false}
+                    required
+                    onChange={(value) => {
+                      setChecked((current) =>
+                        current.map((currentValue, currentIndex) =>
+                          currentIndex === index ? value : currentValue,
+                        ),
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+            </FormSection>
+
+            <div className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-relaxed text-muted-foreground">{t.subtitle}</p>
+              <Button type="submit" size="lg" className="min-h-11 px-5" disabled={!canSubmit}>
+                {t.submit}
+              </Button>
+            </div>
+
+            {successVisible ? (
+              <PreviewPanel
+                title={t.successTitle}
+                body={t.successBody}
+                summaryTitle={t.selectedTitle}
+                emptyValue={t.fallback}
+                rows={draftRows}
+              />
+            ) : null}
+          </form>
+
+          <aside className="space-y-4">
+            <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                <ClipboardList className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                <span>{t.detailsTitle}</span>
+              </h2>
+              <dl className="mt-4 space-y-2.5">
+                <SummaryIconRow icon={<Home className="h-4 w-4" />} label={summaryRows[0]?.label ?? t.summaryLabels.listingTitle} value={summaryRows[0]?.value ?? t.fallback} />
+                <SummaryIconRow icon={<MapPin className="h-4 w-4" />} label={summaryRows[1]?.label ?? t.summaryLabels.area} value={summaryRows[1]?.value ?? t.fallback} />
+                <SummaryIconRow icon={<Mail className="h-4 w-4" />} label={summaryRows[2]?.label ?? t.summaryLabels.rent} value={summaryRows[2]?.value ?? t.fallback} />
+                <SummaryIconRow icon={<ClipboardList className="h-4 w-4" />} label={summaryRows[3]?.label ?? t.summaryLabels.housingType} value={summaryRows[3]?.value ?? t.fallback} />
+                <SummaryIconRow icon={<Home className="h-4 w-4" />} label={summaryRows[4]?.label ?? t.summaryLabels.room} value={summaryRows[4]?.value ?? t.fallback} />
+                <SummaryIconRow icon={<CalendarDays className="h-4 w-4" />} label={summaryRows[5]?.label ?? t.summaryLabels.moveInDate} value={summaryRows[5]?.value ?? t.fallback} />
+                <SummaryIconRow icon={<UserRound className="h-4 w-4" />} label={summaryRows[6]?.label ?? t.summaryLabels.people} value={summaryRows[6]?.value ?? t.fallback} />
+              </dl>
+            </section>
+          </aside>
+        </div>
+
+        {datePickerOpen ? (
+          <ApplyDatePickerModal
+            copy={dateCopy}
+            locale={locale}
+            selectedDate={form.preferredMoveInDate}
+            onSelectDate={(value) => updateField("preferredMoveInDate", value)}
+            onClose={() => setDatePickerOpen(false)}
+            onApply={() => setDatePickerOpen(false)}
+          />
+        ) : null}
+
+        {pendingNavigationHref || routeBlocker.status === "blocked" ? (
+          <LeaveInquiryConfirmModal
+            copy={LEAVE_INQUIRY_MODAL_COPY[locale]}
+            onLeave={handleLeaveWithoutSaving}
+            onSaveDraft={handleSaveDraftAndLeave}
+            onKeepWriting={handleKeepWriting}
+          />
+        ) : null}
+      </Container>
+    </main>
+  );
+}
+
+function getSelectedInquiryImageUrls(selectedInquiry: SelectedInquiryPayload) {
+  const urls = [selectedInquiry.thumbnailUrl, ...selectedInquiry.galleryUrls]
+    .map((url) => url.trim())
+    .filter(Boolean);
+  return Array.from(new Set(urls));
+}
+
+function SelectedListingMiniGallery({
+  title,
+  images,
+  fallback,
+  className,
+}: {
+  title: string;
+  images: string[];
+  fallback: string;
+  className?: string;
+}) {
+  const imageSlots = images.slice(0, 5);
+  const singleImage = imageSlots.length <= 1;
+
+  if (singleImage) {
+    return (
+      <div className={cn("h-[220px] overflow-hidden rounded-2xl border border-border bg-secondary sm:h-[260px]", className)}>
+        <ListingImageFrame
+          src={imageSlots[0]}
+          alt={title}
+          fit="cover"
+          className="h-full w-full"
+          fallback={<SelectedListingGalleryFallback fallback={fallback} />}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("grid h-[240px] gap-2 overflow-hidden rounded-2xl sm:h-[280px] md:grid-cols-[minmax(0,1.35fr)_minmax(180px,0.85fr)]", className)}>
+      <ListingImageFrame
+        src={imageSlots[0]}
+        alt={title}
+        fit="cover"
+        className="min-h-0 rounded-2xl border border-border bg-secondary"
+        fallback={<SelectedListingGalleryFallback fallback={fallback} />}
+      />
+      <div className="grid min-h-0 grid-cols-2 gap-2 md:grid-rows-2">
+        {imageSlots.slice(1, 5).map((src, index) => (
+          <ListingImageFrame
+            key={`${src}-${index}`}
+            src={src}
+            alt={title}
+            fit="cover"
+            className="min-h-0 rounded-2xl border border-border bg-secondary"
+            fallback={<SelectedListingGalleryFallback fallback={fallback} compact />}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SelectedListingGalleryFallback({
+  fallback,
+  compact = false,
+}: {
+  fallback: string;
+  compact?: boolean;
+}) {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-accent px-3 text-center text-primary">
+      <Home className={cn("shrink-0", compact ? "h-5 w-5" : "h-8 w-8")} aria-hidden />
+      {!compact ? <span className="text-xs font-semibold">{fallback}</span> : null}
+    </div>
+  );
+}
+
+function DateSelectField({
+  id,
+  field,
+  value,
+  locale,
+  fallback,
+  onOpen,
+}: {
+  id: string;
+  field: FieldText;
+  value: string;
+  locale: Locale;
+  fallback: string;
+  onOpen: () => void;
+}) {
+  return (
+    <div>
+      <FieldLabel field={field} />
+      <button
+        id={id}
+        type="button"
+        onClick={onOpen}
+        className={cn(
+          "mt-1.5 flex h-11 w-full min-w-0 items-center justify-between gap-3 rounded-xl border border-input bg-background px-3 text-left text-sm outline-none transition-colors hover:border-primary/45 focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary",
+          value ? "text-foreground" : "text-muted-foreground",
+        )}
+      >
+        <span className="min-w-0 truncate">{value ? formatSelectedDateLabel(locale, value, fallback) : fallback}</span>
+        <CalendarDays className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+      </button>
+    </div>
+  );
+}
+
+function SummaryIconRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex min-w-0 gap-3 rounded-2xl border border-border bg-background px-3 py-2.5">
+      <span className="mt-0.5 shrink-0 text-primary" aria-hidden>
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <dt className="text-[11px] font-medium leading-tight text-muted-foreground">{label}</dt>
+        <dd className="mt-1 min-w-0 break-words text-sm font-semibold leading-snug text-foreground">{value}</dd>
+      </div>
+    </div>
+  );
+}
+
+function LeaveInquiryConfirmModal({
+  copy,
+  onLeave,
+  onSaveDraft,
+  onKeepWriting,
+}: {
+  copy: LeaveInquiryModalCopy;
+  onLeave: () => void;
+  onSaveDraft: () => void;
+  onKeepWriting: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-foreground/40 px-4 py-6 backdrop-blur-sm"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onKeepWriting();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="leave-inquiry-title"
+        className="w-full max-w-lg rounded-3xl border border-border bg-white p-5 shadow-2xl sm:p-6"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
+              MapleHouse
+            </p>
+            <h2 id="leave-inquiry-title" className="mt-2 break-words text-xl font-bold text-foreground">
+              {copy.title}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onKeepWriting}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            aria-label={copy.keepWriting}
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{copy.description}</p>
+
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-2xl border-border text-muted-foreground hover:text-foreground"
+            onClick={onLeave}
+          >
+            {copy.leave}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-2xl border-[#FA7000] text-[#FA7000] hover:bg-[#FFF8F1] hover:text-[#FA7000]"
+            onClick={onSaveDraft}
+          >
+            {copy.saveDraft}
+          </Button>
+          <Button
+            type="button"
+            className="rounded-2xl bg-[#FA7000] text-white hover:bg-[#E76600]"
+            onClick={onKeepWriting}
+          >
+            {copy.keepWriting}
+          </Button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ApplyDatePickerModal({
+  copy,
+  locale,
+  selectedDate,
+  onSelectDate,
+  onClose,
+  onApply,
+}: {
+  copy: ApplyDatePickerCopy;
+  locale: Locale;
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
+  onClose: () => void;
+  onApply: () => void;
+}) {
+  const [baseMonth, setBaseMonth] = useState(() => new Date(2026, 7, 1));
+  const months = [baseMonth, new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 1)];
+  const unavailableDates = new Set(["2026-08-09", "2026-08-15", "2026-08-28", "2026-09-04"]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/35 px-4 py-6 backdrop-blur-sm"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="apply-date-picker-title"
+        className="w-full max-w-3xl rounded-3xl border border-border bg-white p-5 shadow-2xl sm:p-6"
+      >
+        <div className="flex min-w-0 items-start justify-between gap-4">
+          <h2 id="apply-date-picker-title" className="break-words text-xl font-bold text-foreground">
+            {copy.title}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            aria-label={copy.close}
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setBaseMonth((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-primary hover:text-primary"
+            aria-label={copy.previousMonth}
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden />
+          </button>
+          <div className="h-px flex-1" />
+          <button
+            type="button"
+            onClick={() => setBaseMonth((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-primary hover:text-primary"
+            aria-label={copy.nextMonth}
+          >
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+
+        <div className="mt-4 grid gap-5 md:grid-cols-2">
+          {months.map((month) => (
+            <ApplyCalendarMonth
+              key={`${month.getFullYear()}-${month.getMonth()}`}
+              copy={copy}
+              locale={locale}
+              month={month}
+              unavailableDates={unavailableDates}
+              selectedDate={selectedDate}
+              onSelectDate={onSelectDate}
+            />
+          ))}
+        </div>
+
+        <div className="mt-5 flex flex-col gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="h-2.5 w-2.5 rounded-full bg-red-500" aria-hidden />
+            {copy.unavailableLabel}
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="rounded-2xl" onClick={() => onSelectDate("")}>
+              {copy.reset}
+            </Button>
+            <Button
+              type="button"
+              className="rounded-2xl bg-[#FA7000] text-white hover:bg-[#E76600]"
+              onClick={onApply}
+            >
+              {copy.apply}
+            </Button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ApplyCalendarMonth({
+  copy,
+  locale,
+  month,
+  unavailableDates,
+  selectedDate,
+  onSelectDate,
+}: {
+  copy: ApplyDatePickerCopy;
+  locale: Locale;
+  month: Date;
+  unavailableDates: Set<string>;
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
+}) {
+  const days = buildApplyCalendarDays(month);
+
+  return (
+    <div className="min-w-0 rounded-3xl border border-border bg-white p-4">
+      <h3 className="text-center text-sm font-semibold text-foreground">
+        {formatApplyMonthLabel(month, locale)}
+      </h3>
+      <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground">
+        {copy.weekdays.map((day) => (
+          <span key={day}>{day}</span>
+        ))}
+      </div>
+      <div className="mt-2 grid grid-cols-7 gap-1">
+        {days.map((day, index) => {
+          if (!day) return <span key={`empty-${index}`} className="h-9" />;
+          const key = toApplyDateKey(day);
+          const unavailable = unavailableDates.has(key);
+          const selected = selectedDate === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              disabled={unavailable}
+              onClick={() => onSelectDate(key)}
+              className={cn(
+                "relative h-9 rounded-full text-sm font-medium transition",
+                unavailable
+                  ? "cursor-not-allowed bg-muted text-muted-foreground/45"
+                  : selected
+                    ? "bg-[#FFF3E6] text-[#FA7000] ring-1 ring-inset ring-[#FA7000]/45 hover:bg-[#FFE8CC]"
+                    : "text-foreground hover:bg-[#FFF8F1]",
+              )}
+            >
+              {day.getDate()}
+              {unavailable ? (
+                <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-red-500" />
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function buildApplyCalendarDays(month: Date) {
+  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
+  const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+  const days: Array<Date | null> = Array.from({ length: firstDay.getDay() }, () => null);
+
+  for (let day = 1; day <= lastDay.getDate(); day += 1) {
+    days.push(new Date(month.getFullYear(), month.getMonth(), day));
+  }
+
+  return days;
+}
+
+function toApplyDateKey(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function formatApplyMonthLabel(date: Date, locale: Locale) {
+  if (locale === "ko") return new Intl.DateTimeFormat("ko-KR", { month: "long", year: "numeric" }).format(date);
+  if (locale === "fr") return new Intl.DateTimeFormat("fr-CA", { month: "long", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("en-CA", { month: "long", year: "numeric" }).format(date);
+}
+
+function formatSelectedDateLabel(locale: Locale, dateKey: string, fallback: string) {
+  if (!dateKey) return fallback;
+  const date = new Date(`${dateKey}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return dateKey;
+  if (locale === "ko") return new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium" }).format(date);
+  if (locale === "fr") return new Intl.DateTimeFormat("fr-CA", { dateStyle: "medium" }).format(date);
+  return new Intl.DateTimeFormat("en-CA", { dateStyle: "medium" }).format(date);
+}
+
+function formatSelectedInquiryRent(locale: Locale, rentCad: number, rentKrw: number) {
+  const cad = `C$${rentCad.toLocaleString("en-CA")}`;
+  if (locale === "ko" && rentKrw > 0) {
+    return `${cad} / 약 ${rentKrw.toLocaleString("ko-KR")}원`;
+  }
+  return cad;
 }
 
 function KoreanSelectedListingApplyPage() {
@@ -1006,8 +2413,8 @@ function FormSection({
 }) {
   return (
     <section className="border-b border-border py-6 first:pt-0 last:border-b-0 last:pb-0">
-      <div className="mb-4 flex items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-primary [&_svg]:h-4 [&_svg]:w-4">
+      <div className="mb-4 flex items-center gap-2.5">
+        <span className="inline-flex shrink-0 items-center justify-center text-primary [&_svg]:h-5 [&_svg]:w-5 [&_svg]:stroke-[1.8]">
           {icon}
         </span>
         <h2 className="text-lg font-semibold text-foreground">{title}</h2>

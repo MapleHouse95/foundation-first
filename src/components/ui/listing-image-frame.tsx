@@ -31,7 +31,7 @@ export function ListingImageFrame({
           alt={alt}
           onError={() => setFailed(true)}
           className={cn(
-            "block h-full w-full object-center",
+            "absolute inset-0 block h-full w-full object-center",
             fit === "contain" ? "object-contain" : "object-cover",
             imageClassName,
           )}

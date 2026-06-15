@@ -1,24 +1,40 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import {
+  ArrowUp,
   ArrowUpDown,
   ArrowRight,
   Bath,
   BedDouble,
   CalendarDays,
   Camera,
+  Car,
+  Cctv,
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
+  CigaretteOff,
+  DoorOpen,
+  Flame,
+  Footprints,
   Heart,
   Home,
+  KeyRound,
   MapPin,
+  Moon,
+  PawPrint,
+  Recycle,
   Share2,
   ShieldCheck,
   Sofa,
+  Snowflake,
   Star,
+  ThermometerSun,
   Utensils,
-  UserRound,
+  UserCheck,
+  Users,
+  VolumeX,
+  Wifi,
   X,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
@@ -26,6 +42,11 @@ import { Button } from "@/components/ui/button";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import type { Locale } from "@/lib/i18n";
 import { getAllMockListingImages } from "@/lib/mockListingImages";
+import {
+  buildSelectedInquiryPayload as buildStoredSelectedInquiryPayload,
+  saveSelectedInquiryPayload,
+  type SelectedInquiryPayload,
+} from "@/lib/mockInquiryStorage";
 import { cn } from "@/lib/utils";
 import {
   APPLY_SELECTED_LISTING_STORAGE_KEY,
@@ -41,6 +62,7 @@ const MOCK_CAD_TO_KRW = 1000;
 
 type PublicListingSource = "draft" | "mock";
 type CurrencyMode = "CAD" | "KRW";
+type InquiryTarget = "listing" | "room";
 
 type DraftPhoto = {
   id?: string;
@@ -132,6 +154,24 @@ type PublicListing = {
 };
 
 type InfoRow = [string, string] | { label: string; value: string; secondary?: string };
+type AmenityItem = { label: string; value: string; icon: ReactNode };
+type AmenityGroupKind = "building" | "shared" | "rules";
+type AmenityGroup = {
+  kind: AmenityGroupKind;
+  title: string;
+  moreLabel: string;
+  items: AmenityItem[];
+};
+
+const DETAIL_ICON_PROPS = {
+  className: "h-4 w-4 shrink-0 text-[#FA7000]",
+  strokeWidth: 1.5,
+};
+
+const DETAIL_RULE_ICON_PROPS = {
+  className: "h-3.5 w-3.5 shrink-0 text-[#FA7000]",
+  strokeWidth: 1.5,
+};
 
 type DetailCopy = {
   backToListings: string;
@@ -227,12 +267,38 @@ type DetailCopy = {
     kitchen: string;
     livingRoom: string;
   };
+  roomDetailsModal: {
+    title: string;
+    close: string;
+    inquire: string;
+    previousPhoto: string;
+    nextPhoto: string;
+    summary: string;
+    fields: {
+      roomType: string;
+      bedroom: string;
+      bathroom: string;
+      kitchen: string;
+      livingRoom: string;
+      maxGuests: string;
+      floor: string;
+      bedSize: string;
+      furnished: string;
+      availableFrom: string;
+      minimumStay: string;
+      monthlyRent: string;
+    };
+  };
   amenityGroups: {
     building: string;
     shared: string;
     rules: string;
     buildingMore: string;
     sharedMore: string;
+  };
+  amenitiesModal: {
+    title: string;
+    close: string;
   };
   amenityItems: {
     parking: string;
@@ -243,6 +309,11 @@ type DetailCopy = {
     heating: string;
     airConditioning: string;
     balcony: string;
+    kitchen: string;
+    bathroom: string;
+    residentCondition: string;
+    pets: string;
+    smoking: string;
   };
   reviews: {
     ratingComing: string;
@@ -265,6 +336,12 @@ type DetailCopy = {
     reset: string;
     apply: string;
   };
+  missingDateModal: {
+    title: string;
+    body: string;
+    selectDate: string;
+    continueWithoutDate: string;
+  };
   mapPlaceholderTitle: string;
   mapPlaceholderBody: string;
   faq: Array<{ question: string; answer: string }>;
@@ -276,7 +353,9 @@ type DetailCopy = {
     title: string;
     subtitle: string;
     directTitle: string;
+    directDescription: string;
     supportTitle: string;
+    supportDescription: string;
     directMessage: string;
   };
 };
@@ -377,12 +456,38 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       kitchen: "주방",
       livingRoom: "거실",
     },
+    roomDetailsModal: {
+      title: "방 상세 정보",
+      close: "닫기",
+      inquire: "방 문의하기",
+      previousPhoto: "이전 사진",
+      nextPhoto: "다음 사진",
+      summary: "방 요약",
+      fields: {
+        roomType: "방 유형",
+        bedroom: "침실",
+        bathroom: "욕실",
+        kitchen: "주방",
+        livingRoom: "거실",
+        maxGuests: "최대 인원",
+        floor: "층수",
+        bedSize: "침대 크기",
+        furnished: "가구 포함",
+        availableFrom: "입주 가능일",
+        minimumStay: "최소 거주",
+        monthlyRent: "월세",
+      },
+    },
     amenityGroups: {
       building: "건물 시설",
       shared: "공용 편의시설",
       rules: "이용 규칙",
       buildingMore: "건물 시설 더 보기",
       sharedMore: "편의시설 더 보기",
+    },
+    amenitiesModal: {
+      title: "편의시설 전체 보기",
+      close: "닫기",
     },
     amenityItems: {
       parking: "주차",
@@ -393,6 +498,11 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       heating: "난방",
       airConditioning: "에어컨",
       balcony: "베란다/발코니",
+      kitchen: "주방",
+      bathroom: "화장실",
+      residentCondition: "거주 조건",
+      pets: "반려동물",
+      smoking: "흡연",
     },
     reviews: {
       ratingComing: "평점 준비 중",
@@ -414,6 +524,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       unavailableLabel: "입주 불가 날짜",
       reset: "초기화",
       apply: "적용하기",
+    },
+    missingDateModal: {
+      title: "입주 희망일을 선택하지 않았습니다",
+      body: "입주 희망일이 있으면 문의가 더 정확해집니다. 지금 선택하지 않고도 문의를 계속할 수 있습니다.",
+      selectDate: "날짜 선택하기",
+      continueWithoutDate: "날짜 없이 계속하기",
     },
     mapPlaceholderTitle: "지도 위치 미리보기",
     mapPlaceholderBody: "실제 지도 API는 연결되어 있지 않습니다. 정확한 주소와 이동 시간은 문의 및 확인 단계에서 다시 확인해 주세요.",
@@ -446,8 +562,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       title: "이 매물에 어떻게 문의할까요?",
       subtitle: "현재는 MVP 미리보기입니다. 실제 메시지 발송, 결제, 신청 저장은 진행되지 않습니다.",
       directTitle: "집주인에게 직접 문의하기",
+      directDescription:
+        "무료로 집주인에게 직접 문의하는 흐름입니다. MVP 단계에서는 실제 메시지 전송 기능은 아직 연결되어 있지 않습니다.",
       supportTitle: "메이플하우스와 함께 문의하기",
-      directMessage: "집주인 직접 메시지 기능은 다음 단계에서 연결됩니다. 현재는 MVP 미리보기입니다.",
+      supportDescription:
+        "MapleHouse가 문의 전 확인할 항목을 정리하고, 예약 전 확인 절차를 도와주는 흐름입니다.",
+      directMessage: "직접 문의 기능은 MVP 이후 연결될 예정입니다.",
     },
   },
   en: {
@@ -494,7 +614,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     },
     tabs: {
       overview: "Overview",
-      roomInfo: "Rooms",
+      roomInfo: "Room info",
       amenities: "Amenities",
       location: "Location",
       rules: "House rules",
@@ -546,12 +666,38 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       kitchen: "Kitchen",
       livingRoom: "Living room",
     },
+    roomDetailsModal: {
+      title: "Room details",
+      close: "Close",
+      inquire: "Ask about this room",
+      previousPhoto: "Previous photo",
+      nextPhoto: "Next photo",
+      summary: "Room summary",
+      fields: {
+        roomType: "Room type",
+        bedroom: "Bedroom",
+        bathroom: "Bathroom",
+        kitchen: "Kitchen",
+        livingRoom: "Living room",
+        maxGuests: "Max guests",
+        floor: "Floor",
+        bedSize: "Bed size",
+        furnished: "Furnished",
+        availableFrom: "Available from",
+        minimumStay: "Minimum stay",
+        monthlyRent: "Monthly rent",
+      },
+    },
     amenityGroups: {
       building: "Building facilities",
       shared: "Shared amenities",
       rules: "House rules",
       buildingMore: "View more building facilities",
       sharedMore: "View more amenities",
+    },
+    amenitiesModal: {
+      title: "All amenities",
+      close: "Close",
     },
     amenityItems: {
       parking: "Parking",
@@ -562,6 +708,11 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       heating: "Heating",
       airConditioning: "Air conditioning",
       balcony: "Balcony",
+      kitchen: "Kitchen",
+      bathroom: "Bathroom",
+      residentCondition: "Resident condition",
+      pets: "Pets",
+      smoking: "Smoking",
     },
     reviews: {
       ratingComing: "Rating coming soon",
@@ -583,6 +734,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       unavailableLabel: "Unavailable dates",
       reset: "Reset",
       apply: "Apply",
+    },
+    missingDateModal: {
+      title: "Move-in date not selected",
+      body: "Adding a preferred move-in date helps make the inquiry more accurate. You can still continue without selecting a date.",
+      selectDate: "Select date",
+      continueWithoutDate: "Continue without date",
     },
     mapPlaceholderTitle: "Map preview",
     mapPlaceholderBody: "No real map API is connected. Please confirm the exact address and travel time during the inquiry stage.",
@@ -615,8 +772,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       title: "How would you like to inquire?",
       subtitle: "This is an MVP preview. No real message, payment, or request is submitted yet.",
       directTitle: "Contact landlord directly",
+      directDescription:
+        "This is a free direct inquiry flow. Real messaging is not connected in the MVP preview.",
       supportTitle: "Ask with MapleHouse support",
-      directMessage: "Direct landlord messaging will be connected in a later step. This is an MVP preview.",
+      supportDescription:
+        "MapleHouse helps organize key questions and pre-inquiry checks before reservation.",
+      directMessage: "Direct messaging will be connected after the MVP stage.",
     },
   },
   fr: {
@@ -664,11 +825,11 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       support: "Accompagnement MapleHouse",
     },
     tabs: {
-      overview: "Présentation",
-      roomInfo: "Chambres",
+      overview: "Aperçu",
+      roomInfo: "Chambre",
       amenities: "Équipements",
       location: "Emplacement",
-      rules: "Règlement",
+      rules: "Règles",
       reviews: "Avis",
       host: "Hôte",
       faq: "FAQ",
@@ -717,12 +878,38 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       kitchen: "Cuisine",
       livingRoom: "Salon",
     },
+    roomDetailsModal: {
+      title: "Détails de la chambre",
+      close: "Fermer",
+      inquire: "Se renseigner sur cette chambre",
+      previousPhoto: "Photo précédente",
+      nextPhoto: "Photo suivante",
+      summary: "Résumé de la chambre",
+      fields: {
+        roomType: "Type de chambre",
+        bedroom: "Chambre",
+        bathroom: "Salle de bain",
+        kitchen: "Cuisine",
+        livingRoom: "Salon",
+        maxGuests: "Nombre max. de personnes",
+        floor: "Étage",
+        bedSize: "Taille du lit",
+        furnished: "Meublé",
+        availableFrom: "Disponible à partir de",
+        minimumStay: "Séjour minimum",
+        monthlyRent: "Loyer mensuel",
+      },
+    },
     amenityGroups: {
       building: "Installations du bâtiment",
       shared: "Équipements partagés",
       rules: "Règlement",
       buildingMore: "Voir plus d’installations",
       sharedMore: "Voir plus d’équipements",
+    },
+    amenitiesModal: {
+      title: "Tous les équipements",
+      close: "Fermer",
     },
     amenityItems: {
       parking: "Stationnement",
@@ -733,6 +920,11 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       heating: "Chauffage",
       airConditioning: "Climatisation",
       balcony: "Balcon",
+      kitchen: "Cuisine",
+      bathroom: "Salle de bain",
+      residentCondition: "Conditions de résidence",
+      pets: "Animaux",
+      smoking: "Fumeur / non-fumeur",
     },
     reviews: {
       ratingComing: "Note à venir",
@@ -754,6 +946,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       unavailableLabel: "Dates indisponibles",
       reset: "Réinitialiser",
       apply: "Appliquer",
+    },
+    missingDateModal: {
+      title: "Date d’arrivée non sélectionnée",
+      body: "Ajouter une date d’arrivée souhaitée rend la demande plus précise. Vous pouvez continuer sans date.",
+      selectDate: "Choisir une date",
+      continueWithoutDate: "Continuer sans date",
     },
     mapPlaceholderTitle: "Aperçu de la carte",
     mapPlaceholderBody: "Aucune API de carte réelle n’est connectée. Confirmez l’adresse exacte et le temps de trajet pendant l’étape de demande.",
@@ -786,9 +984,13 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       title: "Comment souhaitez-vous faire une demande ?",
       subtitle: "Ceci est un aperçu MVP. Aucun message réel, paiement ou demande n’est envoyé.",
       directTitle: "Contacter directement le propriétaire",
+      directDescription:
+        "Flux de contact direct gratuit. La messagerie réelle n’est pas encore connectée dans l’aperçu MVP.",
       supportTitle: "Demander avec l’aide de MapleHouse",
+      supportDescription:
+        "MapleHouse aide à organiser les questions importantes et les vérifications avant réservation.",
       directMessage:
-        "La messagerie directe avec le propriétaire sera connectée plus tard. Ceci est un aperçu MVP.",
+        "La messagerie directe sera connectée après la phase MVP.",
     },
   },
 };
@@ -809,6 +1011,14 @@ export function LocaleListingDetailPage({
   const [currency, setCurrency] = useState<CurrencyMode>("CAD");
   const [introExpanded, setIntroExpanded] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [missingDateOpen, setMissingDateOpen] = useState(false);
+  const [selectedMoveInDate, setSelectedMoveInDate] = useState("");
+  const [pendingInquiryTarget, setPendingInquiryTarget] = useState<InquiryTarget>("listing");
+  const [datePickerReturnToInquiry, setDatePickerReturnToInquiry] = useState(false);
+  const [photoViewerIndex, setPhotoViewerIndex] = useState<number | null>(null);
+  const [roomDetailsOpen, setRoomDetailsOpen] = useState(false);
+  const [amenitiesModalOpen, setAmenitiesModalOpen] = useState<AmenityGroupKind | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     if (listingId !== "draft") return;
@@ -816,6 +1026,18 @@ export function LocaleListingDetailPage({
     setDetailDraft(readSessionJson<LandlordListingDetailsDraft>(LANDLORD_LISTING_DETAILS_DRAFT_KEY));
     setLoaded(true);
   }, [listingId]);
+
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > 560);
+    const checkAfterAnchorScroll = window.setTimeout(handleScroll, 800);
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.clearTimeout(checkAfterAnchorScroll);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const listing = useMemo(() => {
     if (listingId === "draft") {
@@ -862,12 +1084,88 @@ export function LocaleListingDetailPage({
   }
 
   const priceDisplay = formatMonthlyPrice(listing.rentValue, locale, currency, copy.fallback);
+  const showBackToTopButton =
+    showBackToTop &&
+    !inquiryOpen &&
+    !datePickerOpen &&
+    !missingDateOpen &&
+    photoViewerIndex === null &&
+    !roomDetailsOpen &&
+    amenitiesModalOpen === null;
+  const closeDetailModals = () => {
+    setRoomDetailsOpen(false);
+    setAmenitiesModalOpen(null);
+  };
+  const openInquiryModal = (direct = false, target: InquiryTarget = pendingInquiryTarget) => {
+    setPendingInquiryTarget(target);
+    setMissingDateOpen(false);
+    setDatePickerOpen(false);
+    setDatePickerReturnToInquiry(false);
+    setPhotoViewerIndex(null);
+    closeDetailModals();
+    setInquiryOpen(true);
+    setDirectPreview(direct);
+  };
+  const requestInquiry = (target: InquiryTarget) => {
+    setPendingInquiryTarget(target);
+    setDatePickerOpen(false);
+    setDatePickerReturnToInquiry(false);
+    setPhotoViewerIndex(null);
+    closeDetailModals();
+    setInquiryOpen(false);
+    setDirectPreview(false);
+
+    if (!selectedMoveInDate) {
+      setMissingDateOpen(true);
+      return;
+    }
+
+    openInquiryModal(false, target);
+  };
+  const openDatePicker = (returnToInquiry = false) => {
+    setInquiryOpen(false);
+    setDirectPreview(false);
+    setMissingDateOpen(false);
+    setDatePickerReturnToInquiry(returnToInquiry);
+    setPhotoViewerIndex(null);
+    closeDetailModals();
+    setDatePickerOpen(true);
+  };
+  const openPhotoViewer = (index = 0) => {
+    if (!listing.photos.length) return;
+    setInquiryOpen(false);
+    setDirectPreview(false);
+    setMissingDateOpen(false);
+    setDatePickerOpen(false);
+    setDatePickerReturnToInquiry(false);
+    closeDetailModals();
+    setPhotoViewerIndex(index);
+  };
+  const openRoomDetails = () => {
+    setInquiryOpen(false);
+    setDirectPreview(false);
+    setMissingDateOpen(false);
+    setDatePickerOpen(false);
+    setDatePickerReturnToInquiry(false);
+    setPhotoViewerIndex(null);
+    setAmenitiesModalOpen(null);
+    setRoomDetailsOpen(true);
+  };
+  const openAmenitiesModal = (kind: AmenityGroupKind) => {
+    setInquiryOpen(false);
+    setDirectPreview(false);
+    setMissingDateOpen(false);
+    setDatePickerOpen(false);
+    setDatePickerReturnToInquiry(false);
+    setPhotoViewerIndex(null);
+    setRoomDetailsOpen(false);
+    setAmenitiesModalOpen(kind);
+  };
 
   const locationRows: InfoRow[] = [
     [copy.fields.city, listing.city],
     [copy.fields.area, listing.area],
     [copy.fields.nearestStation, listing.nearestStation],
-    [copy.fields.approximateLocation, getApproximateLocation(copy, listing)],
     [copy.fields.address, listing.addressHidden ? copy.addressAfterInquiry : copy.fallback],
   ];
 
@@ -898,46 +1196,67 @@ export function LocaleListingDetailPage({
     formatFloorValue(listing.details.floor, locale),
     display(listing.details.bedSize, ""),
   ].filter(Boolean);
-  const amenityGroups = [
+  const roomDetailRows: InfoRow[] = [
+    [copy.roomDetailsModal.fields.roomType, listing.housingType],
+    [copy.roomDetailsModal.fields.bedroom, listing.details.unitDetail || listing.housingType],
+    [copy.roomDetailsModal.fields.bathroom, listing.details.bathroom],
+    [copy.roomDetailsModal.fields.kitchen, listing.details.kitchen],
+    [copy.roomDetailsModal.fields.livingRoom, listing.livingCondition],
+    [copy.roomDetailsModal.fields.maxGuests, formatMaxOccupancy(listing.details.occupancy, locale)],
+    [copy.roomDetailsModal.fields.floor, formatFloorValue(listing.details.floor, locale)],
+    [copy.roomDetailsModal.fields.bedSize, listing.details.bedSize],
+    [copy.roomDetailsModal.fields.furnished, listing.details.furnished],
+    [copy.roomDetailsModal.fields.availableFrom, listing.availableFrom],
+    [copy.roomDetailsModal.fields.minimumStay, listing.minimumStay],
     {
-      title: copy.amenityGroups.building,
-      moreLabel: copy.amenityGroups.buildingMore,
-      items: [
-        [copy.amenityItems.parking, listing.details.parking],
-        [copy.amenityItems.cctv, ""],
-        [copy.amenityItems.fireExtinguisher, ""],
-        [copy.amenityItems.doorLock, ""],
-      ] as Array<[string, string]>,
-    },
-    {
-      title: copy.amenityGroups.shared,
-      moreLabel: copy.amenityGroups.sharedMore,
-      items: [
-        [copy.amenityItems.wifi, ""],
-        [copy.amenityItems.heating, ""],
-        [copy.amenityItems.airConditioning, ""],
-        [copy.amenityItems.balcony, ""],
-        [copy.fields.kitchen, listing.details.kitchen],
-        [copy.fields.bathroom, listing.details.bathroom],
-      ] as Array<[string, string]>,
-    },
-    {
-      title: copy.amenityGroups.rules,
-      items: [
-        [copy.heroFields.livingCondition, listing.livingCondition],
-        [copy.fields.pets, listing.details.pets],
-        [copy.fields.smoking, listing.details.smoking],
-      ] as Array<[string, string]>,
+      label: copy.roomDetailsModal.fields.monthlyRent,
+      value: priceDisplay.primary,
+      secondary: priceDisplay.secondary,
     },
   ];
+  const amenityGroupItems: Array<Omit<AmenityGroup, "moreLabel">> = [
+    {
+      kind: "building",
+      title: copy.amenityGroups.building,
+      items: [
+        { label: copy.amenityItems.parking, value: listing.details.parking, icon: <Car {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.cctv, value: "", icon: <Cctv {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.fireExtinguisher, value: "", icon: <Flame {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.doorLock, value: "", icon: <KeyRound {...DETAIL_ICON_PROPS} /> },
+      ] satisfies AmenityItem[],
+    },
+    {
+      kind: "shared",
+      title: copy.amenityGroups.shared,
+      items: [
+        { label: copy.amenityItems.wifi, value: "", icon: <Wifi {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.heating, value: "", icon: <ThermometerSun {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.airConditioning, value: "", icon: <Snowflake {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.balcony, value: "", icon: <DoorOpen {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.kitchen, value: listing.details.kitchen, icon: <Utensils {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.bathroom, value: listing.details.bathroom, icon: <Bath {...DETAIL_ICON_PROPS} /> },
+      ] satisfies AmenityItem[],
+    },
+    {
+      kind: "rules",
+      title: copy.amenityGroups.rules,
+      items: [
+        { label: copy.amenityItems.residentCondition, value: listing.livingCondition, icon: <Users {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.pets, value: listing.details.pets, icon: <PawPrint {...DETAIL_ICON_PROPS} /> },
+        { label: copy.amenityItems.smoking, value: listing.details.smoking, icon: <CigaretteOff {...DETAIL_ICON_PROPS} /> },
+      ] satisfies AmenityItem[],
+    },
+  ];
+  const amenityGroups: AmenityGroup[] = amenityGroupItems.map((group) => ({
+    ...group,
+    moreLabel: formatAmenityMoreLabel(locale, group.kind, group.items.length),
+  }));
   const tabItems = [
     { id: "overview", label: copy.tabs.overview },
     { id: "room-info", label: copy.tabs.roomInfo },
     { id: "amenities", label: copy.tabs.amenities },
     { id: "location", label: copy.tabs.location },
     { id: "rules", label: copy.tabs.rules },
-    { id: "reviews", label: copy.tabs.reviews },
-    { id: "host", label: copy.tabs.host },
     { id: "faq", label: copy.tabs.faq },
     { id: "before-inquiry", label: copy.tabs.beforeInquiry },
   ];
@@ -953,7 +1272,11 @@ export function LocaleListingDetailPage({
         </Link>
 
         <div className="mt-5">
-          <PhotoGallery listing={listing} copy={copy} />
+          <PhotoGallery
+            listing={listing}
+            copy={copy}
+            onOpenPhotoViewer={openPhotoViewer}
+          />
         </div>
 
         <SectionTabs items={tabItems} />
@@ -975,16 +1298,19 @@ export function LocaleListingDetailPage({
                 rows={roomAttributeRows}
                 metaRows={roomMetaRows}
                 priceDisplay={priceDisplay}
-                onOpenDatePicker={() => setDatePickerOpen(true)}
-                onInquire={() => {
-                  setInquiryOpen(true);
-                  setDirectPreview(false);
-                }}
+                onOpenPhotoViewer={openPhotoViewer}
+                onOpenDatePicker={() => openDatePicker(false)}
+                onOpenRoomDetails={openRoomDetails}
+                onInquire={() => requestInquiry("room")}
               />
             </DetailSection>
 
             <DetailSection id="amenities" title={copy.sections.amenities}>
-              <AmenityGroups groups={amenityGroups} fallback={copy.fallback} />
+              <AmenityGroups
+                groups={amenityGroups}
+                fallback={copy.fallback}
+                onOpenGroup={openAmenitiesModal}
+              />
             </DetailSection>
 
             <DetailSection id="location" title={copy.sections.location}>
@@ -1015,20 +1341,6 @@ export function LocaleListingDetailPage({
               <HouseRulesCard copy={copy} listing={listing} />
             </DetailSection>
 
-            <DetailSection id="reviews" title={copy.sections.reviews}>
-              <ReviewEmptyState copy={copy} />
-            </DetailSection>
-
-            <DetailSection id="host" title={copy.sections.host}>
-              <HostProfileCard
-                copy={copy}
-                onInquire={() => {
-                  setInquiryOpen(true);
-                  setDirectPreview(false);
-                }}
-              />
-            </DetailSection>
-
             <DetailSection id="faq" title={copy.sections.faq}>
               <FaqList items={copy.faq} />
             </DetailSection>
@@ -1052,15 +1364,15 @@ export function LocaleListingDetailPage({
             </DetailSection>
           </div>
 
-          <aside className="xl:sticky xl:top-6">
+          <aside className="xl:sticky xl:top-28 xl:max-h-[calc(100vh-128px)] xl:overflow-auto">
             <section className="rounded-3xl border border-primary/20 bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
                     MapleHouse
                   </p>
-                  <h2 className="mt-3 break-words text-2xl font-bold text-foreground">{priceDisplay.primary}</h2>
-                  <p className="mt-1 text-sm font-medium text-muted-foreground">{priceDisplay.secondary}</p>
+                  <h2 className="mt-3 break-words text-[1.375rem] font-bold leading-tight text-foreground sm:text-2xl">{priceDisplay.primary}</h2>
+                  <p className="mt-1 text-[13px] font-medium text-muted-foreground">{priceDisplay.secondary}</p>
                 </div>
                 <CurrencySwitch
                   label={copy.currencyLabel}
@@ -1076,10 +1388,7 @@ export function LocaleListingDetailPage({
               <Button
                 type="button"
                 className="mt-6 min-h-12 w-full whitespace-normal rounded-2xl text-sm font-semibold leading-tight"
-                onClick={() => {
-                  setInquiryOpen(true);
-                  setDirectPreview(false);
-                }}
+                onClick={() => requestInquiry("listing")}
               >
                 {copy.inquire}
               </Button>
@@ -1096,6 +1405,8 @@ export function LocaleListingDetailPage({
           copy={copy}
           locale={locale}
           listing={listing}
+          inquiryTarget={pendingInquiryTarget}
+          selectedMoveInDate={selectedMoveInDate}
           directPreview={directPreview}
           onDirectPreview={() => setDirectPreview(true)}
           onClose={() => {
@@ -1108,8 +1419,65 @@ export function LocaleListingDetailPage({
         <DatePickerModal
           copy={copy}
           locale={locale}
-          onClose={() => setDatePickerOpen(false)}
+          selectedDate={selectedMoveInDate}
+          onSelectDate={setSelectedMoveInDate}
+          onClose={() => {
+            setDatePickerOpen(false);
+            setDatePickerReturnToInquiry(false);
+          }}
+          onApply={() => {
+            setDatePickerOpen(false);
+            if (datePickerReturnToInquiry) {
+              openInquiryModal(false, pendingInquiryTarget);
+            }
+            setDatePickerReturnToInquiry(false);
+          }}
         />
+      ) : null}
+      {missingDateOpen ? (
+        <MissingMoveInDateModal
+          copy={copy}
+          onClose={() => setMissingDateOpen(false)}
+          onSelectDate={() => openDatePicker(true)}
+          onContinue={() => openInquiryModal(false, pendingInquiryTarget)}
+        />
+      ) : null}
+      {photoViewerIndex !== null ? (
+        <PhotoViewerModal
+          photos={listing.photos}
+          copy={copy}
+          activeIndex={photoViewerIndex}
+          onChangeIndex={setPhotoViewerIndex}
+          onClose={() => setPhotoViewerIndex(null)}
+        />
+      ) : null}
+      {roomDetailsOpen ? (
+        <RoomDetailsModal
+          copy={copy}
+          listing={listing}
+          rows={roomDetailRows}
+          priceDisplay={priceDisplay}
+          onClose={() => setRoomDetailsOpen(false)}
+          onInquire={() => requestInquiry("room")}
+        />
+      ) : null}
+      {amenitiesModalOpen !== null ? (
+        <AmenitiesModal
+          copy={copy}
+          groups={amenityGroups}
+          onClose={() => setAmenitiesModalOpen(null)}
+        />
+      ) : null}
+      {showBackToTopButton ? (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-4 right-4 z-40 inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-white/95 px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-primary shadow-sm backdrop-blur transition hover:border-primary hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:bottom-8 sm:right-8"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="h-3.5 w-3.5" aria-hidden />
+          TOP
+        </button>
       ) : null}
     </main>
   );
@@ -1165,7 +1533,7 @@ function ListingIntroSection({
     <section id="overview" className="min-w-0 scroll-mt-28 rounded-3xl border border-border bg-white p-5 shadow-sm sm:p-6">
       <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="max-w-4xl break-words text-3xl font-bold leading-tight text-foreground sm:text-[2.35rem]">
+          <h1 className="max-w-4xl break-words text-2xl font-bold leading-[1.22] text-foreground sm:text-[1.95rem]">
             {listing.title}
           </h1>
           <p className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-muted-foreground">
@@ -1200,7 +1568,7 @@ function ListingIntroSection({
         {tags.map((tag) => (
           <span
             key={tag}
-            className="max-w-full rounded-full border border-border bg-[#F8FAFC] px-3 py-1 text-xs font-medium leading-tight text-muted-foreground"
+            className="max-w-full rounded-full border border-border bg-[#F8FAFC] px-2.5 py-0.5 text-[11px] font-medium leading-5 text-muted-foreground"
           >
             {tag}
           </span>
@@ -1267,7 +1635,7 @@ function SectionTabs({ items }: { items: Array<{ id: string; label: string }> })
   };
 
   return (
-    <nav className="mt-4 overflow-x-auto rounded-2xl border border-border bg-white px-2 shadow-sm" aria-label="Listing sections">
+    <nav className="mt-4 overflow-x-auto border-y border-border bg-white px-1 shadow-sm" aria-label="Listing sections">
       <div className="flex min-w-max items-center gap-1">
         {items.map((item, index) => (
           <a
@@ -1289,70 +1657,92 @@ function SectionTabs({ items }: { items: Array<{ id: string; label: string }> })
   );
 }
 
-function PhotoGallery({ listing, copy }: { listing: PublicListing; copy: DetailCopy }) {
+function PhotoGallery({
+  listing,
+  copy,
+  onOpenPhotoViewer,
+}: {
+  listing: PublicListing;
+  copy: DetailCopy;
+  onOpenPhotoViewer: (index: number) => void;
+}) {
   const photoSlots = [0, 1, 2, 3, 4].map((index) => listing.photos[index]);
-  const [allPhotosOpen, setAllPhotosOpen] = useState(false);
-
-  useEffect(() => {
-    if (!allPhotosOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setAllPhotosOpen(false);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [allPhotosOpen]);
 
   return (
-    <>
-      <section className="relative overflow-hidden rounded-[1.75rem] border border-border bg-white p-2 shadow-sm sm:p-3">
-        <div className="grid gap-2 lg:h-[370px] lg:grid-cols-[minmax(0,1.18fr)_minmax(0,1fr)]">
-          <PhotoTile photo={photoSlots[0]} copy={copy} className="aspect-[16/10] lg:h-full lg:aspect-auto" large />
-          <div className="grid grid-cols-2 gap-2 lg:grid-rows-2">
-            {photoSlots.slice(1).map((photo, index) => (
-              <PhotoTile
-                key={photo?.id ?? `placeholder-${index}`}
-                photo={photo}
-                copy={copy}
-                className="aspect-[4/3] lg:h-full lg:aspect-auto"
-              />
-            ))}
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setAllPhotosOpen(true)}
-          className="absolute bottom-5 right-5 inline-flex items-center gap-2 rounded-full border border-border bg-white/95 px-4 py-2 text-xs font-semibold text-foreground shadow-sm backdrop-blur transition hover:border-primary hover:text-primary"
-        >
-          <Camera className="h-4 w-4" aria-hidden />
-          {copy.viewAllPhotos}
-        </button>
-      </section>
-
-      {allPhotosOpen ? (
-        <AllPhotosModal
-          photos={listing.photos}
+    <section className="relative overflow-hidden rounded-[1.75rem] border border-border bg-white p-2 shadow-sm sm:p-3">
+      <div className="grid gap-2 lg:h-[370px] lg:grid-cols-[minmax(0,1.18fr)_minmax(0,1fr)]">
+        <PhotoTile
+          photo={photoSlots[0]}
           copy={copy}
-          onClose={() => setAllPhotosOpen(false)}
+          className="aspect-[16/10] lg:h-full lg:aspect-auto"
+          large
+          onOpen={() => onOpenPhotoViewer(0)}
         />
-      ) : null}
-    </>
+        <div className="grid grid-cols-2 gap-2 lg:grid-rows-2">
+          {photoSlots.slice(1).map((photo, index) => (
+            <PhotoTile
+              key={photo?.id ?? `placeholder-${index}`}
+              photo={photo}
+              copy={copy}
+              className="aspect-[4/3] lg:h-full lg:aspect-auto"
+              onOpen={() => onOpenPhotoViewer(index + 1)}
+            />
+          ))}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => onOpenPhotoViewer(0)}
+        className="absolute bottom-5 right-5 inline-flex items-center gap-2 rounded-full border border-border bg-white/95 px-4 py-2 text-xs font-semibold text-foreground shadow-sm backdrop-blur transition hover:border-primary hover:text-primary"
+      >
+        <Camera className="h-4 w-4" aria-hidden />
+        {copy.viewAllPhotos}
+      </button>
+    </section>
   );
 }
 
-function AllPhotosModal({
+function PhotoViewerModal({
   photos,
   copy,
+  activeIndex,
+  onChangeIndex,
   onClose,
 }: {
   photos: PublicPhoto[];
   copy: DetailCopy;
+  activeIndex: number;
+  onChangeIndex: (index: number) => void;
   onClose: () => void;
 }) {
+  const photoCount = photos.length;
+  const normalizedIndex = photoCount ? ((activeIndex % photoCount) + photoCount) % photoCount : 0;
+  const activePhoto = photos[normalizedIndex];
+  const goPrevious = () => {
+    if (!photoCount) return;
+    onChangeIndex((normalizedIndex - 1 + photoCount) % photoCount);
+  };
+  const goNext = () => {
+    if (!photoCount) return;
+    onChangeIndex((normalizedIndex + 1) % photoCount);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowLeft") goPrevious();
+      if (event.key === "ArrowRight") goNext();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
+
+  if (!photoCount || !activePhoto) return null;
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-5"
       role="dialog"
       aria-modal="true"
       aria-label={copy.viewAllPhotos}
@@ -1360,49 +1750,334 @@ function AllPhotosModal({
         if (event.currentTarget === event.target) onClose();
       }}
     >
-      <div className="max-h-[88vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-border bg-white shadow-2xl">
-        <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 sm:px-5">
+      <div className="flex max-h-[92vh] w-full max-w-[min(1100px,92vw)] flex-col overflow-hidden rounded-3xl border border-white/15 bg-[#101010] shadow-2xl">
+        <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-3 text-white sm:px-5">
           <div className="min-w-0">
-            <p className="text-sm font-extrabold text-foreground">{copy.viewAllPhotos}</p>
-            <p className="mt-1 text-xs font-medium text-muted-foreground">
-              {photos.length} {copy.photosCountLabel}
+            <p className="text-sm font-extrabold">{copy.viewAllPhotos}</p>
+            <p className="mt-1 text-xs font-medium text-white/65">
+              {normalizedIndex + 1} / {photoCount}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition hover:border-primary hover:text-primary"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition hover:bg-white/20"
             aria-label="Close"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
         </div>
-        <div className="max-h-[calc(88vh-4.25rem)] overflow-y-auto p-4 sm:p-5">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {photos.map((photo) => (
-              <figure
-                key={photo.id}
-                className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm"
-              >
+        <div className="relative flex min-h-0 flex-1 items-center justify-center p-3 sm:p-5">
+          <button
+            type="button"
+            onClick={goPrevious}
+            className="absolute left-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white shadow-lg transition hover:bg-black/55 sm:left-5"
+            aria-label="Previous photo"
+          >
+            <ChevronLeft className="h-5 w-5" aria-hidden />
+          </button>
+          <div className="h-[72vh] max-h-[78vh] w-full">
+            <ListingImageFrame
+              src={activePhoto.src}
+              alt={activePhoto.label}
+              fit="contain"
+              className="h-full w-full bg-[#111]"
+              fallback={
+                <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white/70">
+                  {copy.photoEmpty}
+                </div>
+              }
+            />
+          </div>
+          <button
+            type="button"
+            onClick={goNext}
+            className="absolute right-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white shadow-lg transition hover:bg-black/55 sm:right-5"
+            aria-label="Next photo"
+          >
+            <ChevronRight className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+        <div className="border-t border-white/10 px-4 py-3 text-center text-xs font-semibold text-white/70">
+          {getPhotoFilename(activePhoto.src ?? "")}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function useModalLifecycle(onClose: () => void) {
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+}
+
+function RoomDetailsModal({
+  copy,
+  listing,
+  rows,
+  priceDisplay,
+  onClose,
+  onInquire,
+}: {
+  copy: DetailCopy;
+  listing: PublicListing;
+  rows: InfoRow[];
+  priceDisplay: { primary: string; secondary: string };
+  onClose: () => void;
+  onInquire: () => void;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const photoCount = listing.photos.length;
+  const normalizedIndex = photoCount ? ((activeIndex % photoCount) + photoCount) % photoCount : 0;
+  const activePhoto = listing.photos[normalizedIndex];
+  const goPrevious = () => {
+    if (!photoCount) return;
+    setActiveIndex((normalizedIndex - 1 + photoCount) % photoCount);
+  };
+  const goNext = () => {
+    if (!photoCount) return;
+    setActiveIndex((normalizedIndex + 1) % photoCount);
+  };
+
+  useModalLifecycle(onClose);
+
+  return (
+    <div
+      className="fixed inset-0 z-[65] flex items-center justify-center bg-black/55 p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="room-details-modal-title"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onClose();
+      }}
+    >
+      <section className="flex max-h-[90vh] w-full max-w-[940px] flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-2xl">
+        <header className="flex items-center justify-between gap-4 border-b border-border px-5 py-4 sm:px-6">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              MapleHouse
+            </p>
+            <h2 id="room-details-modal-title" className="mt-1 break-words text-xl font-bold text-foreground">
+              {copy.roomDetailsModal.title}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition hover:border-primary/45 hover:text-primary"
+            aria-label={copy.roomDetailsModal.close}
+          >
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+        </header>
+
+        <div className="min-h-0 overflow-y-auto p-5 sm:p-6">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
+            <div className="min-w-0">
+              <div className="relative overflow-hidden rounded-3xl border border-border bg-[#F7F8FA]">
                 <ListingImageFrame
-                  src={photo.src}
-                  alt={photo.label}
+                  src={activePhoto?.src}
+                  alt={activePhoto?.label ?? listing.title}
                   fit="contain"
-                  className="aspect-[4/3] bg-[#F7F8FA]"
+                  className="aspect-[4/3] w-full bg-[#F7F8FA]"
                   fallback={
-                    <div className="flex h-full w-full items-center justify-center text-sm font-bold text-muted-foreground">
-                      {copy.photoEmpty}
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <Camera className="h-8 w-8 text-primary" aria-hidden />
+                      <span className="text-xs font-medium">{copy.photoEmpty}</span>
                     </div>
                   }
                 />
-                <figcaption className="border-t border-border bg-white px-3 py-2 text-xs font-bold text-muted-foreground">
-                  {getPhotoFilename(photo.src ?? "")}
-                </figcaption>
-              </figure>
-            ))}
+                {photoCount > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={goPrevious}
+                      className="absolute left-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/85 text-foreground shadow-sm backdrop-blur transition hover:border-primary/40 hover:text-primary"
+                      aria-label={copy.roomDetailsModal.previousPhoto}
+                    >
+                      <ChevronLeft className="h-4 w-4" aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/85 text-foreground shadow-sm backdrop-blur transition hover:border-primary/40 hover:text-primary"
+                      aria-label={copy.roomDetailsModal.nextPhoto}
+                    >
+                      <ChevronRight className="h-4 w-4" aria-hidden />
+                    </button>
+                  </>
+                ) : null}
+                {photoCount > 0 ? (
+                  <span className="absolute bottom-3 right-3 rounded-full bg-foreground/75 px-2.5 py-0.5 text-[11px] font-medium leading-5 text-white">
+                    {normalizedIndex + 1} / {photoCount}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+
+            <aside className="min-w-0 rounded-3xl border border-border bg-[#FAFAFA] p-4 sm:p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+                {copy.roomDetailsModal.summary}
+              </p>
+              <h3 className="mt-2 break-words text-lg font-bold leading-tight text-foreground">
+                {display(listing.housingType, copy.fallback)}
+              </h3>
+              <div className="mt-4 grid gap-3">
+                <SummaryRow
+                  icon={<CalendarDays className="h-4 w-4" />}
+                  label={copy.roomDetailsModal.fields.availableFrom}
+                  value={listing.availableFrom}
+                  fallback={copy.fallback}
+                />
+                <SummaryRow
+                  icon={<MapPin className="h-4 w-4" />}
+                  label={copy.fields.nearestStation}
+                  value={listing.nearestStation}
+                  fallback={copy.fallback}
+                />
+                <SummaryRow
+                  icon={<Home className="h-4 w-4" />}
+                  label={copy.roomDetailsModal.fields.monthlyRent}
+                  value={priceDisplay.primary}
+                  fallback={copy.fallback}
+                />
+              </div>
+            </aside>
           </div>
+
+          <dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {rows.map((row) => {
+              const normalizedRow = Array.isArray(row)
+                ? { label: row[0], value: row[1], secondary: undefined }
+                : row;
+
+              return (
+                <div
+                  key={normalizedRow.label}
+                  className="min-w-0 rounded-2xl border border-border bg-white px-4 py-3"
+                >
+                  <dt className="text-[12px] font-medium leading-snug text-muted-foreground">
+                    {normalizedRow.label}
+                  </dt>
+                  <dd className="mt-1 break-words text-[15px] font-semibold leading-snug text-foreground">
+                    {display(normalizedRow.value, copy.fallback)}
+                  </dd>
+                  {normalizedRow.secondary ? (
+                    <dd className="mt-1 break-words text-xs leading-5 text-muted-foreground">
+                      {normalizedRow.secondary}
+                    </dd>
+                  ) : null}
+                </div>
+              );
+            })}
+          </dl>
         </div>
-      </div>
+
+        <footer className="grid gap-3 border-t border-border bg-white px-5 py-4 sm:grid-cols-[auto_1fr] sm:px-6">
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 rounded-2xl border-border px-5 text-sm font-semibold"
+            onClick={onClose}
+          >
+            {copy.roomDetailsModal.close}
+          </Button>
+          <Button
+            type="button"
+            className="min-h-11 rounded-2xl px-5 text-sm font-semibold"
+            onClick={onInquire}
+          >
+            {copy.roomDetailsModal.inquire}
+          </Button>
+        </footer>
+      </section>
+    </div>
+  );
+}
+
+function AmenitiesModal({
+  copy,
+  groups,
+  onClose,
+}: {
+  copy: DetailCopy;
+  groups: AmenityGroup[];
+  onClose: () => void;
+}) {
+  useModalLifecycle(onClose);
+
+  return (
+    <div
+      className="fixed inset-0 z-[65] flex items-center justify-center bg-black/55 p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="amenities-modal-title"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onClose();
+      }}
+    >
+      <section className="flex max-h-[90vh] w-full max-w-[920px] flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-2xl">
+        <header className="flex items-center justify-between gap-4 border-b border-border px-5 py-4 sm:px-6">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              MapleHouse
+            </p>
+            <h2 id="amenities-modal-title" className="mt-1 break-words text-xl font-bold text-foreground">
+              {copy.amenitiesModal.title}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition hover:border-primary/45 hover:text-primary"
+            aria-label={copy.amenitiesModal.close}
+          >
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+        </header>
+
+        <div className="min-h-0 space-y-5 overflow-y-auto p-5 sm:p-6">
+          {groups.map((group) => (
+            <section key={group.kind} className="min-w-0">
+              <h3 className="break-words text-base font-bold text-foreground">{group.title}</h3>
+              <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {group.items.map(({ label, value, icon }) => (
+                  <div
+                    key={`${group.kind}-${label}`}
+                    className="flex min-w-0 items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3"
+                  >
+                    <span className="mt-0.5 shrink-0 text-primary" aria-hidden>
+                      {icon}
+                    </span>
+                    <div className="min-w-0">
+                      <dt className="break-words text-sm font-semibold leading-snug text-foreground">
+                        {label}
+                      </dt>
+                      <dd className="mt-1 break-words text-[12px] leading-5 text-muted-foreground">
+                        {display(value, copy.fallback)}
+                      </dd>
+                    </div>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
@@ -1416,36 +2091,61 @@ function PhotoTile({
   copy,
   className,
   large = false,
+  onOpen,
 }: {
   photo?: PublicPhoto;
   copy: DetailCopy;
   className?: string;
   large?: boolean;
+  onOpen?: () => void;
 }) {
-  return (
+  const interactive = Boolean(photo?.src && onOpen);
+  const content = (
     <ListingImageFrame
       src={photo?.src}
       alt={photo?.label ?? ""}
-      fit="contain"
-      className={cn(
-        "flex min-h-36 min-w-0 items-center justify-center rounded-2xl border border-border bg-[#F7F8FA]",
-        className,
-      )}
+      fit="cover"
+      className="h-full w-full bg-[#F7F8FA]"
       fallback={
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-3 text-center text-muted-foreground">
           <Camera className={cn("text-primary", large ? "h-10 w-10" : "h-6 w-6")} aria-hidden />
           {large ? <p className="text-sm font-bold">{copy.photoEmpty}</p> : null}
         </div>
       }
+    />
+  );
+
+  if (interactive) {
+    return (
+      <button
+        type="button"
+        onClick={onOpen}
+        className={cn(
+          "group relative block min-h-36 min-w-0 w-full overflow-hidden rounded-2xl border border-border bg-[#F7F8FA] text-left transition hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35",
+          className,
+        )}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "relative min-h-36 min-w-0 w-full overflow-hidden rounded-2xl border border-border bg-[#F7F8FA]",
+        className,
+      )}
     >
-    </ListingImageFrame>
+      {content}
+    </div>
   );
 }
 
 function DetailSection({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
   return (
     <section id={id} className="min-w-0 scroll-mt-28 rounded-3xl border border-border bg-white p-5 shadow-sm sm:p-6">
-      <h2 className="break-words text-lg font-bold text-foreground">{title}</h2>
+      <h2 className="break-words text-xl font-bold leading-snug text-foreground">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -1458,7 +2158,9 @@ function RoomInfoCard({
   rows,
   metaRows,
   priceDisplay,
+  onOpenPhotoViewer,
   onOpenDatePicker,
+  onOpenRoomDetails,
   onInquire,
 }: {
   copy: DetailCopy;
@@ -1467,44 +2169,52 @@ function RoomInfoCard({
   rows: Array<{ label: string; value: string; icon: ReactNode }>;
   metaRows: string[];
   priceDisplay: { primary: string; secondary: string };
+  onOpenPhotoViewer: (index: number) => void;
   onOpenDatePicker: () => void;
+  onOpenRoomDetails: () => void;
   onInquire: () => void;
 }) {
   return (
     <article className="rounded-[1.75rem] border border-border bg-white p-4 shadow-sm sm:p-5">
       <div className="flex min-w-0 items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
             {copy.roomUnitTitle}
           </p>
-          <h3 className="mt-2 break-words text-xl font-bold leading-tight text-foreground">
+          <h3 className="mt-2 break-words text-lg font-bold leading-tight text-foreground">
             {display(listing.housingType, copy.fallback)}
           </h3>
         </div>
       </div>
 
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(240px,0.42fr)_minmax(0,0.58fr)]">
-        <ListingImageFrame
-          src={listing.photos[0]?.src}
-          alt=""
-          fit="contain"
-          className="flex aspect-square min-h-0 items-center justify-center rounded-3xl bg-[#F8FAFC]"
-          fallback={
-            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              <Camera className="h-8 w-8 text-primary" aria-hidden />
-              <span className="text-xs font-medium">{copy.photoEmpty}</span>
-            </div>
-          }
+        <button
+          type="button"
+          onClick={() => onOpenPhotoViewer(0)}
+          className="group relative block aspect-square min-h-0 overflow-hidden rounded-3xl bg-[#F8FAFC] text-left transition hover:ring-2 hover:ring-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          aria-label={copy.viewAllPhotos}
         >
-          <span className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
+          <ListingImageFrame
+            src={listing.photos[0]?.src}
+            alt=""
+            fit="cover"
+            className="h-full w-full bg-[#F8FAFC]"
+            fallback={
+              <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                <Camera className="h-8 w-8 text-primary" aria-hidden />
+                <span className="text-xs font-medium">{copy.photoEmpty}</span>
+              </div>
+            }
+          />
+          <span className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full bg-white/95 px-2.5 py-0.5 text-[11px] font-medium leading-5 text-foreground shadow-sm">
             {copy.roomAvailabilityBadge}
           </span>
           {listing.photoCount > 0 ? (
-            <span className="absolute bottom-3 right-3 rounded-full bg-foreground/75 px-2.5 py-1 text-xs font-semibold text-white">
+            <span className="absolute bottom-3 right-3 rounded-full bg-foreground/75 px-2.5 py-0.5 text-[11px] font-medium leading-5 text-white transition group-hover:bg-primary">
               {formatPhotoCount(listing.photoCount, copy, locale)}
             </span>
           ) : null}
-        </ListingImageFrame>
+        </button>
 
         <div className="flex min-w-0 flex-col">
           <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
@@ -1512,10 +2222,10 @@ function RoomInfoCard({
               <div key={label} className="flex min-w-0 items-start gap-3 text-sm">
                 <span className="mt-0.5 shrink-0 text-muted-foreground">{icon}</span>
                 <div className="min-w-0">
-                  <dt className="text-xs font-medium leading-snug text-muted-foreground">
+                  <dt className="text-[12px] font-medium leading-snug text-muted-foreground">
                     {label}
                   </dt>
-                  <dd className="mt-0.5 break-words font-semibold text-foreground">
+                  <dd className="mt-0.5 break-words text-[15px] font-semibold leading-snug text-foreground">
                     {display(value, copy.fallback)}
                   </dd>
                 </div>
@@ -1529,24 +2239,25 @@ function RoomInfoCard({
                 {metaRows.map((value) => (
                   <span
                     key={value}
-                    className="max-w-full rounded-full border border-border bg-[#F8FAFC] px-3 py-1 text-xs font-medium text-muted-foreground"
+                    className="max-w-full rounded-full border border-border bg-[#F8FAFC] px-2.5 py-0.5 text-[11px] font-medium leading-5 text-muted-foreground"
                   >
                     {value}
                   </span>
                 ))}
               </div>
             ) : null}
-            <a
-              href="#room-info"
+            <button
+              type="button"
+              onClick={onOpenRoomDetails}
               className="mt-3 inline-flex text-sm font-semibold text-primary transition hover:text-primary/80"
             >
               {copy.roomFullDetails}
-            </a>
+            </button>
           </div>
 
           <div className="mt-5">
-            <p className="break-words text-2xl font-bold text-foreground">{priceDisplay.primary}</p>
-            <p className="mt-1 text-sm font-medium text-muted-foreground">{priceDisplay.secondary}</p>
+            <p className="break-words text-[1.375rem] font-bold leading-tight text-foreground sm:text-2xl">{priceDisplay.primary}</p>
+            <p className="mt-1 text-[13px] font-medium text-muted-foreground">{priceDisplay.secondary}</p>
           </div>
         </div>
       </div>
@@ -1554,7 +2265,7 @@ function RoomInfoCard({
         <button
           type="button"
           onClick={onOpenDatePicker}
-          className="flex min-h-12 min-w-0 items-center justify-between gap-3 rounded-2xl border border-border bg-[#F8FAFC] px-4 text-left text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-white"
+          className="flex min-h-12 min-w-0 items-center justify-between gap-3 rounded-2xl border border-border bg-[#F8FAFC] px-4 text-left text-sm font-medium text-foreground transition hover:border-primary/40 hover:bg-white"
         >
           <span className="min-w-0 truncate">{copy.roomDateCta}</span>
           <CalendarDays className="h-4 w-4 shrink-0 text-primary" aria-hidden />
@@ -1574,9 +2285,11 @@ function RoomInfoCard({
 function AmenityGroups({
   groups,
   fallback,
+  onOpenGroup,
 }: {
-  groups: Array<{ title: string; moreLabel?: string; items: Array<[string, string]> }>;
+  groups: AmenityGroup[];
   fallback: string;
+  onOpenGroup: (kind: AmenityGroupKind) => void;
 }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-white">
@@ -1590,16 +2303,19 @@ function AmenityGroups({
             {group.moreLabel ? (
               <button
                 type="button"
+                onClick={() => onOpenGroup(group.kind)}
                 className="shrink-0 whitespace-nowrap text-xs font-semibold text-primary transition hover:text-primary/80"
               >
                 {group.moreLabel}
               </button>
             ) : null}
           </div>
-          <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-            {group.items.map(([label, value]) => (
-              <div key={`${group.title}-${label}`} className="flex min-w-0 items-start gap-3 text-sm">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-foreground/70" aria-hidden />
+          <dl className="mt-4 grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            {group.items.map(({ label, value, icon }) => (
+              <div key={`${group.title}-${label}`} className="flex min-w-0 items-start gap-2.5 text-sm">
+                <span className="mt-0.5 shrink-0" aria-hidden>
+                  {icon}
+                </span>
                 <div className="min-w-0">
                   <dt className="break-words font-medium text-foreground">{label}</dt>
                   <dd className="mt-0.5 break-words text-xs leading-5 text-muted-foreground">
@@ -1617,23 +2333,32 @@ function AmenityGroups({
 
 function HouseRulesCard({ copy, listing }: { copy: DetailCopy; listing: PublicListing }) {
   const ruleRows = listing.houseRules.length
-    ? listing.houseRules.map((rule) => [rule, ""] as [string, string])
+    ? listing.houseRules.map((rule) => ({
+        label: rule,
+        value: "",
+        icon: getHouseRuleIcon(rule),
+      }))
     : ([
-        [copy.heroFields.livingCondition, listing.livingCondition],
-        [copy.fields.pets, listing.details.pets],
-        [copy.fields.smoking, listing.details.smoking],
-      ] as Array<[string, string]>);
+        { label: copy.heroFields.livingCondition, value: listing.livingCondition, icon: <Users {...DETAIL_RULE_ICON_PROPS} /> },
+        { label: copy.fields.pets, value: listing.details.pets, icon: <PawPrint {...DETAIL_RULE_ICON_PROPS} /> },
+        { label: copy.fields.smoking, value: listing.details.smoking, icon: <CigaretteOff {...DETAIL_RULE_ICON_PROPS} /> },
+      ] satisfies AmenityItem[]);
 
   return (
     <div className="rounded-3xl border border-border bg-white p-4 sm:p-5">
-      <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-        {ruleRows.map(([label, value]) => (
-          <div key={`${label}-${value}`} className="flex min-w-0 items-start gap-3 text-sm">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-foreground/70" aria-hidden />
-            <div className="min-w-0">
-              <dt className="break-words font-medium text-foreground">{label}</dt>
+      <dl className="flex flex-wrap gap-2.5">
+        {ruleRows.map(({ label, value, icon }) => (
+          <div
+            key={`${label}-${value}`}
+            className="flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-[#F8FAFC] px-3 py-1.5 text-sm"
+          >
+            <span className="shrink-0" aria-hidden>
+              {icon}
+            </span>
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+              <dt className="min-w-0 break-words text-xs font-semibold leading-5 text-foreground">{label}</dt>
               {value ? (
-                <dd className="mt-0.5 break-words text-xs leading-5 text-muted-foreground">
+                <dd className="min-w-0 break-words text-[11px] leading-5 text-muted-foreground">
                   {display(value, copy.fallback)}
                 </dd>
               ) : null}
@@ -1650,49 +2375,86 @@ function HouseRulesCard({ copy, listing }: { copy: DetailCopy; listing: PublicLi
   );
 }
 
-function ReviewEmptyState({ copy }: { copy: DetailCopy }) {
-  return (
-    <div className="rounded-3xl border border-border bg-white p-5">
-      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-[#F8FAFC] px-3 py-1 text-xs font-semibold text-muted-foreground">
-        <Star className="h-3.5 w-3.5 text-primary" aria-hidden />
-        {copy.reviews.ratingComing}
-      </div>
-      <p className="mt-4 text-sm font-semibold text-foreground">{copy.reviews.emptyTitle}</p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.reviews.emptyBody}</p>
-    </div>
-  );
+function getHouseRuleIcon(label: string): ReactNode {
+  const normalized = label.toLowerCase();
+
+  if (normalized.includes("pet") || normalized.includes("animal") || normalized.includes("반려") || normalized.includes("anim")) {
+    return <PawPrint {...DETAIL_RULE_ICON_PROPS} />;
+  }
+  if (normalized.includes("smok") || normalized.includes("흡연") || normalized.includes("fum")) {
+    return <CigaretteOff {...DETAIL_RULE_ICON_PROPS} />;
+  }
+  if (normalized.includes("quiet") || normalized.includes("조용") || normalized.includes("silence")) {
+    return <Moon {...DETAIL_RULE_ICON_PROPS} />;
+  }
+  if (normalized.includes("visitor") || normalized.includes("방문") || normalized.includes("visiteur")) {
+    return <UserCheck {...DETAIL_RULE_ICON_PROPS} />;
+  }
+  if (normalized.includes("party") || normalized.includes("파티") || normalized.includes("fête")) {
+    return <VolumeX {...DETAIL_RULE_ICON_PROPS} />;
+  }
+  if (normalized.includes("shoe") || normalized.includes("신발") || normalized.includes("chauss")) {
+    return <Footprints {...DETAIL_RULE_ICON_PROPS} />;
+  }
+  if (normalized.includes("waste") || normalized.includes("trash") || normalized.includes("쓰레기") || normalized.includes("déchet") || normalized.includes("recycl")) {
+    return <Recycle {...DETAIL_RULE_ICON_PROPS} />;
+  }
+
+  return <ShieldCheck {...DETAIL_RULE_ICON_PROPS} />;
 }
 
-function HostProfileCard({ copy, onInquire }: { copy: DetailCopy; onInquire: () => void }) {
+function MissingMoveInDateModal({
+  copy,
+  onClose,
+  onSelectDate,
+  onContinue,
+}: {
+  copy: DetailCopy;
+  onClose: () => void;
+  onSelectDate: () => void;
+  onContinue: () => void;
+}) {
   return (
-    <div className="rounded-3xl border border-border bg-white p-5">
-      <div className="flex min-w-0 gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FFF8F1] text-primary">
-          <UserRound className="h-6 w-6" aria-hidden />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="break-words text-base font-semibold text-foreground">{copy.host.name}</h3>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {[copy.host.contactStatus, copy.host.listingStatus].map((status) => (
-              <span
-                key={status}
-                className="rounded-full border border-border bg-[#F8FAFC] px-3 py-1 text-xs font-medium text-muted-foreground"
-              >
-                {status}
-              </span>
-            ))}
+    <div
+      className="fixed inset-0 z-[65] flex items-center justify-center bg-foreground/35 px-4 py-6 backdrop-blur-sm"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="missing-date-title"
+        className="w-full max-w-lg rounded-3xl border border-border bg-white p-5 shadow-2xl sm:p-6"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h2 id="missing-date-title" className="break-words text-xl font-bold text-foreground">
+              {copy.missingDateModal.title}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              {copy.missingDateModal.body}
+            </p>
           </div>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground">{copy.host.description}</p>
-          <Button
+          <button
             type="button"
-            variant="outline"
-            className="mt-4 min-h-10 rounded-2xl border-primary/30 px-4 text-sm font-semibold text-primary hover:bg-[#FFF8F1] hover:text-primary"
-            onClick={onInquire}
+            onClick={onClose}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            aria-label="Close"
           >
-            {copy.host.cta}
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" className="rounded-2xl" onClick={onSelectDate}>
+            {copy.missingDateModal.selectDate}
+          </Button>
+          <Button type="button" className="rounded-2xl" onClick={onContinue}>
+            {copy.missingDateModal.continueWithoutDate}
           </Button>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
@@ -1700,17 +2462,22 @@ function HostProfileCard({ copy, onInquire }: { copy: DetailCopy; onInquire: () 
 function DatePickerModal({
   copy,
   locale,
+  selectedDate,
+  onSelectDate,
   onClose,
+  onApply,
 }: {
   copy: DetailCopy;
   locale: Locale;
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
   onClose: () => void;
+  onApply: () => void;
 }) {
   const [baseMonth, setBaseMonth] = useState(() => new Date(2026, 7, 1));
   const months = [baseMonth, new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 1)];
   // TODO: Replace mock availability dates with real listing availability data later.
   const unavailableDates = new Set(["2026-08-09", "2026-08-15", "2026-08-28", "2026-09-04"]);
-  const selectedDates = new Set(["2026-08-18", "2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22"]);
 
   return (
     <div
@@ -1768,7 +2535,8 @@ function DatePickerModal({
               locale={locale}
               month={month}
               unavailableDates={unavailableDates}
-              selectedDates={selectedDates}
+              selectedDate={selectedDate}
+              onSelectDate={onSelectDate}
             />
           ))}
         </div>
@@ -1779,13 +2547,13 @@ function DatePickerModal({
             {copy.datePicker.unavailableLabel}
           </div>
           <div className="flex gap-2">
-            <Button type="button" variant="outline" className="rounded-2xl" onClick={() => undefined}>
+            <Button type="button" variant="outline" className="rounded-2xl" onClick={() => onSelectDate("")}>
               {copy.datePicker.reset}
             </Button>
             <Button
               type="button"
-              className="rounded-2xl bg-[#F4A460] text-white hover:bg-[#EE9348]"
-              onClick={onClose}
+              className="rounded-2xl bg-[#FA7000] text-white hover:bg-[#E76600]"
+              onClick={onApply}
             >
               {copy.datePicker.apply}
             </Button>
@@ -1801,13 +2569,15 @@ function CalendarMonth({
   locale,
   month,
   unavailableDates,
-  selectedDates,
+  selectedDate,
+  onSelectDate,
 }: {
   copy: DetailCopy;
   locale: Locale;
   month: Date;
   unavailableDates: Set<string>;
-  selectedDates: Set<string>;
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
 }) {
   const days = buildCalendarDays(month);
 
@@ -1826,12 +2596,13 @@ function CalendarMonth({
           if (!day) return <span key={`empty-${index}`} className="h-9" />;
           const key = toDateKey(day);
           const unavailable = unavailableDates.has(key);
-          const selected = selectedDates.has(key);
+          const selected = selectedDate === key;
           return (
             <button
               key={key}
               type="button"
               disabled={unavailable}
+              onClick={() => onSelectDate(key)}
               className={cn(
                 "relative h-9 rounded-full text-sm font-medium transition",
                 unavailable
@@ -1930,6 +2701,8 @@ function PublicInquiryModal({
   copy,
   locale,
   listing,
+  inquiryTarget,
+  selectedMoveInDate,
   directPreview,
   onDirectPreview,
   onClose,
@@ -1937,6 +2710,8 @@ function PublicInquiryModal({
   copy: DetailCopy;
   locale: Locale;
   listing: PublicListing;
+  inquiryTarget: InquiryTarget;
+  selectedMoveInDate: string;
   directPreview: boolean;
   onDirectPreview: () => void;
   onClose: () => void;
@@ -1979,15 +2754,15 @@ function PublicInquiryModal({
             className="min-w-0 rounded-2xl border border-border bg-white p-4 text-left shadow-sm transition hover:border-primary hover:bg-[#FFF8F1]"
           >
             <p className="break-words font-semibold text-foreground">{copy.modal.directTitle}</p>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">{copy.modal.directMessage}</p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">{copy.modal.directDescription}</p>
           </button>
           <button
             type="button"
-            onClick={() => openAssistedApply(locale, listing)}
-            className="min-w-0 rounded-2xl border border-primary/25 bg-[#FFF8F1] p-4 text-left shadow-sm transition hover:border-primary"
+            onClick={() => openAssistedApply(locale, listing, inquiryTarget, selectedMoveInDate)}
+            className="min-w-0 rounded-2xl border border-[#FFE8CC] bg-[#FFF8F1] p-4 text-left shadow-sm transition hover:border-primary hover:bg-[#FFF3E6] hover:shadow-md"
           >
             <p className="break-words font-semibold text-primary">{copy.modal.supportTitle}</p>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">{copy.inquirySeparateGuide}</p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">{copy.modal.supportDescription}</p>
             <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
               {copy.modal.supportTitle}
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -2175,10 +2950,6 @@ function getDraftPhotos(draft: LandlordCenterDraft | null): PublicPhoto[] {
   }));
 }
 
-function getApproximateLocation(copy: DetailCopy, listing: PublicListing) {
-  return [listing.area, listing.nearestStation].filter(Boolean).join(" · ") || copy.approximate;
-}
-
 function display(value: string | undefined | null, fallback: string) {
   const trimmed = value?.trim();
   return trimmed || fallback;
@@ -2283,6 +3054,24 @@ function formatPhotoCount(count: number, copy: DetailCopy, locale: Locale) {
   return `${count} ${copy.photosCountLabel}`;
 }
 
+function formatAmenityMoreLabel(locale: Locale, kind: AmenityGroupKind, count: number) {
+  if (locale === "ko") {
+    if (kind === "building") return `건물 시설 ${count}개 보기`;
+    if (kind === "shared") return `공용 편의시설 ${count}개 보기`;
+    return `하우스 룰 ${count}개 보기`;
+  }
+
+  if (locale === "fr") {
+    if (kind === "building") return `Voir ${count} équipements du bâtiment`;
+    if (kind === "shared") return `Voir ${count} équipements communs`;
+    return `Voir ${count} règles de la maison`;
+  }
+
+  if (kind === "building") return `View ${count} building amenities`;
+  if (kind === "shared") return `View ${count} shared amenities`;
+  return `View ${count} house rules`;
+}
+
 function buildCalendarDays(month: Date) {
   const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
   const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0);
@@ -2314,10 +3103,62 @@ function numberFromCurrency(value?: string) {
   return digits ? Number(digits) : 0;
 }
 
-function openAssistedApply(locale: Locale, listing: PublicListing) {
+function getListingGuestCount(listing: PublicListing) {
+  const fromDetails = Number(listing.details.occupancy?.replace(/[^0-9]/g, ""));
+  if (Number.isFinite(fromDetails) && fromDetails > 0) return fromDetails;
+  return listing.sourceListing?.maxPeople ?? 1;
+}
+
+function getInquiryRoomName(listing: PublicListing, target: InquiryTarget) {
+  if (target !== "room") return "";
+  return listing.details.unitDetail || listing.housingType;
+}
+
+function buildSelectedInquiryPayload(
+  locale: Locale,
+  listing: PublicListing,
+  inquiryTarget: InquiryTarget,
+  selectedMoveInDate: string,
+): SelectedInquiryPayload {
+  return buildStoredSelectedInquiryPayload({
+    locale,
+    listingId: listing.id,
+    listingTitle: listing.title,
+    city: listing.city,
+    area: listing.area,
+    rentCad: listing.rentValue,
+    rentKrw: listing.sourceListing?.priceKRW ?? listing.rentValue * MOCK_CAD_TO_KRW,
+    housingType: listing.housingType,
+    roomName: getInquiryRoomName(listing, inquiryTarget),
+    roomType: inquiryTarget === "room" ? listing.housingType : "",
+    selectedMoveInDate,
+    selectedGuestCount: getListingGuestCount(listing),
+    thumbnailUrl: listing.photos[0]?.src || "",
+    galleryUrls: listing.photos
+      .slice(0, 5)
+      .map((photo) => photo.src)
+      .filter((src): src is string => Boolean(src)),
+    source: "listing_detail",
+  });
+}
+
+function openAssistedApply(
+  locale: Locale,
+  listing: PublicListing,
+  inquiryTarget: InquiryTarget,
+  selectedMoveInDate: string,
+) {
   if (typeof window === "undefined") return;
 
   try {
+    const selectedInquiry = buildSelectedInquiryPayload(
+      locale,
+      listing,
+      inquiryTarget,
+      selectedMoveInDate,
+    );
+    saveSelectedInquiryPayload(selectedInquiry);
+
     const summary = listing.sourceListing
       ? buildApplySelectedListingSummary(listing.sourceListing)
       : {
@@ -2333,7 +3174,9 @@ function openAssistedApply(locale: Locale, listing: PublicListing) {
           verificationStatus: "preparing",
           thumbnail: listing.photos[0]?.src || "",
         };
-    window.sessionStorage.setItem(APPLY_SELECTED_LISTING_STORAGE_KEY, JSON.stringify(summary));
+    if (locale === "ko") {
+      window.sessionStorage.setItem(APPLY_SELECTED_LISTING_STORAGE_KEY, JSON.stringify(summary));
+    }
   } catch {
     // MVP handoff only; navigation still works if sessionStorage is unavailable.
   }

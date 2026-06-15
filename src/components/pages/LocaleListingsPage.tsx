@@ -22,7 +22,14 @@ import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
 import { formatStationDisplayName } from "@/lib/stationRecommendationData";
-import { getMockListingThumbnailImage } from "@/lib/mockListingImages";
+import {
+  getMockListingThumbnailImage,
+  getStableMockListingGalleryImages,
+} from "@/lib/mockListingImages";
+import {
+  buildSelectedInquiryPayload,
+  saveSelectedInquiryPayload,
+} from "@/lib/mockInquiryStorage";
 
 export type Status = "verified" | "needs_check" | "preparing";
 export type LocalizedText = Record<Locale, string>;
@@ -309,14 +316,48 @@ export function buildApplySelectedListingSummary(listing: MockListing): ApplySel
   };
 }
 
-function openKoreanAssistedApply(listing: MockListing) {
+const SELECTED_INQUIRY_FALLBACK: Record<Locale, string> = {
+  ko: "확인 필요",
+  en: "To confirm",
+  fr: "À confirmer",
+};
+
+function buildSelectedInquiryFromMockListing(
+  locale: Locale,
+  listing: MockListing,
+  source: "listings_drawer" | "listing_detail" = "listings_drawer",
+) {
+  const galleryUrls = getStableMockListingGalleryImages(listing.id, 5);
+  return buildSelectedInquiryPayload({
+    locale,
+    listingId: listing.id,
+    listingTitle: listing.title[locale],
+    city: "Toronto",
+    area: listing.area,
+    rentCad: listing.priceCAD,
+    rentKrw: listing.priceKRW,
+    housingType: listing.roomType[locale],
+    roomName: SELECTED_INQUIRY_FALLBACK[locale],
+    roomType: listing.roomType[locale],
+    selectedMoveInDate: "",
+    selectedGuestCount: listing.maxPeople,
+    thumbnailUrl: galleryUrls[0] ?? listing.imagePath,
+    galleryUrls,
+    source,
+  });
+}
+
+function openAssistedApplyFromListing(locale: Locale, listing: MockListing) {
   if (typeof window === "undefined") return;
 
   try {
-    window.sessionStorage.setItem(
-      APPLY_SELECTED_LISTING_STORAGE_KEY,
-      JSON.stringify(buildApplySelectedListingSummary(listing)),
-    );
+    saveSelectedInquiryPayload(buildSelectedInquiryFromMockListing(locale, listing));
+    if (locale === "ko") {
+      window.sessionStorage.setItem(
+        APPLY_SELECTED_LISTING_STORAGE_KEY,
+        JSON.stringify(buildApplySelectedListingSummary(listing)),
+      );
+    }
   } catch {
     // Session storage is only a frontend handoff for this MVP; navigation can still continue.
   }
@@ -325,7 +366,7 @@ function openKoreanAssistedApply(listing: MockListing) {
     mode: "assisted",
     listingId: listing.id,
   });
-  window.location.href = `/ko/apply?${params.toString()}`;
+  window.location.href = `/${locale}/apply?${params.toString()}`;
 }
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
@@ -1870,12 +1911,9 @@ function InquiryChoiceModal({
             description={t.inquiryModal.supportDescription}
             action={t.inquiryModal.supportAction}
             active={selectedMethod === "support"}
+            tone="support"
             onClick={() => {
-              if (locale === "ko") {
-                openKoreanAssistedApply(listing);
-                return;
-              }
-              onSelectMethod("support");
+              openAssistedApplyFromListing(locale, listing);
             }}
           />
         </div>
@@ -1900,6 +1938,7 @@ function InquiryOptionCard({
   description,
   action,
   active,
+  tone = "default",
   onClick,
 }: {
   title: string;
@@ -1907,22 +1946,32 @@ function InquiryOptionCard({
   description: string;
   action: string;
   active: boolean;
+  tone?: "default" | "support";
   onClick: () => void;
 }) {
+  const isSupport = tone === "support";
+
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
         "flex h-full min-w-0 flex-col rounded-2xl border p-4 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-        active
-          ? "border-primary bg-accent shadow-md"
-          : "border-border bg-card hover:border-primary hover:bg-accent hover:shadow-md",
+        isSupport
+          ? "border-[#FFE8CC] bg-[#FFF8F1] hover:border-primary hover:bg-[#FFF3E6] hover:shadow-md"
+          : active
+            ? "border-primary bg-accent shadow-md"
+            : "border-border bg-card hover:border-primary hover:bg-accent hover:shadow-md",
       )}
     >
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
         <h3 className="min-w-0 break-words text-base font-extrabold text-foreground">{title}</h3>
-        <span className="max-w-full shrink-0 rounded-full border border-primary/20 bg-accent px-2.5 py-1 text-[11px] font-bold leading-tight text-primary [overflow-wrap:break-word]">
+        <span
+          className={cn(
+            "max-w-full shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-bold leading-tight text-primary [overflow-wrap:break-word]",
+            isSupport ? "border-[#FFE8CC] bg-[#FFF3E6]" : "border-primary/20 bg-accent",
+          )}
+        >
           {badge}
         </span>
       </div>
