@@ -132,6 +132,25 @@ type LeaveInquiryModalCopy = {
   keepWriting: string;
 };
 
+type ApplyCompleteCopy = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  inquirerSummaryTitle: string;
+  inquirySummaryTitle: string;
+  mvpNoticeTitle: string;
+  mvpNoticeBody: string;
+  nextStepsTitle: string;
+  nextSteps: string[];
+  emptyTitle: string;
+  emptyBody: string;
+  backToDetail: string;
+  viewListings: string;
+  viewHistory: string;
+  mvpPlanned: string;
+  submittedAt: string;
+};
+
 type SavedSelectedInquiryDraft = {
   listingId: string;
   locale: Locale;
@@ -148,6 +167,13 @@ type SavedSelectedInquiryDraft = {
   requestText?: string;
   checkboxes?: boolean[];
   savedAt: string;
+};
+
+type MockInquiryCompletionPayload = {
+  locale: Locale;
+  selectedInquiry: SelectedInquiryPayload;
+  form: SelectedInquiryApplyFormState;
+  submittedAt: string;
 };
 
 type MockApplyProfile = {
@@ -242,6 +268,7 @@ const DEFAULT_MOCK_APPLY_PROFILE: MockApplyProfile = {
 };
 
 const HISTORY_BACK_PENDING_HREF = "__maplehouse_apply_history_back__";
+const MOCK_INQUIRY_COMPLETION_STORAGE_KEY_PREFIX = "maplehouse.applyCompletion";
 
 const SELECTED_INQUIRY_DETAIL_BUTTON: Record<Locale, string> = {
   ko: "매물 상세 페이지로 이동",
@@ -396,6 +423,78 @@ const SELECTED_INQUIRY_COPY: Record<Locale, SelectedInquiryApplyCopy> = {
     successTitle: "Brouillon de demande créé.",
     successBody: "L’envoi réel, le paiement, la réservation et le contrat ne sont pas encore connectés.",
     backToListings: "Voir les logements",
+  },
+};
+
+const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
+  ko: {
+    eyebrow: "MapleHouse MVP 문의",
+    title: "문의 신청이 접수되었습니다",
+    subtitle:
+      "아래 내용은 MVP mock 접수 화면입니다. 실제 전송이나 계약 절차는 아직 연결되어 있지 않습니다.",
+    inquirerSummaryTitle: "문의자 정보 요약",
+    inquirySummaryTitle: "문의 내용 요약",
+    mvpNoticeTitle: "MVP 안내",
+    mvpNoticeBody: "실제 전송, 결제, 계약, 송금은 아직 연결되어 있지 않습니다.",
+    nextStepsTitle: "문의 진행 순서",
+    nextSteps: [
+      "MapleHouse가 고객님이 입력해주신 정보와 조건을 파악합니다.",
+      "해당 정보, 조건뿐 아니라 고객님에게 예상될 수 있는 추가 문의사항까지 MapleHouse가 임대인에게 자세한 문의를 보낸 후 답변을 기다립니다.",
+      "임대인의 답변이 오면 해당 답변을 고객님이 이해하실 수 있게 자세하게 풀어 설명해드립니다. 이후 예약 진행 여부를 정하실 수 있습니다.\n마이페이지에서 문의 진행 상황을 확인할 수 있습니다.",
+    ],
+    emptyTitle: "접수된 문의 정보를 찾을 수 없습니다.",
+    emptyBody: "매물 상세페이지나 매물 목록에서 문의할 매물을 다시 선택해 주세요.",
+    backToDetail: "매물 상세로 돌아가기",
+    viewListings: "매물 목록 보기",
+    viewHistory: "문의 내역 보기",
+    mvpPlanned: "MVP 예정",
+    submittedAt: "접수 시각",
+  },
+  en: {
+    eyebrow: "MapleHouse MVP inquiry",
+    title: "Your inquiry has been received",
+    subtitle:
+      "This is an MVP mock completion screen. Real sending, contracts, and payments are not connected yet.",
+    inquirerSummaryTitle: "Inquirer summary",
+    inquirySummaryTitle: "Inquiry summary",
+    mvpNoticeTitle: "MVP note",
+    mvpNoticeBody: "Real sending, payment, contract, and payout features are not connected yet.",
+    nextStepsTitle: "Inquiry progress",
+    nextSteps: [
+      "MapleHouse reviews the information and conditions you submitted.",
+      "MapleHouse sends a detailed inquiry to the landlord, including likely follow-up questions based on your situation, and waits for the reply.",
+      "When the landlord replies, MapleHouse explains the answer clearly so you can understand it and decide whether to proceed with a reservation.\nIn the real operation stage, you can check inquiry progress in My Page.",
+    ],
+    emptyTitle: "No received inquiry information was found.",
+    emptyBody: "Please choose a listing again from the listing detail page or listing list.",
+    backToDetail: "Back to listing detail",
+    viewListings: "View listings",
+    viewHistory: "View inquiry history",
+    mvpPlanned: "MVP planned",
+    submittedAt: "Submitted at",
+  },
+  fr: {
+    eyebrow: "Demande MVP MapleHouse",
+    title: "Votre demande a été reçue",
+    subtitle:
+      "Ceci est un écran de confirmation mock MVP. L’envoi réel, les contrats et les paiements ne sont pas encore connectés.",
+    inquirerSummaryTitle: "Résumé du demandeur",
+    inquirySummaryTitle: "Résumé de la demande",
+    mvpNoticeTitle: "Note MVP",
+    mvpNoticeBody: "L’envoi réel, le paiement, le contrat et le virement ne sont pas encore connectés.",
+    nextStepsTitle: "Suivi de la demande",
+    nextSteps: [
+      "MapleHouse examine les informations et les conditions que vous avez envoyées.",
+      "MapleHouse transmet une demande détaillée au propriétaire, avec les questions complémentaires qui peuvent être utiles selon votre situation, puis attend sa réponse.",
+      "Lorsque le propriétaire répond, MapleHouse vous explique la réponse clairement afin que vous puissiez décider si vous souhaitez poursuivre la réservation.\nDans la phase réelle, le suivi de la demande pourra être consulté dans Mon espace.",
+    ],
+    emptyTitle: "Aucune information de demande reçue n’a été trouvée.",
+    emptyBody: "Veuillez choisir de nouveau un logement depuis la page de détail ou la liste.",
+    backToDetail: "Retour au détail du logement",
+    viewListings: "Voir les logements",
+    viewHistory: "Voir mes demandes",
+    mvpPlanned: "Prévu MVP",
+    submittedAt: "Reçu le",
   },
 };
 
@@ -894,6 +993,37 @@ function clearSelectedInquiryDraft(locale: Locale, listingId: string) {
   window.sessionStorage.removeItem(getSelectedInquiryDraftKey(locale, listingId));
 }
 
+function getMockInquiryCompletionKey(locale: Locale) {
+  return `${MOCK_INQUIRY_COMPLETION_STORAGE_KEY_PREFIX}.${locale}`;
+}
+
+function saveMockInquiryCompletion(payload: MockInquiryCompletionPayload) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(
+    getMockInquiryCompletionKey(payload.locale),
+    JSON.stringify(payload),
+  );
+}
+
+function readMockInquiryCompletion(locale: Locale) {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.sessionStorage.getItem(getMockInquiryCompletionKey(locale));
+    const parsed = raw ? (JSON.parse(raw) as Partial<MockInquiryCompletionPayload>) : null;
+    if (!parsed || parsed.locale !== locale || !parsed.selectedInquiry || !parsed.form) {
+      return null;
+    }
+    return parsed as MockInquiryCompletionPayload;
+  } catch {
+    return null;
+  }
+}
+
+function isValidSelectedInquiryEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 function useSelectedInquiryForApply(locale: Locale, searchStr?: string) {
   const [state, setState] = useState(() => getInitialSelectedInquiryState(locale, searchStr));
 
@@ -922,6 +1052,160 @@ export function LocaleApplyPage({ locale }: { locale: Locale }) {
   }
 
   return <StandardApplyPage locale={locale} />;
+}
+
+export function LocaleApplyCompletePage({ locale }: { locale: Locale }) {
+  const copy = APPLY_COMPLETE_COPY[locale];
+  const inquiryCopy = SELECTED_INQUIRY_COPY[locale];
+  const [completion, setCompletion] = useState<MockInquiryCompletionPayload | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setCompletion(readMockInquiryCompletion(locale));
+    setLoaded(true);
+  }, [locale]);
+
+  if (!loaded) {
+    return (
+      <main className="bg-background">
+        <Container className="py-12 sm:py-16">
+          <section className="mx-auto max-w-2xl rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
+            <p className="text-sm font-semibold text-muted-foreground">{inquiryCopy.fallback}</p>
+          </section>
+        </Container>
+      </main>
+    );
+  }
+
+  if (!completion) {
+    return (
+      <main className="bg-background">
+        <Container className="py-12 sm:py-16">
+          <section className="mx-auto max-w-2xl rounded-3xl border border-border bg-card p-6 text-center shadow-sm sm:p-8">
+            <CheckCircle2 className="mx-auto h-10 w-10 text-primary" aria-hidden />
+            <h1 className="mt-5 text-2xl font-bold text-foreground">{copy.emptyTitle}</h1>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              {copy.emptyBody}
+            </p>
+            <Button asChild size="lg" className="mt-6">
+              <a href={`/${locale}/listings`}>{copy.viewListings}</a>
+            </Button>
+          </section>
+        </Container>
+      </main>
+    );
+  }
+
+  const { selectedInquiry, form, submittedAt } = completion;
+  const inquirerRows = [
+    { label: inquiryCopy.fields.name.label, value: form.name },
+    { label: inquiryCopy.fields.email.label, value: form.email },
+    { label: inquiryCopy.fields.phone.label, value: form.phone },
+    {
+      label: inquiryCopy.fields.preferredMoveInDate.label,
+      value: formatSelectedDateLabel(locale, form.preferredMoveInDate, inquiryCopy.fallback),
+    },
+    { label: inquiryCopy.fields.stayLength.label, value: form.stayLength },
+    { label: inquiryCopy.fields.people.label, value: form.people },
+    { label: copy.submittedAt, value: formatApplyCompletionTimestamp(locale, submittedAt) },
+  ];
+  const inquiryRows = [
+    { label: inquiryCopy.fields.questions.label, value: form.questions },
+    { label: inquiryCopy.fields.request.label, value: form.request },
+  ];
+  const detailHref = `/${locale}/listings/${selectedInquiry.listingId}`;
+
+  return (
+    <main className="bg-background">
+      <Container className="py-12 sm:py-16 lg:py-18">
+        <section className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            {copy.eyebrow}
+          </p>
+          <CheckCircle2 className="mx-auto mt-5 h-12 w-12 text-primary" aria-hidden />
+          <h1 className="mt-4 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+            {copy.title}
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {copy.subtitle}
+          </p>
+        </section>
+
+        <div className="mx-auto mt-10 max-w-5xl space-y-6">
+          <SelectedInquiryListingVisualCard
+            selectedInquiry={selectedInquiry}
+            title={inquiryCopy.selectedTitle}
+            detailLabel={SELECTED_INQUIRY_DETAIL_BUTTON[locale]}
+            detailHref={detailHref}
+            fallback={inquiryCopy.fallback}
+          />
+          <CompletionSummaryCard
+            title={copy.inquirerSummaryTitle}
+            icon={<UserRound className="h-5 w-5" />}
+            rows={inquirerRows}
+            fallback={inquiryCopy.fallback}
+          />
+          <CompletionSummaryCard
+            title={copy.inquirySummaryTitle}
+            icon={<MessageSquareText className="h-5 w-5" />}
+            rows={inquiryRows}
+            fallback={inquiryCopy.fallback}
+            singleColumn
+          />
+
+          <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
+            <h2 className="text-lg font-semibold text-foreground">{copy.nextStepsTitle}</h2>
+            <ol className="mt-4 space-y-3">
+              {copy.nextSteps.map((step, index) => (
+                <li key={step} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/30 text-xs font-bold text-primary">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0">
+                    {step.split("\n").map((line, lineIndex) => (
+                      <span
+                        key={`${step}-${lineIndex}`}
+                        className={cn("block", lineIndex > 0 && "mt-1")}
+                      >
+                        {line}
+                      </span>
+                    ))}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <div className="grid gap-3 pt-2 md:grid-cols-3">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="w-full whitespace-nowrap border-border bg-white text-foreground hover:bg-[#FFF8F2] hover:text-foreground"
+            >
+              <a href={detailHref}>{copy.backToDetail}</a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="w-full whitespace-nowrap border-border bg-white text-foreground hover:bg-[#FFF8F2] hover:text-foreground"
+            >
+              <a href={`/${locale}/listings`}>{copy.viewListings}</a>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full cursor-default whitespace-nowrap border-primary/30 bg-[#FFF7ED] text-primary hover:bg-[#FFF1E6] hover:text-primary"
+            >
+              {copy.viewHistory} {"\u00B7"} {copy.mvpPlanned}
+            </Button>
+          </div>
+        </div>
+      </Container>
+    </main>
+  );
 }
 
 function StandardApplyPage({ locale }: { locale: Locale }) {
@@ -1163,7 +1447,10 @@ function SelectedInquiryApplyPage({
     setForm((current) => ({ ...current, [key]: value }));
   };
 
-  const canSubmit = checked.every(Boolean);
+  const canSubmit =
+    form.name.trim().length > 0 &&
+    isValidSelectedInquiryEmail(form.email) &&
+    checked.every(Boolean);
 
   const summaryRows = selectedInquiry
     ? [
@@ -1346,24 +1633,36 @@ function SelectedInquiryApplyPage({
     event.preventDefault();
     if (!selectedInquiry || !canSubmit) return;
 
+    const selectedInquiryForCompletion = {
+      ...selectedInquiry,
+      selectedMoveInDate: form.preferredMoveInDate,
+      selectedGuestCount: Number(form.people) || selectedInquiry.selectedGuestCount,
+    };
     const draft: MockInquiryDraftPayload = {
       selectedInquiry: {
-        ...selectedInquiry,
-        selectedMoveInDate: form.preferredMoveInDate,
-        selectedGuestCount: Number(form.people) || selectedInquiry.selectedGuestCount,
+        ...selectedInquiryForCompletion,
       },
       form,
       createdAt: new Date().toISOString(),
     };
+    const completion: MockInquiryCompletionPayload = {
+      locale,
+      selectedInquiry: selectedInquiryForCompletion,
+      form,
+      submittedAt: draft.createdAt,
+    };
 
     try {
       window.sessionStorage.setItem(MOCK_INQUIRY_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      saveMockInquiryCompletion(completion);
     } catch {
       // MVP preview only; the success state still communicates that no real sending happened.
     }
     clearSelectedInquiryDraft(locale, selectedInquiry.listingId);
     setDraftRestored(false);
     setSuccessVisible(true);
+    allowNavigationRef.current = true;
+    window.location.href = `/${locale}/apply/complete`;
   };
 
   if (!loaded) {
@@ -1419,27 +1718,14 @@ function SelectedInquiryApplyPage({
             onSubmit={handleSubmit}
             className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6 lg:p-7"
           >
-            <section className="rounded-3xl border border-primary/20 bg-[#FFFDF9] p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
-                  {t.selectedTitle}
-                </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="h-auto shrink-0 rounded-none bg-transparent px-0 py-0 text-xs font-semibold text-[#FA7000] shadow-none hover:bg-transparent hover:text-[#E76600] hover:underline focus-visible:ring-[#FA7000]"
-                  onClick={() => requestNavigation(detailHref)}
-                >
-                  {SELECTED_INQUIRY_DETAIL_BUTTON[locale]}
-                </Button>
-              </div>
-              <SelectedListingMiniGallery
-                className="mt-4"
-                title={selectedInquiry.listingTitle}
-                images={getSelectedInquiryImageUrls(selectedInquiry)}
-                fallback={t.fallback}
-              />
-            </section>
+            <SelectedInquiryListingVisualCard
+              selectedInquiry={selectedInquiry}
+              title={t.selectedTitle}
+              detailLabel={SELECTED_INQUIRY_DETAIL_BUTTON[locale]}
+              detailHref={detailHref}
+              fallback={t.fallback}
+              onDetailClick={() => requestNavigation(detailHref)}
+            />
 
             {draftRestored ? (
               <p className="mt-4 rounded-2xl border border-primary/20 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold leading-relaxed text-primary">
@@ -1592,6 +1878,48 @@ function getSelectedInquiryImageUrls(selectedInquiry: SelectedInquiryPayload) {
     .map((url) => url.trim())
     .filter(Boolean);
   return Array.from(new Set(urls));
+}
+
+function SelectedInquiryListingVisualCard({
+  selectedInquiry,
+  title,
+  detailLabel,
+  detailHref,
+  fallback,
+  onDetailClick,
+}: {
+  selectedInquiry: SelectedInquiryPayload;
+  title: string;
+  detailLabel: string;
+  detailHref: string;
+  fallback: string;
+  onDetailClick?: () => void;
+}) {
+  const linkClassName =
+    "h-auto shrink-0 rounded-none bg-transparent px-0 py-0 text-xs font-semibold text-[#FA7000] shadow-none hover:bg-transparent hover:text-[#E76600] hover:underline focus-visible:ring-[#FA7000]";
+
+  return (
+    <section className="rounded-3xl border border-primary/20 bg-[#FFFDF9] p-4 sm:p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">{title}</p>
+        {onDetailClick ? (
+          <Button type="button" size="sm" className={linkClassName} onClick={onDetailClick}>
+            {detailLabel}
+          </Button>
+        ) : (
+          <Button asChild size="sm" className={linkClassName}>
+            <a href={detailHref}>{detailLabel}</a>
+          </Button>
+        )}
+      </div>
+      <SelectedListingMiniGallery
+        className="mt-4"
+        title={selectedInquiry.listingTitle}
+        images={getSelectedInquiryImageUrls(selectedInquiry)}
+        fallback={fallback}
+      />
+    </section>
+  );
 }
 
 function SelectedListingMiniGallery({
@@ -1999,6 +2327,18 @@ function formatSelectedInquiryRent(locale: Locale, rentCad: number, rentKrw: num
   return cad;
 }
 
+function formatApplyCompletionTimestamp(locale: Locale, value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(
+    locale === "ko" ? "ko-KR" : locale === "fr" ? "fr-CA" : "en-CA",
+    {
+      dateStyle: "medium",
+      timeStyle: "short",
+    },
+  ).format(date);
+}
+
 function KoreanSelectedListingApplyPage() {
   const [selectedListing, setSelectedListing] = useState<SelectedListingApplySummary | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -2394,6 +2734,41 @@ function PreviewPanel({
             <dt className="text-[11px] font-medium text-muted-foreground">{row.label}</dt>
             <dd className="mt-0.5 text-sm font-medium text-foreground">
               {row.value.trim() || emptyValue}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function CompletionSummaryCard({
+  title,
+  icon,
+  rows,
+  fallback,
+  singleColumn = false,
+}: {
+  title: string;
+  icon: ReactNode;
+  rows: Array<{ label: string; value: string }>;
+  fallback: string;
+  singleColumn?: boolean;
+}) {
+  return (
+    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+        <span className="inline-flex shrink-0 text-primary [&_svg]:stroke-[1.8]" aria-hidden>
+          {icon}
+        </span>
+        <span>{title}</span>
+      </h2>
+      <dl className={cn("mt-4 grid gap-3", singleColumn ? "grid-cols-1" : "sm:grid-cols-2")}>
+        {rows.map((row) => (
+          <div key={row.label} className="rounded-2xl border border-border bg-background px-3 py-2.5">
+            <dt className="text-[11px] font-medium leading-tight text-muted-foreground">{row.label}</dt>
+            <dd className="mt-1 min-w-0 break-words text-sm font-semibold leading-snug text-foreground">
+              {row.value.trim() || fallback}
             </dd>
           </div>
         ))}

@@ -47,16 +47,19 @@ import { Route as KoLandlordsRegisterRouteImport } from './routes/ko.landlords.r
 import { Route as KoLandlordsGuideRouteImport } from './routes/ko.landlords.guide'
 import { Route as KoLandlordsCenterRouteImport } from './routes/ko.landlords.center'
 import { Route as KoContactBoardRouteImport } from './routes/ko.contact.board'
+import { Route as KoApplyCompleteRouteImport } from './routes/ko.apply_.complete'
 import { Route as FrListingsDraftRouteImport } from './routes/fr.listings_.draft'
 import { Route as FrListingsListingIdRouteImport } from './routes/fr.listings_.$listingId'
 import { Route as FrLandlordsRegisterRouteImport } from './routes/fr.landlords.register'
 import { Route as FrLandlordsGuideRouteImport } from './routes/fr.landlords.guide'
 import { Route as FrLandlordsCenterRouteImport } from './routes/fr.landlords.center'
+import { Route as FrApplyCompleteRouteImport } from './routes/fr.apply_.complete'
 import { Route as EnListingsDraftRouteImport } from './routes/en.listings_.draft'
 import { Route as EnListingsListingIdRouteImport } from './routes/en.listings_.$listingId'
 import { Route as EnLandlordsRegisterRouteImport } from './routes/en.landlords.register'
 import { Route as EnLandlordsGuideRouteImport } from './routes/en.landlords.guide'
 import { Route as EnLandlordsCenterRouteImport } from './routes/en.landlords.center'
+import { Route as EnApplyCompleteRouteImport } from './routes/en.apply_.complete'
 import { Route as KoLandlordsRegisterTermsRouteImport } from './routes/ko.landlords.register.terms'
 import { Route as KoLandlordsRegisterRoomsRouteImport } from './routes/ko.landlords.register.rooms'
 import { Route as KoLandlordsRegisterPropertyRouteImport } from './routes/ko.landlords.register.property'
@@ -295,6 +298,11 @@ const KoContactBoardRoute = KoContactBoardRouteImport.update({
   path: '/board',
   getParentRoute: () => KoContactRoute,
 } as any)
+const KoApplyCompleteRoute = KoApplyCompleteRouteImport.update({
+  id: '/apply_/complete',
+  path: '/apply/complete',
+  getParentRoute: () => KoRoute,
+} as any)
 const FrListingsDraftRoute = FrListingsDraftRouteImport.update({
   id: '/listings_/draft',
   path: '/listings/draft',
@@ -320,6 +328,11 @@ const FrLandlordsCenterRoute = FrLandlordsCenterRouteImport.update({
   path: '/center',
   getParentRoute: () => FrLandlordsRoute,
 } as any)
+const FrApplyCompleteRoute = FrApplyCompleteRouteImport.update({
+  id: '/apply_/complete',
+  path: '/apply/complete',
+  getParentRoute: () => FrRoute,
+} as any)
 const EnListingsDraftRoute = EnListingsDraftRouteImport.update({
   id: '/listings_/draft',
   path: '/listings/draft',
@@ -344,6 +357,11 @@ const EnLandlordsCenterRoute = EnLandlordsCenterRouteImport.update({
   id: '/center',
   path: '/center',
   getParentRoute: () => EnLandlordsRoute,
+} as any)
+const EnApplyCompleteRoute = EnApplyCompleteRouteImport.update({
+  id: '/apply_/complete',
+  path: '/apply/complete',
+  getParentRoute: () => EnRoute,
 } as any)
 const KoLandlordsRegisterTermsRoute =
   KoLandlordsRegisterTermsRouteImport.update({
@@ -659,16 +677,19 @@ export interface FileRoutesByFullPath {
   '/en/': typeof EnIndexRoute
   '/fr/': typeof FrIndexRoute
   '/ko/': typeof KoIndexRoute
+  '/en/apply/complete': typeof EnApplyCompleteRoute
   '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
   '/en/listings/$listingId': typeof EnListingsListingIdRoute
   '/en/listings/draft': typeof EnListingsDraftRoute
+  '/fr/apply/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
   '/fr/listings/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings/draft': typeof FrListingsDraftRoute
+  '/ko/apply/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
@@ -753,16 +774,19 @@ export interface FileRoutesByTo {
   '/en': typeof EnIndexRoute
   '/fr': typeof FrIndexRoute
   '/ko': typeof KoIndexRoute
+  '/en/apply/complete': typeof EnApplyCompleteRoute
   '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
   '/en/listings/$listingId': typeof EnListingsListingIdRoute
   '/en/listings/draft': typeof EnListingsDraftRoute
+  '/fr/apply/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
   '/fr/listings/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings/draft': typeof FrListingsDraftRoute
+  '/ko/apply/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
@@ -851,16 +875,19 @@ export interface FileRoutesById {
   '/en/': typeof EnIndexRoute
   '/fr/': typeof FrIndexRoute
   '/ko/': typeof KoIndexRoute
+  '/en/apply_/complete': typeof EnApplyCompleteRoute
   '/en/landlords/center': typeof EnLandlordsCenterRouteWithChildren
   '/en/landlords/guide': typeof EnLandlordsGuideRoute
   '/en/landlords/register': typeof EnLandlordsRegisterRouteWithChildren
   '/en/listings_/$listingId': typeof EnListingsListingIdRoute
   '/en/listings_/draft': typeof EnListingsDraftRoute
+  '/fr/apply_/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
   '/fr/landlords/register': typeof FrLandlordsRegisterRouteWithChildren
   '/fr/listings_/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings_/draft': typeof FrListingsDraftRoute
+  '/ko/apply_/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
   '/ko/landlords/guide': typeof KoLandlordsGuideRoute
@@ -950,16 +977,19 @@ export interface FileRouteTypes {
     | '/en/'
     | '/fr/'
     | '/ko/'
+    | '/en/apply/complete'
     | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
     | '/en/listings/$listingId'
     | '/en/listings/draft'
+    | '/fr/apply/complete'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
     | '/fr/listings/$listingId'
     | '/fr/listings/draft'
+    | '/ko/apply/complete'
     | '/ko/contact/board'
     | '/ko/landlords/center'
     | '/ko/landlords/guide'
@@ -1044,16 +1074,19 @@ export interface FileRouteTypes {
     | '/en'
     | '/fr'
     | '/ko'
+    | '/en/apply/complete'
     | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
     | '/en/listings/$listingId'
     | '/en/listings/draft'
+    | '/fr/apply/complete'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
     | '/fr/listings/$listingId'
     | '/fr/listings/draft'
+    | '/ko/apply/complete'
     | '/ko/contact/board'
     | '/ko/landlords/center'
     | '/ko/landlords/guide'
@@ -1141,16 +1174,19 @@ export interface FileRouteTypes {
     | '/en/'
     | '/fr/'
     | '/ko/'
+    | '/en/apply_/complete'
     | '/en/landlords/center'
     | '/en/landlords/guide'
     | '/en/landlords/register'
     | '/en/listings_/$listingId'
     | '/en/listings_/draft'
+    | '/fr/apply_/complete'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
     | '/fr/landlords/register'
     | '/fr/listings_/$listingId'
     | '/fr/listings_/draft'
+    | '/ko/apply_/complete'
     | '/ko/contact/board'
     | '/ko/landlords/center'
     | '/ko/landlords/guide'
@@ -1482,6 +1518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KoContactBoardRouteImport
       parentRoute: typeof KoContactRoute
     }
+    '/ko/apply_/complete': {
+      id: '/ko/apply_/complete'
+      path: '/apply/complete'
+      fullPath: '/ko/apply/complete'
+      preLoaderRoute: typeof KoApplyCompleteRouteImport
+      parentRoute: typeof KoRoute
+    }
     '/fr/listings_/draft': {
       id: '/fr/listings_/draft'
       path: '/listings/draft'
@@ -1517,6 +1560,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrLandlordsCenterRouteImport
       parentRoute: typeof FrLandlordsRoute
     }
+    '/fr/apply_/complete': {
+      id: '/fr/apply_/complete'
+      path: '/apply/complete'
+      fullPath: '/fr/apply/complete'
+      preLoaderRoute: typeof FrApplyCompleteRouteImport
+      parentRoute: typeof FrRoute
+    }
     '/en/listings_/draft': {
       id: '/en/listings_/draft'
       path: '/listings/draft'
@@ -1551,6 +1601,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/en/landlords/center'
       preLoaderRoute: typeof EnLandlordsCenterRouteImport
       parentRoute: typeof EnLandlordsRoute
+    }
+    '/en/apply_/complete': {
+      id: '/en/apply_/complete'
+      path: '/apply/complete'
+      fullPath: '/en/apply/complete'
+      preLoaderRoute: typeof EnApplyCompleteRouteImport
+      parentRoute: typeof EnRoute
     }
     '/ko/landlords/register/terms': {
       id: '/ko/landlords/register/terms'
@@ -1998,6 +2055,7 @@ interface EnRouteChildren {
   EnLoginRoute: typeof EnLoginRoute
   EnSignupRoute: typeof EnSignupRoute
   EnIndexRoute: typeof EnIndexRoute
+  EnApplyCompleteRoute: typeof EnApplyCompleteRoute
   EnListingsListingIdRoute: typeof EnListingsListingIdRoute
   EnListingsDraftRoute: typeof EnListingsDraftRoute
 }
@@ -2012,6 +2070,7 @@ const EnRouteChildren: EnRouteChildren = {
   EnLoginRoute: EnLoginRoute,
   EnSignupRoute: EnSignupRoute,
   EnIndexRoute: EnIndexRoute,
+  EnApplyCompleteRoute: EnApplyCompleteRoute,
   EnListingsListingIdRoute: EnListingsListingIdRoute,
   EnListingsDraftRoute: EnListingsDraftRoute,
 }
@@ -2132,6 +2191,7 @@ interface FrRouteChildren {
   FrLoginRoute: typeof FrLoginRoute
   FrSignupRoute: typeof FrSignupRoute
   FrIndexRoute: typeof FrIndexRoute
+  FrApplyCompleteRoute: typeof FrApplyCompleteRoute
   FrListingsListingIdRoute: typeof FrListingsListingIdRoute
   FrListingsDraftRoute: typeof FrListingsDraftRoute
 }
@@ -2146,6 +2206,7 @@ const FrRouteChildren: FrRouteChildren = {
   FrLoginRoute: FrLoginRoute,
   FrSignupRoute: FrSignupRoute,
   FrIndexRoute: FrIndexRoute,
+  FrApplyCompleteRoute: FrApplyCompleteRoute,
   FrListingsListingIdRoute: FrListingsListingIdRoute,
   FrListingsDraftRoute: FrListingsDraftRoute,
 }
@@ -2292,6 +2353,7 @@ interface KoRouteChildren {
   KoLoginRoute: typeof KoLoginRoute
   KoSignupRoute: typeof KoSignupRoute
   KoIndexRoute: typeof KoIndexRoute
+  KoApplyCompleteRoute: typeof KoApplyCompleteRoute
   KoListingsListingIdRoute: typeof KoListingsListingIdRoute
   KoListingsDraftRoute: typeof KoListingsDraftRoute
 }
@@ -2306,6 +2368,7 @@ const KoRouteChildren: KoRouteChildren = {
   KoLoginRoute: KoLoginRoute,
   KoSignupRoute: KoSignupRoute,
   KoIndexRoute: KoIndexRoute,
+  KoApplyCompleteRoute: KoApplyCompleteRoute,
   KoListingsListingIdRoute: KoListingsListingIdRoute,
   KoListingsDraftRoute: KoListingsDraftRoute,
 }
