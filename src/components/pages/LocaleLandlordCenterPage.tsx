@@ -30,6 +30,30 @@ type LandlordCenterPage =
   | "inquiries"
   | "profile";
 
+type LandlordInquiryStatusKey =
+  | "new"
+  | "needsReview"
+  | "waitingLandlord"
+  | "waitingTenant"
+  | "reservationReview"
+  | "closed";
+
+type LandlordInquirySummaryKey =
+  | "total"
+  | "new"
+  | "needsReview"
+  | "waitingLandlord"
+  | "reservationReview";
+
+type LandlordMockInquiry = {
+  id: string;
+  status: LandlordInquiryStatusKey;
+  listing: string;
+  inquirer: string;
+  replyStatus: string;
+  note: string;
+};
+
 type LandlordCenterPhoto = {
   id?: string;
   name: string;
@@ -245,9 +269,22 @@ type CenterCopy = {
   inquiries: {
     title: string;
     subtitle: string;
+    mvpNote: string;
     emptyTitle: string;
     emptyBody: string;
-    statuses: string[];
+    summary: Record<LandlordInquirySummaryKey, string>;
+    statusLabels: Record<LandlordInquiryStatusKey, string>;
+    fields: {
+      type: string;
+      listing: string;
+      inquirer: string;
+      replyStatus: string;
+      note: string;
+      detail: string;
+    };
+    action: string;
+    detailComingSoon: string;
+    items: LandlordMockInquiry[];
   };
   profile: {
     title: string;
@@ -417,11 +454,86 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
     },
     inquiries: {
       title: "문의 관리",
-      subtitle: "입주 문의가 들어오면 상태와 확인 질문을 한곳에서 정리할 예정입니다.",
+      subtitle: "MapleHouse가 정리한 예비 입주자 문의를 한 곳에서 확인하는 mock 화면입니다.",
+      mvpNote: "실제 메시지 발송, 답변, 계약, 결제는 아직 연결되어 있지 않습니다.",
       emptyTitle: "아직 접수된 입주 문의가 없습니다.",
       emptyBody:
         "입주 문의가 들어오면 입주 날짜, 예산, 체류 기간, 인원, 확인 질문을 정리해 보여줄 예정입니다.",
-      statuses: ["새 문의", "확인 필요", "답변 대기", "종료"],
+      summary: {
+        total: "전체 문의",
+        new: "새 문의",
+        needsReview: "확인 필요",
+        waitingLandlord: "임대인 답변 대기",
+        reservationReview: "예약 검토",
+      },
+      statusLabels: {
+        new: "새 문의",
+        needsReview: "확인 필요",
+        waitingLandlord: "임대인 답변 대기",
+        waitingTenant: "세입자 확인 대기",
+        reservationReview: "예약 검토",
+        closed: "종료",
+      },
+      fields: {
+        type: "구분",
+        listing: "매물명",
+        inquirer: "문의자",
+        replyStatus: "답변 상태",
+        note: "비고",
+        detail: "상세",
+      },
+      action: "상세 보기",
+      detailComingSoon: "상세 mock 예정",
+      items: [
+        {
+          id: "INQ-2026-001",
+          status: "new",
+          listing: "Koreatown 1BR 코지 스튜디오",
+          inquirer: "MEHA KIM",
+          replyStatus: "확인 전",
+          note: "입주 가능일과 초기 입금액 확인 필요",
+        },
+        {
+          id: "INQ-2026-002",
+          status: "needsReview",
+          listing: "North York 역세권 룸렌트",
+          inquirer: "JIWON PARK",
+          replyStatus: "확인 항목 정리 중",
+          note: "룸메이트 구성과 공용공간 규칙 확인 필요",
+        },
+        {
+          id: "INQ-2026-003",
+          status: "waitingLandlord",
+          listing: "Downtown furnished studio",
+          inquirer: "MINSEO LEE",
+          replyStatus: "임대인 답변 대기",
+          note: "포함 항목과 추가 비용 문의 완료",
+        },
+        {
+          id: "INQ-2026-004",
+          status: "waitingTenant",
+          listing: "Finch station shared house",
+          inquirer: "HANA CHOI",
+          replyStatus: "답변 도착",
+          note: "세입자에게 답변 설명 예정",
+        },
+        {
+          id: "INQ-2026-005",
+          status: "new",
+          listing: "Midtown condo room",
+          inquirer: "DOYUN JUNG",
+          replyStatus: "확인 전",
+          note: "예약 가능 여부와 취소 조건 확인 필요",
+        },
+        {
+          id: "INQ-2026-006",
+          status: "needsReview",
+          listing: "Scarborough basement unit",
+          inquirer: "SORA YANG",
+          replyStatus: "확인 항목 정리 중",
+          note: "채광, 습기, 출입구 분리 여부 확인 필요",
+        },
+      ],
     },
     profile: {
       title: "임대인 정보",
@@ -445,7 +557,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
     nav: {
       dashboard: "Center home",
       listings: "Listings",
-      inquiries: "Inquiries",
+      inquiries: "Inquiry management",
       profile: "Landlord profile",
     },
     common: {
@@ -588,11 +700,86 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
     },
     inquiries: {
       title: "Inquiry management",
-      subtitle: "Tenant inquiries will be organized here when the real flow is connected.",
+      subtitle: "A mock page for reviewing prospective tenant inquiries organized by MapleHouse.",
+      mvpNote: "Real messaging, replies, contracts, and payments are not connected yet.",
       emptyTitle: "No tenant inquiries yet.",
       emptyBody:
         "When tenant inquiries arrive, this page can organize move-in date, budget, length of stay, occupants, and confirmation questions.",
-      statuses: ["New inquiry", "Needs review", "Waiting for reply", "Closed"],
+      summary: {
+        total: "All inquiries",
+        new: "New inquiries",
+        needsReview: "Needs review",
+        waitingLandlord: "Waiting for landlord reply",
+        reservationReview: "Reservation review",
+      },
+      statusLabels: {
+        new: "New inquiry",
+        needsReview: "Needs review",
+        waitingLandlord: "Waiting for landlord reply",
+        waitingTenant: "Waiting for tenant confirmation",
+        reservationReview: "Reservation review",
+        closed: "Closed",
+      },
+      fields: {
+        type: "Type",
+        listing: "Listing",
+        inquirer: "Inquirer",
+        replyStatus: "Reply status",
+        note: "Note",
+        detail: "Detail",
+      },
+      action: "View details",
+      detailComingSoon: "Detail mock coming",
+      items: [
+        {
+          id: "INQ-2026-001",
+          status: "new",
+          listing: "Koreatown 1BR cozy studio",
+          inquirer: "MEHA KIM",
+          replyStatus: "Not reviewed",
+          note: "Confirm availability and initial payment amount",
+        },
+        {
+          id: "INQ-2026-002",
+          status: "needsReview",
+          listing: "North York transit room rental",
+          inquirer: "JIWON PARK",
+          replyStatus: "Organizing items to confirm",
+          note: "Confirm roommate composition and shared-space rules",
+        },
+        {
+          id: "INQ-2026-003",
+          status: "waitingLandlord",
+          listing: "Downtown furnished studio",
+          inquirer: "MINSEO LEE",
+          replyStatus: "Waiting for landlord reply",
+          note: "Included items and extra costs already asked",
+        },
+        {
+          id: "INQ-2026-004",
+          status: "waitingTenant",
+          listing: "Finch station shared house",
+          inquirer: "HANA CHOI",
+          replyStatus: "Reply received",
+          note: "Explain landlord reply to tenant",
+        },
+        {
+          id: "INQ-2026-005",
+          status: "new",
+          listing: "Midtown condo room",
+          inquirer: "DOYUN JUNG",
+          replyStatus: "Not reviewed",
+          note: "Confirm reservation availability and cancellation terms",
+        },
+        {
+          id: "INQ-2026-006",
+          status: "needsReview",
+          listing: "Scarborough basement unit",
+          inquirer: "SORA YANG",
+          replyStatus: "Organizing items to confirm",
+          note: "Confirm daylight, moisture, and separate entrance",
+        },
+      ],
     },
     profile: {
       title: "Landlord profile",
@@ -616,7 +803,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
     nav: {
       dashboard: "Accueil du centre",
       listings: "Annonces",
-      inquiries: "Demandes",
+      inquiries: "Gestion des demandes",
       profile: "Profil propriétaire",
     },
     common: {
@@ -760,11 +947,86 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
     },
     inquiries: {
       title: "Gestion des demandes",
-      subtitle: "Les demandes des locataires seront organisées ici lorsque le flux réel sera connecté.",
+      subtitle: "Écran mock pour consulter au même endroit les demandes de locataires préparées par MapleHouse.",
+      mvpNote: "L’envoi réel des messages, les réponses, les contrats et les paiements ne sont pas encore connectés.",
       emptyTitle: "Aucune demande de locataire pour le moment.",
       emptyBody:
         "Lorsque des demandes de locataires arriveront, cette page pourra organiser la date d’arrivée, le budget, la durée du séjour, le nombre d’occupants et les questions de confirmation.",
-      statuses: ["Nouvelle demande", "À vérifier", "En attente de réponse", "Fermée"],
+      summary: {
+        total: "Toutes les demandes",
+        new: "Nouvelles demandes",
+        needsReview: "À vérifier",
+        waitingLandlord: "Réponse propriétaire attendue",
+        reservationReview: "Réservation à examiner",
+      },
+      statusLabels: {
+        new: "Nouvelle demande",
+        needsReview: "À vérifier",
+        waitingLandlord: "En attente de réponse du propriétaire",
+        waitingTenant: "En attente de confirmation du locataire",
+        reservationReview: "Réservation à examiner",
+        closed: "Clôturée",
+      },
+      fields: {
+        type: "Type",
+        listing: "Logement",
+        inquirer: "Demandeur",
+        replyStatus: "Statut de réponse",
+        note: "Note",
+        detail: "Détail",
+      },
+      action: "Voir le détail",
+      detailComingSoon: "Détail mock à venir",
+      items: [
+        {
+          id: "INQ-2026-001",
+          status: "new",
+          listing: "Studio 1 chambre cozy à Koreatown",
+          inquirer: "MEHA KIM",
+          replyStatus: "Non vérifié",
+          note: "Confirmer la disponibilité et le montant initial",
+        },
+        {
+          id: "INQ-2026-002",
+          status: "needsReview",
+          listing: "Chambre près du transport à North York",
+          inquirer: "JIWON PARK",
+          replyStatus: "Points à confirmer en cours",
+          note: "Confirmer les colocataires et les règles communes",
+        },
+        {
+          id: "INQ-2026-003",
+          status: "waitingLandlord",
+          listing: "Studio meublé au centre-ville",
+          inquirer: "MINSEO LEE",
+          replyStatus: "Réponse propriétaire attendue",
+          note: "Éléments inclus et frais supplémentaires déjà demandés",
+        },
+        {
+          id: "INQ-2026-004",
+          status: "waitingTenant",
+          listing: "Maison partagée près de Finch station",
+          inquirer: "HANA CHOI",
+          replyStatus: "Réponse reçue",
+          note: "Réponse à expliquer au locataire",
+        },
+        {
+          id: "INQ-2026-005",
+          status: "new",
+          listing: "Chambre en condo à Midtown",
+          inquirer: "DOYUN JUNG",
+          replyStatus: "Non vérifié",
+          note: "Confirmer la réservation et l’annulation",
+        },
+        {
+          id: "INQ-2026-006",
+          status: "needsReview",
+          listing: "Unité en sous-sol à Scarborough",
+          inquirer: "SORA YANG",
+          replyStatus: "Points à confirmer en cours",
+          note: "Confirmer lumière, humidité et entrée séparée",
+        },
+      ],
     },
     profile: {
       title: "Profil propriétaire",
@@ -867,14 +1129,21 @@ export function LocaleLandlordCenterPage({
               <p className="text-base leading-7 text-muted-foreground">
                 {heroSubtitle}
               </p>
+              {page === "inquiries" ? (
+                <p className="inline-flex max-w-full rounded-full border border-primary/20 bg-[#FFF8F1] px-3 py-1.5 text-xs font-bold leading-relaxed text-primary">
+                  {copy.inquiries.mvpNote}
+                </p>
+              ) : null}
             </div>
-            <Link
-              to={heroActionHref}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
-            >
-              <HeroActionIcon className="h-4 w-4" aria-hidden />
-              {heroActionLabel}
-            </Link>
+            {page === "inquiries" ? null : (
+              <Link
+                to={heroActionHref}
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+              >
+                <HeroActionIcon className="h-4 w-4" aria-hidden />
+                {heroActionLabel}
+              </Link>
+            )}
           </div>
         </div>
 
@@ -1608,30 +1877,162 @@ function NewListingPanel({ copy }: { copy: CenterCopy }) {
   );
 }
 
-function InquiriesPanel({ copy }: { copy: CenterCopy }) {
-  return (
-    <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">
-      <article className="rounded-3xl border border-border bg-white p-6 shadow-sm sm:p-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF3E8] text-primary">
-          <Inbox className="h-6 w-6" aria-hidden />
-        </div>
-        <h2 className="mt-5 text-xl font-black text-foreground">{copy.inquiries.emptyTitle}</h2>
-        <p className="mt-3 text-sm leading-7 text-muted-foreground">{copy.inquiries.emptyBody}</p>
-      </article>
+const INQUIRY_SUMMARY_VALUES: Array<{
+  key: LandlordInquirySummaryKey;
+  value: number;
+  tone: "neutral" | "attention" | "muted";
+}> = [
+  { key: "total", value: 6, tone: "neutral" },
+  { key: "new", value: 2, tone: "attention" },
+  { key: "needsReview", value: 2, tone: "attention" },
+  { key: "waitingLandlord", value: 1, tone: "attention" },
+  { key: "reservationReview", value: 0, tone: "muted" },
+];
 
-      <aside className="rounded-3xl border border-border bg-white p-6 shadow-sm">
-        <p className="text-sm font-black text-foreground">{copy.inquiries.title}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {copy.inquiries.statuses.map((status) => (
-            <span
-              key={status}
-              className="inline-flex items-center rounded-full border border-border bg-[#FAFAFA] px-3 py-1 text-xs font-bold text-muted-foreground"
+const INQUIRY_STATUS_STYLES: Record<LandlordInquiryStatusKey, string> = {
+  new: "border-primary/25 bg-[#FFF3E8] text-primary",
+  needsReview: "border-amber-200 bg-amber-50 text-amber-800",
+  waitingLandlord: "border-sky-200 bg-sky-50 text-sky-800",
+  waitingTenant: "border-violet-200 bg-violet-50 text-violet-800",
+  reservationReview: "border-orange-200 bg-orange-50 text-orange-800",
+  closed: "border-border bg-[#F4F4F5] text-muted-foreground",
+};
+
+function InquiriesPanel({ copy }: { copy: CenterCopy }) {
+  const inquiries = copy.inquiries.items;
+
+  if (!inquiries.length) {
+    return (
+      <EmptyCard
+        title={copy.inquiries.emptyTitle}
+        body={copy.inquiries.emptyBody}
+        actionLabel={copy.common.goRegister}
+        actionHref="#"
+      />
+    );
+  }
+
+  return (
+    <section className="space-y-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {INQUIRY_SUMMARY_VALUES.map((summary) => (
+          <article
+            key={summary.key}
+            className={cn(
+              "rounded-3xl border bg-white p-4 text-center shadow-sm",
+              summary.tone === "attention"
+                ? "border-primary/30 bg-[#FFF9F3]"
+                : summary.tone === "muted"
+                  ? "border-border/70 bg-[#F7F7F7]"
+                  : "border-border",
+            )}
+          >
+            <p
+              className={cn(
+                "text-xs font-semibold leading-snug",
+                summary.tone === "attention"
+                  ? "text-primary"
+                  : summary.tone === "muted"
+                    ? "text-muted-foreground"
+                    : "text-foreground",
+              )}
             >
-              {status}
-            </span>
+              {copy.inquiries.summary[summary.key]}
+            </p>
+            <p
+              className={cn(
+                "mt-2 text-2xl font-bold leading-none",
+                summary.tone === "attention"
+                  ? "text-primary"
+                  : summary.tone === "muted"
+                    ? "text-muted-foreground"
+                    : "text-foreground",
+              )}
+            >
+              {summary.value}
+            </p>
+          </article>
+        ))}
+      </div>
+
+      <section className="overflow-hidden rounded-3xl border border-border bg-white shadow-sm">
+        <div className="hidden grid-cols-[126px_minmax(0,1.35fr)_118px_142px_minmax(0,1fr)_104px] gap-3 border-b border-border bg-[#FAFAFA] px-4 py-3 text-center text-[12px] font-semibold text-muted-foreground lg:grid">
+          <span className="min-w-0">{copy.inquiries.fields.type}</span>
+          <span className="min-w-0">{copy.inquiries.fields.listing}</span>
+          <span className="min-w-0">{copy.inquiries.fields.inquirer}</span>
+          <span className="min-w-0">{copy.inquiries.fields.replyStatus}</span>
+          <span className="min-w-0">{copy.inquiries.fields.note}</span>
+          <span className="min-w-0">{copy.inquiries.fields.detail}</span>
+        </div>
+
+        <div className="divide-y divide-border/80">
+          {inquiries.map((inquiry) => (
+            <article
+              key={inquiry.id}
+              className="grid gap-3 px-4 py-4 lg:grid-cols-[126px_minmax(0,1.35fr)_118px_142px_minmax(0,1fr)_104px] lg:items-center lg:gap-3 lg:text-center"
+            >
+              <div className="min-w-0 lg:text-center">
+                <p className="text-[12px] font-semibold tracking-[0.04em] text-muted-foreground">
+                  {inquiry.id}
+                </p>
+                <span
+                  className={cn(
+                    "mt-1 inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-1 text-center text-[11px] font-semibold leading-tight",
+                    INQUIRY_STATUS_STYLES[inquiry.status],
+                  )}
+                >
+                  {copy.inquiries.statusLabels[inquiry.status]}
+                </span>
+              </div>
+
+              <div className="min-w-0">
+                <p className="mb-1 text-[11px] font-bold text-muted-foreground lg:hidden">
+                  {copy.inquiries.fields.listing}
+                </p>
+                <p className="mx-auto min-w-0 break-words text-[13px] font-medium leading-snug text-foreground">
+                  {inquiry.listing}
+                </p>
+              </div>
+
+              <div className="min-w-0">
+                <p className="mb-1 text-[11px] font-bold text-muted-foreground lg:hidden">
+                  {copy.inquiries.fields.inquirer}
+                </p>
+                <p className="truncate text-[13px] font-medium text-foreground">
+                  {inquiry.inquirer}
+                </p>
+              </div>
+
+              <div className="min-w-0">
+                <p className="mb-1 text-[11px] font-bold text-muted-foreground lg:hidden">
+                  {copy.inquiries.fields.replyStatus}
+                </p>
+                <p className="mx-auto min-w-0 break-words text-[13px] font-medium leading-snug text-foreground">
+                  {inquiry.replyStatus}
+                </p>
+              </div>
+
+              <div className="min-w-0">
+                <p className="mb-1 text-[11px] font-bold text-muted-foreground lg:hidden">
+                  {copy.inquiries.fields.note}
+                </p>
+                <p className="mx-auto min-w-0 break-words text-[13px] font-normal leading-snug text-muted-foreground">
+                  {inquiry.note}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-start lg:justify-center">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-primary/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-primary transition hover:bg-[#FFF8F1]"
+                >
+                  {copy.inquiries.action}
+                </button>
+              </div>
+            </article>
           ))}
         </div>
-      </aside>
+      </section>
     </section>
   );
 }
