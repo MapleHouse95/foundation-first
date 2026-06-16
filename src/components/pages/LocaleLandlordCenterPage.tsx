@@ -54,6 +54,41 @@ type LandlordMockInquiry = {
   note: string;
 };
 
+type LandlordInquiryProgressKey =
+  | "new"
+  | "review"
+  | "waitingLandlord"
+  | "waitingTenant"
+  | "reservationReview"
+  | "closed";
+
+type LandlordInquiryMethod = "assisted" | "direct";
+
+type LandlordInquiryDetailData = {
+  id: string;
+  inquiryMethod?: LandlordInquiryMethod;
+  status: LandlordInquiryStatusKey;
+  progress: LandlordInquiryProgressKey;
+  receivedAt: string;
+  inquirer: string;
+  email: string;
+  phone: string;
+  moveIn: string;
+  people: string;
+  stay: string;
+  listing: string;
+  area: string;
+  unit: string;
+  rent: string;
+  housingType: string;
+  availableFrom: string;
+  mustConfirm: string;
+  request: string;
+  note: string;
+  reviewItems: string[];
+  responseItems: Record<"availableFrom" | "includedItems" | "initialPayment" | "extraNote", string>;
+};
+
 type LandlordCenterPhoto = {
   id?: string;
   name: string;
@@ -1048,6 +1083,904 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
   },
 };
 
+const INQUIRY_DETAIL_COPY: Record<
+  Locale,
+  {
+    breadcrumb: { detail: string };
+    backToList: string;
+    title: string;
+    subtitle: string;
+    mvpNote: string;
+    emptyTitle: string;
+    emptyBody: string;
+    keyInfo: {
+      id: string;
+      status: string;
+      receivedAt: string;
+      inquirer: string;
+      listing: string;
+    };
+    sections: {
+      basics: string;
+      listing: string;
+      content: string;
+      review: string;
+      response: string;
+      progress: string;
+    };
+    fields: {
+      inquirer: string;
+      email: string;
+      phone: string;
+      moveIn: string;
+      people: string;
+      stay: string;
+      receivedAt: string;
+      listing: string;
+      area: string;
+      unit: string;
+      rent: string;
+      housingType: string;
+      availableFrom: string;
+      mustConfirm: string;
+      request: string;
+      note: string;
+    };
+    reviewDescription: string;
+    responseDescription: string;
+    responseFields: {
+      availableFrom: string;
+      includedItems: string;
+      initialPayment: string;
+      extraNote: string;
+    };
+    mockSave: string;
+    mockSaveNote: string;
+    actions: {
+      list: string;
+      listings: string;
+      save: string;
+    };
+    progress: Record<LandlordInquiryProgressKey, string>;
+    details: Record<string, LandlordInquiryDetailData>;
+  }
+> = {
+  ko: {
+    breadcrumb: { detail: "문의 상세" },
+    backToList: "문의 목록으로 돌아가기",
+    title: "문의 상세",
+    subtitle: "예비 입주자 문의 내용을 확인하는 mock 화면입니다.",
+    mvpNote: "실제 메시지 발송, 답변, 계약, 결제는 아직 연결되어 있지 않습니다.",
+    emptyTitle: "문의 정보를 찾을 수 없습니다.",
+    emptyBody: "선택한 문의 ID에 해당하는 mock 문의가 없습니다.",
+    keyInfo: {
+      id: "문의 ID",
+      status: "현재 상태",
+      receivedAt: "접수일",
+      inquirer: "문의자",
+      listing: "매물명",
+    },
+    sections: {
+      basics: "문의 기본 정보",
+      listing: "선택 매물 정보",
+      content: "문의 내용",
+      review: "MapleHouse 확인 항목",
+      response: "임대인이 답변할 항목",
+      progress: "문의 진행 상태",
+    },
+    fields: {
+      inquirer: "문의자",
+      email: "이메일",
+      phone: "전화번호",
+      moveIn: "입주 희망일",
+      people: "인원",
+      stay: "체류 기간",
+      receivedAt: "접수일",
+      listing: "매물명",
+      area: "지역",
+      unit: "선택 방/유닛",
+      rent: "월세",
+      housingType: "주거 형태",
+      availableFrom: "입주 가능일",
+      mustConfirm: "꼭 확인하고 싶은 내용",
+      request: "추가 요청사항",
+      note: "비고",
+    },
+    reviewDescription:
+      "아래 항목은 고객 문의를 바탕으로 MapleHouse가 임대인에게 확인할 내용입니다.",
+    responseDescription:
+      "아래 입력 영역은 실제 저장 없이 답변 항목을 보여주는 MVP mock 영역입니다.",
+    responseFields: {
+      availableFrom: "입주 가능일 답변",
+      includedItems: "포함 항목 답변",
+      initialPayment: "초기 입금액 / 보증금 답변",
+      extraNote: "기타 전달사항",
+    },
+    mockSave: "답변 저장 · MVP 예정",
+    mockSaveNote:
+      "실제 운영 단계에서는 이 답변이 문의 흐름에 맞게 예비 입주자에게 전달됩니다.",
+    actions: {
+      list: "문의 목록으로 돌아가기",
+      listings: "해당 매물 관리로 이동",
+      save: "답변 저장 · MVP 예정",
+    },
+    progress: {
+      new: "새 문의",
+      review: "확인 항목 정리",
+      waitingLandlord: "임대인 답변 대기",
+      waitingTenant: "세입자 확인 대기",
+      reservationReview: "예약 검토",
+      closed: "종료",
+    },
+    details: {
+      "inq-2026-001": {
+        id: "INQ-2026-001",
+        inquiryMethod: "assisted",
+        status: "new",
+        progress: "new",
+        receivedAt: "2026. 6. 16.",
+        inquirer: "MEHA KIM",
+        email: "name@example.com",
+        phone: "확인 필요",
+        moveIn: "확인 필요",
+        people: "1",
+        stay: "확인 필요",
+        listing: "Koreatown 1BR 코지 스튜디오",
+        area: "Koreatown",
+        unit: "전체 유닛",
+        rent: "C$1,850 / 월",
+        housingType: "1베드",
+        availableFrom: "확인 필요",
+        mustConfirm:
+          "입주 가능일, 공과금 포함 여부, 보증금 조건을 확인하고 싶습니다.",
+        request: "입금 전에 초기 입금액과 환불 조건을 알고 싶습니다.",
+        note: "입주 가능일과 초기 입금액 확인 필요",
+        reviewItems: [
+          "실제 입주 가능일 확인",
+          "월세에 포함되는 항목 확인",
+          "보증금 또는 초기 입금액 조건 확인",
+          "입주 전 입금이 필요한 경우 금액과 환불 조건 확인",
+          "사진과 실제 공간 차이 여부 확인",
+          "계약 또는 예약 전 추가로 확인해야 할 규칙 확인",
+        ],
+        responseItems: {
+          availableFrom: "임대인이 실제 입주 가능일을 확인해야 합니다.",
+          includedItems: "월세 포함 항목과 별도 비용을 정리해야 합니다.",
+          initialPayment: "초기 입금액, 보증금, 환불 조건 확인이 필요합니다.",
+          extraNote: "사진과 실제 공간 차이가 있는지도 함께 확인합니다.",
+        },
+      },
+      "inq-2026-002": {
+        id: "INQ-2026-002",
+        inquiryMethod: "direct",
+        status: "needsReview",
+        progress: "review",
+        receivedAt: "2026. 6. 15.",
+        inquirer: "JIWON PARK",
+        email: "jiwon@example.com",
+        phone: "확인 필요",
+        moveIn: "2026. 7. 초",
+        people: "1",
+        stay: "3개월 이상",
+        listing: "North York 역세권 룸렌트",
+        area: "North York",
+        unit: "룸렌트",
+        rent: "C$980 / 월",
+        housingType: "룸렌트",
+        availableFrom: "확인 필요",
+        mustConfirm: "룸메이트 구성과 공용공간 사용 규칙을 알고 싶습니다.",
+        request: "조용한 생활이 가능한지와 방문객 규칙을 확인하고 싶습니다.",
+        note: "룸메이트 구성과 공용공간 규칙 확인 필요",
+        reviewItems: [
+          "현재 거주 인원과 성별 구성 확인",
+          "주방, 욕실, 세탁 공간 사용 규칙 확인",
+          "방문객과 소음 관련 규칙 확인",
+          "열쇠 보증금 또는 초기 입금 조건 확인",
+          "입주 가능일과 최소 거주 기간 확인",
+        ],
+        responseItems: {
+          availableFrom: "입주 가능일과 최소 거주 기간을 확인해야 합니다.",
+          includedItems: "공용공간, 세탁, 인터넷 포함 여부를 확인해야 합니다.",
+          initialPayment: "첫 달 월세 외 추가 입금이 있는지 확인해야 합니다.",
+          extraNote: "룸메이트 구성과 생활 규칙을 구체적으로 적어야 합니다.",
+        },
+      },
+      "inq-2026-003": {
+        id: "INQ-2026-003",
+        status: "waitingLandlord",
+        progress: "waitingLandlord",
+        receivedAt: "2026. 6. 14.",
+        inquirer: "MINSEO LEE",
+        email: "minseo@example.com",
+        phone: "입력됨",
+        moveIn: "2026. 8. 1.",
+        people: "1",
+        stay: "6개월",
+        listing: "Downtown furnished studio",
+        area: "Downtown Toronto",
+        unit: "전체 유닛",
+        rent: "C$2,050 / 월",
+        housingType: "스튜디오",
+        availableFrom: "임대인 답변 대기",
+        mustConfirm: "가구, 인터넷, 공과금 포함 범위를 확인하고 싶습니다.",
+        request: "추가 비용과 건물 규칙을 함께 알려주세요.",
+        note: "포함 항목과 추가 비용 문의 완료",
+        reviewItems: [
+          "가구 포함 범위 확인",
+          "인터넷, 전기, 수도, 난방 포함 여부 확인",
+          "입주 전 필요한 결제 항목 확인",
+          "건물 이용 규칙 확인",
+          "임대인 답변 수신 후 예비 입주자에게 설명",
+        ],
+        responseItems: {
+          availableFrom: "임대인 답변을 기다리는 상태입니다.",
+          includedItems: "포함 항목 답변을 기다리는 상태입니다.",
+          initialPayment: "추가 비용 답변을 기다리는 상태입니다.",
+          extraNote: "건물 규칙과 전달사항 답변을 기다리는 상태입니다.",
+        },
+      },
+      "inq-2026-004": {
+        id: "INQ-2026-004",
+        status: "waitingTenant",
+        progress: "waitingTenant",
+        receivedAt: "2026. 6. 13.",
+        inquirer: "HANA CHOI",
+        email: "hana@example.com",
+        phone: "입력됨",
+        moveIn: "2026. 7. 15.",
+        people: "1",
+        stay: "4개월",
+        listing: "Finch station shared house",
+        area: "Finch",
+        unit: "개인 방",
+        rent: "C$920 / 월",
+        housingType: "쉐어하우스",
+        availableFrom: "답변 도착",
+        mustConfirm: "임대인의 답변을 이해하기 쉽게 정리받고 싶습니다.",
+        request: "예약 전에 남은 확인 항목을 알려주세요.",
+        note: "세입자에게 답변 설명 예정",
+        reviewItems: [
+          "임대인 답변 요약",
+          "세입자가 이해하기 어려운 비용 항목 설명",
+          "예약 전 추가 확인 항목 분류",
+          "공용공간 규칙 재확인",
+          "세입자 예약 진행 여부 확인 대기",
+        ],
+        responseItems: {
+          availableFrom: "입주 가능일 답변이 도착했습니다.",
+          includedItems: "포함 항목 답변이 도착했습니다.",
+          initialPayment: "초기 입금 조건 답변이 도착했습니다.",
+          extraNote: "세입자에게 설명할 내용으로 정리 중입니다.",
+        },
+      },
+      "inq-2026-005": {
+        id: "INQ-2026-005",
+        status: "new",
+        progress: "new",
+        receivedAt: "2026. 6. 12.",
+        inquirer: "DOYUN JUNG",
+        email: "doyun@example.com",
+        phone: "확인 필요",
+        moveIn: "확인 필요",
+        people: "1",
+        stay: "확인 필요",
+        listing: "Midtown condo room",
+        area: "Midtown",
+        unit: "콘도 룸",
+        rent: "C$1,250 / 월",
+        housingType: "콘도 룸렌트",
+        availableFrom: "확인 필요",
+        mustConfirm: "예약 가능 여부와 취소 조건을 확인하고 싶습니다.",
+        request: "건물 편의시설 이용 가능 여부도 함께 알고 싶습니다.",
+        note: "예약 가능 여부와 취소 조건 확인 필요",
+        reviewItems: [
+          "예약 가능 여부 확인",
+          "취소 조건과 환불 가능 범위 확인",
+          "콘도 편의시설 이용 가능 여부 확인",
+          "키/출입카드 보증금 확인",
+          "입주 전 입금 항목 확인",
+        ],
+        responseItems: {
+          availableFrom: "예약 가능 날짜를 확인해야 합니다.",
+          includedItems: "건물 편의시설과 포함 항목을 확인해야 합니다.",
+          initialPayment: "예약금, 보증금, 환불 조건 확인이 필요합니다.",
+          extraNote: "취소 조건을 명확히 적어야 합니다.",
+        },
+      },
+      "inq-2026-006": {
+        id: "INQ-2026-006",
+        status: "needsReview",
+        progress: "review",
+        receivedAt: "2026. 6. 11.",
+        inquirer: "SORA YANG",
+        email: "sora@example.com",
+        phone: "확인 필요",
+        moveIn: "2026. 7. 말",
+        people: "1",
+        stay: "6개월 이상",
+        listing: "Scarborough basement unit",
+        area: "Scarborough",
+        unit: "베이스먼트 유닛",
+        rent: "C$1,350 / 월",
+        housingType: "베이스먼트",
+        availableFrom: "확인 필요",
+        mustConfirm: "채광, 습기, 천장 높이, 출입구 분리 여부를 확인하고 싶습니다.",
+        request: "방문 전 실제 사진이나 영상이 있으면 받고 싶습니다.",
+        note: "채광, 습기, 출입구 분리 여부 확인 필요",
+        reviewItems: [
+          "채광과 창문 상태 확인",
+          "습기, 냄새, 난방 상태 확인",
+          "천장 높이와 출입구 분리 여부 확인",
+          "사진과 실제 공간 차이 확인",
+          "입주 전 수리 또는 청소 여부 확인",
+        ],
+        responseItems: {
+          availableFrom: "입주 가능일과 청소 상태를 확인해야 합니다.",
+          includedItems: "난방, 인터넷, 공과금 포함 여부를 확인해야 합니다.",
+          initialPayment: "초기 입금 조건과 환불 가능 여부를 확인해야 합니다.",
+          extraNote: "채광, 습기, 출입구 정보를 자세히 적어야 합니다.",
+        },
+      },
+    },
+  },
+  en: {
+    breadcrumb: { detail: "Inquiry detail" },
+    backToList: "Back to inquiry list",
+    title: "Inquiry detail",
+    subtitle: "A mock page for reviewing a prospective tenant inquiry.",
+    mvpNote: "Real messaging, replies, contracts, and payments are not connected yet.",
+    emptyTitle: "Inquiry information was not found.",
+    emptyBody: "There is no mock inquiry for the selected inquiry ID.",
+    keyInfo: {
+      id: "Inquiry ID",
+      status: "Current status",
+      receivedAt: "Received",
+      inquirer: "Inquirer",
+      listing: "Listing",
+    },
+    sections: {
+      basics: "Inquiry basics",
+      listing: "Selected listing",
+      content: "Inquiry content",
+      review: "MapleHouse review items",
+      response: "Items for landlord response",
+      progress: "Inquiry progress",
+    },
+    fields: {
+      inquirer: "Inquirer",
+      email: "Email",
+      phone: "Phone",
+      moveIn: "Preferred move-in",
+      people: "People",
+      stay: "Stay period",
+      receivedAt: "Received",
+      listing: "Listing",
+      area: "Area",
+      unit: "Room/unit",
+      rent: "Rent",
+      housingType: "Housing type",
+      availableFrom: "Available from",
+      mustConfirm: "Must confirm",
+      request: "Additional request",
+      note: "Note",
+    },
+    reviewDescription:
+      "These are the items MapleHouse would organize and ask the landlord based on the tenant inquiry.",
+    responseDescription:
+      "This is a mock response area only. Nothing is saved or sent.",
+    responseFields: {
+      availableFrom: "Available-from response",
+      includedItems: "Included-items response",
+      initialPayment: "Initial payment / deposit response",
+      extraNote: "Other note",
+    },
+    mockSave: "Save response · MVP coming",
+    mockSaveNote:
+      "In the real operation stage, this reply would be delivered to the prospective tenant according to the inquiry flow.",
+    actions: {
+      list: "Back to inquiry list",
+      listings: "Go to listing management",
+      save: "Save response · MVP coming",
+    },
+    progress: {
+      new: "New inquiry",
+      review: "Organize review items",
+      waitingLandlord: "Waiting for landlord reply",
+      waitingTenant: "Waiting for tenant confirmation",
+      reservationReview: "Reservation review",
+      closed: "Closed",
+    },
+    details: {
+      "inq-2026-001": {
+        id: "INQ-2026-001",
+        inquiryMethod: "assisted",
+        status: "new",
+        progress: "new",
+        receivedAt: "Jun 16, 2026",
+        inquirer: "MEHA KIM",
+        email: "name@example.com",
+        phone: "Needs confirmation",
+        moveIn: "Needs confirmation",
+        people: "1",
+        stay: "Needs confirmation",
+        listing: "Koreatown 1BR cozy studio",
+        area: "Koreatown",
+        unit: "Entire unit",
+        rent: "C$1,850 / month",
+        housingType: "1BR",
+        availableFrom: "Needs confirmation",
+        mustConfirm: "I want to confirm the available date, utilities, and deposit terms.",
+        request: "I want to know the initial payment amount and refund terms before sending money.",
+        note: "Confirm availability and initial payment amount",
+        reviewItems: [
+          "Confirm the real available move-in date",
+          "Confirm what is included in the monthly rent",
+          "Confirm deposit or initial payment terms",
+          "Confirm amount and refund terms if payment is needed before move-in",
+          "Confirm whether photos differ from the actual space",
+          "Confirm any rules to review before contract or reservation",
+        ],
+        responseItems: {
+          availableFrom: "The landlord needs to confirm the real available date.",
+          includedItems: "Utilities and any separate costs should be clarified.",
+          initialPayment: "Initial payment, deposit, and refund terms need confirmation.",
+          extraNote: "Also confirm whether the photos match the current space.",
+        },
+      },
+      "inq-2026-002": {
+        id: "INQ-2026-002",
+        inquiryMethod: "direct",
+        status: "needsReview",
+        progress: "review",
+        receivedAt: "Jun 15, 2026",
+        inquirer: "JIWON PARK",
+        email: "jiwon@example.com",
+        phone: "Needs confirmation",
+        moveIn: "Early Jul 2026",
+        people: "1",
+        stay: "3+ months",
+        listing: "North York transit room rental",
+        area: "North York",
+        unit: "Room rental",
+        rent: "C$980 / month",
+        housingType: "Room rent",
+        availableFrom: "Needs confirmation",
+        mustConfirm: "I want to understand roommate composition and shared-space rules.",
+        request: "Please confirm whether the home is quiet and how visitor rules work.",
+        note: "Confirm roommate composition and shared-space rules",
+        reviewItems: [
+          "Confirm current residents and roommate composition",
+          "Confirm kitchen, bathroom, and laundry rules",
+          "Confirm visitor and noise rules",
+          "Confirm key deposit or initial payment terms",
+          "Confirm move-in date and minimum stay",
+        ],
+        responseItems: {
+          availableFrom: "Move-in date and minimum stay need confirmation.",
+          includedItems: "Shared spaces, laundry, and internet should be clarified.",
+          initialPayment: "Confirm whether anything is required beyond first month rent.",
+          extraNote: "Roommate composition and living rules should be specific.",
+        },
+      },
+      "inq-2026-003": {
+        id: "INQ-2026-003",
+        status: "waitingLandlord",
+        progress: "waitingLandlord",
+        receivedAt: "Jun 14, 2026",
+        inquirer: "MINSEO LEE",
+        email: "minseo@example.com",
+        phone: "Entered",
+        moveIn: "Aug 1, 2026",
+        people: "1",
+        stay: "6 months",
+        listing: "Downtown furnished studio",
+        area: "Downtown Toronto",
+        unit: "Entire unit",
+        rent: "C$2,050 / month",
+        housingType: "Studio",
+        availableFrom: "Waiting for landlord reply",
+        mustConfirm: "I want to confirm furniture, internet, and utility coverage.",
+        request: "Please also explain extra costs and building rules.",
+        note: "Included items and extra costs already asked",
+        reviewItems: [
+          "Confirm included furniture",
+          "Confirm internet, electricity, water, and heat coverage",
+          "Confirm payment items needed before move-in",
+          "Confirm building rules",
+          "Explain the landlord reply after it arrives",
+        ],
+        responseItems: {
+          availableFrom: "Waiting for the landlord's available-date reply.",
+          includedItems: "Waiting for the landlord's included-items reply.",
+          initialPayment: "Waiting for the landlord's extra-cost reply.",
+          extraNote: "Waiting for building rules and other notes.",
+        },
+      },
+      "inq-2026-004": {
+        id: "INQ-2026-004",
+        status: "waitingTenant",
+        progress: "waitingTenant",
+        receivedAt: "Jun 13, 2026",
+        inquirer: "HANA CHOI",
+        email: "hana@example.com",
+        phone: "Entered",
+        moveIn: "Jul 15, 2026",
+        people: "1",
+        stay: "4 months",
+        listing: "Finch station shared house",
+        area: "Finch",
+        unit: "Private room",
+        rent: "C$920 / month",
+        housingType: "Shared house",
+        availableFrom: "Reply received",
+        mustConfirm: "I want the landlord's reply explained clearly.",
+        request: "Please tell me what remains to confirm before reservation.",
+        note: "Explain landlord reply to tenant",
+        reviewItems: [
+          "Summarize landlord reply",
+          "Explain difficult cost items",
+          "Organize remaining items before reservation",
+          "Recheck shared-space rules",
+          "Wait for tenant decision on whether to proceed",
+        ],
+        responseItems: {
+          availableFrom: "Available-date reply was received.",
+          includedItems: "Included-items reply was received.",
+          initialPayment: "Initial payment reply was received.",
+          extraNote: "MapleHouse is organizing the reply for the tenant.",
+        },
+      },
+      "inq-2026-005": {
+        id: "INQ-2026-005",
+        status: "new",
+        progress: "new",
+        receivedAt: "Jun 12, 2026",
+        inquirer: "DOYUN JUNG",
+        email: "doyun@example.com",
+        phone: "Needs confirmation",
+        moveIn: "Needs confirmation",
+        people: "1",
+        stay: "Needs confirmation",
+        listing: "Midtown condo room",
+        area: "Midtown",
+        unit: "Condo room",
+        rent: "C$1,250 / month",
+        housingType: "Condo room rent",
+        availableFrom: "Needs confirmation",
+        mustConfirm: "I want to confirm reservation availability and cancellation terms.",
+        request: "Please also confirm access to building amenities.",
+        note: "Confirm reservation availability and cancellation terms",
+        reviewItems: [
+          "Confirm reservation availability",
+          "Confirm cancellation and refund terms",
+          "Confirm condo amenity access",
+          "Confirm key or access-card deposit",
+          "Confirm payment items before move-in",
+        ],
+        responseItems: {
+          availableFrom: "Reservation dates need confirmation.",
+          includedItems: "Amenities and included items need confirmation.",
+          initialPayment: "Reservation fee, deposit, and refund terms need confirmation.",
+          extraNote: "Cancellation terms should be written clearly.",
+        },
+      },
+      "inq-2026-006": {
+        id: "INQ-2026-006",
+        status: "needsReview",
+        progress: "review",
+        receivedAt: "Jun 11, 2026",
+        inquirer: "SORA YANG",
+        email: "sora@example.com",
+        phone: "Needs confirmation",
+        moveIn: "Late Jul 2026",
+        people: "1",
+        stay: "6+ months",
+        listing: "Scarborough basement unit",
+        area: "Scarborough",
+        unit: "Basement unit",
+        rent: "C$1,350 / month",
+        housingType: "Basement",
+        availableFrom: "Needs confirmation",
+        mustConfirm: "I want to confirm daylight, moisture, ceiling height, and entrance.",
+        request: "If possible, please ask for current photos or a short video before viewing.",
+        note: "Confirm daylight, moisture, and separate entrance",
+        reviewItems: [
+          "Confirm daylight and window condition",
+          "Confirm moisture, smell, and heating condition",
+          "Confirm ceiling height and entrance separation",
+          "Confirm whether photos differ from actual space",
+          "Confirm cleaning or repair before move-in",
+        ],
+        responseItems: {
+          availableFrom: "Move-in date and cleaning condition need confirmation.",
+          includedItems: "Heating, internet, and utilities need confirmation.",
+          initialPayment: "Initial payment terms and refund possibility need confirmation.",
+          extraNote: "Daylight, moisture, and entrance details should be specific.",
+        },
+      },
+    },
+  },
+  fr: {
+    breadcrumb: { detail: "Détail de la demande" },
+    backToList: "Retour à la liste des demandes",
+    title: "Détail de la demande",
+    subtitle: "Écran mock pour consulter une demande de locataire potentielle.",
+    mvpNote: "L’envoi réel des messages, les réponses, les contrats et les paiements ne sont pas encore connectés.",
+    emptyTitle: "Impossible de trouver cette demande.",
+    emptyBody: "Aucune demande mock ne correspond à cet identifiant.",
+    keyInfo: {
+      id: "ID de demande",
+      status: "Statut actuel",
+      receivedAt: "Reçue le",
+      inquirer: "Demandeur",
+      listing: "Logement",
+    },
+    sections: {
+      basics: "Informations de base",
+      listing: "Logement sélectionné",
+      content: "Contenu de la demande",
+      review: "Points à vérifier par MapleHouse",
+      response: "Points à répondre par le propriétaire",
+      progress: "Progression de la demande",
+    },
+    fields: {
+      inquirer: "Demandeur",
+      email: "E-mail",
+      phone: "Téléphone",
+      moveIn: "Arrivée souhaitée",
+      people: "Personnes",
+      stay: "Durée du séjour",
+      receivedAt: "Reçue le",
+      listing: "Logement",
+      area: "Secteur",
+      unit: "Chambre/unité",
+      rent: "Loyer",
+      housingType: "Type de logement",
+      availableFrom: "Disponible à partir de",
+      mustConfirm: "À confirmer",
+      request: "Demande supplémentaire",
+      note: "Note",
+    },
+    reviewDescription:
+      "Ces éléments seraient organisés par MapleHouse avant de poser les questions au propriétaire.",
+    responseDescription:
+      "Cette zone de réponse est un mock MVP. Rien n’est enregistré ni envoyé.",
+    responseFields: {
+      availableFrom: "Réponse sur la disponibilité",
+      includedItems: "Réponse sur les éléments inclus",
+      initialPayment: "Réponse sur le paiement initial / dépôt",
+      extraNote: "Autre note",
+    },
+    mockSave: "Enregistrer la réponse · MVP à venir",
+    mockSaveNote:
+      "En phase réelle, cette réponse serait transmise au locataire potentiel selon le flux de demande.",
+    actions: {
+      list: "Retour à la liste des demandes",
+      listings: "Voir dans la gestion du logement",
+      save: "Enregistrer la réponse · MVP à venir",
+    },
+    progress: {
+      new: "Nouvelle demande",
+      review: "Organisation des points",
+      waitingLandlord: "Réponse propriétaire attendue",
+      waitingTenant: "Confirmation locataire attendue",
+      reservationReview: "Réservation à examiner",
+      closed: "Terminée",
+    },
+    details: {
+      "inq-2026-001": {
+        id: "INQ-2026-001",
+        inquiryMethod: "assisted",
+        status: "new",
+        progress: "new",
+        receivedAt: "16 juin 2026",
+        inquirer: "MEHA KIM",
+        email: "name@example.com",
+        phone: "À confirmer",
+        moveIn: "À confirmer",
+        people: "1",
+        stay: "À confirmer",
+        listing: "Studio 1 chambre cozy à Koreatown",
+        area: "Koreatown",
+        unit: "Logement entier",
+        rent: "1 850 $ CA / mois",
+        housingType: "1 chambre",
+        availableFrom: "À confirmer",
+        mustConfirm:
+          "Je veux confirmer la date d’arrivée, les charges incluses et les conditions de dépôt.",
+        request:
+          "Je veux connaître le montant initial et les conditions de remboursement avant tout paiement.",
+        note: "Confirmer la disponibilité et le montant initial",
+        reviewItems: [
+          "Confirmer la vraie date d’arrivée possible",
+          "Confirmer ce qui est inclus dans le loyer",
+          "Confirmer les conditions de dépôt ou de paiement initial",
+          "Confirmer le montant et les conditions de remboursement si un paiement est demandé avant l’arrivée",
+          "Confirmer si les photos correspondent à l’espace actuel",
+          "Confirmer les règles à revoir avant contrat ou réservation",
+        ],
+        responseItems: {
+          availableFrom: "Le propriétaire doit confirmer la date réelle de disponibilité.",
+          includedItems: "Les charges incluses et les frais séparés doivent être précisés.",
+          initialPayment: "Le paiement initial, le dépôt et les conditions de remboursement doivent être confirmés.",
+          extraNote: "Vérifier aussi si les photos correspondent à l’état actuel.",
+        },
+      },
+      "inq-2026-002": {
+        id: "INQ-2026-002",
+        inquiryMethod: "direct",
+        status: "needsReview",
+        progress: "review",
+        receivedAt: "15 juin 2026",
+        inquirer: "JIWON PARK",
+        email: "jiwon@example.com",
+        phone: "À confirmer",
+        moveIn: "Début juillet 2026",
+        people: "1",
+        stay: "3 mois ou plus",
+        listing: "Chambre près du transport à North York",
+        area: "North York",
+        unit: "Chambre à louer",
+        rent: "980 $ CA / mois",
+        housingType: "Chambre à louer",
+        availableFrom: "À confirmer",
+        mustConfirm: "Je veux comprendre la composition des colocataires et les règles des espaces communs.",
+        request: "Merci de confirmer si le logement est calme et comment fonctionnent les règles de visiteurs.",
+        note: "Confirmer les colocataires et les règles communes",
+        reviewItems: [
+          "Confirmer les occupants actuels et la composition des colocataires",
+          "Confirmer les règles de cuisine, salle de bain et buanderie",
+          "Confirmer les règles de visiteurs et de bruit",
+          "Confirmer le dépôt de clé ou les paiements initiaux",
+          "Confirmer la date d’arrivée et la durée minimale",
+        ],
+        responseItems: {
+          availableFrom: "La date d’arrivée et la durée minimale doivent être confirmées.",
+          includedItems: "Les espaces communs, la buanderie et l’internet doivent être précisés.",
+          initialPayment: "Confirmer s’il faut payer autre chose que le premier mois.",
+          extraNote: "La composition des colocataires et les règles de vie doivent être précises.",
+        },
+      },
+      "inq-2026-003": {
+        id: "INQ-2026-003",
+        status: "waitingLandlord",
+        progress: "waitingLandlord",
+        receivedAt: "14 juin 2026",
+        inquirer: "MINSEO LEE",
+        email: "minseo@example.com",
+        phone: "Renseigné",
+        moveIn: "1 août 2026",
+        people: "1",
+        stay: "6 mois",
+        listing: "Studio meublé au centre-ville",
+        area: "Downtown Toronto",
+        unit: "Logement entier",
+        rent: "2 050 $ CA / mois",
+        housingType: "Studio",
+        availableFrom: "Réponse propriétaire attendue",
+        mustConfirm: "Je veux confirmer les meubles, l’internet et les charges incluses.",
+        request: "Merci d’expliquer aussi les frais supplémentaires et les règles du bâtiment.",
+        note: "Éléments inclus et frais supplémentaires déjà demandés",
+        reviewItems: [
+          "Confirmer les meubles inclus",
+          "Confirmer internet, électricité, eau et chauffage",
+          "Confirmer les paiements nécessaires avant l’arrivée",
+          "Confirmer les règles du bâtiment",
+          "Expliquer la réponse du propriétaire après réception",
+        ],
+        responseItems: {
+          availableFrom: "En attente de la réponse du propriétaire sur la disponibilité.",
+          includedItems: "En attente de la réponse sur les éléments inclus.",
+          initialPayment: "En attente de la réponse sur les frais supplémentaires.",
+          extraNote: "En attente des règles du bâtiment et des notes.",
+        },
+      },
+      "inq-2026-004": {
+        id: "INQ-2026-004",
+        status: "waitingTenant",
+        progress: "waitingTenant",
+        receivedAt: "13 juin 2026",
+        inquirer: "HANA CHOI",
+        email: "hana@example.com",
+        phone: "Renseigné",
+        moveIn: "15 juillet 2026",
+        people: "1",
+        stay: "4 mois",
+        listing: "Maison partagée près de Finch station",
+        area: "Finch",
+        unit: "Chambre privée",
+        rent: "920 $ CA / mois",
+        housingType: "Maison partagée",
+        availableFrom: "Réponse reçue",
+        mustConfirm: "Je veux une explication claire de la réponse du propriétaire.",
+        request: "Merci d’indiquer ce qu’il reste à confirmer avant réservation.",
+        note: "Réponse à expliquer au locataire",
+        reviewItems: [
+          "Résumer la réponse du propriétaire",
+          "Expliquer les coûts difficiles à comprendre",
+          "Organiser les éléments restants avant réservation",
+          "Revérifier les règles des espaces communs",
+          "Attendre la décision du locataire",
+        ],
+        responseItems: {
+          availableFrom: "La réponse sur la disponibilité est arrivée.",
+          includedItems: "La réponse sur les éléments inclus est arrivée.",
+          initialPayment: "La réponse sur le paiement initial est arrivée.",
+          extraNote: "MapleHouse organise la réponse pour le locataire.",
+        },
+      },
+      "inq-2026-005": {
+        id: "INQ-2026-005",
+        status: "new",
+        progress: "new",
+        receivedAt: "12 juin 2026",
+        inquirer: "DOYUN JUNG",
+        email: "doyun@example.com",
+        phone: "À confirmer",
+        moveIn: "À confirmer",
+        people: "1",
+        stay: "À confirmer",
+        listing: "Chambre en condo à Midtown",
+        area: "Midtown",
+        unit: "Chambre en condo",
+        rent: "1 250 $ CA / mois",
+        housingType: "Chambre en condo",
+        availableFrom: "À confirmer",
+        mustConfirm: "Je veux confirmer la disponibilité de réservation et les conditions d’annulation.",
+        request: "Merci de confirmer aussi l’accès aux commodités du bâtiment.",
+        note: "Confirmer la réservation et l’annulation",
+        reviewItems: [
+          "Confirmer la disponibilité de réservation",
+          "Confirmer les conditions d’annulation et de remboursement",
+          "Confirmer l’accès aux commodités du condo",
+          "Confirmer le dépôt pour clé ou carte d’accès",
+          "Confirmer les paiements avant l’arrivée",
+        ],
+        responseItems: {
+          availableFrom: "Les dates de réservation doivent être confirmées.",
+          includedItems: "Les commodités et éléments inclus doivent être confirmés.",
+          initialPayment: "Les frais de réservation, dépôt et remboursements doivent être confirmés.",
+          extraNote: "Les conditions d’annulation doivent être écrites clairement.",
+        },
+      },
+      "inq-2026-006": {
+        id: "INQ-2026-006",
+        status: "needsReview",
+        progress: "review",
+        receivedAt: "11 juin 2026",
+        inquirer: "SORA YANG",
+        email: "sora@example.com",
+        phone: "À confirmer",
+        moveIn: "Fin juillet 2026",
+        people: "1",
+        stay: "6 mois ou plus",
+        listing: "Unité en sous-sol à Scarborough",
+        area: "Scarborough",
+        unit: "Unité en sous-sol",
+        rent: "1 350 $ CA / mois",
+        housingType: "Sous-sol",
+        availableFrom: "À confirmer",
+        mustConfirm: "Je veux confirmer la lumière, l’humidité, la hauteur du plafond et l’entrée.",
+        request: "Si possible, merci de demander des photos récentes ou une courte vidéo avant la visite.",
+        note: "Confirmer lumière, humidité et entrée séparée",
+        reviewItems: [
+          "Confirmer la lumière et l’état des fenêtres",
+          "Confirmer l’humidité, les odeurs et le chauffage",
+          "Confirmer la hauteur du plafond et l’entrée séparée",
+          "Confirmer si les photos diffèrent de l’espace actuel",
+          "Confirmer le nettoyage ou les réparations avant l’arrivée",
+        ],
+        responseItems: {
+          availableFrom: "La date d’arrivée et l’état de nettoyage doivent être confirmés.",
+          includedItems: "Le chauffage, l’internet et les charges doivent être confirmés.",
+          initialPayment: "Les conditions de paiement initial et de remboursement doivent être confirmées.",
+          extraNote: "La lumière, l’humidité et l’entrée doivent être décrites précisément.",
+        },
+      },
+    },
+  },
+};
+
 const CENTER_NAV_ITEMS = [
   { key: "dashboard", icon: Home, route: "dashboard" },
   { key: "listings", icon: Building2, route: "listings" },
@@ -1210,10 +2143,214 @@ export function LocaleLandlordCenterPage({
           />
         ) : null}
         {page === "newListing" ? <NewListingPanel copy={copy} /> : null}
-        {page === "inquiries" ? <InquiriesPanel copy={copy} /> : null}
+        {page === "inquiries" ? <InquiriesPanel copy={copy} locale={locale} /> : null}
         {page === "profile" ? (
           <ProfilePanel copy={copy} locale={locale} draft={draft} hasDraft={hasDraft} loaded={loaded} />
         ) : null}
+      </Container>
+    </main>
+  );
+}
+
+export function LocaleLandlordInquiryDetailPage({
+  locale,
+  inquiryId,
+}: {
+  locale: Locale;
+  inquiryId: string;
+}) {
+  const copy = CENTER_COPY[locale];
+  const detailCopy = INQUIRY_DETAIL_COPY[locale];
+  const inquiry = detailCopy.details[toInquirySlug(inquiryId)];
+  const listHref = centerRoute(locale, "inquiries");
+  const inquiryMethod = inquiry ? getInquiryMethod(inquiry) : "assisted";
+  const structureCopy = getInquiryDetailStructureCopy(locale, inquiryMethod);
+
+  return (
+    <main className="min-h-screen bg-[#F7F7F8] py-10 sm:py-14">
+      <Container className="space-y-6">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <Link to={`/${locale}`} className="transition hover:text-foreground">
+            {copy.breadcrumb.home}
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to={centerRoute(locale, "dashboard")} className="transition hover:text-foreground">
+            {copy.breadcrumb.center}
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to={listHref} className="transition hover:text-foreground">
+            {copy.nav.inquiries}
+          </Link>
+          <span aria-hidden>·</span>
+          <span className="font-semibold text-foreground">{detailCopy.breadcrumb.detail}</span>
+        </div>
+
+        <section className="rounded-3xl border border-primary/15 bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl space-y-3">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                MAPLEHOUSE LANDLORD CENTER
+              </p>
+              <h1 className="text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+                {detailCopy.title}
+              </h1>
+              <p className="text-sm leading-7 text-muted-foreground">{detailCopy.subtitle}</p>
+              <p className="inline-flex max-w-full rounded-full border border-primary/20 bg-[#FFF8F1] px-3 py-1.5 text-xs font-semibold leading-relaxed text-primary">
+                {detailCopy.mvpNote}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <nav
+          aria-label={copy.breadcrumb.center}
+          className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-white p-2 shadow-sm"
+        >
+          {CENTER_NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active = item.key === "inquiries";
+
+            return (
+              <Link
+                key={item.key}
+                to={centerRoute(locale, item.route)}
+                className={cn(
+                  "inline-flex min-w-fit items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold transition",
+                  active
+                    ? "bg-[#FFF3E8] text-primary"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                )}
+              >
+                <Icon className="h-4 w-4" aria-hidden />
+                {copy.nav[item.key]}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {!inquiry ? (
+          <EmptyCard
+            title={detailCopy.emptyTitle}
+            body={detailCopy.emptyBody}
+            actionLabel={detailCopy.actions.list}
+            actionHref={listHref}
+          />
+        ) : (
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="min-w-0 space-y-5">
+              <InquiryMetadataStrip
+                items={[
+                  { label: detailCopy.keyInfo.id, value: inquiry.id },
+                  { label: detailCopy.keyInfo.listing, value: inquiry.listing },
+                  { label: detailCopy.keyInfo.receivedAt, value: inquiry.receivedAt },
+                  { label: detailCopy.keyInfo.inquirer, value: inquiry.inquirer },
+                ]}
+              />
+
+              <InquiryListingProfileCard
+                inquiry={inquiry}
+                actionLabel={structureCopy.listingAction}
+                actionHref={centerRoute(locale, "listings")}
+              />
+
+              <InquiryDetailSection title={detailCopy.sections.basics}>
+                <InquiryDetailRows
+                  items={[
+                    [detailCopy.fields.inquirer, inquiry.inquirer],
+                    [detailCopy.fields.email, inquiry.email],
+                    [detailCopy.fields.phone, inquiry.phone],
+                    [detailCopy.fields.moveIn, inquiry.moveIn],
+                    [detailCopy.fields.people, inquiry.people],
+                    [detailCopy.fields.stay, inquiry.stay],
+                    [detailCopy.fields.receivedAt, inquiry.receivedAt],
+                  ]}
+                />
+              </InquiryDetailSection>
+
+              <InquiryDetailSection title={detailCopy.sections.listing}>
+                <InquiryDetailRows
+                  items={[
+                    [detailCopy.fields.listing, inquiry.listing],
+                    [detailCopy.fields.area, inquiry.area],
+                    [detailCopy.fields.unit, inquiry.unit],
+                    [detailCopy.fields.rent, inquiry.rent],
+                    [detailCopy.fields.housingType, inquiry.housingType],
+                    [detailCopy.fields.availableFrom, inquiry.availableFrom],
+                  ]}
+                />
+              </InquiryDetailSection>
+
+              <InquiryDetailSection
+                title={structureCopy.itemsTitle}
+                description={structureCopy.itemsDescription}
+              >
+                <InquiryQuestionItems
+                  customerLabel={structureCopy.customerContentLabel}
+                  questionLabel={structureCopy.questionListLabel}
+                  customerItems={[
+                    [detailCopy.fields.mustConfirm, inquiry.mustConfirm],
+                    [detailCopy.fields.request, inquiry.request],
+                    [detailCopy.fields.note, inquiry.note],
+                  ]}
+                  questions={inquiry.reviewItems}
+                />
+              </InquiryDetailSection>
+
+              <InquiryDetailSection
+                title={structureCopy.responseTitle}
+                description={structureCopy.responseDescription}
+              >
+                <InquiryResponseMock
+                  locale={locale}
+                  questions={inquiry.reviewItems}
+                  values={getInquiryResponseValues(inquiry)}
+                  note={structureCopy.responseNote}
+                  emptyPlaceholder={structureCopy.responsePlaceholder}
+                />
+              </InquiryDetailSection>
+
+              <section className="flex flex-col gap-3 rounded-3xl border border-border bg-white p-4 shadow-sm sm:flex-row">
+                <Link
+                  to={listHref}
+                  className="inline-flex flex-1 items-center justify-center rounded-2xl border border-border bg-white px-4 py-3 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-[#FFF8F1] hover:text-primary"
+                >
+                  {detailCopy.actions.list}
+                </Link>
+                <Link
+                  to={centerRoute(locale, "listings")}
+                  className="inline-flex flex-1 items-center justify-center rounded-2xl border border-border bg-white px-4 py-3 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:text-primary"
+                >
+                  {structureCopy.listingAction}
+                </Link>
+                <button
+                  type="button"
+                  disabled
+                  className="inline-flex flex-1 cursor-not-allowed items-center justify-center rounded-2xl border border-primary/20 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold text-primary/70"
+                >
+                  {detailCopy.actions.save}
+                </button>
+              </section>
+            </div>
+
+            <aside className="h-fit rounded-3xl border border-primary/15 bg-white p-5 shadow-sm xl:sticky xl:top-24">
+              <div className="mb-4 border-b border-border/70 pb-3">
+                <h2 className="text-sm font-bold text-foreground">{detailCopy.sections.progress}</h2>
+              </div>
+              <InquiryProgressFlow
+                labels={detailCopy.progress}
+                current={inquiry.progress}
+              />
+              <div className="mt-5 border-t border-border/70 pt-4">
+                <Link
+                  to={listHref}
+                  className="inline-flex w-full items-center justify-center rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-[#FFF8F1] hover:text-primary"
+                >
+                  {detailCopy.backToList}
+                </Link>
+              </div>
+            </aside>
+          </div>
+        )}
       </Container>
     </main>
   );
@@ -1898,7 +3035,7 @@ const INQUIRY_STATUS_STYLES: Record<LandlordInquiryStatusKey, string> = {
   closed: "border-border bg-[#F4F4F5] text-muted-foreground",
 };
 
-function InquiriesPanel({ copy }: { copy: CenterCopy }) {
+function InquiriesPanel({ copy, locale }: { copy: CenterCopy; locale: Locale }) {
   const inquiries = copy.inquiries.items;
 
   if (!inquiries.length) {
@@ -2022,18 +3159,397 @@ function InquiriesPanel({ copy }: { copy: CenterCopy }) {
               </div>
 
               <div className="flex items-center justify-start lg:justify-center">
-                <button
-                  type="button"
+                <Link
+                  to={
+                    locale === "ko"
+                      ? "/ko/landlords/center/inquiries/$inquiryId"
+                      : locale === "en"
+                        ? "/en/landlords/center/inquiries/$inquiryId"
+                        : "/fr/landlords/center/inquiries/$inquiryId"
+                  }
+                  params={{ inquiryId: toInquirySlug(inquiry.id) }}
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-primary/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-primary transition hover:bg-[#FFF8F1]"
                 >
                   {copy.inquiries.action}
-                </button>
+                </Link>
               </div>
             </article>
           ))}
         </div>
       </section>
     </section>
+  );
+}
+
+function getInquiryMethod(inquiry: LandlordInquiryDetailData): LandlordInquiryMethod {
+  return inquiry.inquiryMethod ?? "assisted";
+}
+
+function getInquiryDetailStructureCopy(locale: Locale, method: LandlordInquiryMethod) {
+  const shared = {
+    ko: {
+      listingAction: "해당 매물 관리로 이동",
+      customerContentLabel: "고객 문의 내용",
+      assistedQuestionLabel: "임대인에게 확인할 질문",
+      directQuestionLabel: "질문 목록",
+      responseTitle: "임대인 답변 내용",
+      responseDescription:
+        "문의 질문별로 임대인 답변을 확인하는 MVP mock 영역입니다.",
+      responsePlaceholder: "임대인이 답변을 입력하는 mock 영역",
+      assistedNote:
+        "실제 운영 단계에서는 이 답변이 MapleHouse 검토 후 예비 입주자에게 전달됩니다.",
+      directNote:
+        "실제 운영 단계에서는 임대인이 작성한 답변이 예비 입주자에게 전달됩니다.",
+    },
+    en: {
+      listingAction: "Go to listing management",
+      customerContentLabel: "Customer inquiry content",
+      assistedQuestionLabel: "Questions to ask the landlord",
+      directQuestionLabel: "Question list",
+      responseTitle: "Landlord response",
+      responseDescription:
+        "This MVP mock area shows landlord replies by inquiry question.",
+      responsePlaceholder: "Mock area for the landlord reply",
+      assistedNote:
+        "In the real operation stage, MapleHouse would review this reply and deliver it to the prospective tenant.",
+      directNote:
+        "In the real operation stage, the landlord's written reply would be delivered to the prospective tenant.",
+    },
+    fr: {
+      listingAction: "Voir dans la gestion du logement",
+      customerContentLabel: "Contenu envoyé par le client",
+      assistedQuestionLabel: "Questions à poser au propriétaire",
+      directQuestionLabel: "Liste de questions",
+      responseTitle: "Réponse du propriétaire",
+      responseDescription:
+        "Cette zone mock MVP affiche les réponses du propriétaire par question.",
+      responsePlaceholder: "Zone mock pour la réponse du propriétaire",
+      assistedNote:
+        "En phase réelle, MapleHouse vérifierait cette réponse puis la transmettrait au locataire potentiel.",
+      directNote:
+        "En phase réelle, la réponse écrite du propriétaire serait transmise au locataire potentiel.",
+    },
+  }[locale];
+
+  if (method === "direct") {
+    return {
+      ...shared,
+      itemsTitle:
+        locale === "ko"
+          ? "고객 직접 문의 내용"
+          : locale === "en"
+            ? "Direct inquiry content"
+            : "Contenu de la demande directe",
+      itemsDescription:
+        locale === "ko"
+          ? "고객이 임대인에게 직접 전달하려는 문의 내용을 확인하는 mock 영역입니다."
+          : locale === "en"
+            ? "A mock area for the inquiry content the customer wants to send directly to the landlord."
+            : "Zone mock pour le contenu que le client souhaite envoyer directement au propriétaire.",
+      questionListLabel: shared.directQuestionLabel,
+      responseNote: shared.directNote,
+    };
+  }
+
+  return {
+    ...shared,
+    itemsTitle:
+      locale === "ko"
+        ? "MapleHouse 대리 문의 항목"
+        : locale === "en"
+          ? "MapleHouse assisted inquiry items"
+          : "Points de demande assistée par MapleHouse",
+    itemsDescription:
+      locale === "ko"
+        ? "고객이 입력한 내용을 바탕으로 MapleHouse가 임대인에게 확인할 질문을 정리한 mock 영역입니다."
+        : locale === "en"
+          ? "A mock area where MapleHouse organizes questions to ask the landlord based on the customer's inquiry."
+          : "Zone mock où MapleHouse organise les questions à poser au propriétaire à partir de la demande du client.",
+    questionListLabel: shared.assistedQuestionLabel,
+    responseNote: shared.assistedNote,
+  };
+}
+
+function getInquiryAnswerLabel(locale: Locale, index: number) {
+  const number = index + 1;
+
+  if (locale === "ko") return `질문 ${number}에 대한 답변`;
+  if (locale === "en") return `Answer to question ${number}`;
+  return `Réponse à la question ${number}`;
+}
+
+function getInquiryResponseValues(inquiry: LandlordInquiryDetailData) {
+  return Object.values(inquiry.responseItems);
+}
+
+function InquiryDetailSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-3xl border border-border bg-white p-5 shadow-sm sm:p-6">
+      <div className="space-y-2">
+        <h2 className="text-[17px] font-bold text-foreground">{title}</h2>
+        {description ? (
+          <p className="text-sm leading-6 text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
+
+function InquiryListingProfileCard({
+  inquiry,
+  actionLabel,
+  actionHref,
+}: {
+  inquiry: LandlordInquiryDetailData;
+  actionLabel: string;
+  actionHref: string;
+}) {
+  const imageSrc = getMockListingThumbnailImage(`inquiry-${inquiry.id}-${inquiry.listing}`);
+  const secondaryText = [inquiry.area, inquiry.unit].filter(Boolean).join(" · ");
+
+  return (
+    <section className="rounded-3xl border border-primary/15 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <ListingImageFrame
+          src={imageSrc}
+          alt={inquiry.listing}
+          className="aspect-[4/3] w-full flex-none rounded-2xl border border-border bg-[#F8FAFC] sm:h-28 sm:w-40"
+          fallback={
+            <div className="flex h-full w-full items-center justify-center text-primary">
+              <Building2 className="h-8 w-8" aria-hidden />
+            </div>
+          }
+        />
+        <div className="min-w-0 flex-1 space-y-2">
+          <p className="break-words text-base font-bold leading-6 text-foreground">
+            {inquiry.listing}
+          </p>
+          {secondaryText ? (
+            <p className="break-words text-sm leading-6 text-muted-foreground">
+              {secondaryText}
+            </p>
+          ) : null}
+          <Link
+            to={actionHref}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition hover:text-primary/80"
+          >
+            {actionLabel}
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InquiryMetadataStrip({
+  items,
+}: {
+  items: Array<{ label: string; value: ReactNode }>;
+}) {
+  return (
+    <section className="rounded-3xl border border-border bg-white px-5 py-4 shadow-sm">
+      <dl className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm leading-6">
+        {items.map((item, index) => (
+          <div
+            key={item.label}
+            className={cn(
+              "inline-flex min-w-0 items-baseline gap-1.5",
+              index > 0 ? "before:mr-1 before:text-border before:content-['·']" : "",
+            )}
+          >
+            <dt className="flex-none whitespace-nowrap text-[12px] font-semibold text-muted-foreground">
+              {item.label}
+            </dt>
+            <dd className="min-w-0 break-words text-[13px] font-medium text-foreground">
+              {item.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function InquiryQuestionItems({
+  customerLabel,
+  questionLabel,
+  customerItems,
+  questions,
+}: {
+  customerLabel: string;
+  questionLabel: string;
+  customerItems: Array<[string, string]>;
+  questions: string[];
+}) {
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-[12px] font-bold leading-6 text-foreground">{customerLabel}</p>
+        <div className="mt-2 rounded-2xl border border-border/80 px-4">
+          <InquiryTextRows items={customerItems} />
+        </div>
+      </div>
+      <div className="border-t border-border/70 pt-4">
+        <p className="text-[12px] font-bold leading-6 text-foreground">{questionLabel}</p>
+        <div className="mt-2">
+          <InquiryReviewList items={questions} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InquiryDetailRows({ items }: { items: Array<[string, string]> }) {
+  return (
+    <dl className="divide-y divide-border/70">
+      {items.map(([label, value]) => (
+        <div
+          key={label}
+          className="grid gap-1 py-3 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-5"
+        >
+          <dt className="text-[12px] font-semibold leading-6 text-muted-foreground">
+            {label}
+          </dt>
+          <dd className="min-w-0 break-words text-sm font-medium leading-6 text-foreground">
+            {value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function InquiryTextRows({ items }: { items: Array<[string, string]> }) {
+  return (
+    <div className="divide-y divide-border/70">
+      {items.map(([label, value]) => (
+        <div key={label} className="py-3">
+          <p className="text-[12px] font-semibold leading-6 text-muted-foreground">{label}</p>
+          <p className="mt-1 break-words text-sm leading-7 text-foreground">{value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InquiryReviewList({ items }: { items: string[] }) {
+  return (
+    <ul className="divide-y divide-border/70">
+      {items.map((item) => (
+        <li key={item} className="flex gap-3 py-3 text-sm leading-6 text-foreground">
+          <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-primary" aria-hidden />
+          <span className="min-w-0 break-words">{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function InquiryResponseMock({
+  locale,
+  questions,
+  values,
+  note,
+  emptyPlaceholder,
+}: {
+  locale: Locale;
+  questions: string[];
+  values: string[];
+  note: string;
+  emptyPlaceholder: string;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="divide-y divide-border/70">
+        {questions.map((question, index) => (
+          <label
+            key={`${question}-${index}`}
+            className="grid gap-3 py-4 sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-5"
+          >
+            <span className="space-y-1">
+              <span className="block text-[12px] font-semibold leading-6 text-foreground">
+                {getInquiryAnswerLabel(locale, index)}
+              </span>
+              <span className="block break-words text-xs leading-5 text-muted-foreground">
+                {question}
+              </span>
+            </span>
+            <textarea
+              value={values[index] ?? ""}
+              placeholder={emptyPlaceholder}
+              readOnly
+              rows={3}
+              className="min-h-[70px] w-full resize-none rounded-2xl border border-border bg-white px-4 py-3 text-sm leading-6 text-foreground outline-none"
+            />
+          </label>
+        ))}
+      </div>
+      <div className="border-t border-border/70 pt-4">
+        <p className="text-xs leading-6 text-muted-foreground">{note}</p>
+      </div>
+    </div>
+  );
+}
+
+function InquiryProgressFlow({
+  labels,
+  current,
+}: {
+  labels: Record<LandlordInquiryProgressKey, string>;
+  current: LandlordInquiryProgressKey;
+}) {
+  const steps: LandlordInquiryProgressKey[] = [
+    "new",
+    "review",
+    "waitingLandlord",
+    "waitingTenant",
+    "reservationReview",
+    "closed",
+  ];
+  const currentIndex = steps.indexOf(current);
+
+  return (
+    <ol className="space-y-3">
+      {steps.map((step, index) => {
+        const active = step === current;
+        const complete = index < currentIndex;
+
+        return (
+          <li key={step} className="flex items-center gap-3">
+            <span
+              className={cn(
+                "flex h-7 w-7 flex-none items-center justify-center rounded-full border text-xs font-bold",
+                active
+                  ? "border-primary bg-[#FFF3E8] text-primary"
+                  : complete
+                    ? "border-primary/30 bg-white text-primary"
+                    : "border-border bg-[#FAFAFA] text-muted-foreground",
+              )}
+            >
+              {index + 1}
+            </span>
+            <span
+              className={cn(
+                "text-sm leading-6",
+                active ? "font-semibold text-primary" : "font-medium text-muted-foreground",
+              )}
+            >
+              {labels[step]}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -2386,6 +3902,10 @@ function centerRoute(
   if (page === "listingDetails") return `${base}/listings/draft/details`;
   if (page === "register") return `${base}/register`;
   return `${base}/${page}`;
+}
+
+function toInquirySlug(inquiryId: string) {
+  return inquiryId.trim().toLowerCase();
 }
 
 function draftHasData(draft: LandlordCenterDraft | null) {
