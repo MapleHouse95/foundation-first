@@ -41,6 +41,7 @@ import { Route as EnContactRouteImport } from './routes/en.contact'
 import { Route as EnChecklistRouteImport } from './routes/en.checklist'
 import { Route as EnApplyRouteImport } from './routes/en.apply'
 import { Route as EnAboutRouteImport } from './routes/en.about'
+import { Route as KoReservationsNewRouteImport } from './routes/ko.reservations.new'
 import { Route as KoMyInquiriesRouteImport } from './routes/ko.my.inquiries'
 import { Route as KoListingsDraftRouteImport } from './routes/ko.listings_.draft'
 import { Route as KoListingsListingIdRouteImport } from './routes/ko.listings_.$listingId'
@@ -49,6 +50,7 @@ import { Route as KoLandlordsGuideRouteImport } from './routes/ko.landlords.guid
 import { Route as KoLandlordsCenterRouteImport } from './routes/ko.landlords.center'
 import { Route as KoContactBoardRouteImport } from './routes/ko.contact.board'
 import { Route as KoApplyCompleteRouteImport } from './routes/ko.apply_.complete'
+import { Route as FrReservationsNewRouteImport } from './routes/fr.reservations.new'
 import { Route as FrMyInquiriesRouteImport } from './routes/fr.my.inquiries'
 import { Route as FrListingsDraftRouteImport } from './routes/fr.listings_.draft'
 import { Route as FrListingsListingIdRouteImport } from './routes/fr.listings_.$listingId'
@@ -56,6 +58,7 @@ import { Route as FrLandlordsRegisterRouteImport } from './routes/fr.landlords.r
 import { Route as FrLandlordsGuideRouteImport } from './routes/fr.landlords.guide'
 import { Route as FrLandlordsCenterRouteImport } from './routes/fr.landlords.center'
 import { Route as FrApplyCompleteRouteImport } from './routes/fr.apply_.complete'
+import { Route as EnReservationsNewRouteImport } from './routes/en.reservations.new'
 import { Route as EnMyInquiriesRouteImport } from './routes/en.my.inquiries'
 import { Route as EnListingsDraftRouteImport } from './routes/en.listings_.draft'
 import { Route as EnListingsListingIdRouteImport } from './routes/en.listings_.$listingId'
@@ -92,6 +95,7 @@ import { Route as EnLandlordsCenterRegisterRouteImport } from './routes/en.landl
 import { Route as EnLandlordsCenterProfileRouteImport } from './routes/en.landlords.center.profile'
 import { Route as EnLandlordsCenterListingsRouteImport } from './routes/en.landlords.center.listings'
 import { Route as EnLandlordsCenterInquiriesRouteImport } from './routes/en.landlords.center.inquiries'
+import { Route as KoMyInquiriesInquiryIdReservationReviewRouteImport } from './routes/ko.my.inquiries_.$inquiryId_.reservation-review'
 import { Route as KoLandlordsCenterRegisterTermsRouteImport } from './routes/ko.landlords.center.register.terms'
 import { Route as KoLandlordsCenterRegisterRoomsRouteImport } from './routes/ko.landlords.center.register.rooms'
 import { Route as KoLandlordsCenterRegisterPropertyRouteImport } from './routes/ko.landlords.center.register.property'
@@ -99,6 +103,7 @@ import { Route as KoLandlordsCenterRegisterPreviewRouteImport } from './routes/k
 import { Route as KoLandlordsCenterListingsNewRouteImport } from './routes/ko.landlords.center.listings.new'
 import { Route as KoLandlordsCenterListingsDraftRouteImport } from './routes/ko.landlords.center.listings.draft'
 import { Route as KoLandlordsCenterInquiriesInquiryIdRouteImport } from './routes/ko.landlords.center.inquiries_.$inquiryId'
+import { Route as FrMyInquiriesInquiryIdReservationReviewRouteImport } from './routes/fr.my.inquiries_.$inquiryId_.reservation-review'
 import { Route as FrLandlordsCenterRegisterTermsRouteImport } from './routes/fr.landlords.center.register.terms'
 import { Route as FrLandlordsCenterRegisterRoomsRouteImport } from './routes/fr.landlords.center.register.rooms'
 import { Route as FrLandlordsCenterRegisterPropertyRouteImport } from './routes/fr.landlords.center.register.property'
@@ -106,6 +111,7 @@ import { Route as FrLandlordsCenterRegisterPreviewRouteImport } from './routes/f
 import { Route as FrLandlordsCenterListingsNewRouteImport } from './routes/fr.landlords.center.listings.new'
 import { Route as FrLandlordsCenterListingsDraftRouteImport } from './routes/fr.landlords.center.listings.draft'
 import { Route as FrLandlordsCenterInquiriesInquiryIdRouteImport } from './routes/fr.landlords.center.inquiries_.$inquiryId'
+import { Route as EnMyInquiriesInquiryIdReservationReviewRouteImport } from './routes/en.my.inquiries_.$inquiryId_.reservation-review'
 import { Route as EnLandlordsCenterRegisterTermsRouteImport } from './routes/en.landlords.center.register.terms'
 import { Route as EnLandlordsCenterRegisterRoomsRouteImport } from './routes/en.landlords.center.register.rooms'
 import { Route as EnLandlordsCenterRegisterPropertyRouteImport } from './routes/en.landlords.center.register.property'
@@ -277,6 +283,11 @@ const EnAboutRoute = EnAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => EnRoute,
 } as any)
+const KoReservationsNewRoute = KoReservationsNewRouteImport.update({
+  id: '/reservations/new',
+  path: '/reservations/new',
+  getParentRoute: () => KoRoute,
+} as any)
 const KoMyInquiriesRoute = KoMyInquiriesRouteImport.update({
   id: '/my/inquiries',
   path: '/my/inquiries',
@@ -317,6 +328,11 @@ const KoApplyCompleteRoute = KoApplyCompleteRouteImport.update({
   path: '/apply/complete',
   getParentRoute: () => KoRoute,
 } as any)
+const FrReservationsNewRoute = FrReservationsNewRouteImport.update({
+  id: '/reservations/new',
+  path: '/reservations/new',
+  getParentRoute: () => FrRoute,
+} as any)
 const FrMyInquiriesRoute = FrMyInquiriesRouteImport.update({
   id: '/my/inquiries',
   path: '/my/inquiries',
@@ -351,6 +367,11 @@ const FrApplyCompleteRoute = FrApplyCompleteRouteImport.update({
   id: '/apply_/complete',
   path: '/apply/complete',
   getParentRoute: () => FrRoute,
+} as any)
+const EnReservationsNewRoute = EnReservationsNewRouteImport.update({
+  id: '/reservations/new',
+  path: '/reservations/new',
+  getParentRoute: () => EnRoute,
 } as any)
 const EnMyInquiriesRoute = EnMyInquiriesRouteImport.update({
   id: '/my/inquiries',
@@ -556,6 +577,12 @@ const EnLandlordsCenterInquiriesRoute =
     path: '/inquiries',
     getParentRoute: () => EnLandlordsCenterRoute,
   } as any)
+const KoMyInquiriesInquiryIdReservationReviewRoute =
+  KoMyInquiriesInquiryIdReservationReviewRouteImport.update({
+    id: '/my/inquiries_/$inquiryId_/reservation-review',
+    path: '/my/inquiries/$inquiryId/reservation-review',
+    getParentRoute: () => KoRoute,
+  } as any)
 const KoLandlordsCenterRegisterTermsRoute =
   KoLandlordsCenterRegisterTermsRouteImport.update({
     id: '/terms',
@@ -598,6 +625,12 @@ const KoLandlordsCenterInquiriesInquiryIdRoute =
     path: '/inquiries/$inquiryId',
     getParentRoute: () => KoLandlordsCenterRoute,
   } as any)
+const FrMyInquiriesInquiryIdReservationReviewRoute =
+  FrMyInquiriesInquiryIdReservationReviewRouteImport.update({
+    id: '/my/inquiries_/$inquiryId_/reservation-review',
+    path: '/my/inquiries/$inquiryId/reservation-review',
+    getParentRoute: () => FrRoute,
+  } as any)
 const FrLandlordsCenterRegisterTermsRoute =
   FrLandlordsCenterRegisterTermsRouteImport.update({
     id: '/terms',
@@ -639,6 +672,12 @@ const FrLandlordsCenterInquiriesInquiryIdRoute =
     id: '/inquiries_/$inquiryId',
     path: '/inquiries/$inquiryId',
     getParentRoute: () => FrLandlordsCenterRoute,
+  } as any)
+const EnMyInquiriesInquiryIdReservationReviewRoute =
+  EnMyInquiriesInquiryIdReservationReviewRouteImport.update({
+    id: '/my/inquiries_/$inquiryId_/reservation-review',
+    path: '/my/inquiries/$inquiryId/reservation-review',
+    getParentRoute: () => EnRoute,
   } as any)
 const EnLandlordsCenterRegisterTermsRoute =
   EnLandlordsCenterRegisterTermsRouteImport.update({
@@ -741,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/en/listings/$listingId': typeof EnListingsListingIdRoute
   '/en/listings/draft': typeof EnListingsDraftRoute
   '/en/my/inquiries': typeof EnMyInquiriesRoute
+  '/en/reservations/new': typeof EnReservationsNewRoute
   '/fr/apply/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
@@ -748,6 +788,7 @@ export interface FileRoutesByFullPath {
   '/fr/listings/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings/draft': typeof FrListingsDraftRoute
   '/fr/my/inquiries': typeof FrMyInquiriesRoute
+  '/fr/reservations/new': typeof FrReservationsNewRoute
   '/ko/apply/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
@@ -756,6 +797,7 @@ export interface FileRoutesByFullPath {
   '/ko/listings/$listingId': typeof KoListingsListingIdRoute
   '/ko/listings/draft': typeof KoListingsDraftRoute
   '/ko/my/inquiries': typeof KoMyInquiriesRoute
+  '/ko/reservations/new': typeof KoReservationsNewRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
   '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
@@ -792,6 +834,7 @@ export interface FileRoutesByFullPath {
   '/en/landlords/center/register/property': typeof EnLandlordsCenterRegisterPropertyRoute
   '/en/landlords/center/register/rooms': typeof EnLandlordsCenterRegisterRoomsRoute
   '/en/landlords/center/register/terms': typeof EnLandlordsCenterRegisterTermsRoute
+  '/en/my/inquiries/$inquiryId/reservation-review': typeof EnMyInquiriesInquiryIdReservationReviewRoute
   '/fr/landlords/center/inquiries/$inquiryId': typeof FrLandlordsCenterInquiriesInquiryIdRoute
   '/fr/landlords/center/listings/draft': typeof FrLandlordsCenterListingsDraftRouteWithChildren
   '/fr/landlords/center/listings/new': typeof FrLandlordsCenterListingsNewRoute
@@ -799,6 +842,7 @@ export interface FileRoutesByFullPath {
   '/fr/landlords/center/register/property': typeof FrLandlordsCenterRegisterPropertyRoute
   '/fr/landlords/center/register/rooms': typeof FrLandlordsCenterRegisterRoomsRoute
   '/fr/landlords/center/register/terms': typeof FrLandlordsCenterRegisterTermsRoute
+  '/fr/my/inquiries/$inquiryId/reservation-review': typeof FrMyInquiriesInquiryIdReservationReviewRoute
   '/ko/landlords/center/inquiries/$inquiryId': typeof KoLandlordsCenterInquiriesInquiryIdRoute
   '/ko/landlords/center/listings/draft': typeof KoLandlordsCenterListingsDraftRouteWithChildren
   '/ko/landlords/center/listings/new': typeof KoLandlordsCenterListingsNewRoute
@@ -806,6 +850,7 @@ export interface FileRoutesByFullPath {
   '/ko/landlords/center/register/property': typeof KoLandlordsCenterRegisterPropertyRoute
   '/ko/landlords/center/register/rooms': typeof KoLandlordsCenterRegisterRoomsRoute
   '/ko/landlords/center/register/terms': typeof KoLandlordsCenterRegisterTermsRoute
+  '/ko/my/inquiries/$inquiryId/reservation-review': typeof KoMyInquiriesInquiryIdReservationReviewRoute
   '/en/landlords/center/listings/draft/details': typeof EnLandlordsCenterListingsDraftDetailsRoute
   '/fr/landlords/center/listings/draft/details': typeof FrLandlordsCenterListingsDraftDetailsRoute
   '/ko/landlords/center/listings/draft/details': typeof KoLandlordsCenterListingsDraftDetailsRoute
@@ -847,6 +892,7 @@ export interface FileRoutesByTo {
   '/en/listings/$listingId': typeof EnListingsListingIdRoute
   '/en/listings/draft': typeof EnListingsDraftRoute
   '/en/my/inquiries': typeof EnMyInquiriesRoute
+  '/en/reservations/new': typeof EnReservationsNewRoute
   '/fr/apply/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
@@ -854,6 +900,7 @@ export interface FileRoutesByTo {
   '/fr/listings/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings/draft': typeof FrListingsDraftRoute
   '/fr/my/inquiries': typeof FrMyInquiriesRoute
+  '/fr/reservations/new': typeof FrReservationsNewRoute
   '/ko/apply/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
@@ -862,6 +909,7 @@ export interface FileRoutesByTo {
   '/ko/listings/$listingId': typeof KoListingsListingIdRoute
   '/ko/listings/draft': typeof KoListingsDraftRoute
   '/ko/my/inquiries': typeof KoMyInquiriesRoute
+  '/ko/reservations/new': typeof KoReservationsNewRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
   '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
@@ -898,6 +946,7 @@ export interface FileRoutesByTo {
   '/en/landlords/center/register/property': typeof EnLandlordsCenterRegisterPropertyRoute
   '/en/landlords/center/register/rooms': typeof EnLandlordsCenterRegisterRoomsRoute
   '/en/landlords/center/register/terms': typeof EnLandlordsCenterRegisterTermsRoute
+  '/en/my/inquiries/$inquiryId/reservation-review': typeof EnMyInquiriesInquiryIdReservationReviewRoute
   '/fr/landlords/center/inquiries/$inquiryId': typeof FrLandlordsCenterInquiriesInquiryIdRoute
   '/fr/landlords/center/listings/draft': typeof FrLandlordsCenterListingsDraftRouteWithChildren
   '/fr/landlords/center/listings/new': typeof FrLandlordsCenterListingsNewRoute
@@ -905,6 +954,7 @@ export interface FileRoutesByTo {
   '/fr/landlords/center/register/property': typeof FrLandlordsCenterRegisterPropertyRoute
   '/fr/landlords/center/register/rooms': typeof FrLandlordsCenterRegisterRoomsRoute
   '/fr/landlords/center/register/terms': typeof FrLandlordsCenterRegisterTermsRoute
+  '/fr/my/inquiries/$inquiryId/reservation-review': typeof FrMyInquiriesInquiryIdReservationReviewRoute
   '/ko/landlords/center/inquiries/$inquiryId': typeof KoLandlordsCenterInquiriesInquiryIdRoute
   '/ko/landlords/center/listings/draft': typeof KoLandlordsCenterListingsDraftRouteWithChildren
   '/ko/landlords/center/listings/new': typeof KoLandlordsCenterListingsNewRoute
@@ -912,6 +962,7 @@ export interface FileRoutesByTo {
   '/ko/landlords/center/register/property': typeof KoLandlordsCenterRegisterPropertyRoute
   '/ko/landlords/center/register/rooms': typeof KoLandlordsCenterRegisterRoomsRoute
   '/ko/landlords/center/register/terms': typeof KoLandlordsCenterRegisterTermsRoute
+  '/ko/my/inquiries/$inquiryId/reservation-review': typeof KoMyInquiriesInquiryIdReservationReviewRoute
   '/en/landlords/center/listings/draft/details': typeof EnLandlordsCenterListingsDraftDetailsRoute
   '/fr/landlords/center/listings/draft/details': typeof FrLandlordsCenterListingsDraftDetailsRoute
   '/ko/landlords/center/listings/draft/details': typeof KoLandlordsCenterListingsDraftDetailsRoute
@@ -957,6 +1008,7 @@ export interface FileRoutesById {
   '/en/listings_/$listingId': typeof EnListingsListingIdRoute
   '/en/listings_/draft': typeof EnListingsDraftRoute
   '/en/my/inquiries': typeof EnMyInquiriesRoute
+  '/en/reservations/new': typeof EnReservationsNewRoute
   '/fr/apply_/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
   '/fr/landlords/guide': typeof FrLandlordsGuideRoute
@@ -964,6 +1016,7 @@ export interface FileRoutesById {
   '/fr/listings_/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings_/draft': typeof FrListingsDraftRoute
   '/fr/my/inquiries': typeof FrMyInquiriesRoute
+  '/fr/reservations/new': typeof FrReservationsNewRoute
   '/ko/apply_/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
   '/ko/landlords/center': typeof KoLandlordsCenterRouteWithChildren
@@ -972,6 +1025,7 @@ export interface FileRoutesById {
   '/ko/listings_/$listingId': typeof KoListingsListingIdRoute
   '/ko/listings_/draft': typeof KoListingsDraftRoute
   '/ko/my/inquiries': typeof KoMyInquiriesRoute
+  '/ko/reservations/new': typeof KoReservationsNewRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
   '/en/landlords/center/profile': typeof EnLandlordsCenterProfileRoute
@@ -1008,6 +1062,7 @@ export interface FileRoutesById {
   '/en/landlords/center/register/property': typeof EnLandlordsCenterRegisterPropertyRoute
   '/en/landlords/center/register/rooms': typeof EnLandlordsCenterRegisterRoomsRoute
   '/en/landlords/center/register/terms': typeof EnLandlordsCenterRegisterTermsRoute
+  '/en/my/inquiries_/$inquiryId_/reservation-review': typeof EnMyInquiriesInquiryIdReservationReviewRoute
   '/fr/landlords/center/inquiries_/$inquiryId': typeof FrLandlordsCenterInquiriesInquiryIdRoute
   '/fr/landlords/center/listings/draft': typeof FrLandlordsCenterListingsDraftRouteWithChildren
   '/fr/landlords/center/listings/new': typeof FrLandlordsCenterListingsNewRoute
@@ -1015,6 +1070,7 @@ export interface FileRoutesById {
   '/fr/landlords/center/register/property': typeof FrLandlordsCenterRegisterPropertyRoute
   '/fr/landlords/center/register/rooms': typeof FrLandlordsCenterRegisterRoomsRoute
   '/fr/landlords/center/register/terms': typeof FrLandlordsCenterRegisterTermsRoute
+  '/fr/my/inquiries_/$inquiryId_/reservation-review': typeof FrMyInquiriesInquiryIdReservationReviewRoute
   '/ko/landlords/center/inquiries_/$inquiryId': typeof KoLandlordsCenterInquiriesInquiryIdRoute
   '/ko/landlords/center/listings/draft': typeof KoLandlordsCenterListingsDraftRouteWithChildren
   '/ko/landlords/center/listings/new': typeof KoLandlordsCenterListingsNewRoute
@@ -1022,6 +1078,7 @@ export interface FileRoutesById {
   '/ko/landlords/center/register/property': typeof KoLandlordsCenterRegisterPropertyRoute
   '/ko/landlords/center/register/rooms': typeof KoLandlordsCenterRegisterRoomsRoute
   '/ko/landlords/center/register/terms': typeof KoLandlordsCenterRegisterTermsRoute
+  '/ko/my/inquiries_/$inquiryId_/reservation-review': typeof KoMyInquiriesInquiryIdReservationReviewRoute
   '/en/landlords/center/listings/draft/details': typeof EnLandlordsCenterListingsDraftDetailsRoute
   '/fr/landlords/center/listings/draft/details': typeof FrLandlordsCenterListingsDraftDetailsRoute
   '/ko/landlords/center/listings/draft/details': typeof KoLandlordsCenterListingsDraftDetailsRoute
@@ -1068,6 +1125,7 @@ export interface FileRouteTypes {
     | '/en/listings/$listingId'
     | '/en/listings/draft'
     | '/en/my/inquiries'
+    | '/en/reservations/new'
     | '/fr/apply/complete'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
@@ -1075,6 +1133,7 @@ export interface FileRouteTypes {
     | '/fr/listings/$listingId'
     | '/fr/listings/draft'
     | '/fr/my/inquiries'
+    | '/fr/reservations/new'
     | '/ko/apply/complete'
     | '/ko/contact/board'
     | '/ko/landlords/center'
@@ -1083,6 +1142,7 @@ export interface FileRouteTypes {
     | '/ko/listings/$listingId'
     | '/ko/listings/draft'
     | '/ko/my/inquiries'
+    | '/ko/reservations/new'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
     | '/en/landlords/center/profile'
@@ -1119,6 +1179,7 @@ export interface FileRouteTypes {
     | '/en/landlords/center/register/property'
     | '/en/landlords/center/register/rooms'
     | '/en/landlords/center/register/terms'
+    | '/en/my/inquiries/$inquiryId/reservation-review'
     | '/fr/landlords/center/inquiries/$inquiryId'
     | '/fr/landlords/center/listings/draft'
     | '/fr/landlords/center/listings/new'
@@ -1126,6 +1187,7 @@ export interface FileRouteTypes {
     | '/fr/landlords/center/register/property'
     | '/fr/landlords/center/register/rooms'
     | '/fr/landlords/center/register/terms'
+    | '/fr/my/inquiries/$inquiryId/reservation-review'
     | '/ko/landlords/center/inquiries/$inquiryId'
     | '/ko/landlords/center/listings/draft'
     | '/ko/landlords/center/listings/new'
@@ -1133,6 +1195,7 @@ export interface FileRouteTypes {
     | '/ko/landlords/center/register/property'
     | '/ko/landlords/center/register/rooms'
     | '/ko/landlords/center/register/terms'
+    | '/ko/my/inquiries/$inquiryId/reservation-review'
     | '/en/landlords/center/listings/draft/details'
     | '/fr/landlords/center/listings/draft/details'
     | '/ko/landlords/center/listings/draft/details'
@@ -1174,6 +1237,7 @@ export interface FileRouteTypes {
     | '/en/listings/$listingId'
     | '/en/listings/draft'
     | '/en/my/inquiries'
+    | '/en/reservations/new'
     | '/fr/apply/complete'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
@@ -1181,6 +1245,7 @@ export interface FileRouteTypes {
     | '/fr/listings/$listingId'
     | '/fr/listings/draft'
     | '/fr/my/inquiries'
+    | '/fr/reservations/new'
     | '/ko/apply/complete'
     | '/ko/contact/board'
     | '/ko/landlords/center'
@@ -1189,6 +1254,7 @@ export interface FileRouteTypes {
     | '/ko/listings/$listingId'
     | '/ko/listings/draft'
     | '/ko/my/inquiries'
+    | '/ko/reservations/new'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
     | '/en/landlords/center/profile'
@@ -1225,6 +1291,7 @@ export interface FileRouteTypes {
     | '/en/landlords/center/register/property'
     | '/en/landlords/center/register/rooms'
     | '/en/landlords/center/register/terms'
+    | '/en/my/inquiries/$inquiryId/reservation-review'
     | '/fr/landlords/center/inquiries/$inquiryId'
     | '/fr/landlords/center/listings/draft'
     | '/fr/landlords/center/listings/new'
@@ -1232,6 +1299,7 @@ export interface FileRouteTypes {
     | '/fr/landlords/center/register/property'
     | '/fr/landlords/center/register/rooms'
     | '/fr/landlords/center/register/terms'
+    | '/fr/my/inquiries/$inquiryId/reservation-review'
     | '/ko/landlords/center/inquiries/$inquiryId'
     | '/ko/landlords/center/listings/draft'
     | '/ko/landlords/center/listings/new'
@@ -1239,6 +1307,7 @@ export interface FileRouteTypes {
     | '/ko/landlords/center/register/property'
     | '/ko/landlords/center/register/rooms'
     | '/ko/landlords/center/register/terms'
+    | '/ko/my/inquiries/$inquiryId/reservation-review'
     | '/en/landlords/center/listings/draft/details'
     | '/fr/landlords/center/listings/draft/details'
     | '/ko/landlords/center/listings/draft/details'
@@ -1283,6 +1352,7 @@ export interface FileRouteTypes {
     | '/en/listings_/$listingId'
     | '/en/listings_/draft'
     | '/en/my/inquiries'
+    | '/en/reservations/new'
     | '/fr/apply_/complete'
     | '/fr/landlords/center'
     | '/fr/landlords/guide'
@@ -1290,6 +1360,7 @@ export interface FileRouteTypes {
     | '/fr/listings_/$listingId'
     | '/fr/listings_/draft'
     | '/fr/my/inquiries'
+    | '/fr/reservations/new'
     | '/ko/apply_/complete'
     | '/ko/contact/board'
     | '/ko/landlords/center'
@@ -1298,6 +1369,7 @@ export interface FileRouteTypes {
     | '/ko/listings_/$listingId'
     | '/ko/listings_/draft'
     | '/ko/my/inquiries'
+    | '/ko/reservations/new'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
     | '/en/landlords/center/profile'
@@ -1334,6 +1406,7 @@ export interface FileRouteTypes {
     | '/en/landlords/center/register/property'
     | '/en/landlords/center/register/rooms'
     | '/en/landlords/center/register/terms'
+    | '/en/my/inquiries_/$inquiryId_/reservation-review'
     | '/fr/landlords/center/inquiries_/$inquiryId'
     | '/fr/landlords/center/listings/draft'
     | '/fr/landlords/center/listings/new'
@@ -1341,6 +1414,7 @@ export interface FileRouteTypes {
     | '/fr/landlords/center/register/property'
     | '/fr/landlords/center/register/rooms'
     | '/fr/landlords/center/register/terms'
+    | '/fr/my/inquiries_/$inquiryId_/reservation-review'
     | '/ko/landlords/center/inquiries_/$inquiryId'
     | '/ko/landlords/center/listings/draft'
     | '/ko/landlords/center/listings/new'
@@ -1348,6 +1422,7 @@ export interface FileRouteTypes {
     | '/ko/landlords/center/register/property'
     | '/ko/landlords/center/register/rooms'
     | '/ko/landlords/center/register/terms'
+    | '/ko/my/inquiries_/$inquiryId_/reservation-review'
     | '/en/landlords/center/listings/draft/details'
     | '/fr/landlords/center/listings/draft/details'
     | '/ko/landlords/center/listings/draft/details'
@@ -1587,6 +1662,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnAboutRouteImport
       parentRoute: typeof EnRoute
     }
+    '/ko/reservations/new': {
+      id: '/ko/reservations/new'
+      path: '/reservations/new'
+      fullPath: '/ko/reservations/new'
+      preLoaderRoute: typeof KoReservationsNewRouteImport
+      parentRoute: typeof KoRoute
+    }
     '/ko/my/inquiries': {
       id: '/ko/my/inquiries'
       path: '/my/inquiries'
@@ -1643,6 +1725,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KoApplyCompleteRouteImport
       parentRoute: typeof KoRoute
     }
+    '/fr/reservations/new': {
+      id: '/fr/reservations/new'
+      path: '/reservations/new'
+      fullPath: '/fr/reservations/new'
+      preLoaderRoute: typeof FrReservationsNewRouteImport
+      parentRoute: typeof FrRoute
+    }
     '/fr/my/inquiries': {
       id: '/fr/my/inquiries'
       path: '/my/inquiries'
@@ -1691,6 +1780,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/fr/apply/complete'
       preLoaderRoute: typeof FrApplyCompleteRouteImport
       parentRoute: typeof FrRoute
+    }
+    '/en/reservations/new': {
+      id: '/en/reservations/new'
+      path: '/reservations/new'
+      fullPath: '/en/reservations/new'
+      preLoaderRoute: typeof EnReservationsNewRouteImport
+      parentRoute: typeof EnRoute
     }
     '/en/my/inquiries': {
       id: '/en/my/inquiries'
@@ -1944,6 +2040,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnLandlordsCenterInquiriesRouteImport
       parentRoute: typeof EnLandlordsCenterRoute
     }
+    '/ko/my/inquiries_/$inquiryId_/reservation-review': {
+      id: '/ko/my/inquiries_/$inquiryId_/reservation-review'
+      path: '/my/inquiries/$inquiryId/reservation-review'
+      fullPath: '/ko/my/inquiries/$inquiryId/reservation-review'
+      preLoaderRoute: typeof KoMyInquiriesInquiryIdReservationReviewRouteImport
+      parentRoute: typeof KoRoute
+    }
     '/ko/landlords/center/register/terms': {
       id: '/ko/landlords/center/register/terms'
       path: '/terms'
@@ -1993,6 +2096,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KoLandlordsCenterInquiriesInquiryIdRouteImport
       parentRoute: typeof KoLandlordsCenterRoute
     }
+    '/fr/my/inquiries_/$inquiryId_/reservation-review': {
+      id: '/fr/my/inquiries_/$inquiryId_/reservation-review'
+      path: '/my/inquiries/$inquiryId/reservation-review'
+      fullPath: '/fr/my/inquiries/$inquiryId/reservation-review'
+      preLoaderRoute: typeof FrMyInquiriesInquiryIdReservationReviewRouteImport
+      parentRoute: typeof FrRoute
+    }
     '/fr/landlords/center/register/terms': {
       id: '/fr/landlords/center/register/terms'
       path: '/terms'
@@ -2041,6 +2151,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/fr/landlords/center/inquiries/$inquiryId'
       preLoaderRoute: typeof FrLandlordsCenterInquiriesInquiryIdRouteImport
       parentRoute: typeof FrLandlordsCenterRoute
+    }
+    '/en/my/inquiries_/$inquiryId_/reservation-review': {
+      id: '/en/my/inquiries_/$inquiryId_/reservation-review'
+      path: '/my/inquiries/$inquiryId/reservation-review'
+      fullPath: '/en/my/inquiries/$inquiryId/reservation-review'
+      preLoaderRoute: typeof EnMyInquiriesInquiryIdReservationReviewRouteImport
+      parentRoute: typeof EnRoute
     }
     '/en/landlords/center/register/terms': {
       id: '/en/landlords/center/register/terms'
@@ -2236,7 +2353,9 @@ interface EnRouteChildren {
   EnListingsListingIdRoute: typeof EnListingsListingIdRoute
   EnListingsDraftRoute: typeof EnListingsDraftRoute
   EnMyInquiriesRoute: typeof EnMyInquiriesRoute
+  EnReservationsNewRoute: typeof EnReservationsNewRoute
   EnMyInquiriesInquiryIdRoute: typeof EnMyInquiriesInquiryIdRoute
+  EnMyInquiriesInquiryIdReservationReviewRoute: typeof EnMyInquiriesInquiryIdReservationReviewRoute
 }
 
 const EnRouteChildren: EnRouteChildren = {
@@ -2253,7 +2372,10 @@ const EnRouteChildren: EnRouteChildren = {
   EnListingsListingIdRoute: EnListingsListingIdRoute,
   EnListingsDraftRoute: EnListingsDraftRoute,
   EnMyInquiriesRoute: EnMyInquiriesRoute,
+  EnReservationsNewRoute: EnReservationsNewRoute,
   EnMyInquiriesInquiryIdRoute: EnMyInquiriesInquiryIdRoute,
+  EnMyInquiriesInquiryIdReservationReviewRoute:
+    EnMyInquiriesInquiryIdReservationReviewRoute,
 }
 
 const EnRouteWithChildren = EnRoute._addFileChildren(EnRouteChildren)
@@ -2379,7 +2501,9 @@ interface FrRouteChildren {
   FrListingsListingIdRoute: typeof FrListingsListingIdRoute
   FrListingsDraftRoute: typeof FrListingsDraftRoute
   FrMyInquiriesRoute: typeof FrMyInquiriesRoute
+  FrReservationsNewRoute: typeof FrReservationsNewRoute
   FrMyInquiriesInquiryIdRoute: typeof FrMyInquiriesInquiryIdRoute
+  FrMyInquiriesInquiryIdReservationReviewRoute: typeof FrMyInquiriesInquiryIdReservationReviewRoute
 }
 
 const FrRouteChildren: FrRouteChildren = {
@@ -2396,7 +2520,10 @@ const FrRouteChildren: FrRouteChildren = {
   FrListingsListingIdRoute: FrListingsListingIdRoute,
   FrListingsDraftRoute: FrListingsDraftRoute,
   FrMyInquiriesRoute: FrMyInquiriesRoute,
+  FrReservationsNewRoute: FrReservationsNewRoute,
   FrMyInquiriesInquiryIdRoute: FrMyInquiriesInquiryIdRoute,
+  FrMyInquiriesInquiryIdReservationReviewRoute:
+    FrMyInquiriesInquiryIdReservationReviewRoute,
 }
 
 const FrRouteWithChildren = FrRoute._addFileChildren(FrRouteChildren)
@@ -2548,7 +2675,9 @@ interface KoRouteChildren {
   KoListingsListingIdRoute: typeof KoListingsListingIdRoute
   KoListingsDraftRoute: typeof KoListingsDraftRoute
   KoMyInquiriesRoute: typeof KoMyInquiriesRoute
+  KoReservationsNewRoute: typeof KoReservationsNewRoute
   KoMyInquiriesInquiryIdRoute: typeof KoMyInquiriesInquiryIdRoute
+  KoMyInquiriesInquiryIdReservationReviewRoute: typeof KoMyInquiriesInquiryIdReservationReviewRoute
 }
 
 const KoRouteChildren: KoRouteChildren = {
@@ -2565,7 +2694,10 @@ const KoRouteChildren: KoRouteChildren = {
   KoListingsListingIdRoute: KoListingsListingIdRoute,
   KoListingsDraftRoute: KoListingsDraftRoute,
   KoMyInquiriesRoute: KoMyInquiriesRoute,
+  KoReservationsNewRoute: KoReservationsNewRoute,
   KoMyInquiriesInquiryIdRoute: KoMyInquiriesInquiryIdRoute,
+  KoMyInquiriesInquiryIdReservationReviewRoute:
+    KoMyInquiriesInquiryIdReservationReviewRoute,
 }
 
 const KoRouteWithChildren = KoRoute._addFileChildren(KoRouteChildren)

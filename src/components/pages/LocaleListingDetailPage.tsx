@@ -347,6 +347,7 @@ type DetailCopy = {
   faq: Array<{ question: string; answer: string }>;
   checklist: string[];
   supportBody: string;
+  reserve: string;
   inquire: string;
   inquirySeparateGuide: string;
   modal: {
@@ -556,6 +557,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     ],
     supportBody:
       "MapleHouse는 매물 정보를 표준화해 비교하고, 문의 전 확인해야 할 항목을 정리하는 데 도움을 줍니다. 실제 계약, 입금, 입주 여부는 당사자가 최종 확인해야 합니다.",
+    reserve: "예약하기",
     inquire: "이 매물 문의하기",
     inquirySeparateGuide: "문의 및 예약 지원은 별도 안내 후 진행됩니다.",
     modal: {
@@ -766,6 +768,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     ],
     supportBody:
       "MapleHouse helps organize listing information and pre-inquiry checks. Final agreement, payment, and move-in decisions must be confirmed by the parties involved.",
+    reserve: "Reserve",
     inquire: "Inquire about this listing",
     inquirySeparateGuide: "Inquiry and reservation support will be guided separately.",
     modal: {
@@ -978,6 +981,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     ],
     supportBody:
       "MapleHouse aide à organiser les informations de l’annonce et les vérifications avant demande. L’accord final, le paiement et l’entrée dans le logement doivent être confirmés par les parties concernées.",
+    reserve: "Réserver",
     inquire: "Faire une demande pour cette annonce",
     inquirySeparateGuide: "L’accompagnement de demande et de réservation sera présenté séparément.",
     modal: {
@@ -1378,9 +1382,16 @@ export function LocaleListingDetailPage({
                 <SummaryRow icon={<Home className="h-4 w-4" />} label={copy.heroFields.housingType} value={listing.housingType} fallback={copy.fallback} />
                 <SummaryRow icon={<MapPin className="h-4 w-4" />} label={copy.fields.nearestStation} value={listing.nearestStation} fallback={copy.fallback} />
               </dl>
+              <a
+                href={getReservationNewHref(locale, listing.id)}
+                className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-[#FFD8AD] bg-[#FFF3E6] px-4 py-3 text-sm font-semibold leading-tight text-[#B94F00] shadow-sm transition hover:border-[#FFC47F] hover:bg-[#FFE8CC]"
+              >
+                {copy.reserve}
+              </a>
               <Button
                 type="button"
-                className="mt-6 min-h-12 w-full whitespace-normal rounded-2xl text-sm font-semibold leading-tight"
+                variant="soft"
+                className="mt-3 min-h-12 w-full whitespace-normal rounded-2xl border-[#FFD8AD] bg-[#FFF3E6] text-sm font-semibold leading-tight text-[#B94F00] shadow-sm hover:border-[#FFC47F] hover:bg-[#FFE8CC] hover:text-[#B94F00]"
                 onClick={() => requestInquiry("listing")}
               >
                 {copy.inquire}
@@ -3092,6 +3103,11 @@ function getListingGuestCount(listing: PublicListing) {
 function getInquiryRoomName(listing: PublicListing, target: InquiryTarget) {
   if (target !== "room") return "";
   return listing.details.unitDetail || listing.housingType;
+}
+
+function getReservationNewHref(locale: Locale, listingId: string) {
+  const params = new URLSearchParams({ listingId });
+  return `/${locale}/reservations/new?${params.toString()}`;
 }
 
 function buildSelectedInquiryPayload(
