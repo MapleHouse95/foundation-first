@@ -1007,7 +1007,6 @@ export function LocaleListingDetailPage({
   const [detailDraft, setDetailDraft] = useState<LandlordListingDetailsDraft | null>(null);
   const [loaded, setLoaded] = useState(listingId !== "draft");
   const [inquiryOpen, setInquiryOpen] = useState(false);
-  const [directPreview, setDirectPreview] = useState(false);
   const [currency, setCurrency] = useState<CurrencyMode>("CAD");
   const [introExpanded, setIntroExpanded] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -1096,7 +1095,7 @@ export function LocaleListingDetailPage({
     setRoomDetailsOpen(false);
     setAmenitiesModalOpen(null);
   };
-  const openInquiryModal = (direct = false, target: InquiryTarget = pendingInquiryTarget) => {
+  const openInquiryModal = (target: InquiryTarget = pendingInquiryTarget) => {
     setPendingInquiryTarget(target);
     setMissingDateOpen(false);
     setDatePickerOpen(false);
@@ -1104,7 +1103,6 @@ export function LocaleListingDetailPage({
     setPhotoViewerIndex(null);
     closeDetailModals();
     setInquiryOpen(true);
-    setDirectPreview(direct);
   };
   const requestInquiry = (target: InquiryTarget) => {
     setPendingInquiryTarget(target);
@@ -1113,18 +1111,16 @@ export function LocaleListingDetailPage({
     setPhotoViewerIndex(null);
     closeDetailModals();
     setInquiryOpen(false);
-    setDirectPreview(false);
 
     if (!selectedMoveInDate) {
       setMissingDateOpen(true);
       return;
     }
 
-    openInquiryModal(false, target);
+    openInquiryModal(target);
   };
   const openDatePicker = (returnToInquiry = false) => {
     setInquiryOpen(false);
-    setDirectPreview(false);
     setMissingDateOpen(false);
     setDatePickerReturnToInquiry(returnToInquiry);
     setPhotoViewerIndex(null);
@@ -1134,7 +1130,6 @@ export function LocaleListingDetailPage({
   const openPhotoViewer = (index = 0) => {
     if (!listing.photos.length) return;
     setInquiryOpen(false);
-    setDirectPreview(false);
     setMissingDateOpen(false);
     setDatePickerOpen(false);
     setDatePickerReturnToInquiry(false);
@@ -1143,7 +1138,6 @@ export function LocaleListingDetailPage({
   };
   const openRoomDetails = () => {
     setInquiryOpen(false);
-    setDirectPreview(false);
     setMissingDateOpen(false);
     setDatePickerOpen(false);
     setDatePickerReturnToInquiry(false);
@@ -1153,7 +1147,6 @@ export function LocaleListingDetailPage({
   };
   const openAmenitiesModal = (kind: AmenityGroupKind) => {
     setInquiryOpen(false);
-    setDirectPreview(false);
     setMissingDateOpen(false);
     setDatePickerOpen(false);
     setDatePickerReturnToInquiry(false);
@@ -1407,11 +1400,8 @@ export function LocaleListingDetailPage({
           listing={listing}
           inquiryTarget={pendingInquiryTarget}
           selectedMoveInDate={selectedMoveInDate}
-          directPreview={directPreview}
-          onDirectPreview={() => setDirectPreview(true)}
           onClose={() => {
             setInquiryOpen(false);
-            setDirectPreview(false);
           }}
         />
       ) : null}
@@ -1428,7 +1418,7 @@ export function LocaleListingDetailPage({
           onApply={() => {
             setDatePickerOpen(false);
             if (datePickerReturnToInquiry) {
-              openInquiryModal(false, pendingInquiryTarget);
+              openInquiryModal(pendingInquiryTarget);
             }
             setDatePickerReturnToInquiry(false);
           }}
@@ -1439,7 +1429,7 @@ export function LocaleListingDetailPage({
           copy={copy}
           onClose={() => setMissingDateOpen(false)}
           onSelectDate={() => openDatePicker(true)}
-          onContinue={() => openInquiryModal(false, pendingInquiryTarget)}
+          onContinue={() => openInquiryModal(pendingInquiryTarget)}
         />
       ) : null}
       {photoViewerIndex !== null ? (
@@ -2703,8 +2693,6 @@ function PublicInquiryModal({
   listing,
   inquiryTarget,
   selectedMoveInDate,
-  directPreview,
-  onDirectPreview,
   onClose,
 }: {
   copy: DetailCopy;
@@ -2712,8 +2700,6 @@ function PublicInquiryModal({
   listing: PublicListing;
   inquiryTarget: InquiryTarget;
   selectedMoveInDate: string;
-  directPreview: boolean;
-  onDirectPreview: () => void;
   onClose: () => void;
 }) {
   return (
@@ -2750,7 +2736,7 @@ function PublicInquiryModal({
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <button
             type="button"
-            onClick={onDirectPreview}
+            onClick={() => openDirectApply(locale, listing, inquiryTarget, selectedMoveInDate)}
             className="min-w-0 rounded-2xl border border-border bg-white p-4 text-left shadow-sm transition hover:border-primary hover:bg-[#FFF8F1]"
           >
             <p className="break-words font-semibold text-foreground">{copy.modal.directTitle}</p>
@@ -2769,12 +2755,6 @@ function PublicInquiryModal({
             </span>
           </button>
         </div>
-
-        {directPreview ? (
-          <p className="mt-4 rounded-2xl border border-primary/20 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold leading-6 text-foreground">
-            {copy.modal.directMessage}
-          </p>
-        ) : null}
       </section>
     </div>
   );
@@ -3183,6 +3163,52 @@ function openAssistedApply(
 
   const params = new URLSearchParams({
     mode: "assisted",
+    listingId: listing.id,
+  });
+  window.location.href = `/${locale}/apply?${params.toString()}`;
+}
+
+function openDirectApply(
+  locale: Locale,
+  listing: PublicListing,
+  inquiryTarget: InquiryTarget,
+  selectedMoveInDate: string,
+) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const selectedInquiry = buildSelectedInquiryPayload(
+      locale,
+      listing,
+      inquiryTarget,
+      selectedMoveInDate,
+    );
+    saveSelectedInquiryPayload(selectedInquiry);
+
+    const summary = listing.sourceListing
+      ? buildApplySelectedListingSummary(listing.sourceListing)
+      : {
+          listingId: listing.id,
+          title: listing.title,
+          area: listing.area,
+          housingType: listing.housingType,
+          rent: listing.rentValue,
+          currency: "CAD",
+          rentKRW: 0,
+          capacity: Number(listing.details.occupancy) || 1,
+          lastChecked: "",
+          verificationStatus: "preparing",
+          thumbnail: listing.photos[0]?.src || "",
+        };
+    if (locale === "ko") {
+      window.sessionStorage.setItem(APPLY_SELECTED_LISTING_STORAGE_KEY, JSON.stringify(summary));
+    }
+  } catch {
+    // MVP handoff only; navigation still works if sessionStorage is unavailable.
+  }
+
+  const params = new URLSearchParams({
+    mode: "direct",
     listingId: listing.id,
   });
   window.location.href = `/${locale}/apply?${params.toString()}`;

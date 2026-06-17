@@ -35,7 +35,6 @@ export type Status = "verified" | "needs_check" | "preparing";
 export type LocalizedText = Record<Locale, string>;
 type FilterPopover = "budget" | "housing" | "moveIn" | "people" | "more" | null;
 type HousingTypeId = "room" | "studio" | "condo" | "share" | "house";
-type InquiryMethod = "direct" | "support";
 type ChecklistListingSource = "workingHoliday" | "languageStudy" | "studyAbroad";
 type MoreFilterId =
   | "verified"
@@ -364,6 +363,28 @@ function openAssistedApplyFromListing(locale: Locale, listing: MockListing) {
 
   const params = new URLSearchParams({
     mode: "assisted",
+    listingId: listing.id,
+  });
+  window.location.href = `/${locale}/apply?${params.toString()}`;
+}
+
+function openDirectApplyFromListing(locale: Locale, listing: MockListing) {
+  if (typeof window === "undefined") return;
+
+  try {
+    saveSelectedInquiryPayload(buildSelectedInquiryFromMockListing(locale, listing));
+    if (locale === "ko") {
+      window.sessionStorage.setItem(
+        APPLY_SELECTED_LISTING_STORAGE_KEY,
+        JSON.stringify(buildApplySelectedListingSummary(listing)),
+      );
+    }
+  } catch {
+    // Session storage is only a frontend handoff for this MVP; navigation can still continue.
+  }
+
+  const params = new URLSearchParams({
+    mode: "direct",
     listingId: listing.id,
   });
   window.location.href = `/${locale}/apply?${params.toString()}`;
@@ -1685,7 +1706,6 @@ function ListingDetailDrawer({
   onClose: () => void;
 }) {
   const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
-  const [inquiryPreview, setInquiryPreview] = useState<InquiryMethod | null>(null);
 
   if (!listing) return null;
 
@@ -1769,10 +1789,7 @@ function ListingDetailDrawer({
               type="button"
               size="lg"
               className="min-w-0 flex-1 whitespace-normal leading-tight"
-              onClick={() => {
-                setInquiryModalOpen(true);
-                setInquiryPreview(null);
-              }}
+              onClick={() => setInquiryModalOpen(true)}
             >
               {t.consultationCta}
             </Button>
@@ -1796,12 +1813,7 @@ function ListingDetailDrawer({
           t={t}
           fmtKRW={fmtKRW}
           fmtCAD={fmtCAD}
-          selectedMethod={inquiryPreview}
-          onSelectMethod={setInquiryPreview}
-          onClose={() => {
-            setInquiryModalOpen(false);
-            setInquiryPreview(null);
-          }}
+          onClose={() => setInquiryModalOpen(false)}
         />
       )}
     </>
@@ -1814,8 +1826,6 @@ function InquiryChoiceModal({
   t,
   fmtKRW,
   fmtCAD,
-  selectedMethod,
-  onSelectMethod,
   onClose,
 }: {
   listing: MockListing;
@@ -1823,17 +1833,8 @@ function InquiryChoiceModal({
   t: L10n;
   fmtKRW: (value: number) => string;
   fmtCAD: (value: number) => string;
-  selectedMethod: InquiryMethod | null;
-  onSelectMethod: (method: InquiryMethod) => void;
   onClose: () => void;
 }) {
-  const message =
-    selectedMethod === "direct"
-      ? t.inquiryModal.directMessage
-      : selectedMethod === "support"
-        ? t.inquiryModal.supportMessage
-        : null;
-
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/35 px-4 py-6 backdrop-blur-sm"
@@ -1902,27 +1903,21 @@ function InquiryChoiceModal({
             badge={t.inquiryModal.directBadge}
             description={t.inquiryModal.directDescription}
             action={t.inquiryModal.directAction}
-            active={selectedMethod === "direct"}
-            onClick={() => onSelectMethod("direct")}
+            active={false}
+            onClick={() => openDirectApplyFromListing(locale, listing)}
           />
           <InquiryOptionCard
             title={t.inquiryModal.supportTitle}
             badge={t.inquiryModal.supportBadge}
             description={t.inquiryModal.supportDescription}
             action={t.inquiryModal.supportAction}
-            active={selectedMethod === "support"}
+            active={false}
             tone="support"
             onClick={() => {
               openAssistedApplyFromListing(locale, listing);
             }}
           />
         </div>
-
-        {message && (
-          <p className="mt-4 rounded-2xl border border-primary/20 bg-accent px-4 py-3 text-sm font-medium leading-relaxed text-foreground">
-            {message}
-          </p>
-        )}
 
         <p className="mt-5 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
           {t.inquiryModal.footerNotice}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } 
 import { useBlocker, useLocation } from "@tanstack/react-router";
 import {
   CalendarDays,
+  Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -86,6 +87,8 @@ type SelectedInquiryApplyFormState = {
   request: string;
 };
 
+type InquiryApplyMethod = "assisted" | "direct";
+
 type SelectedInquiryApplyCopy = {
   eyebrow: string;
   title: string;
@@ -154,7 +157,7 @@ type ApplyCompleteCopy = {
 type SavedSelectedInquiryDraft = {
   listingId: string;
   locale: Locale;
-  mode: "assisted";
+  mode: InquiryApplyMethod;
   form: SelectedInquiryApplyFormState;
   checked: boolean[];
   name?: string;
@@ -171,6 +174,7 @@ type SavedSelectedInquiryDraft = {
 
 type MockInquiryCompletionPayload = {
   locale: Locale;
+  inquiryMethod?: InquiryApplyMethod;
   selectedInquiry: SelectedInquiryPayload;
   form: SelectedInquiryApplyFormState;
   submittedAt: string;
@@ -426,6 +430,106 @@ const SELECTED_INQUIRY_COPY: Record<Locale, SelectedInquiryApplyCopy> = {
   },
 };
 
+const DIRECT_SELECTED_INQUIRY_COPY_OVERRIDES: Record<
+  Locale,
+  {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    fields: Partial<Record<keyof SelectedInquiryApplyFormState, FieldText>>;
+    agreements: string[];
+    submit: string;
+    successTitle: string;
+    successBody: string;
+  }
+> = {
+  ko: {
+    eyebrow: "직접 문의",
+    title: "집주인에게 직접 문의하기",
+    subtitle:
+      "선택한 매물에 대해 임대인에게 직접 전달할 문의 내용을 작성하는 MVP mock 화면입니다. 실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않습니다.",
+    fields: {
+      questions: {
+        label: "문의 내용",
+        placeholder: "임대인에게 직접 확인하고 싶은 내용을 적어주세요.",
+      },
+      request: {
+        label: "추가 요청사항",
+        placeholder: "추가로 남기고 싶은 요청사항이 있다면 적어주세요.",
+      },
+    },
+    agreements: [
+      "MapleHouse는 현재 MVP 단계에서 직접 문의 내용을 미리보기로 접수하며, 실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않음을 이해했습니다.",
+      "최종 계약 여부, 입금 여부, 입주 여부는 사용자가 직접 확인해야 함을 이해했습니다.",
+    ],
+    submit: "직접 문의 접수하기",
+    successTitle: "직접 문의 내용이 접수되었습니다.",
+    successBody:
+      "실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않습니다.",
+  },
+  en: {
+    eyebrow: "Direct inquiry",
+    title: "Contact the landlord directly",
+    subtitle:
+      "Write the inquiry you want to send directly to the landlord for the selected listing. This is an MVP mock screen. Real messaging, chat, and translation are not connected yet.",
+    fields: {
+      questions: {
+        label: "Inquiry message",
+        placeholder: "Write what you want to ask the landlord directly.",
+      },
+      request: {
+        label: "Extra request",
+        placeholder: "Add any extra request if needed.",
+      },
+    },
+    agreements: [
+      "I understand that MapleHouse currently receives this direct inquiry as an MVP preview, and real messaging, chat, and translation are not connected yet.",
+      "I understand that final contract, payment, and move-in decisions must be confirmed by the user.",
+    ],
+    submit: "Submit direct inquiry",
+    successTitle: "Direct inquiry received.",
+    successBody: "Real messaging, chat, and translation are not connected yet.",
+  },
+  fr: {
+    eyebrow: "Demande directe",
+    title: "Contacter directement le propriétaire",
+    subtitle:
+      "Rédigez la demande à transmettre directement au propriétaire pour le logement choisi. Ceci est un écran mock MVP. La messagerie réelle, le chat et la traduction ne sont pas encore connectés.",
+    fields: {
+      questions: {
+        label: "Message de demande",
+        placeholder: "Écrivez ce que vous souhaitez demander directement au propriétaire.",
+      },
+      request: {
+        label: "Demande supplémentaire",
+        placeholder: "Ajoutez une demande supplémentaire si nécessaire.",
+      },
+    },
+    agreements: [
+      "Je comprends que MapleHouse reçoit actuellement cette demande directe comme aperçu MVP, et que la messagerie réelle, le chat et la traduction ne sont pas encore connectés.",
+      "Je comprends que la décision finale de contrat, de paiement et d’arrivée doit être vérifiée par l’utilisateur.",
+    ],
+    submit: "Envoyer la demande directe",
+    successTitle: "Demande directe reçue.",
+    successBody: "La messagerie réelle, le chat et la traduction ne sont pas encore connectés.",
+  },
+};
+
+function getSelectedInquiryApplyCopy(locale: Locale, method: InquiryApplyMethod) {
+  const base = SELECTED_INQUIRY_COPY[locale];
+  if (method === "assisted") return base;
+
+  const direct = DIRECT_SELECTED_INQUIRY_COPY_OVERRIDES[locale];
+  return {
+    ...base,
+    ...direct,
+    fields: {
+      ...base.fields,
+      ...direct.fields,
+    },
+  };
+}
+
 const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
   ko: {
     eyebrow: "MapleHouse MVP 문의",
@@ -446,7 +550,7 @@ const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
     emptyBody: "매물 상세페이지나 매물 목록에서 문의할 매물을 다시 선택해 주세요.",
     backToDetail: "매물 상세로 돌아가기",
     viewListings: "매물 목록 보기",
-    viewHistory: "문의 내역 보기",
+    viewHistory: "나의 문의내역 보기",
     mvpPlanned: "MVP 예정",
     submittedAt: "접수 시각",
   },
@@ -469,7 +573,7 @@ const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
     emptyBody: "Please choose a listing again from the listing detail page or listing list.",
     backToDetail: "Back to listing detail",
     viewListings: "View listings",
-    viewHistory: "View inquiry history",
+    viewHistory: "My inquiries",
     mvpPlanned: "MVP planned",
     submittedAt: "Submitted at",
   },
@@ -492,11 +596,62 @@ const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
     emptyBody: "Veuillez choisir de nouveau un logement depuis la page de détail ou la liste.",
     backToDetail: "Retour au détail du logement",
     viewListings: "Voir les logements",
-    viewHistory: "Voir mes demandes",
+    viewHistory: "Mes demandes",
     mvpPlanned: "Prévu MVP",
     submittedAt: "Reçu le",
   },
 };
+
+const DIRECT_APPLY_COMPLETE_COPY_OVERRIDES: Record<
+  Locale,
+  Pick<ApplyCompleteCopy, "eyebrow" | "title" | "subtitle" | "nextStepsTitle" | "nextSteps">
+> = {
+  ko: {
+    eyebrow: "직접 문의 MVP",
+    title: "직접 문의 내용이 접수되었습니다",
+    subtitle:
+      "아래 내용은 MVP mock 접수 화면입니다. 실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않습니다.",
+    nextStepsTitle: "직접 문의 진행 안내",
+    nextSteps: [
+      "입력하신 직접 문의 내용이 MVP mock 상태로 정리되었습니다.",
+      "실제 운영 단계에서는 임대인 메시지 전송, 채팅, 번역 지원을 연결할 예정입니다.",
+      "문의 진행 상황은 나의 문의내역에서 확인할 수 있습니다.",
+    ],
+  },
+  en: {
+    eyebrow: "Direct inquiry MVP",
+    title: "Your direct inquiry has been received",
+    subtitle:
+      "This is an MVP mock completion screen. Real messaging, chat, and translation are not connected yet.",
+    nextStepsTitle: "Direct inquiry progress",
+    nextSteps: [
+      "Your direct inquiry content has been saved in this MVP mock flow.",
+      "In the real operation stage, landlord messaging, chat, and translation support can be connected.",
+      "You can check inquiry progress in My inquiries.",
+    ],
+  },
+  fr: {
+    eyebrow: "Demande directe MVP",
+    title: "Votre demande directe a été reçue",
+    subtitle:
+      "Ceci est un écran de confirmation mock MVP. La messagerie réelle, le chat et la traduction ne sont pas encore connectés.",
+    nextStepsTitle: "Suivi de la demande directe",
+    nextSteps: [
+      "Le contenu de votre demande directe est enregistré dans ce flux mock MVP.",
+      "Dans la phase réelle, la messagerie avec le propriétaire, le chat et l’aide à la traduction pourront être connectés.",
+      "Vous pouvez suivre la demande dans Mes demandes.",
+    ],
+  },
+};
+
+function getApplyCompleteCopy(locale: Locale, method: InquiryApplyMethod) {
+  const base = APPLY_COMPLETE_COPY[locale];
+  if (method === "assisted") return base;
+  return {
+    ...base,
+    ...DIRECT_APPLY_COMPLETE_COPY_OVERRIDES[locale],
+  };
+}
 
 const APPLY_DATE_PICKER_COPY: Record<Locale, ApplyDatePickerCopy> = {
   ko: {
@@ -848,10 +1003,16 @@ function normalizeSearchString(searchStr?: string) {
 
 function getInitialSelectedInquiryState(locale: Locale, searchStr?: string) {
   const params = new URLSearchParams(normalizeSearchString(searchStr));
-  const wantsAssistedMode = params.get("mode") === "assisted";
+  const requestedMode = params.get("mode");
+  const inquiryMethod: InquiryApplyMethod | null =
+    requestedMode === "direct"
+      ? "direct"
+      : requestedMode === "assisted"
+        ? "assisted"
+        : null;
   const queryListingId = params.get("listingId");
-  if (!wantsAssistedMode) {
-    return { loaded: true, shouldRender: false, inquiry: null };
+  if (!inquiryMethod) {
+    return { loaded: true, shouldRender: false, inquiry: null, inquiryMethod: "assisted" as const };
   }
 
   try {
@@ -861,20 +1022,21 @@ function getInitialSelectedInquiryState(locale: Locale, searchStr?: string) {
         loaded: true,
         shouldRender: true,
         inquiry: storedInquiry,
+        inquiryMethod,
       };
     }
 
-    if (wantsAssistedMode && queryListingId) {
+    if (queryListingId) {
       const restoredInquiry = buildSelectedInquiryFromMockListing(locale, queryListingId);
       if (restoredInquiry) {
         saveSelectedInquiryPayload(restoredInquiry);
-        return { loaded: true, shouldRender: true, inquiry: restoredInquiry };
+        return { loaded: true, shouldRender: true, inquiry: restoredInquiry, inquiryMethod };
       }
     }
 
-    return { loaded: true, shouldRender: true, inquiry: null };
+    return { loaded: true, shouldRender: true, inquiry: null, inquiryMethod };
   } catch {
-    return { loaded: true, shouldRender: true, inquiry: null };
+    return { loaded: true, shouldRender: true, inquiry: null, inquiryMethod };
   }
 }
 
@@ -900,20 +1062,20 @@ function readMockApplyProfile(): MockApplyProfile {
   }
 }
 
-function getSelectedInquiryDraftKey(locale: Locale, listingId: string) {
-  return `maplehouse.applyDraft.${locale}.${listingId}`;
+function getSelectedInquiryDraftKey(locale: Locale, listingId: string, method: InquiryApplyMethod) {
+  return `maplehouse.applyDraft.${locale}.${method}.${listingId}`;
 }
 
-function readSelectedInquiryDraft(locale: Locale, listingId: string) {
+function readSelectedInquiryDraft(locale: Locale, listingId: string, method: InquiryApplyMethod) {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.sessionStorage.getItem(getSelectedInquiryDraftKey(locale, listingId));
+    const raw = window.sessionStorage.getItem(getSelectedInquiryDraftKey(locale, listingId, method));
     const parsed = raw ? (JSON.parse(raw) as Partial<SavedSelectedInquiryDraft>) : null;
     const parsedLocale = typeof parsed?.locale === "string" ? parsed.locale : null;
     if (
       !parsed ||
-      parsed.mode !== "assisted" ||
+      parsed.mode !== method ||
       parsed.listingId !== listingId ||
       (parsedLocale !== null && parsedLocale !== locale)
     ) {
@@ -923,7 +1085,7 @@ function readSelectedInquiryDraft(locale: Locale, listingId: string) {
     return {
       listingId,
       locale,
-      mode: "assisted" as const,
+      mode: method,
       form: {
         ...EMPTY_SELECTED_INQUIRY_FORM,
         ...(parsed.form ?? {}),
@@ -963,6 +1125,7 @@ function readSelectedInquiryDraft(locale: Locale, listingId: string) {
 function saveSelectedInquiryDraft(
   locale: Locale,
   listingId: string,
+  method: InquiryApplyMethod,
   form: SelectedInquiryApplyFormState,
   checked: boolean[],
 ) {
@@ -971,7 +1134,7 @@ function saveSelectedInquiryDraft(
   const draft: SavedSelectedInquiryDraft = {
     listingId,
     locale,
-    mode: "assisted",
+    mode: method,
     form,
     checked,
     name: form.name,
@@ -985,12 +1148,12 @@ function saveSelectedInquiryDraft(
     checkboxes: checked,
     savedAt: new Date().toISOString(),
   };
-  window.sessionStorage.setItem(getSelectedInquiryDraftKey(locale, listingId), JSON.stringify(draft));
+  window.sessionStorage.setItem(getSelectedInquiryDraftKey(locale, listingId, method), JSON.stringify(draft));
 }
 
-function clearSelectedInquiryDraft(locale: Locale, listingId: string) {
+function clearSelectedInquiryDraft(locale: Locale, listingId: string, method: InquiryApplyMethod) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(getSelectedInquiryDraftKey(locale, listingId));
+  window.sessionStorage.removeItem(getSelectedInquiryDraftKey(locale, listingId, method));
 }
 
 function getMockInquiryCompletionKey(locale: Locale) {
@@ -1043,6 +1206,7 @@ export function LocaleApplyPage({ locale }: { locale: Locale }) {
         locale={locale}
         loaded={selectedInquiryState.loaded}
         selectedInquiry={selectedInquiryState.inquiry}
+        inquiryMethod={selectedInquiryState.inquiryMethod}
       />
     );
   }
@@ -1055,10 +1219,11 @@ export function LocaleApplyPage({ locale }: { locale: Locale }) {
 }
 
 export function LocaleApplyCompletePage({ locale }: { locale: Locale }) {
-  const copy = APPLY_COMPLETE_COPY[locale];
-  const inquiryCopy = SELECTED_INQUIRY_COPY[locale];
   const [completion, setCompletion] = useState<MockInquiryCompletionPayload | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const inquiryMethod = completion?.inquiryMethod ?? "assisted";
+  const copy = getApplyCompleteCopy(locale, inquiryMethod);
+  const inquiryCopy = getSelectedInquiryApplyCopy(locale, inquiryMethod);
 
   useEffect(() => {
     setCompletion(readMockInquiryCompletion(locale));
@@ -1097,16 +1262,21 @@ export function LocaleApplyCompletePage({ locale }: { locale: Locale }) {
   }
 
   const { selectedInquiry, form, submittedAt } = completion;
+  const isDirectCompletion = inquiryMethod === "direct";
   const inquirerRows = [
     { label: inquiryCopy.fields.name.label, value: form.name },
     { label: inquiryCopy.fields.email.label, value: form.email },
     { label: inquiryCopy.fields.phone.label, value: form.phone },
-    {
-      label: inquiryCopy.fields.preferredMoveInDate.label,
-      value: formatSelectedDateLabel(locale, form.preferredMoveInDate, inquiryCopy.fallback),
-    },
-    { label: inquiryCopy.fields.stayLength.label, value: form.stayLength },
-    { label: inquiryCopy.fields.people.label, value: form.people },
+    ...(!isDirectCompletion
+      ? [
+          {
+            label: inquiryCopy.fields.preferredMoveInDate.label,
+            value: formatSelectedDateLabel(locale, form.preferredMoveInDate, inquiryCopy.fallback),
+          },
+          { label: inquiryCopy.fields.stayLength.label, value: form.stayLength },
+          { label: inquiryCopy.fields.people.label, value: form.people },
+        ]
+      : []),
     { label: copy.submittedAt, value: formatApplyCompletionTimestamp(locale, submittedAt) },
   ];
   const inquiryRows = [
@@ -1194,12 +1364,12 @@ export function LocaleApplyCompletePage({ locale }: { locale: Locale }) {
               <a href={`/${locale}/listings`}>{copy.viewListings}</a>
             </Button>
             <Button
-              type="button"
+              asChild
               variant="outline"
               size="lg"
-              className="w-full cursor-default whitespace-nowrap border-primary/30 bg-[#FFF7ED] text-primary hover:bg-[#FFF1E6] hover:text-primary"
+              className="w-full whitespace-nowrap border-primary/30 bg-[#FFF7ED] text-primary hover:bg-[#FFF1E6] hover:text-primary"
             >
-              {copy.viewHistory} {"\u00B7"} {copy.mvpPlanned}
+              <a href={`/${locale}/my/inquiries`}>{copy.viewHistory}</a>
             </Button>
           </div>
         </div>
@@ -1389,12 +1559,17 @@ function SelectedInquiryApplyPage({
   locale,
   loaded,
   selectedInquiry,
+  inquiryMethod,
 }: {
   locale: Locale;
   loaded: boolean;
   selectedInquiry: SelectedInquiryPayload | null;
+  inquiryMethod: InquiryApplyMethod;
 }) {
-  const t = SELECTED_INQUIRY_COPY[locale];
+  const t = useMemo(
+    () => getSelectedInquiryApplyCopy(locale, inquiryMethod),
+    [locale, inquiryMethod],
+  );
   const dateCopy = APPLY_DATE_PICKER_COPY[locale];
   const [form, setForm] = useState<SelectedInquiryApplyFormState>(EMPTY_SELECTED_INQUIRY_FORM);
   const [checked, setChecked] = useState<boolean[]>(() => t.agreements.map(() => false));
@@ -1418,7 +1593,7 @@ function SelectedInquiryApplyPage({
 
   useEffect(() => {
     if (!selectedInquiry) return;
-    const restoredDraft = readSelectedInquiryDraft(locale, selectedInquiry.listingId);
+    const restoredDraft = readSelectedInquiryDraft(locale, selectedInquiry.listingId, inquiryMethod);
     if (restoredDraft) {
       setForm(restoredDraft.form);
       setChecked(t.agreements.map((_, index) => restoredDraft.checked[index] ?? false));
@@ -1441,12 +1616,13 @@ function SelectedInquiryApplyPage({
     setChecked(t.agreements.map(() => false));
     setDraftRestored(false);
     setSuccessVisible(false);
-  }, [locale, selectedInquiry, t.agreements]);
+  }, [inquiryMethod, locale, selectedInquiry, t.agreements]);
 
   const updateField = (key: keyof SelectedInquiryApplyFormState, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const isDirectInquiry = inquiryMethod === "direct";
   const canSubmit =
     form.name.trim().length > 0 &&
     isValidSelectedInquiryEmail(form.email) &&
@@ -1509,7 +1685,7 @@ function SelectedInquiryApplyPage({
 
   const saveCurrentDraft = () => {
     if (!selectedInquiry) return;
-    saveSelectedInquiryDraft(locale, selectedInquiry.listingId, form, checked);
+    saveSelectedInquiryDraft(locale, selectedInquiry.listingId, inquiryMethod, form, checked);
   };
 
   const handleLeaveWithoutSaving = () => {
@@ -1647,6 +1823,7 @@ function SelectedInquiryApplyPage({
     };
     const completion: MockInquiryCompletionPayload = {
       locale,
+      inquiryMethod,
       selectedInquiry: selectedInquiryForCompletion,
       form,
       submittedAt: draft.createdAt,
@@ -1658,7 +1835,7 @@ function SelectedInquiryApplyPage({
     } catch {
       // MVP preview only; the success state still communicates that no real sending happened.
     }
-    clearSelectedInquiryDraft(locale, selectedInquiry.listingId);
+    clearSelectedInquiryDraft(locale, selectedInquiry.listingId, inquiryMethod);
     setDraftRestored(false);
     setSuccessVisible(true);
     allowNavigationRef.current = true;
@@ -1754,26 +1931,30 @@ function SelectedInquiryApplyPage({
                   value={form.phone}
                   onChange={(value) => updateField("phone", value)}
                 />
-                <DateSelectField
-                  id={`${locale}-inquiry-move-in`}
-                  field={t.fields.preferredMoveInDate}
-                  value={form.preferredMoveInDate}
-                  locale={locale}
-                  fallback={t.fallback}
-                  onOpen={() => setDatePickerOpen(true)}
-                />
-                <TextField
-                  id={`${locale}-inquiry-stay-length`}
-                  field={t.fields.stayLength}
-                  value={form.stayLength}
-                  onChange={(value) => updateField("stayLength", value)}
-                />
-                <TextField
-                  id={`${locale}-inquiry-people`}
-                  field={t.fields.people}
-                  value={form.people}
-                  onChange={(value) => updateField("people", value)}
-                />
+                {!isDirectInquiry ? (
+                  <>
+                    <DateSelectField
+                      id={`${locale}-inquiry-move-in`}
+                      field={t.fields.preferredMoveInDate}
+                      value={form.preferredMoveInDate}
+                      locale={locale}
+                      fallback={t.fallback}
+                      onOpen={() => setDatePickerOpen(true)}
+                    />
+                    <TextField
+                      id={`${locale}-inquiry-stay-length`}
+                      field={t.fields.stayLength}
+                      value={form.stayLength}
+                      onChange={(value) => updateField("stayLength", value)}
+                    />
+                    <TextField
+                      id={`${locale}-inquiry-people`}
+                      field={t.fields.people}
+                      value={form.people}
+                      onChange={(value) => updateField("people", value)}
+                    />
+                  </>
+                ) : null}
               </div>
               <div className="mt-4 grid gap-4">
                 <TextareaField
@@ -2920,8 +3101,19 @@ function CheckboxItem({
         checked={checked}
         required={required}
         onChange={(event) => onChange(event.target.checked)}
-        className="mt-1 h-4 w-4 rounded border-input accent-primary"
+        className="sr-only"
       />
+      <span
+        aria-hidden
+        className={cn(
+          "mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+          checked
+            ? "border-primary bg-primary text-white"
+            : "border-input bg-white text-transparent",
+        )}
+      >
+        <Check className="h-3 w-3 stroke-[3]" />
+      </span>
       <span className="leading-relaxed">{label}</span>
     </label>
   );
