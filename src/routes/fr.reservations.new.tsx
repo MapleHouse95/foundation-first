@@ -4,6 +4,7 @@ import { LocaleReservationNewPage } from "@/components/pages/LocaleTenantInquiri
 export const Route = createFileRoute("/fr/reservations/new")({
   validateSearch: (search: Record<string, unknown>) => ({
     listingId: typeof search.listingId === "string" ? search.listingId : "",
+    roomId: typeof search.roomId === "string" ? search.roomId : undefined,
     inquiryId: typeof search.inquiryId === "string" ? search.inquiryId : undefined,
   }),
   head: () => ({
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/fr/reservations/new")({
 });
 
 function ReservationNewRoute() {
-  const { listingId, inquiryId } = Route.useSearch();
+  const { listingId, inquiryId, roomId } = Route.useSearch();
 
-  return <LocaleReservationNewPage locale="fr" listingId={listingId} inquiryId={inquiryId} />;
+  return <LocaleReservationNewPage locale="fr" listingId={listingId} inquiryId={inquiryId} roomId={roomId} />;
 }

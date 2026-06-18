@@ -43,6 +43,10 @@ import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import type { Locale } from "@/lib/i18n";
 import { getAllMockListingImages } from "@/lib/mockListingImages";
 import {
+  buildMockListingRoomOptions,
+  type MockListingRoomOption,
+} from "@/lib/mockListingRooms";
+import {
   buildSelectedInquiryPayload as buildStoredSelectedInquiryPayload,
   saveSelectedInquiryPayload,
   type SelectedInquiryPayload,
@@ -51,7 +55,6 @@ import { cn } from "@/lib/utils";
 import {
   APPLY_SELECTED_LISTING_STORAGE_KEY,
   MOCK_LISTINGS,
-  buildApplySelectedListingSummary,
   type MockListing,
 } from "./LocaleListingsPage";
 
@@ -59,10 +62,19 @@ const LANDLORD_CENTER_DRAFT_KEY = "maplehouse.landlordDraft.v1";
 const LANDLORD_LISTING_DETAILS_DRAFT_KEY = "maplehouse.landlordListingDetailsDraft.v1";
 // TODO: Replace mock conversion with real exchange-rate data later.
 const MOCK_CAD_TO_KRW = 1000;
+const NO_SELECTED_ROOM_ID = "__none__";
 
 type PublicListingSource = "draft" | "mock";
 type CurrencyMode = "CAD" | "KRW";
 type InquiryTarget = "listing" | "room";
+
+type PriceDisplay = {
+  primary: string;
+  secondary: string;
+  prefix?: string;
+  amount: string;
+  unit: string;
+};
 
 type DraftPhoto = {
   id?: string;
@@ -127,6 +139,7 @@ type PublicListing = {
   addressHidden: boolean;
   rentLabel: string;
   rentValue: number;
+  rentKrwValue?: number;
   housingType: string;
   livingCondition: string;
   availableFrom: string;
@@ -136,6 +149,7 @@ type PublicListing = {
   detailAdded: boolean;
   details: {
     unitDetail: string;
+    bedroomUse: string;
     floor: string;
     occupancy: string;
     bathroom: string;
@@ -153,7 +167,9 @@ type PublicListing = {
   extraNotes: string[];
 };
 
-type InfoRow = [string, string] | { label: string; value: string; secondary?: string };
+type InfoRow =
+  | [string, string]
+  | { label: string; value: string; secondary?: string; priceDisplay?: PriceDisplay };
 type AmenityItem = { label: string; value: string; icon: ReactNode };
 type AmenityGroupKind = "building" | "shared" | "rules";
 type AmenityGroup = {
@@ -259,6 +275,11 @@ type DetailCopy = {
   roomFullDetails: string;
   roomCta: string;
   roomDateCta: string;
+  roomSelectCta: string;
+  roomSelectedCta: string;
+  roomDeselectCta: string;
+  selectedRoomLabel: string;
+  roomSelectionRequired: string;
   roomAvailabilityBadge: string;
   photosCountLabel: string;
   roomAttributes: {
@@ -274,6 +295,12 @@ type DetailCopy = {
     previousPhoto: string;
     nextPhoto: string;
     summary: string;
+    sections: {
+      basic: string;
+      space: string;
+      moveIn: string;
+      cost: string;
+    };
     fields: {
       roomType: string;
       bedroom: string;
@@ -446,9 +473,14 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     },
     roomUnitTitle: "이 매물의 방 / 유닛",
     roomUnitSubtitle: "1베드",
-    roomFullDetails: "전체 방 상세 보기",
+    roomFullDetails: "이 방 상세보기",
     roomCta: "이 방 문의하기",
     roomDateCta: "날짜 선택하기",
+    roomSelectCta: "이 방 선택하기",
+    roomSelectedCta: "선택됨",
+    roomDeselectCta: "선택 취소",
+    selectedRoomLabel: "선택된 방",
+    roomSelectionRequired: "원하시는 방을 선택해 주세요",
     roomAvailabilityBadge: "입주 가능일 확인 필요",
     photosCountLabel: "사진",
     roomAttributes: {
@@ -464,6 +496,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       previousPhoto: "이전 사진",
       nextPhoto: "다음 사진",
       summary: "방 요약",
+      sections: {
+        basic: "기본 정보",
+        space: "공간 정보",
+        moveIn: "입주 조건",
+        cost: "비용 정보",
+      },
       fields: {
         roomType: "방 유형",
         bedroom: "침실",
@@ -657,9 +695,14 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     },
     roomUnitTitle: "Room / unit for this listing",
     roomUnitSubtitle: "1 bedroom",
-    roomFullDetails: "View full room details",
+    roomFullDetails: "View this room",
     roomCta: "Inquire about this room",
     roomDateCta: "Select dates",
+    roomSelectCta: "Select this room",
+    roomSelectedCta: "Selected",
+    roomDeselectCta: "Clear selection",
+    selectedRoomLabel: "Selected room",
+    roomSelectionRequired: "Please select a room",
     roomAvailabilityBadge: "Availability to confirm",
     photosCountLabel: "photos",
     roomAttributes: {
@@ -675,6 +718,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       previousPhoto: "Previous photo",
       nextPhoto: "Next photo",
       summary: "Room summary",
+      sections: {
+        basic: "Basic info",
+        space: "Space details",
+        moveIn: "Move-in terms",
+        cost: "Cost",
+      },
       fields: {
         roomType: "Room type",
         bedroom: "Bedroom",
@@ -870,9 +919,14 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     },
     roomUnitTitle: "Chambre / unité de cette annonce",
     roomUnitSubtitle: "1 chambre",
-    roomFullDetails: "Voir les détails de la chambre",
+    roomFullDetails: "Voir cette chambre",
     roomCta: "Demander cette chambre",
     roomDateCta: "Choisir les dates",
+    roomSelectCta: "Choisir cette chambre",
+    roomSelectedCta: "Sélectionné",
+    roomDeselectCta: "Retirer",
+    selectedRoomLabel: "Chambre sélectionnée",
+    roomSelectionRequired: "Veuillez sélectionner une chambre",
     roomAvailabilityBadge: "Disponibilité à confirmer",
     photosCountLabel: "photos",
     roomAttributes: {
@@ -888,6 +942,12 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       previousPhoto: "Photo précédente",
       nextPhoto: "Photo suivante",
       summary: "Résumé de la chambre",
+      sections: {
+        basic: "Infos de base",
+        space: "Détails de l’espace",
+        moveIn: "Conditions d’entrée",
+        cost: "Coûts",
+      },
       fields: {
         roomType: "Type de chambre",
         bedroom: "Chambre",
@@ -1011,7 +1071,7 @@ export function LocaleListingDetailPage({
   const [detailDraft, setDetailDraft] = useState<LandlordListingDetailsDraft | null>(null);
   const [loaded, setLoaded] = useState(listingId !== "draft");
   const [inquiryOpen, setInquiryOpen] = useState(false);
-  const [currency, setCurrency] = useState<CurrencyMode>("CAD");
+  const [currency, setCurrency] = useState<CurrencyMode>(() => getDefaultCurrency(locale));
   const [introExpanded, setIntroExpanded] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [missingDateOpen, setMissingDateOpen] = useState(false);
@@ -1031,6 +1091,10 @@ export function LocaleListingDetailPage({
   }, [listingId]);
 
   useEffect(() => {
+    setCurrency(getDefaultCurrency(locale));
+  }, [locale]);
+
+  useEffect(() => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 560);
     const checkAfterAnchorScroll = window.setTimeout(handleScroll, 800);
 
@@ -1042,7 +1106,7 @@ export function LocaleListingDetailPage({
     };
   }, []);
 
-  const listing = useMemo(() => {
+  const baseListing = useMemo(() => {
     if (listingId === "draft") {
       if (!loaded || !draftHasData(draft)) return null;
       return buildDraftPublicListing(locale, copy, draft, detailDraft);
@@ -1051,6 +1115,33 @@ export function LocaleListingDetailPage({
     const mockListing = MOCK_LISTINGS.find((item) => item.id === listingId);
     return mockListing ? buildMockPublicListing(locale, copy, mockListing) : null;
   }, [copy, detailDraft, draft, listingId, loaded, locale]);
+  const roomOptions = useMemo(
+    () => (baseListing?.sourceListing ? buildMockListingRoomOptions(baseListing.sourceListing) : []),
+    [baseListing?.sourceListing],
+  );
+  const [selectedRoomId, setSelectedRoomId] = useState(NO_SELECTED_ROOM_ID);
+
+  useEffect(() => {
+    if (!roomOptions.length) {
+      setSelectedRoomId(NO_SELECTED_ROOM_ID);
+      return;
+    }
+    if (roomOptions.some((room) => room.id === selectedRoomId)) return;
+    setSelectedRoomId(NO_SELECTED_ROOM_ID);
+  }, [listingId, roomOptions, selectedRoomId]);
+
+  const selectedRoom = roomOptions.find((room) => room.id === selectedRoomId);
+  const listing = useMemo(
+    () => (baseListing ? applyRoomOptionToPublicListing(baseListing, selectedRoom, locale) : null),
+    [baseListing, locale, selectedRoom],
+  );
+  const roomListings = useMemo(
+    () =>
+      baseListing
+        ? roomOptions.map((room) => applyRoomOptionToPublicListing(baseListing, room, locale))
+        : [],
+    [baseListing, locale, roomOptions],
+  );
 
   if (listingId === "draft" && loaded && !draftHasData(draft)) {
     return (
@@ -1087,6 +1178,12 @@ export function LocaleListingDetailPage({
   }
 
   const priceDisplay = formatMonthlyPrice(listing.rentValue, locale, currency, copy.fallback);
+  const railPriceDisplay = formatMonthlyPrice(
+    roomOptions.length > 0 && !selectedRoom ? 0 : listing.rentValue,
+    locale,
+    currency,
+    copy.fallback,
+  );
   const showBackToTopButton =
     showBackToTop &&
     !inquiryOpen &&
@@ -1149,6 +1246,27 @@ export function LocaleListingDetailPage({
     setAmenitiesModalOpen(null);
     setRoomDetailsOpen(true);
   };
+  const selectRoom = (roomId?: string) => {
+    if (roomId) {
+      setSelectedRoomId(roomId);
+    }
+  };
+  const toggleRoomSelection = (roomId?: string) => {
+    if (!roomId) return;
+    setSelectedRoomId((current) => (current === roomId ? NO_SELECTED_ROOM_ID : roomId));
+  };
+  const openDatePickerForRoom = (roomId?: string) => {
+    selectRoom(roomId);
+    openDatePicker(false);
+  };
+  const openRoomDetailsForRoom = (roomId?: string) => {
+    selectRoom(roomId);
+    openRoomDetails();
+  };
+  const requestRoomInquiry = (roomId?: string) => {
+    selectRoom(roomId);
+    requestInquiry("room");
+  };
   const openAmenitiesModal = (kind: AmenityGroupKind) => {
     setInquiryOpen(false);
     setMissingDateOpen(false);
@@ -1166,51 +1284,57 @@ export function LocaleListingDetailPage({
     [copy.fields.address, listing.addressHidden ? copy.addressAfterInquiry : copy.fallback],
   ];
 
-  const roomAttributeRows = [
+  const buildRoomAttributeRows = (roomListing: PublicListing) => [
     {
       label: copy.roomAttributes.bedroom,
-      value: listing.details.unitDetail || listing.housingType,
+      value: roomListing.details.bedroomUse,
       icon: <BedDouble className="h-4 w-4" aria-hidden />,
     },
     {
       label: copy.roomAttributes.bathroom,
-      value: listing.details.bathroom,
+      value: roomListing.details.bathroom,
       icon: <Bath className="h-4 w-4" aria-hidden />,
     },
     {
       label: copy.roomAttributes.kitchen,
-      value: listing.details.kitchen,
+      value: roomListing.details.kitchen,
       icon: <Utensils className="h-4 w-4" aria-hidden />,
     },
     {
       label: copy.roomAttributes.livingRoom,
-      value: listing.livingCondition,
+      value: roomListing.livingCondition,
       icon: <Sofa className="h-4 w-4" aria-hidden />,
     },
   ];
-  const roomMetaRows = [
-    formatMaxOccupancy(listing.details.occupancy, locale),
-    formatFloorValue(listing.details.floor, locale),
-    display(listing.details.bedSize, ""),
-  ].filter(Boolean);
-  const roomDetailRows: InfoRow[] = [
-    [copy.roomDetailsModal.fields.roomType, listing.housingType],
-    [copy.roomDetailsModal.fields.bedroom, listing.details.unitDetail || listing.housingType],
-    [copy.roomDetailsModal.fields.bathroom, listing.details.bathroom],
-    [copy.roomDetailsModal.fields.kitchen, listing.details.kitchen],
-    [copy.roomDetailsModal.fields.livingRoom, listing.livingCondition],
-    [copy.roomDetailsModal.fields.maxGuests, formatMaxOccupancy(listing.details.occupancy, locale)],
-    [copy.roomDetailsModal.fields.floor, formatFloorValue(listing.details.floor, locale)],
-    [copy.roomDetailsModal.fields.bedSize, listing.details.bedSize],
-    [copy.roomDetailsModal.fields.furnished, listing.details.furnished],
-    [copy.roomDetailsModal.fields.availableFrom, listing.availableFrom],
-    [copy.roomDetailsModal.fields.minimumStay, listing.minimumStay],
+  const buildRoomMetaRows = (roomListing: PublicListing) =>
+    [
+      formatMaxOccupancy(roomListing.details.occupancy, locale),
+      formatFloorValue(roomListing.details.floor, locale),
+      display(roomListing.details.furnished, ""),
+    ].filter(Boolean);
+  const buildRoomDetailRows = (
+    roomListing: PublicListing,
+    roomPriceDisplay: PriceDisplay,
+  ): InfoRow[] => [
+    [copy.roomDetailsModal.fields.roomType, roomListing.housingType],
+    [copy.roomDetailsModal.fields.bedroom, roomListing.details.unitDetail || roomListing.housingType],
+    [copy.roomDetailsModal.fields.bathroom, roomListing.details.bathroom],
+    [copy.roomDetailsModal.fields.kitchen, roomListing.details.kitchen],
+    [copy.roomDetailsModal.fields.livingRoom, roomListing.livingCondition],
+    [copy.roomDetailsModal.fields.maxGuests, formatMaxOccupancy(roomListing.details.occupancy, locale)],
+    [copy.roomDetailsModal.fields.floor, formatFloorValue(roomListing.details.floor, locale)],
+    [copy.roomDetailsModal.fields.bedSize, roomListing.details.bedSize],
+    [copy.roomDetailsModal.fields.furnished, roomListing.details.furnished],
+    [copy.roomDetailsModal.fields.availableFrom, roomListing.availableFrom],
+    [copy.roomDetailsModal.fields.minimumStay, roomListing.minimumStay],
     {
       label: copy.roomDetailsModal.fields.monthlyRent,
-      value: priceDisplay.primary,
-      secondary: priceDisplay.secondary,
+      value: roomPriceDisplay.primary,
+      secondary: roomPriceDisplay.secondary,
+      priceDisplay: roomPriceDisplay,
     },
   ];
+  const roomDetailRows = buildRoomDetailRows(listing, priceDisplay);
   const amenityGroupItems: Array<Omit<AmenityGroup, "moreLabel">> = [
     {
       kind: "building",
@@ -1257,6 +1381,14 @@ export function LocaleListingDetailPage({
     { id: "faq", label: copy.tabs.faq },
     { id: "before-inquiry", label: copy.tabs.beforeInquiry },
   ];
+  const visibleRoomListings = roomListings.length ? roomListings : [listing];
+  const requiresRoomSelection = roomOptions.length > 0;
+  const showRoomPromptOnly = requiresRoomSelection && !selectedRoom;
+  const selectedRoomSummary = selectedRoom
+    ? selectedRoom.label[locale]
+    : requiresRoomSelection
+      ? copy.roomSelectionRequired
+      : display(listing.details.unitDetail, copy.roomSelectionRequired);
   return (
     <main className="min-h-screen bg-[#F6F7F9] py-6 sm:py-8">
       <Container className="max-w-7xl">
@@ -1288,18 +1420,39 @@ export function LocaleListingDetailPage({
             />
 
             <DetailSection id="room-info" title={copy.sections.roomInfo}>
-              <RoomInfoCard
-                copy={copy}
-                locale={locale}
-                listing={listing}
-                rows={roomAttributeRows}
-                metaRows={roomMetaRows}
-                priceDisplay={priceDisplay}
-                onOpenPhotoViewer={openPhotoViewer}
-                onOpenDatePicker={() => openDatePicker(false)}
-                onOpenRoomDetails={openRoomDetails}
-                onInquire={() => requestInquiry("room")}
-              />
+              <div className="space-y-4">
+                {visibleRoomListings.map((roomListing, index) => {
+                  const room = roomOptions[index];
+                  const roomPriceDisplay = formatMonthlyPrice(
+                    roomListing.rentValue,
+                    locale,
+                    currency,
+                    copy.fallback,
+                  );
+                  const roomSelected = room ? room.id === selectedRoom?.id : true;
+
+                  return (
+                    <RoomInfoCard
+                      key={room?.id ?? roomListing.id}
+                      copy={copy}
+                      locale={locale}
+                      listing={roomListing}
+                      rows={buildRoomAttributeRows(roomListing)}
+                      metaRows={buildRoomMetaRows(roomListing)}
+                      priceDisplay={roomPriceDisplay}
+                      selected={roomSelected}
+                      onOpenPhotoViewer={(photoIndex) => {
+                        selectRoom(room?.id);
+                        openPhotoViewer(photoIndex);
+                      }}
+                      onOpenDatePicker={() => openDatePickerForRoom(room?.id)}
+                      onOpenRoomDetails={() => openRoomDetailsForRoom(room?.id)}
+                      onInquire={() => requestRoomInquiry(room?.id)}
+                      onSelectRoom={() => toggleRoomSelection(room?.id)}
+                    />
+                  );
+                })}
+              </div>
             </DetailSection>
 
             <DetailSection id="amenities" title={copy.sections.amenities}>
@@ -1321,7 +1474,12 @@ export function LocaleListingDetailPage({
             <DetailSection title={copy.sections.costs}>
               <InfoGrid
                 rows={[
-                  { label: copy.heroFields.monthlyRent, value: priceDisplay.primary, secondary: priceDisplay.secondary },
+                  {
+                    label: copy.heroFields.monthlyRent,
+                    value: priceDisplay.primary,
+                    secondary: priceDisplay.secondary,
+                    priceDisplay,
+                  },
                   [copy.fields.keyDeposit, listing.keyDeposit],
                   [copy.fields.utilities, listing.utilities.join(", ")],
                 ]}
@@ -1368,8 +1526,13 @@ export function LocaleListingDetailPage({
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
                     MapleHouse
                   </p>
-                  <h2 className="mt-3 break-words text-[1.375rem] font-bold leading-tight text-foreground sm:text-2xl">{priceDisplay.primary}</h2>
-                  <p className="mt-1 text-[13px] font-medium text-muted-foreground">{priceDisplay.secondary}</p>
+                  <h2 className="mt-3 break-words leading-tight text-foreground">
+                    <PriceAmount
+                      display={railPriceDisplay}
+                      className="text-[1.375rem] font-bold sm:text-2xl"
+                      unitClassName="text-sm font-semibold sm:text-[15px]"
+                    />
+                  </h2>
                 </div>
                 <CurrencySwitch
                   label={copy.currencyLabel}
@@ -1377,28 +1540,56 @@ export function LocaleListingDetailPage({
                   onChange={setCurrency}
                 />
               </div>
-              <dl className="mt-5 space-y-3 text-sm">
-                <SummaryRow icon={<CalendarDays className="h-4 w-4" />} label={copy.heroFields.availableFrom} value={listing.availableFrom} fallback={copy.fallback} />
-                <SummaryRow icon={<Home className="h-4 w-4" />} label={copy.heroFields.housingType} value={listing.housingType} fallback={copy.fallback} />
-                <SummaryRow icon={<MapPin className="h-4 w-4" />} label={copy.fields.nearestStation} value={listing.nearestStation} fallback={copy.fallback} />
-              </dl>
-              <a
-                href={getReservationNewHref(locale, listing.id)}
-                className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-[#FFD8AD] bg-[#FFF3E6] px-4 py-3 text-sm font-semibold leading-tight text-[#B94F00] shadow-sm transition hover:border-[#FFC47F] hover:bg-[#FFE8CC]"
-              >
-                {copy.reserve}
-              </a>
-              <Button
-                type="button"
-                variant="soft"
-                className="mt-3 min-h-12 w-full whitespace-normal rounded-2xl border-[#FFD8AD] bg-[#FFF3E6] text-sm font-semibold leading-tight text-[#B94F00] shadow-sm hover:border-[#FFC47F] hover:bg-[#FFE8CC] hover:text-[#B94F00]"
-                onClick={() => requestInquiry("listing")}
-              >
-                {copy.inquire}
-              </Button>
-              <p className="mt-4 text-xs leading-5 text-muted-foreground">
-                {copy.inquirySeparateGuide}
-              </p>
+
+              {showRoomPromptOnly ? (
+                <div className="flex min-h-[84px] items-center justify-center px-2 pt-6 text-center">
+                  <p className="max-w-[16rem] break-keep text-sm font-semibold leading-6 text-foreground">
+                    {copy.roomSelectionRequired}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <dl className="mt-5 divide-y divide-border/80 border-y border-border/80 text-sm">
+                    <RailDetailRow
+                      label={copy.selectedRoomLabel}
+                      value={selectedRoomSummary}
+                      fallback={copy.roomSelectionRequired}
+                    />
+                    <RailDetailRow
+                      label={copy.heroFields.availableFrom}
+                      value={listing.availableFrom}
+                      fallback={copy.fallback}
+                    />
+                    <RailDetailRow
+                      label={copy.heroFields.housingType}
+                      value={listing.housingType}
+                      fallback={copy.fallback}
+                    />
+                    <RailDetailRow
+                      label={locale === "en" ? "Nearby station" : copy.fields.nearestStation}
+                      value={listing.nearestStation}
+                      fallback={copy.fallback}
+                    />
+                  </dl>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-6 min-h-12 w-full whitespace-normal rounded-2xl border-[#FA7000] bg-white text-sm font-semibold leading-tight text-[#EA580C] shadow-sm hover:border-[#EA580C] hover:bg-[#FFF7ED] hover:text-[#EA580C]"
+                    onClick={() => requestInquiry("listing")}
+                  >
+                    {copy.inquire}
+                  </Button>
+                  <a
+                    href={getReservationNewHref(locale, listing.id, selectedRoom?.id)}
+                    className="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-[#FED7AA] bg-[#FFF7ED] px-4 py-3 text-sm font-semibold leading-tight text-[#EA580C] shadow-sm transition hover:border-[#FDBA74] hover:bg-[#FFEDD5]"
+                  >
+                    {copy.reserve}
+                  </a>
+                  <p className="mt-4 text-xs leading-5 text-muted-foreground">
+                    {copy.inquirySeparateGuide}
+                  </p>
+                </>
+              )}
             </section>
           </aside>
         </div>
@@ -1455,6 +1646,7 @@ export function LocaleListingDetailPage({
       {roomDetailsOpen ? (
         <RoomDetailsModal
           copy={copy}
+          locale={locale}
           listing={listing}
           rows={roomDetailRows}
           priceDisplay={priceDisplay}
@@ -1624,6 +1816,46 @@ function CurrencySwitch({
       <ArrowUpDown className="h-3.5 w-3.5" aria-hidden />
       <span>{nextValue}</span>
     </button>
+  );
+}
+
+function PriceAmount({
+  display,
+  className,
+  amountClassName,
+  unitClassName,
+}: {
+  display: PriceDisplay;
+  className?: string;
+  amountClassName?: string;
+  unitClassName?: string;
+}) {
+  return (
+    <span
+      key={display.primary}
+      className={cn("mh-price-change inline-flex min-w-0 flex-wrap items-baseline gap-x-1.5 gap-y-0.5", className)}
+      aria-label={display.primary}
+    >
+      {display.prefix ? (
+        <span className={cn("text-[0.72em] font-semibold", unitClassName)}>
+          {display.prefix}
+        </span>
+      ) : null}
+      <span className={cn("font-bold leading-none", amountClassName)}>
+        {display.amount}
+      </span>
+      <span className={cn("text-[0.72em] font-semibold leading-none", unitClassName)}>
+        {display.unit}
+      </span>
+    </span>
+  );
+}
+
+function AnimatedValue({ value }: { value: string }) {
+  return (
+    <span key={value} className="mh-price-change inline-block max-w-full break-words">
+      {value}
+    </span>
   );
 }
 
@@ -1828,6 +2060,7 @@ function useModalLifecycle(onClose: () => void) {
 
 function RoomDetailsModal({
   copy,
+  locale,
   listing,
   rows,
   priceDisplay,
@@ -1835,9 +2068,10 @@ function RoomDetailsModal({
   onInquire,
 }: {
   copy: DetailCopy;
+  locale: Locale;
   listing: PublicListing;
   rows: InfoRow[];
-  priceDisplay: { primary: string; secondary: string };
+  priceDisplay: PriceDisplay;
   onClose: () => void;
   onInquire: () => void;
 }) {
@@ -1855,6 +2089,35 @@ function RoomDetailsModal({
   };
 
   useModalLifecycle(onClose);
+  const normalizedRows = rows.map((row) =>
+    Array.isArray(row)
+      ? { label: row[0], value: row[1], secondary: undefined }
+      : row,
+  );
+  const roomDetailSections = [
+    { title: copy.roomDetailsModal.sections.basic, rows: normalizedRows.slice(0, 2) },
+    { title: copy.roomDetailsModal.sections.space, rows: normalizedRows.slice(2, 9) },
+    { title: copy.roomDetailsModal.sections.moveIn, rows: normalizedRows.slice(9, 11) },
+    { title: copy.roomDetailsModal.sections.cost, rows: normalizedRows.slice(11) },
+  ].filter((section) => section.rows.length > 0);
+  const roomSummaryOptions = [
+    {
+      label: copy.roomAttributes.bedroom,
+      value: formatRoomSummaryOptionValue(listing.details.bedroomUse, locale, copy.fallback),
+    },
+    {
+      label: copy.roomAttributes.bathroom,
+      value: formatRoomSummaryOptionValue(listing.details.bathroom, locale, copy.fallback),
+    },
+    {
+      label: copy.roomAttributes.kitchen,
+      value: formatRoomSummaryOptionValue(listing.details.kitchen, locale, copy.fallback),
+    },
+    {
+      label: copy.roomAttributes.livingRoom,
+      value: formatRoomSummaryOptionValue(listing.livingCondition, locale, copy.fallback),
+    },
+  ];
 
   return (
     <div
@@ -1887,7 +2150,7 @@ function RoomDetailsModal({
         </header>
 
         <div className="min-h-0 overflow-y-auto p-5 sm:p-6">
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
+          <div className="mx-auto grid max-w-[720px] gap-4 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-start">
             <div className="min-w-0">
               <div className="relative overflow-hidden rounded-3xl border border-border bg-[#F7F8FA]">
                 <ListingImageFrame
@@ -1930,14 +2193,14 @@ function RoomDetailsModal({
               </div>
             </div>
 
-            <aside className="min-w-0 rounded-3xl border border-border bg-[#FAFAFA] p-4 sm:p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+            <aside className="min-w-0 rounded-3xl border border-border bg-[#FAFAFA] p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
                 {copy.roomDetailsModal.summary}
               </p>
-              <h3 className="mt-2 break-words text-lg font-bold leading-tight text-foreground">
+              <h3 className="mt-2 break-words text-[15px] font-semibold leading-tight text-foreground">
                 {display(listing.housingType, copy.fallback)}
               </h3>
-              <div className="mt-4 grid gap-3">
+              <dl className="mt-3 divide-y divide-border/80 border-y border-border/80">
                 <SummaryRow
                   icon={<CalendarDays className="h-4 w-4" />}
                   label={copy.roomDetailsModal.fields.availableFrom}
@@ -1954,52 +2217,70 @@ function RoomDetailsModal({
                   icon={<Home className="h-4 w-4" />}
                   label={copy.roomDetailsModal.fields.monthlyRent}
                   value={priceDisplay.primary}
+                  priceDisplay={priceDisplay}
                   fallback={copy.fallback}
                 />
-              </div>
+                <RoomSummaryOptionGrid options={roomSummaryOptions} />
+              </dl>
             </aside>
           </div>
 
-          <dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {rows.map((row) => {
-              const normalizedRow = Array.isArray(row)
-                ? { label: row[0], value: row[1], secondary: undefined }
-                : row;
-
-              return (
-                <div
-                  key={normalizedRow.label}
-                  className="min-w-0 rounded-2xl border border-border bg-white px-4 py-3"
-                >
-                  <dt className="text-[12px] font-medium leading-snug text-muted-foreground">
-                    {normalizedRow.label}
-                  </dt>
-                  <dd className="mt-1 break-words text-[15px] font-semibold leading-snug text-foreground">
-                    {display(normalizedRow.value, copy.fallback)}
-                  </dd>
-                  {normalizedRow.secondary ? (
-                    <dd className="mt-1 break-words text-xs leading-5 text-muted-foreground">
-                      {normalizedRow.secondary}
-                    </dd>
-                  ) : null}
-                </div>
-              );
-            })}
-          </dl>
+          <div className="mx-auto mt-5 max-w-[720px] overflow-hidden rounded-3xl border border-border bg-white">
+            {roomDetailSections.map((section, sectionIndex) => (
+              <section
+                key={section.title}
+                className={cn("px-4 py-3 sm:px-5", sectionIndex > 0 ? "border-t border-border" : "")}
+              >
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+                  {section.title}
+                </h3>
+                <dl className="mt-1.5 divide-y divide-border/80">
+                  {section.rows.map((row) => (
+                    <div
+                      key={row.label}
+                      className="flex min-w-0 flex-col gap-1 py-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-5"
+                    >
+                      <dt className="text-[12px] font-medium leading-snug text-muted-foreground">
+                        {row.label}
+                      </dt>
+                      <dd className="min-w-0 break-words text-[13px] font-semibold leading-snug text-foreground sm:text-right">
+                        {row.priceDisplay ? (
+                          <PriceAmount
+                            display={row.priceDisplay}
+                            className="justify-end text-[13px] font-semibold"
+                            amountClassName="font-semibold"
+                            unitClassName="text-[11px] font-semibold"
+                          />
+                        ) : (
+                          display(row.value, copy.fallback)
+                        )}
+                        {!row.priceDisplay && row.secondary ? (
+                          <span className="mt-1 block break-words text-xs font-medium leading-5 text-muted-foreground">
+                            {row.secondary}
+                          </span>
+                        ) : null}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            ))}
+          </div>
         </div>
 
-        <footer className="grid gap-3 border-t border-border bg-white px-5 py-4 sm:grid-cols-[auto_1fr] sm:px-6">
+        <footer className="flex flex-wrap items-center justify-center gap-3 border-t border-border bg-white px-5 py-4 sm:px-6">
           <Button
             type="button"
             variant="outline"
-            className="min-h-11 rounded-2xl border-border px-5 text-sm font-semibold"
+            className="min-h-10 rounded-2xl border-border px-5 text-sm font-semibold"
             onClick={onClose}
           >
             {copy.roomDetailsModal.close}
           </Button>
           <Button
             type="button"
-            className="min-h-11 rounded-2xl px-5 text-sm font-semibold"
+            variant="outline"
+            className="min-h-10 rounded-2xl border-[#FA7000] bg-white px-5 text-sm font-semibold text-[#EA580C] hover:border-[#EA580C] hover:bg-[#FFF7ED] hover:text-[#EA580C]"
             onClick={onInquire}
           >
             {copy.roomDetailsModal.inquire}
@@ -2055,20 +2336,20 @@ function AmenitiesModal({
           {groups.map((group) => (
             <section key={group.kind} className="min-w-0">
               <h3 className="break-words text-base font-bold text-foreground">{group.title}</h3>
-              <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <dl className="mt-3 divide-y divide-border/80 rounded-3xl border border-border bg-white px-4 sm:px-5">
                 {group.items.map(({ label, value, icon }) => (
                   <div
                     key={`${group.kind}-${label}`}
-                    className="flex min-w-0 items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3"
+                    className="flex min-w-0 items-center gap-3 py-3.5"
                   >
-                    <span className="mt-0.5 shrink-0 text-primary" aria-hidden>
+                    <span className="shrink-0 text-primary" aria-hidden>
                       {icon}
                     </span>
-                    <div className="min-w-0">
+                    <div className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] sm:items-baseline sm:gap-5">
                       <dt className="break-words text-sm font-semibold leading-snug text-foreground">
                         {label}
                       </dt>
-                      <dd className="mt-1 break-words text-[12px] leading-5 text-muted-foreground">
+                      <dd className="break-words text-[12px] leading-5 text-muted-foreground sm:text-right">
                         {display(value, copy.fallback)}
                       </dd>
                     </div>
@@ -2105,7 +2386,7 @@ function PhotoTile({
     <ListingImageFrame
       src={photo?.src}
       alt={photo?.label ?? ""}
-      fit="cover"
+      fit="contain"
       className="h-full w-full bg-[#F7F8FA]"
       fallback={
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-3 text-center text-muted-foreground">
@@ -2159,40 +2440,50 @@ function RoomInfoCard({
   rows,
   metaRows,
   priceDisplay,
+  selected,
   onOpenPhotoViewer,
   onOpenDatePicker,
   onOpenRoomDetails,
   onInquire,
+  onSelectRoom,
 }: {
   copy: DetailCopy;
   locale: Locale;
   listing: PublicListing;
   rows: Array<{ label: string; value: string; icon: ReactNode }>;
   metaRows: string[];
-  priceDisplay: { primary: string; secondary: string };
+  priceDisplay: PriceDisplay;
+  selected: boolean;
   onOpenPhotoViewer: (index: number) => void;
   onOpenDatePicker: () => void;
   onOpenRoomDetails: () => void;
   onInquire: () => void;
+  onSelectRoom: () => void;
 }) {
   return (
-    <article className="rounded-[1.75rem] border border-border bg-white p-4 shadow-sm sm:p-5">
+    <article className="rounded-[1.5rem] border border-border bg-white p-3.5 shadow-sm transition">
       <div className="flex min-w-0 items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
             {copy.roomUnitTitle}
           </p>
-          <h3 className="mt-2 break-words text-lg font-bold leading-tight text-foreground">
-            {display(listing.housingType, copy.fallback)}
+          <h3 className="mt-1.5 break-words text-base font-bold leading-tight text-foreground sm:text-[17px]">
+            {display(listing.details.unitDetail, display(listing.housingType, copy.fallback))}
           </h3>
+          <p className="mt-1 text-xs font-medium text-muted-foreground">{display(listing.housingType, copy.fallback)}</p>
         </div>
+        {selected ? (
+          <span className="shrink-0 rounded-full border border-[#FED7AA] bg-[#FFF7ED] px-2.5 py-0.5 text-[11px] font-semibold leading-5 text-[#EA580C]">
+            {copy.roomSelectedCta}
+          </span>
+        ) : null}
       </div>
 
-      <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(240px,0.42fr)_minmax(0,0.58fr)]">
+      <div className="mt-3 grid gap-3.5 lg:grid-cols-[minmax(198px,0.34fr)_minmax(0,0.66fr)]">
         <button
           type="button"
           onClick={() => onOpenPhotoViewer(0)}
-          className="group relative block aspect-square min-h-0 overflow-hidden rounded-3xl bg-[#F8FAFC] text-left transition hover:ring-2 hover:ring-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="group relative block aspect-square min-h-0 overflow-hidden rounded-2xl bg-[#F8FAFC] text-left transition hover:ring-2 hover:ring-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           aria-label={copy.viewAllPhotos}
         >
           <ListingImageFrame
@@ -2218,15 +2509,15 @@ function RoomInfoCard({
         </button>
 
         <div className="flex min-w-0 flex-col">
-          <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
+          <dl className="grid gap-x-4 gap-y-2.5 sm:grid-cols-2">
             {rows.map(({ label, value, icon }) => (
-              <div key={label} className="flex min-w-0 items-start gap-3 text-sm">
+              <div key={label} className="flex min-w-0 items-start gap-2.5 text-sm">
                 <span className="mt-0.5 shrink-0 text-muted-foreground">{icon}</span>
                 <div className="min-w-0">
-                  <dt className="text-[12px] font-medium leading-snug text-muted-foreground">
+                  <dt className="text-[11px] font-medium leading-snug text-muted-foreground">
                     {label}
                   </dt>
-                  <dd className="mt-0.5 break-words text-[15px] font-semibold leading-snug text-foreground">
+                  <dd className="mt-0.5 break-words text-sm font-semibold leading-snug text-foreground">
                     {display(value, copy.fallback)}
                   </dd>
                 </div>
@@ -2234,7 +2525,7 @@ function RoomInfoCard({
             ))}
           </dl>
 
-          <div className="mt-4 border-t border-border pt-4">
+          <div className="mt-3 border-t border-border pt-2.5">
             {metaRows.length ? (
               <div className="flex flex-wrap gap-2">
                 {metaRows.map((value) => (
@@ -2247,36 +2538,58 @@ function RoomInfoCard({
                 ))}
               </div>
             ) : null}
+          </div>
+
+          <div className="mt-auto flex flex-col items-end pt-3 text-right">
             <button
               type="button"
               onClick={onOpenRoomDetails}
-              className="mt-3 inline-flex text-sm font-semibold text-primary transition hover:text-primary/80"
+              className="inline-flex text-xs font-semibold text-primary transition hover:text-primary/80"
             >
               {copy.roomFullDetails}
             </button>
-          </div>
 
-          <div className="mt-5">
-            <p className="break-words text-[1.375rem] font-bold leading-tight text-foreground sm:text-2xl">{priceDisplay.primary}</p>
-            <p className="mt-1 text-[13px] font-medium text-muted-foreground">{priceDisplay.secondary}</p>
+            <div className="mt-3">
+              <p className="break-words leading-tight text-foreground">
+                <PriceAmount
+                  display={priceDisplay}
+                  className="text-xl font-bold sm:text-[22px]"
+                  unitClassName="text-[13px] font-semibold sm:text-sm"
+                />
+              </p>
+            </div>
           </div>
         </div>
       </div>
-      <div className="mt-5 grid gap-3 border-t border-border pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+      <div className="mt-4 grid gap-2.5 border-t border-border pt-3.5 md:grid-cols-3 md:items-center">
         <button
           type="button"
           onClick={onOpenDatePicker}
-          className="flex min-h-12 min-w-0 items-center justify-between gap-3 rounded-2xl border border-border bg-[#F8FAFC] px-4 text-left text-sm font-medium text-foreground transition hover:border-primary/40 hover:bg-white"
+          className="flex min-h-11 min-w-0 items-center justify-between gap-3 rounded-2xl border border-border bg-white px-3.5 text-left text-sm font-medium text-foreground transition hover:border-[#FDBA74] hover:bg-[#FFF7ED]"
         >
           <span className="min-w-0 truncate">{copy.roomDateCta}</span>
           <CalendarDays className="h-4 w-4 shrink-0 text-primary" aria-hidden />
         </button>
         <Button
           type="button"
-          className="min-h-12 whitespace-normal rounded-2xl px-6 text-sm font-semibold leading-tight sm:shrink-0"
+          variant="outline"
+          className="min-h-11 whitespace-normal rounded-2xl border-[#FA7000] bg-white px-3.5 text-sm font-semibold leading-tight text-[#EA580C] shadow-sm hover:border-[#EA580C] hover:bg-[#FFF7ED] hover:text-[#EA580C]"
           onClick={onInquire}
         >
           {copy.roomCta}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className={cn(
+            "min-h-11 whitespace-normal rounded-2xl border bg-white px-3.5 text-sm font-semibold leading-tight shadow-sm transition",
+            selected
+              ? "border-border text-foreground hover:border-[#FDBA74] hover:bg-[#FFF7ED] hover:text-[#EA580C]"
+              : "border-[#FA7000] text-[#EA580C] hover:border-[#EA580C] hover:bg-[#FFF7ED] hover:text-[#EA580C]",
+          )}
+          onClick={onSelectRoom}
+        >
+          {selected ? copy.roomDeselectCta : copy.roomSelectCta}
         </Button>
       </div>
     </article>
@@ -2659,13 +2972,22 @@ function InfoGrid({ rows, fallback }: { rows: InfoRow[]; fallback: string }) {
 
   return (
     <dl className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3">
-      {normalizedRows.map(({ label, value, secondary }) => (
+      {normalizedRows.map(({ label, value, secondary, priceDisplay }) => (
         <div key={label} className="min-w-0 rounded-2xl border border-border bg-[#FAFAFA] p-4">
           <dt className="text-xs font-medium leading-snug text-muted-foreground [overflow-wrap:break-word]">{label}</dt>
           <dd className="mt-1 min-h-5 break-words text-sm font-semibold text-foreground">
-            {display(value, fallback)}
+            {priceDisplay ? (
+              <PriceAmount
+                display={priceDisplay}
+                className="text-sm font-semibold"
+                amountClassName="font-semibold"
+                unitClassName="text-[11px] font-semibold"
+              />
+            ) : (
+              display(value, fallback)
+            )}
           </dd>
-          {secondary ? (
+          {!priceDisplay && secondary ? (
             <p className="mt-1 text-xs font-medium leading-5 text-muted-foreground">
               {secondary}
             </p>
@@ -2676,24 +2998,128 @@ function InfoGrid({ rows, fallback }: { rows: InfoRow[]; fallback: string }) {
   );
 }
 
+function formatRoomSummaryOptionValue(value: string, locale: Locale, fallback: string) {
+  const rawValue = value.trim();
+  if (!rawValue) return fallback;
+
+  const normalizedValue = rawValue.toLowerCase();
+  const valuesByLocale = {
+    ko: {
+      privateUse: "개인사용",
+      sharedUse: "공용사용",
+      needsConfirmation: "확인필요",
+    },
+    en: {
+      privateUse: "Private use",
+      sharedUse: "Shared use",
+      needsConfirmation: "Needs confirmation",
+    },
+    fr: {
+      privateUse: "Usage privé",
+      sharedUse: "Usage partagé",
+      needsConfirmation: "À confirmer",
+    },
+  } satisfies Record<Locale, { privateUse: string; sharedUse: string; needsConfirmation: string }>;
+
+  if (normalizedValue.includes("공용") || normalizedValue.includes("shared") || normalizedValue.includes("partag")) {
+    return valuesByLocale[locale].sharedUse;
+  }
+
+  if (normalizedValue.includes("개인") || normalizedValue.includes("private") || normalizedValue.includes("priv")) {
+    return valuesByLocale[locale].privateUse;
+  }
+
+  if (normalizedValue.includes("확인") || normalizedValue.includes("confirm") || normalizedValue.includes("confirmer")) {
+    return valuesByLocale[locale].needsConfirmation;
+  }
+
+  return rawValue;
+}
+
+function RoomSummaryOptionGrid({
+  options,
+}: {
+  options: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <div className="py-2.5">
+      <div className="mx-auto grid w-fit max-w-full grid-cols-[minmax(0,5.25rem)_minmax(0,5.25rem)]">
+        {options.map((option, index) => (
+          <div
+            key={option.label}
+            className={cn(
+              "min-w-0 py-1.5",
+              index % 2 === 0 ? "pr-3 text-right" : "border-l border-border/70 pl-3 text-left",
+              index >= 2 ? "border-t border-border/70 pt-2.5" : "",
+            )}
+          >
+            <dt className="text-[10px] font-medium leading-snug text-muted-foreground [overflow-wrap:break-word]">
+              {option.label}
+            </dt>
+            <dd className="mt-0.5 break-words text-xs font-semibold leading-snug text-foreground">
+              {option.value}
+            </dd>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SummaryRow({
   icon,
   label,
   value,
+  priceDisplay,
   fallback,
 }: {
-  icon: ReactNode;
+  icon?: ReactNode;
+  label: string;
+  value: string;
+  priceDisplay?: PriceDisplay;
+  fallback: string;
+}) {
+  return (
+    <div className="flex min-w-0 items-start gap-2.5 py-2">
+      {icon ? <span className="mt-0.5 shrink-0 text-primary">{icon}</span> : null}
+      <div className="min-w-0">
+        <dt className="text-[10px] font-medium leading-snug text-muted-foreground [overflow-wrap:break-word]">{label}</dt>
+        <dd className="mt-0.5 break-words text-xs font-semibold leading-snug text-foreground">
+          {priceDisplay ? (
+            <PriceAmount
+              display={priceDisplay}
+              className="text-xs font-semibold"
+              amountClassName="font-semibold"
+              unitClassName="text-[10px] font-semibold"
+            />
+          ) : (
+            display(value, fallback)
+          )}
+        </dd>
+      </div>
+    </div>
+  );
+}
+
+function RailDetailRow({
+  label,
+  value,
+  fallback,
+}: {
   label: string;
   value: string;
   fallback: string;
 }) {
+  const renderedValue = display(value, fallback);
+
   return (
-    <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-border bg-[#FAFAFA] p-3">
-      <span className="mt-0.5 text-primary">{icon}</span>
-      <div className="min-w-0">
-        <dt className="text-xs font-medium leading-snug text-muted-foreground [overflow-wrap:break-word]">{label}</dt>
-        <dd className="mt-0.5 break-words font-semibold text-foreground">{display(value, fallback)}</dd>
-      </div>
+    <div className="grid min-w-0 gap-1.5 py-3">
+      <dt className="break-words text-[12px] font-medium leading-snug text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="break-words text-sm font-semibold leading-snug text-foreground">
+        <AnimatedValue value={renderedValue} />
+      </dd>
     </div>
   );
 }
@@ -2791,6 +3217,7 @@ function buildMockPublicListing(locale: Locale, copy: DetailCopy, listing: MockL
     addressHidden: false,
     rentLabel: `C$${listing.priceCAD.toLocaleString("en-CA")}`,
     rentValue: listing.priceCAD,
+    rentKrwValue: listing.priceKRW,
     housingType: listing.roomType[locale],
     livingCondition: copy.fallback,
     availableFrom: copy.fallback,
@@ -2800,6 +3227,7 @@ function buildMockPublicListing(locale: Locale, copy: DetailCopy, listing: MockL
     detailAdded: true,
     details: {
       unitDetail: "",
+      bedroomUse: "",
       floor: "",
       occupancy: String(listing.maxPeople),
       bathroom: "",
@@ -2816,6 +3244,47 @@ function buildMockPublicListing(locale: Locale, copy: DetailCopy, listing: MockL
     houseRules: [],
     extraNotes: listing.checklist[locale],
   };
+}
+
+function applyRoomOptionToPublicListing(
+  listing: PublicListing,
+  room?: MockListingRoomOption,
+  locale?: Locale,
+): PublicListing {
+  if (!room || !locale) return listing;
+
+  const photos = rotatePublicPhotos(listing.photos, room.photoOffset);
+
+  return {
+    ...listing,
+    rentLabel: `C$${room.priceCAD.toLocaleString("en-CA")}`,
+    rentValue: room.priceCAD,
+    rentKrwValue: room.priceKRW,
+    housingType: room.roomType[locale],
+    livingCondition: room.livingCondition[locale],
+    availableFrom: room.availableFrom[locale],
+    minimumStay: room.minimumStay[locale],
+    photos,
+    photoCount: photos.length,
+    details: {
+      ...listing.details,
+      unitDetail: room.label[locale],
+      bedroomUse: room.bedroomUse[locale],
+      occupancy: String(room.maxPeople),
+      bathroom: room.bathroom[locale],
+      kitchen: room.kitchen[locale],
+      furnished: room.furnished[locale],
+      bedSize: room.bedSize[locale],
+      floor: room.floor[locale],
+    },
+    extraNotes: room.notes[locale],
+  };
+}
+
+function rotatePublicPhotos(photos: PublicPhoto[], offset: number) {
+  if (!photos.length) return photos;
+  const normalizedOffset = ((offset % photos.length) + photos.length) % photos.length;
+  return [...photos.slice(normalizedOffset), ...photos.slice(0, normalizedOffset)];
 }
 
 function buildDraftPublicListing(
@@ -2841,6 +3310,7 @@ function buildDraftPublicListing(
     addressHidden: Boolean(draft?.address?.trim()),
     rentLabel: rentValue > 0 ? `C$${rentValue.toLocaleString("en-CA")}` : "",
     rentValue,
+    rentKrwValue: rentValue * MOCK_CAD_TO_KRW,
     housingType: draft?.housingType ?? "",
     livingCondition: draft?.residentCondition ?? "",
     availableFrom: draft?.availableFrom ?? "",
@@ -2850,6 +3320,7 @@ function buildDraftPublicListing(
     detailAdded: detailDraftHasData(details),
     details: {
       unitDetail: details.unitDetail ?? "",
+      bedroomUse: "",
       floor: details.floor ?? "",
       occupancy: details.occupancy ?? "",
       bathroom: details.bathroom ?? "",
@@ -2986,33 +3457,76 @@ function formatMonthlyPrice(
   locale: Locale,
   currency: CurrencyMode,
   fallback: string,
-) {
-  if (!amountCad) {
-    return { primary: fallback, secondary: "" };
+) : PriceDisplay {
+  if (!Number.isFinite(amountCad) || amountCad < 0) {
+    return {
+      primary: fallback,
+      secondary: "",
+      amount: fallback,
+      unit: "",
+    };
   }
 
   const krwValue = amountCad * MOCK_CAD_TO_KRW;
   const cadEn = amountCad.toLocaleString("en-CA");
   const cadFr = amountCad.toLocaleString("fr-CA").replace(/\u00A0/g, " ");
-  const krwKo = `₩${krwValue.toLocaleString("ko-KR")}`;
+  const krwKo = Math.round(krwValue).toLocaleString("ko-KR");
   const krwEn = `₩${krwValue.toLocaleString("en-US")}`;
   const krwFr = `${krwValue.toLocaleString("fr-FR").replace(/\u00A0/g, " ")} ₩`;
 
   if (locale === "ko") {
     return currency === "CAD"
-      ? { primary: `${cadEn}$ / 월`, secondary: krwKo }
-      : { primary: `${krwKo} / 월`, secondary: `CA$${cadEn}` };
+      ? {
+          primary: `${cadEn}$ / 월`,
+          secondary: `${krwKo}원`,
+          amount: cadEn,
+          unit: "$ / 월",
+        }
+      : {
+          primary: `${krwKo}원 / 월`,
+          secondary: `CA$${cadEn}`,
+          amount: krwKo,
+          unit: "원 / 월",
+        };
   }
 
   if (locale === "fr") {
     return currency === "CAD"
-      ? { primary: `${cadFr} $ CA / mois`, secondary: `env. ${krwFr}` }
-      : { primary: `env. ${krwFr} / mois`, secondary: `${cadFr} $ CA` };
+      ? {
+          primary: `C$${cadFr} / mois`,
+          secondary: `env. ${krwFr}`,
+          prefix: "C$",
+          amount: cadFr,
+          unit: "/ mois",
+        }
+      : {
+          primary: `env. ${krwFr} / mois`,
+          secondary: `${cadFr} $ CA`,
+          prefix: "env.",
+          amount: krwValue.toLocaleString("fr-FR").replace(/\u00A0/g, " "),
+          unit: "₩ / mois",
+        };
   }
 
   return currency === "CAD"
-    ? { primary: `CA$${cadEn} / mo`, secondary: `approx. ${krwEn}` }
-    : { primary: `approx. ${krwEn} / mo`, secondary: `CA$${cadEn}` };
+    ? {
+        primary: `CA$${cadEn} / mo`,
+        secondary: `approx. ${krwEn}`,
+        prefix: "CA$",
+        amount: cadEn,
+        unit: "/ mo",
+      }
+    : {
+        primary: `approx. ${krwEn} / mo`,
+        secondary: `CA$${cadEn}`,
+        prefix: "approx. ₩",
+        amount: krwValue.toLocaleString("en-US"),
+        unit: "/ mo",
+      };
+}
+
+function getDefaultCurrency(locale: Locale): CurrencyMode {
+  return locale === "ko" ? "KRW" : "CAD";
 }
 
 function formatMaxOccupancy(value: string, locale: Locale) {
@@ -3105,8 +3619,11 @@ function getInquiryRoomName(listing: PublicListing, target: InquiryTarget) {
   return listing.details.unitDetail || listing.housingType;
 }
 
-function getReservationNewHref(locale: Locale, listingId: string) {
+function getReservationNewHref(locale: Locale, listingId: string, roomId?: string) {
   const params = new URLSearchParams({ listingId });
+  if (roomId) {
+    params.set("roomId", roomId);
+  }
   return `/${locale}/reservations/new?${params.toString()}`;
 }
 
@@ -3123,7 +3640,7 @@ function buildSelectedInquiryPayload(
     city: listing.city,
     area: listing.area,
     rentCad: listing.rentValue,
-    rentKrw: listing.sourceListing?.priceKRW ?? listing.rentValue * MOCK_CAD_TO_KRW,
+    rentKrw: listing.rentKrwValue ?? listing.sourceListing?.priceKRW ?? listing.rentValue * MOCK_CAD_TO_KRW,
     housingType: listing.housingType,
     roomName: getInquiryRoomName(listing, inquiryTarget),
     roomType: inquiryTarget === "room" ? listing.housingType : "",
@@ -3136,6 +3653,22 @@ function buildSelectedInquiryPayload(
       .filter((src): src is string => Boolean(src)),
     source: "listing_detail",
   });
+}
+
+function buildApplySummaryFromPublicListing(listing: PublicListing) {
+  return {
+    listingId: listing.id,
+    title: listing.title,
+    area: listing.area,
+    housingType: listing.housingType,
+    rent: listing.rentValue,
+    currency: "CAD" as const,
+    rentKRW: listing.rentKrwValue ?? listing.rentValue * MOCK_CAD_TO_KRW,
+    capacity: getListingGuestCount(listing),
+    lastChecked: listing.sourceListing?.lastChecked ?? "",
+    verificationStatus: listing.sourceListing?.status ?? "preparing",
+    thumbnail: listing.photos[0]?.src || "",
+  };
 }
 
 function openAssistedApply(
@@ -3155,21 +3688,7 @@ function openAssistedApply(
     );
     saveSelectedInquiryPayload(selectedInquiry);
 
-    const summary = listing.sourceListing
-      ? buildApplySelectedListingSummary(listing.sourceListing)
-      : {
-          listingId: listing.id,
-          title: listing.title,
-          area: listing.area,
-          housingType: listing.housingType,
-          rent: listing.rentValue,
-          currency: "CAD",
-          rentKRW: 0,
-          capacity: Number(listing.details.occupancy) || 1,
-          lastChecked: "",
-          verificationStatus: "preparing",
-          thumbnail: listing.photos[0]?.src || "",
-        };
+    const summary = buildApplySummaryFromPublicListing(listing);
     if (locale === "ko") {
       window.sessionStorage.setItem(APPLY_SELECTED_LISTING_STORAGE_KEY, JSON.stringify(summary));
     }
@@ -3201,21 +3720,7 @@ function openDirectApply(
     );
     saveSelectedInquiryPayload(selectedInquiry);
 
-    const summary = listing.sourceListing
-      ? buildApplySelectedListingSummary(listing.sourceListing)
-      : {
-          listingId: listing.id,
-          title: listing.title,
-          area: listing.area,
-          housingType: listing.housingType,
-          rent: listing.rentValue,
-          currency: "CAD",
-          rentKRW: 0,
-          capacity: Number(listing.details.occupancy) || 1,
-          lastChecked: "",
-          verificationStatus: "preparing",
-          thumbnail: listing.photos[0]?.src || "",
-        };
+    const summary = buildApplySummaryFromPublicListing(listing);
     if (locale === "ko") {
       window.sessionStorage.setItem(APPLY_SELECTED_LISTING_STORAGE_KEY, JSON.stringify(summary));
     }

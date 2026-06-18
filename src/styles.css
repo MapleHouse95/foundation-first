@@ -220,6 +220,16 @@
     animation: mh-drawer-slide-in 180ms ease-out;
   }
 
+  .mh-price-change {
+    animation: mh-price-change 320ms ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mh-price-change {
+      animation: none;
+    }
+  }
+
   .mh-budget-range {
     height: 0.5rem;
     cursor: pointer;
@@ -275,6 +285,18 @@
 
     to {
       transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes mh-price-change {
+    from {
+      transform: translateY(0.35rem);
+      opacity: 0.35;
+    }
+
+    to {
+      transform: translateY(0);
       opacity: 1;
     }
   }

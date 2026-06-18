@@ -10,6 +10,7 @@ import { useState, type ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import type { Locale } from "@/lib/i18n";
+import { getMockListingRoomOption } from "@/lib/mockListingRooms";
 import { cn } from "@/lib/utils";
 import { MOCK_LISTINGS, type MockListing } from "./LocaleListingsPage";
 
@@ -782,7 +783,7 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
       paymentDetails: "결제 세부정보",
       cancellation: "취소 및 환불 안내",
       finalConfirm: "결제 전 확인",
-      summary: "예약 요약",
+      summary: "예약 정보 요약",
     },
     metadata: {
       listing: "매물명",
@@ -792,7 +793,7 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
     },
     reservationRows: {
       listing: "매물명",
-      selectedUnit: "선택 방/유닛",
+      selectedUnit: "선택된 방/유닛",
       moveIn: "입주예정일",
       stay: "체류 기간",
       guests: "인원",
@@ -870,7 +871,7 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
       paymentDetails: "Payment details",
       cancellation: "Cancellation and refund note",
       finalConfirm: "Before payment",
-      summary: "Reservation summary",
+      summary: "Reservation info summary",
     },
     metadata: {
       listing: "Listing",
@@ -959,7 +960,7 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
       paymentDetails: "Détails du paiement",
       cancellation: "Annulation et remboursement",
       finalConfirm: "Avant paiement",
-      summary: "Résumé de réservation",
+      summary: "Résumé des infos de réservation",
     },
     metadata: {
       listing: "Logement",
@@ -1415,10 +1416,10 @@ function formatReservationCadAmount(amount?: number) {
 
 function formatReservationKrwAmount(amount?: number) {
   if (!amount) {
-    return "₩0";
+    return "0원";
   }
 
-  return `₩${Math.round(amount).toLocaleString("ko-KR")}`;
+  return `${Math.round(amount).toLocaleString("ko-KR")}원`;
 }
 
 function formatReservationAmount(
@@ -1448,6 +1449,12 @@ function formatReservationMonthlyRent(
   }
 
   return `${amount} / month`;
+}
+
+function formatOneTimeReservationAmount(locale: Locale, amount: string) {
+  if (locale === "ko") return `${amount} / 1회 납부`;
+  if (locale === "fr") return `${amount} / paiement unique`;
+  return `${amount} / one-time`;
 }
 
 export function LocaleTenantInquiryListPage({ locale }: { locale: Locale }) {
@@ -1613,16 +1620,19 @@ export function LocaleReservationNewPage({
   locale,
   listingId,
   inquiryId,
+  roomId,
 }: {
   locale: Locale;
   listingId?: string;
   inquiryId?: string;
+  roomId?: string;
 }) {
   const reservationCopy = TENANT_RESERVATION_NEW_COPY[locale];
-  const [currency, setCurrency] = useState<ReservationCurrency>("CAD");
+  const [currency, setCurrency] = useState<ReservationCurrency>(locale === "ko" ? "KRW" : "CAD");
   const inquiry = inquiryId ? getTenantInquiry(inquiryId) : undefined;
   const effectiveListingId = listingId || inquiry?.listingId || "";
   const listing = getMockListingById(effectiveListingId);
+  const selectedRoom = listing && roomId ? getMockListingRoomOption(listing, roomId) : undefined;
 
   if (!listing) {
     return (
@@ -1647,20 +1657,27 @@ export function LocaleReservationNewPage({
   const monthlyRent = formatReservationMonthlyRent(
     locale,
     currency,
-    listing.priceCAD,
-    listing.priceKRW,
+    selectedRoom?.priceCAD ?? listing.priceCAD,
+    selectedRoom?.priceKRW ?? listing.priceKRW,
   );
-  const deposit = formatReservationAmount(currency, listing.priceCAD, listing.priceKRW);
+  const deposit = formatReservationAmount(
+    currency,
+    selectedRoom?.priceCAD ?? listing.priceCAD,
+    selectedRoom?.priceKRW ?? listing.priceKRW,
+  );
   const initialPayment = formatReservationAmount(
     currency,
-    listing.priceCAD * 2,
-    listing.priceKRW * 2,
+    (selectedRoom?.priceCAD ?? listing.priceCAD) * 2,
+    (selectedRoom?.priceKRW ?? listing.priceKRW) * 2,
   );
-  const supportFee = formatReservationAmount(
+  const supportFee = formatOneTimeReservationAmount(locale, formatReservationAmount(
     currency,
-    listing.priceCAD * 0.15,
-    listing.priceKRW * 0.15,
-  );
+    (selectedRoom?.priceCAD ?? listing.priceCAD) * 0.15,
+    (selectedRoom?.priceKRW ?? listing.priceKRW) * 0.15,
+  ));
+  const selectedUnitLabel = selectedRoom
+    ? selectedRoom.label[locale]
+    : reservationCopy.values.selectedUnit;
 
   return (
     <main className="min-h-screen bg-[#F7F7F8] py-10 sm:py-14">
@@ -1700,7 +1717,7 @@ export function LocaleReservationNewPage({
               <TenantReservationRows
                 rows={[
                   [reservationCopy.reservationRows.listing, listing.title[locale]],
-                  [reservationCopy.reservationRows.selectedUnit, reservationCopy.values.selectedUnit],
+                  [reservationCopy.reservationRows.selectedUnit, selectedUnitLabel],
                   [reservationCopy.reservationRows.moveIn, reservationCopy.values.moveIn],
                   [reservationCopy.reservationRows.stay, reservationCopy.values.stay],
                   [reservationCopy.reservationRows.guests, reservationCopy.values.guests],
@@ -1714,21 +1731,21 @@ export function LocaleReservationNewPage({
               <div className="space-y-4">
                 <TenantReservationRows
                   rows={[
-                    [reservationCopy.paymentRows.rent, monthlyRent],
-                    [reservationCopy.paymentRows.deposit, deposit],
+                    [reservationCopy.paymentRows.rent, <ReservationAmountText value={monthlyRent} />],
+                    [reservationCopy.paymentRows.deposit, <ReservationAmountText value={deposit} />],
                     [
                       <ReservationHelpLabel
                         label={reservationCopy.paymentRows.initialPayment}
                         items={reservationCopy.paymentHelp.initialPayment}
                       />,
-                      initialPayment,
+                      <ReservationAmountText value={initialPayment} />,
                     ],
                     [
                       <ReservationHelpLabel
                         label={reservationCopy.paymentRows.supportFee}
                         items={reservationCopy.paymentHelp.supportFee}
                       />,
-                      supportFee,
+                      <ReservationAmountText value={supportFee} />,
                     ],
                     [reservationCopy.paymentRows.tax, reservationCopy.values.tax],
                     [reservationCopy.paymentRows.total, reservationCopy.values.total],
@@ -1778,6 +1795,7 @@ export function LocaleReservationNewPage({
             onCurrencyChange={setCurrency}
             monthlyRent={monthlyRent}
             supportFee={supportFee}
+            selectedUnitLabel={selectedUnitLabel}
           />
         </div>
       </Container>
@@ -2160,6 +2178,7 @@ function TenantReservationSummaryRail({
   onCurrencyChange,
   monthlyRent,
   supportFee,
+  selectedUnitLabel,
 }: {
   listing: MockListing;
   copy: TenantReservationNewCopy;
@@ -2168,6 +2187,7 @@ function TenantReservationSummaryRail({
   onCurrencyChange: (currency: ReservationCurrency) => void;
   monthlyRent: string;
   supportFee: string;
+  selectedUnitLabel: string;
 }) {
   return (
     <aside className="h-fit rounded-3xl border border-primary/15 bg-white p-5 shadow-sm xl:sticky xl:top-24">
@@ -2178,9 +2198,10 @@ function TenantReservationSummaryRail({
       <TenantReservationSummaryRows
         rows={[
           [copy.summaryLabels.listing, listing.title[locale]],
+          [copy.reservationRows.selectedUnit, selectedUnitLabel],
           [copy.summaryLabels.moveIn, copy.values.moveIn],
-          [copy.summaryLabels.amount, monthlyRent],
-          [copy.summaryLabels.supportFee, supportFee],
+          [copy.summaryLabels.amount, <ReservationAmountText value={monthlyRent} />],
+          [copy.summaryLabels.supportFee, <ReservationAmountText value={supportFee} />],
           [copy.summaryLabels.tax, copy.values.tax],
           [copy.summaryLabels.total, copy.values.total],
         ]}
@@ -2223,6 +2244,14 @@ function CurrencyTextToggle({
         </span>
       ))}
     </div>
+  );
+}
+
+function ReservationAmountText({ value }: { value: string }) {
+  return (
+    <span key={value} className="mh-price-change inline-block min-w-0">
+      {value}
+    </span>
   );
 }
 
