@@ -1,0 +1,542 @@
+﻿[
+    {
+        "id":  "busan-bank",
+        "label":  "부산은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/busan-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/busan-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/busan-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "citi-bank",
+        "label":  "시티은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/citi-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/citi-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/citi-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "cu-bank",
+        "label":  "신협은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/cu-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/cu-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/cu-bank/fill.svg",
+        "alternate":  "/payment-logos/raw/banks/cu-bank/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "gwangju-bank",
+        "label":  "광주은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/gwangju-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/gwangju-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/gwangju-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "hana-bank",
+        "label":  "하나은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/hana-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/hana-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/hana-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "ibk-bank",
+        "label":  "IBK기업은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/ibk-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/ibk-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/ibk-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "im-bank",
+        "label":  "IM뱅크",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/im-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/im-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/im-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "jeju-bank",
+        "label":  "제주은행",
+        "category":  "banks",
+        "signature":  null,
+        "original":  "/payment-logos/raw/banks/jeju-bank/original.svg",
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+                      "/payment-logos/raw/banks/jeju-bank/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "jeonbuk-bank",
+        "label":  "전북은행",
+        "category":  "banks",
+        "signature":  null,
+        "original":  "/payment-logos/raw/banks/jeonbuk-bank/original.svg",
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+                      "/payment-logos/raw/banks/jeonbuk-bank/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "kakao-bank",
+        "label":  "카카오뱅크",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/kakao-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/kakao-bank/original.svg",
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "k-bank",
+        "label":  "케이뱅크",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/k-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/k-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/k-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "kb-bank",
+        "label":  "KB국민은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/kb-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/kb-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/kb-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "kdb-bank",
+        "label":  "KDB산업은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/kdb-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/kdb-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/kdb-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "kyongnam-bank",
+        "label":  "경남은행",
+        "category":  "banks",
+        "signature":  null,
+        "original":  "/payment-logos/raw/banks/kyongnam-bank/original.svg",
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+                      "/payment-logos/raw/banks/kyongnam-bank/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "mg-bank",
+        "label":  "MG새마을금고",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/mg-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/mg-bank/original.svg",
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+                      "/payment-logos/raw/banks/mg-bank/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "nh-bank",
+        "label":  "NH농협은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/nh-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/nh-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/nh-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+                      "/payment-logos/raw/banks/nh-bank/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "post-bank",
+        "label":  "우체국은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/post-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/post-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/post-bank/fill.svg",
+        "alternate":  "/payment-logos/raw/banks/post-bank/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "sbi-savings-bank",
+        "label":  "SBI저축은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/sbi-savings-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/sbi-savings-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/sbi-savings-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "sc-bank",
+        "label":  "SC제일은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/sc-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/sc-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/sc-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "shinhan-bank",
+        "label":  "신한은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/shinhan-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/shinhan-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/shinhan-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "suhyup-bank",
+        "label":  "수협은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/suhyup-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/suhyup-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/suhyup-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+                      "/payment-logos/raw/banks/suhyup-bank/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "toss-bank",
+        "label":  "토스뱅크",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/toss-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/toss-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/toss-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "woori-bank",
+        "label":  "우리은행",
+        "category":  "banks",
+        "signature":  "/payment-logos/raw/banks/woori-bank/signature.svg",
+        "original":  "/payment-logos/raw/banks/woori-bank/original.svg",
+        "fill":  "/payment-logos/raw/banks/woori-bank/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "bc-card",
+        "label":  "BC카드",
+        "category":  "cards",
+        "signature":  "/payment-logos/raw/cards/bc-card/signature.svg",
+        "original":  null,
+        "fill":  "/payment-logos/raw/cards/bc-card/fill.svg",
+        "alternate":  "/payment-logos/raw/cards/bc-card/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "citi-card",
+        "label":  "씨티카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "hana-card",
+        "label":  "하나카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "hyundai-card",
+        "label":  "현대카드",
+        "category":  "cards",
+        "signature":  "/payment-logos/raw/cards/hyundai-card/signature.svg",
+        "original":  null,
+        "fill":  "/payment-logos/raw/cards/hyundai-card/fill.svg",
+        "alternate":  "/payment-logos/raw/cards/hyundai-card/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "ibk-card",
+        "label":  "IBK기업카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "kb-card",
+        "label":  "KB국민카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "lotte-card",
+        "label":  "롯데카드",
+        "category":  "cards",
+        "signature":  "/payment-logos/raw/cards/lotte-card/signature.svg",
+        "original":  null,
+        "fill":  "/payment-logos/raw/cards/lotte-card/fill.svg",
+        "alternate":  "/payment-logos/raw/cards/lotte-card/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "nh-card",
+        "label":  "NH농협카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "samsung-card",
+        "label":  "삼성카드",
+        "category":  "cards",
+        "signature":  "/payment-logos/raw/cards/samsung-card/signature.svg",
+        "original":  null,
+        "fill":  "/payment-logos/raw/cards/samsung-card/fill.svg",
+        "alternate":  "/payment-logos/raw/cards/samsung-card/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "sc-card",
+        "label":  "SC제일카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "shinhan-card",
+        "label":  "신한카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "woori-card",
+        "label":  "우리카드",
+        "category":  "cards",
+        "signature":  null,
+        "original":  null,
+        "fill":  null,
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "alipay",
+        "label":  "Alipay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/alipay/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/alipay/alternate.svg",
+        "extra":  [
+                      "/payment-logos/raw/easy-pay/alipay/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "apple-pay",
+        "label":  "Apple Pay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/apple-pay/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/apple-pay/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "google-pay",
+        "label":  "Google Pay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/google-pay/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/google-pay/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "kakao-pay",
+        "label":  "Kakao Pay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/kakao-pay/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "line-pay",
+        "label":  "Line Pay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/line-pay/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/line-pay/alternate.svg",
+        "extra":  [
+                      "/payment-logos/raw/easy-pay/line-pay/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "naver-pay",
+        "label":  "Naver Pay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/naver-pay/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/naver-pay/alternate.svg",
+        "extra":  [
+                      "/payment-logos/raw/easy-pay/naver-pay/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "payco",
+        "label":  "Payco",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/payco/fill.svg",
+        "alternate":  null,
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "paypal",
+        "label":  "PayPal",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/paypal/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/paypal/alternate.svg",
+        "extra":  [
+                      "/payment-logos/raw/easy-pay/paypal/extra-1.svg"
+                  ]
+    },
+    {
+        "id":  "samsung-pay",
+        "label":  "Samsung Pay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/samsung-pay/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/samsung-pay/alternate.svg",
+        "extra":  [
+
+                  ]
+    },
+    {
+        "id":  "toss-pay",
+        "label":  "Toss Pay",
+        "category":  "easy-pay",
+        "signature":  null,
+        "original":  null,
+        "fill":  "/payment-logos/raw/easy-pay/toss-pay/fill.svg",
+        "alternate":  "/payment-logos/raw/easy-pay/toss-pay/alternate.svg",
+        "extra":  [
+                      "/payment-logos/raw/easy-pay/toss-pay/extra-1.svg"
+                  ]
+    }
+]
