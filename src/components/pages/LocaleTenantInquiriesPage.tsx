@@ -1296,14 +1296,38 @@ function getTenantInquiryDetailHref(locale: Locale, slug: string) {
   return `/${locale}/my/inquiries/${slug}`;
 }
 
-function getTenantReservationNewHref(locale: Locale, listingId: string, inquiryId?: string) {
+function getTenantReservationNewHref(locale: Locale, listingId: string, inquiryId?: string, roomId?: string) {
   const params = new URLSearchParams({ listingId });
 
   if (inquiryId) {
     params.set("inquiryId", inquiryId);
   }
 
+  if (roomId) {
+    params.set("roomId", roomId);
+  }
+
   return `/${locale}/reservations/new?${params.toString()}`;
+}
+
+function getTenantReservationCheckoutHref(
+  locale: Locale,
+  listingId: string,
+  roomId: string,
+  inquiryId?: string,
+  currency?: ReservationCurrency,
+) {
+  const params = new URLSearchParams({ listingId, roomId });
+
+  if (inquiryId) {
+    params.set("inquiryId", inquiryId);
+  }
+
+  if (currency) {
+    params.set("currency", currency);
+  }
+
+  return `/${locale}/reservations/checkout?${params.toString()}`;
 }
 
 function getTenantReservationReviewHref(locale: Locale, slug: string) {
@@ -1678,6 +1702,9 @@ export function LocaleReservationNewPage({
   const selectedUnitLabel = selectedRoom
     ? selectedRoom.label[locale]
     : reservationCopy.values.selectedUnit;
+  const checkoutHref = selectedRoom
+    ? getTenantReservationCheckoutHref(locale, listing.id, selectedRoom.id, inquiryId, currency)
+    : "";
 
   return (
     <main className="min-h-screen bg-[#F7F7F8] py-10 sm:py-14">
@@ -1778,12 +1805,21 @@ export function LocaleReservationNewPage({
               >
                 {reservationCopy.inquiryListAction}
               </a>
-              <button
-                type="button"
-                className="inline-flex cursor-default items-center justify-center rounded-2xl border border-primary/25 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold text-primary"
-              >
-                {reservationCopy.checkoutAction}
-              </button>
+              {checkoutHref ? (
+                <a
+                  href={checkoutHref}
+                  className="inline-flex items-center justify-center rounded-2xl border border-primary/25 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold text-primary transition hover:bg-[#FFEFD9]"
+                >
+                  {reservationCopy.checkoutAction}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="inline-flex cursor-default items-center justify-center rounded-2xl border border-primary/15 bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground"
+                >
+                  {reservationCopy.checkoutAction}
+                </button>
+              )}
             </div>
           </div>
 
@@ -1796,6 +1832,7 @@ export function LocaleReservationNewPage({
             monthlyRent={monthlyRent}
             supportFee={supportFee}
             selectedUnitLabel={selectedUnitLabel}
+            checkoutHref={checkoutHref}
           />
         </div>
       </Container>
@@ -2179,6 +2216,7 @@ function TenantReservationSummaryRail({
   monthlyRent,
   supportFee,
   selectedUnitLabel,
+  checkoutHref,
 }: {
   listing: MockListing;
   copy: TenantReservationNewCopy;
@@ -2188,6 +2226,7 @@ function TenantReservationSummaryRail({
   monthlyRent: string;
   supportFee: string;
   selectedUnitLabel: string;
+  checkoutHref: string;
 }) {
   return (
     <aside className="h-fit rounded-3xl border border-primary/15 bg-white p-5 shadow-sm xl:sticky xl:top-24">
@@ -2209,12 +2248,21 @@ function TenantReservationSummaryRail({
       <p className="mt-4 rounded-2xl border border-primary/15 bg-[#FFF8F1] px-4 py-3 text-xs font-semibold leading-6 text-primary">
         {copy.summaryNote}
       </p>
-      <button
-        type="button"
-        className="mt-4 inline-flex min-h-11 w-full cursor-default items-center justify-center rounded-2xl border border-primary/25 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold text-primary transition hover:bg-[#FFEFD9]"
-      >
-        {copy.railCheckoutAction}
-      </button>
+      {checkoutHref ? (
+        <a
+          href={checkoutHref}
+          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-primary/25 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold text-primary transition hover:bg-[#FFEFD9]"
+        >
+          {copy.railCheckoutAction}
+        </a>
+      ) : (
+        <button
+          type="button"
+          className="mt-4 inline-flex min-h-11 w-full cursor-default items-center justify-center rounded-2xl border border-primary/15 bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground"
+        >
+          {copy.railCheckoutAction}
+        </button>
+      )}
     </aside>
   );
 }

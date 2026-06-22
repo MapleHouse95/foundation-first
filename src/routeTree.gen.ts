@@ -42,6 +42,8 @@ import { Route as EnChecklistRouteImport } from './routes/en.checklist'
 import { Route as EnApplyRouteImport } from './routes/en.apply'
 import { Route as EnAboutRouteImport } from './routes/en.about'
 import { Route as KoReservationsNewRouteImport } from './routes/ko.reservations.new'
+import { Route as KoReservationsCompleteRouteImport } from './routes/ko.reservations.complete'
+import { Route as KoReservationsCheckoutRouteImport } from './routes/ko.reservations.checkout'
 import { Route as KoMyInquiriesRouteImport } from './routes/ko.my.inquiries'
 import { Route as KoListingsDraftRouteImport } from './routes/ko.listings_.draft'
 import { Route as KoListingsListingIdRouteImport } from './routes/ko.listings_.$listingId'
@@ -51,6 +53,8 @@ import { Route as KoLandlordsCenterRouteImport } from './routes/ko.landlords.cen
 import { Route as KoContactBoardRouteImport } from './routes/ko.contact.board'
 import { Route as KoApplyCompleteRouteImport } from './routes/ko.apply_.complete'
 import { Route as FrReservationsNewRouteImport } from './routes/fr.reservations.new'
+import { Route as FrReservationsCompleteRouteImport } from './routes/fr.reservations.complete'
+import { Route as FrReservationsCheckoutRouteImport } from './routes/fr.reservations.checkout'
 import { Route as FrMyInquiriesRouteImport } from './routes/fr.my.inquiries'
 import { Route as FrListingsDraftRouteImport } from './routes/fr.listings_.draft'
 import { Route as FrListingsListingIdRouteImport } from './routes/fr.listings_.$listingId'
@@ -59,6 +63,8 @@ import { Route as FrLandlordsGuideRouteImport } from './routes/fr.landlords.guid
 import { Route as FrLandlordsCenterRouteImport } from './routes/fr.landlords.center'
 import { Route as FrApplyCompleteRouteImport } from './routes/fr.apply_.complete'
 import { Route as EnReservationsNewRouteImport } from './routes/en.reservations.new'
+import { Route as EnReservationsCompleteRouteImport } from './routes/en.reservations.complete'
+import { Route as EnReservationsCheckoutRouteImport } from './routes/en.reservations.checkout'
 import { Route as EnMyInquiriesRouteImport } from './routes/en.my.inquiries'
 import { Route as EnListingsDraftRouteImport } from './routes/en.listings_.draft'
 import { Route as EnListingsListingIdRouteImport } from './routes/en.listings_.$listingId'
@@ -288,6 +294,16 @@ const KoReservationsNewRoute = KoReservationsNewRouteImport.update({
   path: '/reservations/new',
   getParentRoute: () => KoRoute,
 } as any)
+const KoReservationsCompleteRoute = KoReservationsCompleteRouteImport.update({
+  id: '/reservations/complete',
+  path: '/reservations/complete',
+  getParentRoute: () => KoRoute,
+} as any)
+const KoReservationsCheckoutRoute = KoReservationsCheckoutRouteImport.update({
+  id: '/reservations/checkout',
+  path: '/reservations/checkout',
+  getParentRoute: () => KoRoute,
+} as any)
 const KoMyInquiriesRoute = KoMyInquiriesRouteImport.update({
   id: '/my/inquiries',
   path: '/my/inquiries',
@@ -333,6 +349,16 @@ const FrReservationsNewRoute = FrReservationsNewRouteImport.update({
   path: '/reservations/new',
   getParentRoute: () => FrRoute,
 } as any)
+const FrReservationsCompleteRoute = FrReservationsCompleteRouteImport.update({
+  id: '/reservations/complete',
+  path: '/reservations/complete',
+  getParentRoute: () => FrRoute,
+} as any)
+const FrReservationsCheckoutRoute = FrReservationsCheckoutRouteImport.update({
+  id: '/reservations/checkout',
+  path: '/reservations/checkout',
+  getParentRoute: () => FrRoute,
+} as any)
 const FrMyInquiriesRoute = FrMyInquiriesRouteImport.update({
   id: '/my/inquiries',
   path: '/my/inquiries',
@@ -371,6 +397,16 @@ const FrApplyCompleteRoute = FrApplyCompleteRouteImport.update({
 const EnReservationsNewRoute = EnReservationsNewRouteImport.update({
   id: '/reservations/new',
   path: '/reservations/new',
+  getParentRoute: () => EnRoute,
+} as any)
+const EnReservationsCompleteRoute = EnReservationsCompleteRouteImport.update({
+  id: '/reservations/complete',
+  path: '/reservations/complete',
+  getParentRoute: () => EnRoute,
+} as any)
+const EnReservationsCheckoutRoute = EnReservationsCheckoutRouteImport.update({
+  id: '/reservations/checkout',
+  path: '/reservations/checkout',
   getParentRoute: () => EnRoute,
 } as any)
 const EnMyInquiriesRoute = EnMyInquiriesRouteImport.update({
@@ -780,6 +816,8 @@ export interface FileRoutesByFullPath {
   '/en/listings/$listingId': typeof EnListingsListingIdRoute
   '/en/listings/draft': typeof EnListingsDraftRoute
   '/en/my/inquiries': typeof EnMyInquiriesRoute
+  '/en/reservations/checkout': typeof EnReservationsCheckoutRoute
+  '/en/reservations/complete': typeof EnReservationsCompleteRoute
   '/en/reservations/new': typeof EnReservationsNewRoute
   '/fr/apply/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
@@ -788,6 +826,8 @@ export interface FileRoutesByFullPath {
   '/fr/listings/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings/draft': typeof FrListingsDraftRoute
   '/fr/my/inquiries': typeof FrMyInquiriesRoute
+  '/fr/reservations/checkout': typeof FrReservationsCheckoutRoute
+  '/fr/reservations/complete': typeof FrReservationsCompleteRoute
   '/fr/reservations/new': typeof FrReservationsNewRoute
   '/ko/apply/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
@@ -797,6 +837,8 @@ export interface FileRoutesByFullPath {
   '/ko/listings/$listingId': typeof KoListingsListingIdRoute
   '/ko/listings/draft': typeof KoListingsDraftRoute
   '/ko/my/inquiries': typeof KoMyInquiriesRoute
+  '/ko/reservations/checkout': typeof KoReservationsCheckoutRoute
+  '/ko/reservations/complete': typeof KoReservationsCompleteRoute
   '/ko/reservations/new': typeof KoReservationsNewRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
@@ -892,6 +934,8 @@ export interface FileRoutesByTo {
   '/en/listings/$listingId': typeof EnListingsListingIdRoute
   '/en/listings/draft': typeof EnListingsDraftRoute
   '/en/my/inquiries': typeof EnMyInquiriesRoute
+  '/en/reservations/checkout': typeof EnReservationsCheckoutRoute
+  '/en/reservations/complete': typeof EnReservationsCompleteRoute
   '/en/reservations/new': typeof EnReservationsNewRoute
   '/fr/apply/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
@@ -900,6 +944,8 @@ export interface FileRoutesByTo {
   '/fr/listings/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings/draft': typeof FrListingsDraftRoute
   '/fr/my/inquiries': typeof FrMyInquiriesRoute
+  '/fr/reservations/checkout': typeof FrReservationsCheckoutRoute
+  '/fr/reservations/complete': typeof FrReservationsCompleteRoute
   '/fr/reservations/new': typeof FrReservationsNewRoute
   '/ko/apply/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
@@ -909,6 +955,8 @@ export interface FileRoutesByTo {
   '/ko/listings/$listingId': typeof KoListingsListingIdRoute
   '/ko/listings/draft': typeof KoListingsDraftRoute
   '/ko/my/inquiries': typeof KoMyInquiriesRoute
+  '/ko/reservations/checkout': typeof KoReservationsCheckoutRoute
+  '/ko/reservations/complete': typeof KoReservationsCompleteRoute
   '/ko/reservations/new': typeof KoReservationsNewRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
@@ -1008,6 +1056,8 @@ export interface FileRoutesById {
   '/en/listings_/$listingId': typeof EnListingsListingIdRoute
   '/en/listings_/draft': typeof EnListingsDraftRoute
   '/en/my/inquiries': typeof EnMyInquiriesRoute
+  '/en/reservations/checkout': typeof EnReservationsCheckoutRoute
+  '/en/reservations/complete': typeof EnReservationsCompleteRoute
   '/en/reservations/new': typeof EnReservationsNewRoute
   '/fr/apply_/complete': typeof FrApplyCompleteRoute
   '/fr/landlords/center': typeof FrLandlordsCenterRouteWithChildren
@@ -1016,6 +1066,8 @@ export interface FileRoutesById {
   '/fr/listings_/$listingId': typeof FrListingsListingIdRoute
   '/fr/listings_/draft': typeof FrListingsDraftRoute
   '/fr/my/inquiries': typeof FrMyInquiriesRoute
+  '/fr/reservations/checkout': typeof FrReservationsCheckoutRoute
+  '/fr/reservations/complete': typeof FrReservationsCompleteRoute
   '/fr/reservations/new': typeof FrReservationsNewRoute
   '/ko/apply_/complete': typeof KoApplyCompleteRoute
   '/ko/contact/board': typeof KoContactBoardRouteWithChildren
@@ -1025,6 +1077,8 @@ export interface FileRoutesById {
   '/ko/listings_/$listingId': typeof KoListingsListingIdRoute
   '/ko/listings_/draft': typeof KoListingsDraftRoute
   '/ko/my/inquiries': typeof KoMyInquiriesRoute
+  '/ko/reservations/checkout': typeof KoReservationsCheckoutRoute
+  '/ko/reservations/complete': typeof KoReservationsCompleteRoute
   '/ko/reservations/new': typeof KoReservationsNewRoute
   '/en/landlords/center/inquiries': typeof EnLandlordsCenterInquiriesRoute
   '/en/landlords/center/listings': typeof EnLandlordsCenterListingsRouteWithChildren
@@ -1125,6 +1179,8 @@ export interface FileRouteTypes {
     | '/en/listings/$listingId'
     | '/en/listings/draft'
     | '/en/my/inquiries'
+    | '/en/reservations/checkout'
+    | '/en/reservations/complete'
     | '/en/reservations/new'
     | '/fr/apply/complete'
     | '/fr/landlords/center'
@@ -1133,6 +1189,8 @@ export interface FileRouteTypes {
     | '/fr/listings/$listingId'
     | '/fr/listings/draft'
     | '/fr/my/inquiries'
+    | '/fr/reservations/checkout'
+    | '/fr/reservations/complete'
     | '/fr/reservations/new'
     | '/ko/apply/complete'
     | '/ko/contact/board'
@@ -1142,6 +1200,8 @@ export interface FileRouteTypes {
     | '/ko/listings/$listingId'
     | '/ko/listings/draft'
     | '/ko/my/inquiries'
+    | '/ko/reservations/checkout'
+    | '/ko/reservations/complete'
     | '/ko/reservations/new'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
@@ -1237,6 +1297,8 @@ export interface FileRouteTypes {
     | '/en/listings/$listingId'
     | '/en/listings/draft'
     | '/en/my/inquiries'
+    | '/en/reservations/checkout'
+    | '/en/reservations/complete'
     | '/en/reservations/new'
     | '/fr/apply/complete'
     | '/fr/landlords/center'
@@ -1245,6 +1307,8 @@ export interface FileRouteTypes {
     | '/fr/listings/$listingId'
     | '/fr/listings/draft'
     | '/fr/my/inquiries'
+    | '/fr/reservations/checkout'
+    | '/fr/reservations/complete'
     | '/fr/reservations/new'
     | '/ko/apply/complete'
     | '/ko/contact/board'
@@ -1254,6 +1318,8 @@ export interface FileRouteTypes {
     | '/ko/listings/$listingId'
     | '/ko/listings/draft'
     | '/ko/my/inquiries'
+    | '/ko/reservations/checkout'
+    | '/ko/reservations/complete'
     | '/ko/reservations/new'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
@@ -1352,6 +1418,8 @@ export interface FileRouteTypes {
     | '/en/listings_/$listingId'
     | '/en/listings_/draft'
     | '/en/my/inquiries'
+    | '/en/reservations/checkout'
+    | '/en/reservations/complete'
     | '/en/reservations/new'
     | '/fr/apply_/complete'
     | '/fr/landlords/center'
@@ -1360,6 +1428,8 @@ export interface FileRouteTypes {
     | '/fr/listings_/$listingId'
     | '/fr/listings_/draft'
     | '/fr/my/inquiries'
+    | '/fr/reservations/checkout'
+    | '/fr/reservations/complete'
     | '/fr/reservations/new'
     | '/ko/apply_/complete'
     | '/ko/contact/board'
@@ -1369,6 +1439,8 @@ export interface FileRouteTypes {
     | '/ko/listings_/$listingId'
     | '/ko/listings_/draft'
     | '/ko/my/inquiries'
+    | '/ko/reservations/checkout'
+    | '/ko/reservations/complete'
     | '/ko/reservations/new'
     | '/en/landlords/center/inquiries'
     | '/en/landlords/center/listings'
@@ -1669,6 +1741,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KoReservationsNewRouteImport
       parentRoute: typeof KoRoute
     }
+    '/ko/reservations/complete': {
+      id: '/ko/reservations/complete'
+      path: '/reservations/complete'
+      fullPath: '/ko/reservations/complete'
+      preLoaderRoute: typeof KoReservationsCompleteRouteImport
+      parentRoute: typeof KoRoute
+    }
+    '/ko/reservations/checkout': {
+      id: '/ko/reservations/checkout'
+      path: '/reservations/checkout'
+      fullPath: '/ko/reservations/checkout'
+      preLoaderRoute: typeof KoReservationsCheckoutRouteImport
+      parentRoute: typeof KoRoute
+    }
     '/ko/my/inquiries': {
       id: '/ko/my/inquiries'
       path: '/my/inquiries'
@@ -1732,6 +1818,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrReservationsNewRouteImport
       parentRoute: typeof FrRoute
     }
+    '/fr/reservations/complete': {
+      id: '/fr/reservations/complete'
+      path: '/reservations/complete'
+      fullPath: '/fr/reservations/complete'
+      preLoaderRoute: typeof FrReservationsCompleteRouteImport
+      parentRoute: typeof FrRoute
+    }
+    '/fr/reservations/checkout': {
+      id: '/fr/reservations/checkout'
+      path: '/reservations/checkout'
+      fullPath: '/fr/reservations/checkout'
+      preLoaderRoute: typeof FrReservationsCheckoutRouteImport
+      parentRoute: typeof FrRoute
+    }
     '/fr/my/inquiries': {
       id: '/fr/my/inquiries'
       path: '/my/inquiries'
@@ -1786,6 +1886,20 @@ declare module '@tanstack/react-router' {
       path: '/reservations/new'
       fullPath: '/en/reservations/new'
       preLoaderRoute: typeof EnReservationsNewRouteImport
+      parentRoute: typeof EnRoute
+    }
+    '/en/reservations/complete': {
+      id: '/en/reservations/complete'
+      path: '/reservations/complete'
+      fullPath: '/en/reservations/complete'
+      preLoaderRoute: typeof EnReservationsCompleteRouteImport
+      parentRoute: typeof EnRoute
+    }
+    '/en/reservations/checkout': {
+      id: '/en/reservations/checkout'
+      path: '/reservations/checkout'
+      fullPath: '/en/reservations/checkout'
+      preLoaderRoute: typeof EnReservationsCheckoutRouteImport
       parentRoute: typeof EnRoute
     }
     '/en/my/inquiries': {
@@ -2353,6 +2467,8 @@ interface EnRouteChildren {
   EnListingsListingIdRoute: typeof EnListingsListingIdRoute
   EnListingsDraftRoute: typeof EnListingsDraftRoute
   EnMyInquiriesRoute: typeof EnMyInquiriesRoute
+  EnReservationsCheckoutRoute: typeof EnReservationsCheckoutRoute
+  EnReservationsCompleteRoute: typeof EnReservationsCompleteRoute
   EnReservationsNewRoute: typeof EnReservationsNewRoute
   EnMyInquiriesInquiryIdRoute: typeof EnMyInquiriesInquiryIdRoute
   EnMyInquiriesInquiryIdReservationReviewRoute: typeof EnMyInquiriesInquiryIdReservationReviewRoute
@@ -2372,6 +2488,8 @@ const EnRouteChildren: EnRouteChildren = {
   EnListingsListingIdRoute: EnListingsListingIdRoute,
   EnListingsDraftRoute: EnListingsDraftRoute,
   EnMyInquiriesRoute: EnMyInquiriesRoute,
+  EnReservationsCheckoutRoute: EnReservationsCheckoutRoute,
+  EnReservationsCompleteRoute: EnReservationsCompleteRoute,
   EnReservationsNewRoute: EnReservationsNewRoute,
   EnMyInquiriesInquiryIdRoute: EnMyInquiriesInquiryIdRoute,
   EnMyInquiriesInquiryIdReservationReviewRoute:
@@ -2501,6 +2619,8 @@ interface FrRouteChildren {
   FrListingsListingIdRoute: typeof FrListingsListingIdRoute
   FrListingsDraftRoute: typeof FrListingsDraftRoute
   FrMyInquiriesRoute: typeof FrMyInquiriesRoute
+  FrReservationsCheckoutRoute: typeof FrReservationsCheckoutRoute
+  FrReservationsCompleteRoute: typeof FrReservationsCompleteRoute
   FrReservationsNewRoute: typeof FrReservationsNewRoute
   FrMyInquiriesInquiryIdRoute: typeof FrMyInquiriesInquiryIdRoute
   FrMyInquiriesInquiryIdReservationReviewRoute: typeof FrMyInquiriesInquiryIdReservationReviewRoute
@@ -2520,6 +2640,8 @@ const FrRouteChildren: FrRouteChildren = {
   FrListingsListingIdRoute: FrListingsListingIdRoute,
   FrListingsDraftRoute: FrListingsDraftRoute,
   FrMyInquiriesRoute: FrMyInquiriesRoute,
+  FrReservationsCheckoutRoute: FrReservationsCheckoutRoute,
+  FrReservationsCompleteRoute: FrReservationsCompleteRoute,
   FrReservationsNewRoute: FrReservationsNewRoute,
   FrMyInquiriesInquiryIdRoute: FrMyInquiriesInquiryIdRoute,
   FrMyInquiriesInquiryIdReservationReviewRoute:
@@ -2675,6 +2797,8 @@ interface KoRouteChildren {
   KoListingsListingIdRoute: typeof KoListingsListingIdRoute
   KoListingsDraftRoute: typeof KoListingsDraftRoute
   KoMyInquiriesRoute: typeof KoMyInquiriesRoute
+  KoReservationsCheckoutRoute: typeof KoReservationsCheckoutRoute
+  KoReservationsCompleteRoute: typeof KoReservationsCompleteRoute
   KoReservationsNewRoute: typeof KoReservationsNewRoute
   KoMyInquiriesInquiryIdRoute: typeof KoMyInquiriesInquiryIdRoute
   KoMyInquiriesInquiryIdReservationReviewRoute: typeof KoMyInquiriesInquiryIdReservationReviewRoute
@@ -2694,6 +2818,8 @@ const KoRouteChildren: KoRouteChildren = {
   KoListingsListingIdRoute: KoListingsListingIdRoute,
   KoListingsDraftRoute: KoListingsDraftRoute,
   KoMyInquiriesRoute: KoMyInquiriesRoute,
+  KoReservationsCheckoutRoute: KoReservationsCheckoutRoute,
+  KoReservationsCompleteRoute: KoReservationsCompleteRoute,
   KoReservationsNewRoute: KoReservationsNewRoute,
   KoMyInquiriesInquiryIdRoute: KoMyInquiriesInquiryIdRoute,
   KoMyInquiriesInquiryIdReservationReviewRoute:
