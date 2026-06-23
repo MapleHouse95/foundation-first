@@ -177,8 +177,8 @@ export const MOCK_LISTINGS: MockListing[] = [
     registered: "2026-04-02",
     imagePath: getMockListingThumbnailImage("L-001"),
     description: {
-      ko: "Koreatown 생활권을 먼저 확인해보고 싶은 1인 거주자용 mock 매물입니다.",
-      en: "A mock listing for one person who wants to start around Koreatown.",
+      ko: "Koreatown 생활권을 먼저 확인해보고 싶은 1인 거주자용 매물입니다.",
+      en: "A listing for one person who wants to start around Koreatown.",
       fr: "Annonce fictive pour une personne souhaitant commencer par Koreatown.",
     },
     checklist: {
@@ -204,8 +204,8 @@ export const MOCK_LISTINGS: MockListing[] = [
     registered: "2026-03-20",
     imagePath: getMockListingThumbnailImage("L-002"),
     description: {
-      ko: "다운타운 접근성과 생활 편의성을 비교해보기 위한 콘도 mock 매물입니다.",
-      en: "A mock condo listing for comparing downtown access and daily convenience.",
+      ko: "다운타운 접근성과 생활 편의성을 비교해보기 위한 콘도 매물입니다.",
+      en: "A condo listing for comparing downtown access and daily convenience.",
       fr: "Condo fictif pour comparer l'accès au centre-ville et les commodités.",
     },
     checklist: {
@@ -231,8 +231,8 @@ export const MOCK_LISTINGS: MockListing[] = [
     registered: "2026-03-01",
     imagePath: getMockListingThumbnailImage("L-003"),
     description: {
-      ko: "North York에서 예산을 낮춰 비교해볼 수 있는 셰어하우스 mock 매물입니다.",
-      en: "A mock share-house listing for comparing lower-budget options in North York.",
+      ko: "North York에서 예산을 낮춰 비교해볼 수 있는 셰어하우스 매물입니다.",
+      en: "A share-house listing for comparing lower-budget options in North York.",
       fr: "Colocation fictive pour comparer des options plus abordables à North York.",
     },
     checklist: {
@@ -258,8 +258,8 @@ export const MOCK_LISTINGS: MockListing[] = [
     registered: "2026-05-08",
     imagePath: getMockListingThumbnailImage("L-004"),
     description: {
-      ko: "Midtown 생활권과 2인 이상 거주 가능성을 비교하기 위한 mock 매물입니다.",
-      en: "A mock listing for comparing Midtown options for two or more people.",
+      ko: "Midtown 생활권과 2인 이상 거주 가능성을 비교하기 위한 매물입니다.",
+      en: "A listing for comparing Midtown options for two or more people.",
       fr: "Annonce fictive pour comparer Midtown pour deux personnes ou plus.",
     },
     checklist: {
@@ -285,8 +285,8 @@ export const MOCK_LISTINGS: MockListing[] = [
     registered: "2026-04-18",
     imagePath: getMockListingThumbnailImage("L-005"),
     description: {
-      ko: "Annex 주변 생활권과 스튜디오 조건을 비교하기 위한 mock 매물입니다.",
-      en: "A mock studio listing for comparing the Annex area and studio conditions.",
+      ko: "Annex 주변 생활권과 스튜디오 조건을 비교하기 위한 매물입니다.",
+      en: "A studio listing for comparing the Annex area and studio conditions.",
       fr: "Studio fictif pour comparer Annex et les conditions d'un studio.",
     },
     checklist: {
@@ -358,7 +358,7 @@ function openAssistedApplyFromListing(locale: Locale, listing: MockListing) {
       );
     }
   } catch {
-    // Session storage is only a frontend handoff for this MVP; navigation can still continue.
+    // Session storage is only a frontend handoff; navigation can still continue.
   }
 
   const params = new URLSearchParams({
@@ -380,7 +380,7 @@ function openDirectApplyFromListing(locale: Locale, listing: MockListing) {
       );
     }
   } catch {
-    // Session storage is only a frontend handoff for this MVP; navigation can still continue.
+    // Session storage is only a frontend handoff; navigation can still continue.
   }
 
   const params = new URLSearchParams({
@@ -495,7 +495,7 @@ const L: Record<Locale, L10n> = {
     detailLabel: "매물 상세",
     closeDetail: "상세 닫기",
     sampleImage: "sample image",
-    mvpNotice: "MVP 미리보기 · 실제 결제/계약/매물 등록은 아직 활성화되지 않았습니다.",
+    mvpNotice: "MapleHouse에서 매물과 문의 흐름을 확인해 보세요.",
     inquiryModal: {
       title: "이 매물에 어떻게 문의할까요?",
       subtitle:
@@ -503,10 +503,10 @@ const L: Record<Locale, L10n> = {
       directTitle: "집주인에게 직접 문의하기",
       directBadge: "무료",
       directDescription:
-        "체크리스트를 참고해 직접 집주인과 메시지를 주고받는 방식입니다. 현재 DM 기능은 MVP 준비 중입니다.",
+        "체크리스트를 참고해 직접 집주인에게 문의하는 방식입니다.",
       directAction: "직접 문의 미리보기",
       directMessage:
-        "집주인 직접 메시지 기능은 다음 단계에서 연결됩니다. 현재는 MVP 미리보기입니다.",
+        "집주인에게 직접 확인할 질문을 정리합니다.",
       supportTitle: "메이플하우스와 함께 문의하기",
       supportBadge: "유료 플랜 예정",
       supportDescription:
@@ -515,7 +515,7 @@ const L: Record<Locale, L10n> = {
       supportMessage:
         "메이플하우스와 함께 문의하기는 유료 플랜으로 연결될 예정입니다. 현재는 신청 흐름만 미리 보여주는 단계입니다.",
       footerNotice:
-        "현재 MVP 미리보기 단계입니다. 실제 메시지 발송, 결제, 신청 저장은 아직 진행되지 않습니다.",
+        "문의 방식과 확인 항목을 선택해 다음 단계로 이동합니다.",
     },
   },
   en: {
@@ -546,7 +546,7 @@ const L: Record<Locale, L10n> = {
     lastChecked: "Last checked",
     registered: "Registered",
     autoDeact: "Auto-deactivation after 30 unchecked days is planned",
-    mapLabel: "Map placeholder · no real map API",
+    mapLabel: "Map preview",
     mapActiveArea: "Active area · Downtown Toronto",
     consultationCta: "Ask about this listing",
     checklistCta: "View checklist",
@@ -554,7 +554,7 @@ const L: Record<Locale, L10n> = {
     detailLabel: "Listing details",
     closeDetail: "Close details",
     sampleImage: "sample image",
-    mvpNotice: "MVP preview · Real payments, contracts, and property registration are not active yet.",
+    mvpNotice: "Explore listings and inquiry flows with MapleHouse.",
     inquiryModal: {
       title: "How would you like to ask about this listing?",
       subtitle:
@@ -562,10 +562,10 @@ const L: Record<Locale, L10n> = {
       directTitle: "Contact landlord directly",
       directBadge: "Free",
       directDescription:
-        "Message the landlord yourself using the listing details and checklist. Direct messaging is still being prepared for the MVP.",
+        "Contact the landlord yourself using the listing details and checklist.",
       directAction: "Preview direct inquiry",
       directMessage:
-        "Direct landlord messaging will be connected in a later step. This is an MVP preview.",
+        "Prepare questions to confirm directly with the landlord.",
       supportTitle: "Ask with MapleHouse support",
       supportBadge: "Paid plan planned",
       supportDescription:
@@ -574,7 +574,7 @@ const L: Record<Locale, L10n> = {
       supportMessage:
         "MapleHouse-assisted inquiry will be connected to a paid plan later. For now, this only previews the flow.",
       footerNotice:
-        "This is an MVP preview. No real message, payment, or request is submitted yet.",
+        "Choose an inquiry method and confirmation items for the next step.",
     },
   },
   fr: {
@@ -615,7 +615,7 @@ const L: Record<Locale, L10n> = {
     detailLabel: "Détails du logement",
     closeDetail: "Fermer les détails",
     sampleImage: "image d'exemple",
-    mvpNotice: "Aperçu MVP · Les paiements, contrats et enregistrements réels ne sont pas encore actifs.",
+    mvpNotice: "Explorez les logements et les demandes avec MapleHouse.",
     inquiryModal: {
       title: "Comment souhaitez-vous vous renseigner sur ce logement ?",
       subtitle:
@@ -623,10 +623,10 @@ const L: Record<Locale, L10n> = {
       directTitle: "Contacter directement le propriétaire",
       directBadge: "Gratuit",
       directDescription:
-        "Contactez vous-même le propriétaire à l’aide des informations du logement et de la liste de vérification. La messagerie directe est encore en préparation pour le MVP.",
+        "Contactez vous-même le propriétaire à l’aide des informations du logement et de la liste de vérification.",
       directAction: "Aperçu du contact direct",
       directMessage:
-        "La messagerie directe avec le propriétaire sera connectée plus tard. Ceci est un aperçu MVP.",
+        "Préparez les questions à confirmer directement avec le propriétaire.",
       supportTitle: "Demander l’aide de MapleHouse",
       supportBadge: "Forfait payant prévu",
       supportDescription:
@@ -635,7 +635,7 @@ const L: Record<Locale, L10n> = {
       supportMessage:
         "La demande assistée par MapleHouse sera liée à un forfait payant plus tard. Pour l’instant, ce parcours est seulement prévisualisé.",
       footerNotice:
-        "Ceci est un aperçu MVP. Aucun message réel, paiement ou demande n’est envoyé pour le moment.",
+        "Choisissez une méthode de demande et les points à confirmer pour l’étape suivante.",
     },
   },
 };

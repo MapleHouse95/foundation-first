@@ -7,7 +7,7 @@ export const Route = createFileRoute("/fr/my/inquiries")({
       { title: "Historique des demandes | MapleHouse" },
       {
         name: "description",
-        content: "MapleHouse MVP tenant inquiry history mock page.",
+        content: "MapleHouse tenant inquiry history page.",
       },
     ],
   }),

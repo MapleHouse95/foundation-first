@@ -7,7 +7,7 @@ export const Route = createFileRoute("/fr/landlords/center/inquiries")({
       { title: "Gestion des demandes · MapleHouse" },
       {
         name: "description",
-        content: "Aperçu MVP de la gestion des demandes propriétaire MapleHouse.",
+        content: "Aperçu de la gestion des demandes propriétaire MapleHouse.",
       },
     ],
   }),

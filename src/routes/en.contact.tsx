@@ -7,7 +7,7 @@ export const Route = createFileRoute("/en/contact")({
       { title: "Contact MapleHouse · MapleHouse" },
       {
         name: "description",
-        content: "Contact page for MapleHouse service questions, partnerships, and MVP feedback.",
+        content: "Contact page for MapleHouse service questions, partnerships, and  feedback.",
       },
     ],
   }),

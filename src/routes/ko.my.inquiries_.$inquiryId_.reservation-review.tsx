@@ -7,7 +7,7 @@ export const Route = createFileRoute("/ko/my/inquiries_/$inquiryId_/reservation-
       { title: "예약하기 | MapleHouse" },
       {
         name: "description",
-        content: "Temporary compatibility route for the MapleHouse MVP reservation mock page.",
+        content: "Temporary compatibility route for the MapleHouse reservation page.",
       },
     ],
   }),

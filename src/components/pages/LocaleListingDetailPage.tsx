@@ -442,7 +442,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       beforeInquiry: "문의 전 확인",
     },
     intro: {
-      ratingLine: "평점 준비 중 · 리뷰 0개",
+      ratingLine: "리뷰 0개",
       description:
         "토론토에서 출국 전 주거를 찾는 분들이 비교하기 쉽도록 등록된 매물입니다. 실제 주소, 입주 가능일, 공과금, 보증금, 생활 규칙은 문의 및 확인 단계에서 다시 정리됩니다.",
       readMore: "더보기",
@@ -544,15 +544,15 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       smoking: "흡연",
     },
     reviews: {
-      ratingComing: "평점 준비 중",
+      ratingComing: "리뷰 확인",
       emptyTitle: "아직 등록된 리뷰가 없습니다.",
-      emptyBody: "실제 입주 후기 기능은 정식 운영 단계에서 제공될 예정입니다.",
+      emptyBody: "등록된 후기가 생기면 이곳에서 확인할 수 있습니다.",
     },
     host: {
       name: "MapleHouse 등록 임대인",
-      contactStatus: "연락처 확인 예정",
+      contactStatus: "연락처 확인",
       listingStatus: "매물 정보 보완 중",
-      description: "이 임대인 정보는 실제 문의 및 확인 단계에서 MapleHouse가 추가로 정리할 예정입니다.",
+      description: "문의 및 확인 단계에서 MapleHouse가 임대인 정보를 함께 정리합니다.",
       cta: "호스트에게 문의하기",
     },
     datePicker: {
@@ -571,7 +571,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       continueWithoutDate: "날짜 없이 계속하기",
     },
     mapPlaceholderTitle: "지도 위치 미리보기",
-    mapPlaceholderBody: "실제 지도 API는 연결되어 있지 않습니다. 정확한 주소와 이동 시간은 문의 및 확인 단계에서 다시 확인해 주세요.",
+    mapPlaceholderBody: "정확한 주소와 이동 시간은 문의 및 확인 단계에서 다시 확인해 주세요.",
     faq: [
       {
         question: "실제 주소는 언제 확인할 수 있나요?",
@@ -600,14 +600,14 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     inquirySeparateGuide: "문의 및 예약 지원은 별도 안내 후 진행됩니다.",
     modal: {
       title: "이 매물에 어떻게 문의할까요?",
-      subtitle: "현재는 MVP 미리보기입니다. 실제 메시지 발송, 결제, 신청 저장은 진행되지 않습니다.",
+      subtitle: "문의 방식을 선택해 매물 확인을 이어가세요.",
       directTitle: "집주인에게 직접 문의하기",
       directDescription:
-        "무료로 집주인에게 직접 문의하는 흐름입니다. MVP 단계에서는 실제 메시지 전송 기능은 아직 연결되어 있지 않습니다.",
+        "무료로 집주인에게 직접 문의하는 흐름입니다.",
       supportTitle: "메이플하우스와 함께 문의하기",
       supportDescription:
         "MapleHouse가 문의 전 확인할 항목을 정리하고, 예약 전 확인 절차를 도와주는 흐름입니다.",
-      directMessage: "직접 문의 기능은 MVP 이후 연결될 예정입니다.",
+      directMessage: "직접 문의 내용을 정리해 보낼 수 있습니다.",
     },
   },
   en: {
@@ -664,7 +664,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       beforeInquiry: "Before inquiry",
     },
     intro: {
-      ratingLine: "Rating coming soon · 0 reviews",
+      ratingLine: "0 reviews",
       description:
         "This listing is prepared for people comparing housing before arriving in Canada. Address, availability, utilities, deposit, and house rules will be reconfirmed during the inquiry process.",
       readMore: "Read more",
@@ -766,7 +766,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       smoking: "Smoking",
     },
     reviews: {
-      ratingComing: "Rating coming soon",
+      ratingComing: "Review status",
       emptyTitle: "No reviews yet.",
       emptyBody: "Resident reviews will be available in a later release.",
     },
@@ -793,7 +793,7 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
       continueWithoutDate: "Continue without date",
     },
     mapPlaceholderTitle: "Map preview",
-    mapPlaceholderBody: "No real map API is connected. Please confirm the exact address and travel time during the inquiry stage.",
+    mapPlaceholderBody: "Please confirm the exact address and travel time during the inquiry stage.",
     faq: [
       {
         question: "When can I see the exact address?",
@@ -822,14 +822,14 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     inquirySeparateGuide: "Inquiry and reservation support will be guided separately.",
     modal: {
       title: "How would you like to inquire?",
-      subtitle: "This is an MVP preview. No real message, payment, or request is submitted yet.",
+      subtitle: "Choose how you would like to inquire about this listing.",
       directTitle: "Contact landlord directly",
       directDescription:
-        "This is a free direct inquiry flow. Real messaging is not connected in the MVP preview.",
+        "This is a free direct inquiry flow.",
       supportTitle: "Ask with MapleHouse support",
       supportDescription:
         "MapleHouse helps organize key questions and pre-inquiry checks before reservation.",
-      directMessage: "Direct messaging will be connected after the MVP stage.",
+      directMessage: "Prepare a direct inquiry message.",
     },
   },
   fr: {
@@ -1046,15 +1046,15 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     inquirySeparateGuide: "L’accompagnement de demande et de réservation sera présenté séparément.",
     modal: {
       title: "Comment souhaitez-vous faire une demande ?",
-      subtitle: "Ceci est un aperçu MVP. Aucun message réel, paiement ou demande n’est envoyé.",
+      subtitle: "Choisissez comment vous souhaitez faire une demande pour ce logement.",
       directTitle: "Contacter directement le propriétaire",
       directDescription:
-        "Flux de contact direct gratuit. La messagerie réelle n’est pas encore connectée dans l’aperçu MVP.",
+        "Flux de contact direct gratuit.",
       supportTitle: "Demander avec l’aide de MapleHouse",
       supportDescription:
         "MapleHouse aide à organiser les questions importantes et les vérifications avant réservation.",
       directMessage:
-        "La messagerie directe sera connectée après la phase MVP.",
+        "Préparez un message direct.",
     },
   },
 };

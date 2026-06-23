@@ -68,7 +68,7 @@
 :root {
   /* MapleHouse — clean, practical housing service */
   --radius: 0.875rem;
-  --background: oklch(0.9851 0 89.88);
+  --background: oklch(1 0 89.88);
   --foreground: oklch(0.2503 0.0059 56.11);
   --card: oklch(1 0 89.88);
   --card-foreground: oklch(0.2503 0.0059 56.11);
@@ -196,6 +196,146 @@
   .mh-orange-checkbox:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+  }
+
+  .mh-page-grid {
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+    background-size: 46px 46px;
+    background-position: top center;
+  }
+
+  .payment-logo-option,
+  .easy-payment-option {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: 0;
+  }
+
+  .payment-logo-image {
+    box-sizing: border-box;
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    object-fit: contain;
+    border: 1.5px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: #ffffff;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .payment-logo-option:hover .payment-logo-image {
+    border-color: var(--color-primary);
+    background: #fff8f1;
+  }
+
+  .payment-logo-option.is-selected .payment-logo-image {
+    border-color: var(--color-primary);
+    background: #ffffff;
+  }
+
+  .payment-logo-option.is-selected:hover .payment-logo-image {
+    border-color: var(--color-primary);
+    background: #fff8f1;
+  }
+
+  .payment-logo-label,
+  .easy-payment-label {
+    border: 0;
+    background: transparent;
+  }
+
+  .payment-logo-option:hover .payment-logo-label,
+  .payment-logo-option.is-selected .payment-logo-label,
+  .easy-payment-option:hover .easy-payment-label,
+  .easy-payment-option.is-selected .easy-payment-label {
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  .easy-payment-visual {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    width: 7rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 1.5px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: #ffffff;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .easy-payment-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 112%;
+    height: 112%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    object-fit: cover;
+    object-position: center;
+    transform: translate(-50%, -50%);
+  }
+
+  .easy-payment-visual .easy-payment-image {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  span.easy-payment-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .provider-naver-pay .easy-payment-image,
+  .provider-kakao-pay .easy-payment-image,
+  .provider-toss-pay .easy-payment-image,
+  .provider-samsung-pay .easy-payment-image,
+  .provider-apple-pay .easy-payment-image,
+  .provider-payco .easy-payment-image,
+  .provider-google-pay .easy-payment-image,
+  .provider-line-pay .easy-payment-image,
+  .provider-alipay .easy-payment-image,
+  .provider-paypal .easy-payment-image {
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+
+  .provider-paypal .easy-payment-image,
+  .provider-apple-pay .easy-payment-image,
+  .provider-google-pay .easy-payment-image {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  .easy-payment-option:hover .easy-payment-visual {
+    border-color: var(--color-primary);
+    background: #fff8f1;
+  }
+
+  .easy-payment-option.is-selected .easy-payment-visual {
+    border-color: var(--color-primary);
+    background: #ffffff;
+  }
+
+  .easy-payment-option.is-selected:hover .easy-payment-visual {
+    border-color: var(--color-primary);
+    background: #fff8f1;
   }
 
   .mh-interactive-card {

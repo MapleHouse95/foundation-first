@@ -12,24 +12,24 @@ const CONTENT: Record<
     login: {
       eyebrow: "로그인",
       title: "로그인은 아직 활성화되지 않았습니다",
-      body: "현재 화면은 향후 계정 기능을 위한 자리 표시자입니다. 실제 인증, 저장, 회원 데이터 처리는 연결되어 있지 않습니다.",
+      body: "계정 기능을 준비하는 안내 화면입니다.",
     },
     signup: {
       eyebrow: "회원가입",
       title: "회원가입은 아직 활성화되지 않았습니다",
-      body: "현재 화면은 향후 계정 기능을 위한 자리 표시자입니다. 실제 인증, 저장, 회원 데이터 처리는 연결되어 있지 않습니다.",
+      body: "계정 기능을 준비하는 안내 화면입니다.",
     },
   },
   en: {
     login: {
       eyebrow: "Login",
       title: "Login is not active yet",
-      body: "This page is a placeholder for a future account flow. Real authentication, saved data, and member records are not connected.",
+      body: "This page introduces the account flow.",
     },
     signup: {
       eyebrow: "Sign up",
       title: "Sign up is not active yet",
-      body: "This page is a placeholder for a future account flow. Real authentication, saved data, and member records are not connected.",
+      body: "This page introduces the account flow.",
     },
   },
   fr: {

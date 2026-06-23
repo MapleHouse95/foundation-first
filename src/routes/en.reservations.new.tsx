@@ -12,7 +12,7 @@ export const Route = createFileRoute("/en/reservations/new")({
       { title: "Reserve | MapleHouse" },
       {
         name: "description",
-        content: "MapleHouse MVP reservation mock page.",
+        content: "MapleHouse reservation page.",
       },
     ],
   }),

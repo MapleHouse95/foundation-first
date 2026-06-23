@@ -1,4 +1,4 @@
-import { Check, Inbox } from "lucide-react";
+import { Check, CircleHelp, Inbox } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
@@ -229,15 +229,15 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
     listingsAction: "매물 목록 보기",
     heroTitle: "결제 정보 확인",
     heroSubtitle:
-      "예약 요청 전 결제 참고 정보와 확인 항목을 정리하는 MVP mock 화면입니다.",
+      "예약 요청 전 결제 참고 정보와 확인 항목을 정리했습니다.",
     heroNote:
-      "실제 결제, 송금, 계약, 최종 처리는 아직 연결되어 있지 않습니다.",
+      "금액과 조건을 확인한 뒤 결제 요청을 접수해 주세요.",
     emptyCheckoutTitle: "결제 정보를 찾을 수 없습니다.",
     emptyCheckoutDescription:
       "매물과 방 정보가 있는 예약 화면에서 다시 진행해 주세요.",
     emptyCompleteTitle: "접수된 예약 요청 정보를 찾을 수 없습니다.",
     emptyCompleteDescription:
-      "예약 요청 완료 화면은 mock checkout 확인 이후에 표시됩니다.",
+      "예약 요청 완료 화면은 결제 요청 접수 이후에 표시됩니다.",
     metadata: {
       listing: "매물명",
       room: "선택한 방",
@@ -249,8 +249,8 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       moveIn: "2026. 8. 15.",
       guests: "1명",
       stay: "3개월",
-      tax: "실제 운영 단계에서 산정 예정",
-      total: "실제 결제 연결 전",
+      tax: "조건 확인 후 산정",
+      total: "결제 요청 전 확인",
     },
     profile: {
       title: "선택한 매물과 방",
@@ -266,7 +266,7 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       summary: "결제 요약",
       completeReservation: "예약 요청 요약",
       completePayment: "결제 요청 요약",
-      mvp: "MVP 안내",
+      mvp: "안내",
       nextSteps: "다음 단계",
     },
     paymentRows: {
@@ -275,80 +275,80 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       initialPayment: "초기 입금액",
       supportFee: "서비스 이용료",
       tax: "부가세·세금",
-      total: "요청 금액",
+      total: "총 납부 금액",
     },
     paymentHelp: {
-      initialPayment: "월세와 보증금을 합산한 mock 참고 금액입니다.",
-      supportFee: "MapleHouse 대리 문의 및 확인 지원 mock 수수료입니다.",
+      initialPayment: "첫 월세와 보증금, 마지막 달 월세로 사용될 금액을 기준으로 계산한 금액입니다. 토론토·온타리오 지역 임대 계약에서 자주 사용하는 일반적인 형태를 기준으로 안내합니다. 금액과 조건은 매물 및 임대인 조건에 따라 달라질 수 있습니다.",
+      supportFee: "MapleHouse가 문의 정리, 예약 보조, 고객 응대 등의 운영 지원을 위해 부과하는 비용입니다. 서비스 범위에 따라 금액은 달라질 수 있습니다.",
     },
     paymentMethodNote:
-      "실제 카드 입력과 결제 인증은 결제 대행사 연결 이후 제공됩니다.",
+      "결제 수단을 선택하고 요청 내용을 확인해 주세요.",
     productSummaryTitle: "예약 상품 요약",
-    cardIssuerTitle: "카드사/은행 선택 · MVP mock",
-    cardIssuerNote: "실제 카드 입력은 결제 대행사 연결 이후 제공됩니다. 현재는 텍스트형 placeholder입니다.",
-    transferTitle: "계좌이체 정보 · MVP mock",
+    cardIssuerTitle: "카드사/은행 선택",
+    cardIssuerNote: "사용할 카드사 또는 은행을 선택해 주세요.",
+    transferTitle: "계좌이체 정보",
     transferAccountLabel: "입금계좌번호",
     transferHolderLabel: "예금주명",
     transferPayerLabel: "입금자명",
     transferPayerPlaceholder: "입금자명을 입력해 주세요",
-    transferNote: "실제 계좌이체가 아닙니다. 계좌번호와 예금주명은 MVP 화면 확인용 mock 정보입니다.",
-    quickPayNote: "간편결제는 MVP 예정 항목입니다. 실제 결제 지갑이나 인증은 연결되어 있지 않습니다.",
+    transferNote: "계좌번호나 외부 결제링크를 통한 거래를 진행하지 마세요. 결제 요청 접수 후 안내된 절차에 따라 확인됩니다.",
+    quickPayNote: "사용할 간편결제 수단을 선택해 주세요.",
     receiptEmailLabel: "영수증 수신 이메일 · 선택",
     receiptEmailPlaceholder: "name@example.com",
     receiptEmailHelper:
-      "실제 결제 대행사 연결 뒤 결제 영수증 수신에 사용할 수 있습니다. 지금은 저장하거나 전송하지 않습니다.",
+      "결제 관련 안내와 영수증 수신에 사용할 이메일을 선택 입력할 수 있습니다.",
     selectedMethodBadge: "선택됨",
-    mvpBadge: "MVP",
+    mvpBadge: "선택 가능",
     paymentMethods: [
       {
         key: "card",
         label: "카드 결제",
-        description: "카드사/은행을 선택하는 mock 단계입니다.",
+        description: "카드사 또는 은행을 선택합니다.",
       },
       {
         key: "transfer",
         label: "계좌이체",
-        description: "입금자명을 남기는 MVP mock 단계입니다.",
+        description: "입금자명과 계좌 정보를 확인합니다.",
       },
       {
         key: "quick",
-        label: "간편결제 · MVP 예정",
-        description: "실제 간편결제 연결은 이후 단계에서 제공됩니다.",
+        label: "간편결제",
+        description: "간편결제 수단을 선택합니다.",
       },
     ],
     cardIssuers: ["KB국민", "신한", "우리", "하나", "현대", "삼성", "롯데", "BC"],
     disabledFields: [
-      "카드번호 입력 · MVP 예정",
-      "만료일 · MVP 예정",
-      "CVC · MVP 예정",
+      "카드번호 입력",
+      "만료일",
+      "CVC",
     ],
     cautionNotes: [
-      "이 화면은 실제 결제창이 아닌 MVP mock 화면입니다.",
-      "실제 결제는 아직 진행되지 않습니다.",
-      "최종 진행 여부는 실제 결제와 운영 확인 이후 별도로 안내될 수 있습니다.",
+      "결제 요청 전 금액과 선택한 수단을 다시 확인해 주세요.",
+      "계좌번호나 외부 결제링크를 통한 거래를 진행하지 마세요.",
+      "금액과 조건은 매물 및 임대인 조건에 따라 달라질 수 있습니다.",
       "계좌번호나 외부 결제링크를 통한 거래를 진행하지 마세요.",
     ],
     checklistItems: [
-      "이 화면은 실제 결제창이 아닌 MVP mock 화면임을 이해했습니다.",
-      "실제 결제, 송금, 계약, 최종 처리는 아직 연결되어 있지 않음을 이해했습니다.",
+      "결제 요청 전 금액과 선택한 결제 수단을 확인했습니다.",
+      "계좌번호나 외부 결제링크를 통한 거래를 진행하지 않겠습니다.",
       "결제 전 총 금액, 보증금, 환불 조건을 다시 확인해야 함을 이해했습니다.",
     ],
     checklistValidation: "결제 요청 전 확인 항목을 모두 체크해 주세요.",
     cancellationNotes: [
-      "실제 취소, 환불, 인출 관련 정책은 아직 연결되어 있지 않습니다.",
-      "추후 운영 단계에서는 예약 시점, 입주 예정일, 취소 시점에 따라 환불 가능 금액이 달라질 수 있습니다.",
-      "임대인 사정으로 예약이 진행되지 않는 경우, 실제 운영 단계에서는 결제 금액 반환 절차가 별도로 안내될 수 있습니다.",
-      "현재 화면은 정책 구조를 보여주는 MVP mock 상태입니다.",
+      "취소, 환불, 인출 관련 조건은 결제 전 반드시 확인해야 합니다.",
+      "예약 시점, 입주예정일, 취소 시점에 따라 환불 가능 금액이 달라질 수 있습니다.",
+      "임대인 사정으로 예약이 진행되지 않는 경우, 반환 절차가 별도로 안내될 수 있습니다.",
+      "환불 및 취소 조건은 결제 요청 전 다시 확인해 주세요.",
     ],
     railTitle: "결제 요약",
-    requestPaymentAction: "결제 요청하기 · MVP 예정",
+    requestPaymentAction: "결제 요청하기",
     completeTitle: "예약 요청이 접수되었습니다",
     completeSubtitle:
-      "아래 내용은 MVP mock 접수 화면입니다. 실제 결제, 계약, 송금, 최종 처리는 아직 연결되어 있지 않습니다.",
+      "접수된 예약 요청과 결제 확인 정보를 정리했습니다.",
     completeSections: {
       reservation: "예약 요청 요약",
       payment: "결제 요청 요약",
-      mvp: "MVP 안내",
+      mvp: "안내",
       next: "다음 단계",
     },
     completeRows: {
@@ -359,25 +359,22 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       stay: "체류 기간",
       paymentStatus: "결제 상태",
       paymentRequestStatus: "결제 요청 상태",
-      requestAmount: "요청 금액",
+      requestAmount: "총 납부 금액",
       paymentMethod: "결제 수단",
-      requestNumber: "mock 요청번호",
+      requestNumber: "접수번호",
     },
     completeValues: {
       paymentStatus: "확인 대기",
-      paymentRequestStatus: "접수됨 / 확인 대기",
+      paymentRequestStatus: "확인 대기",
     },
-    completeMvpNotes: [
-      "실제 결제, 계약, 송금, 최종 처리는 아직 연결되어 있지 않습니다.",
-      "이 화면은 예약 요청 흐름을 보여주는 mock 상태입니다.",
-    ],
+    completeMvpNotes: ["요청 내용과 결제 확인 상태를 기준으로 다음 단계가 안내됩니다."],
     nextSteps: [
       "MapleHouse가 예약 요청 정보를 확인합니다.",
-      "실제 운영 단계에서는 결제 및 계약 조건을 별도로 안내합니다.",
+      "결제 및 계약 조건은 별도로 안내됩니다.",
       "임대인 최종 확인 이후 진행 가능 여부 또는 취소 안내가 이어질 수 있습니다.",
     ],
     inquiryHistoryAction: "나의 문의내역 보기",
-    reservationHistoryAction: "나의 예약내역 보기 · MVP 예정",
+    reservationHistoryAction: "나의 예약내역 보기",
   },
   en: {
     home: "Home",
@@ -389,15 +386,15 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
     listingsAction: "View listings",
     heroTitle: "Checkout details",
     heroSubtitle:
-      "Review payment details and confirmation items before sending a reservation request in this MVP mock screen.",
+      "Review payment details and confirmation items before sending a reservation request.",
     heroNote:
-      "Real payment, money transfer, contract, and reservation confirmation are not connected yet.",
+      "Check the amount and conditions before submitting the payment request.",
     emptyCheckoutTitle: "Checkout information was not found.",
     emptyCheckoutDescription:
       "Please return to a reservation page with a selected listing and room.",
     emptyCompleteTitle: "No reservation request information was found.",
     emptyCompleteDescription:
-      "The completion page appears after the mock checkout confirmation step.",
+      "The completion page appears after the payment request is received.",
     metadata: {
       listing: "Listing",
       room: "Selected room",
@@ -409,8 +406,8 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       moveIn: "Aug 15, 2026",
       guests: "1 person",
       stay: "3 months",
-      tax: "To be calculated in the real operation stage",
-      total: "Before real checkout connection",
+      tax: "Calculated after condition review",
+      total: "Before payment request",
     },
     profile: {
       title: "Selected listing and room",
@@ -426,7 +423,7 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       summary: "Payment summary",
       completeReservation: "Reservation request summary",
       completePayment: "Payment request summary",
-      mvp: "MVP note",
+      mvp: "Note",
       nextSteps: "Next steps",
     },
     paymentRows: {
@@ -435,80 +432,80 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       initialPayment: "Initial payment",
       supportFee: "Service support fee",
       tax: "Additional tax",
-      total: "Request amount",
+      total: "Total payment amount",
     },
     paymentHelp: {
-      initialPayment: "Mock reference amount combining one month rent and deposit.",
-      supportFee: "Mock fee for MapleHouse inquiry and confirmation support.",
+      initialPayment: "Estimated from the first month rent, deposit, and last month rent amount commonly used in Toronto/Ontario leases. The amount and terms may vary by listing and landlord conditions.",
+      supportFee: "A MapleHouse service fee for inquiry organization, reservation support, and customer assistance. The amount may vary by service scope.",
     },
     paymentMethodNote:
-      "Real card entry and payment authentication will be provided after a payment provider is connected.",
+      "Choose a payment method and review the request details.",
     productSummaryTitle: "Reservation item summary",
-    cardIssuerTitle: "Card issuer or bank · MVP mock",
-    cardIssuerNote: "Real card entry will be provided after a payment provider is connected. These are text placeholders.",
-    transferTitle: "Bank transfer information · MVP mock",
+    cardIssuerTitle: "Card issuer or bank",
+    cardIssuerNote: "Select the card issuer or bank you want to use.",
+    transferTitle: "Bank transfer information",
     transferAccountLabel: "Deposit account number",
     transferHolderLabel: "Account holder",
     transferPayerLabel: "Payer name",
     transferPayerPlaceholder: "Enter payer name",
-    transferNote: "This is not a real bank transfer. The account number and holder are mock information for MVP review.",
-    quickPayNote: "Quick pay is an MVP-coming option. Real wallet payment and authentication are not connected.",
+    transferNote: "Do not proceed through account numbers or external payment links. The request will be reviewed through the guided process.",
+    quickPayNote: "Select the quick pay option you want to use.",
     receiptEmailLabel: "Receipt email, optional",
     receiptEmailPlaceholder: "name@example.com",
     receiptEmailHelper:
-      "This may be used to receive a payment receipt after a real payment provider is connected. It is not stored or sent now.",
+      "Optionally enter an email for payment guidance and receipt delivery.",
     selectedMethodBadge: "Selected",
-    mvpBadge: "MVP",
+    mvpBadge: "Available",
     paymentMethods: [
       {
         key: "card",
         label: "Card payment",
-        description: "Choose a card issuer or bank in this mock step.",
+        description: "Choose a card issuer or bank.",
       },
       {
         key: "transfer",
         label: "Bank transfer",
-        description: "Leave a payer name in this MVP mock step.",
+        description: "Check the payer name and bank transfer details.",
       },
       {
         key: "quick",
-        label: "Quick pay · MVP coming",
-        description: "Real quick pay connection will be provided later.",
+        label: "Quick pay",
+        description: "Choose a quick pay option.",
       },
     ],
     cardIssuers: ["RBC", "TD", "BMO", "CIBC", "Scotia", "Visa", "Mastercard", "Amex"],
     disabledFields: [
-      "Card number · MVP coming",
-      "Expiry date · MVP coming",
-      "CVC · MVP coming",
+      "Card number",
+      "Expiry date",
+      "CVC",
     ],
     cautionNotes: [
-      "This is an MVP mock screen, not a real checkout page.",
-      "No real payment is processed yet.",
-      "Reservation confirmation may be guided separately after real payment and operation review.",
+      "Review the amount and selected payment method before requesting payment.",
+      "Do not proceed through account numbers or external payment links.",
+      "Amounts and conditions may vary by listing and landlord terms.",
       "Do not proceed through bank account numbers or external payment links.",
     ],
     checklistItems: [
-      "I understand this is an MVP mock screen, not a real checkout page.",
-      "I understand real payment, money transfer, contract, and reservation confirmation are not connected yet.",
-      "I understand the total amount, deposit, and refund conditions must be checked again before any real payment.",
+      "I reviewed the amount and selected payment method before requesting payment.",
+      "I will not proceed through account numbers or external payment links.",
+      "I understand the total amount, deposit, and refund conditions must be checked before payment.",
     ],
     checklistValidation: "Please check all confirmation items before requesting payment.",
     cancellationNotes: [
-      "Real cancellation, refund, and withdrawal policies are not connected yet.",
-      "In a future operation stage, refundable amounts may vary by reservation timing, move-in date, and cancellation timing.",
-      "If the reservation cannot proceed due to the landlord's circumstances, a separate return process may be provided in the real operation stage.",
-      "This screen is an MVP mock showing the policy structure only.",
+      "Cancellation, refund, and withdrawal terms must be checked before payment.",
+      "Refundable amounts may vary by reservation timing, move-in date, and cancellation timing.",
+      "If the reservation cannot proceed due to the landlord's circumstances, a separate return process may be provided.",
+      "Review refund and cancellation terms before submitting a payment request.",
     ],
     railTitle: "Payment summary",
-    requestPaymentAction: "Request payment · MVP coming",
+    requestPaymentAction: "Request payment",
     completeTitle: "Reservation request received",
     completeSubtitle:
-      "This is an MVP mock confirmation screen. Real payment, contract, money transfer, and reservation confirmation are not connected yet.",
+      "Your reservation request and payment review details are summarized below.",
     completeSections: {
       reservation: "Reservation request summary",
       payment: "Payment request summary",
-      mvp: "MVP note",
+      mvp: "Note",
       next: "Next steps",
     },
     completeRows: {
@@ -519,25 +516,22 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       stay: "Stay period",
       paymentStatus: "Payment status",
       paymentRequestStatus: "Payment request status",
-      requestAmount: "Request amount",
+      requestAmount: "Total payment amount",
       paymentMethod: "Payment method",
-      requestNumber: "Mock request no.",
+      requestNumber: "Request no.",
     },
     completeValues: {
       paymentStatus: "Pending review",
-      paymentRequestStatus: "Received / pending review",
+      paymentRequestStatus: "Pending review",
     },
-    completeMvpNotes: [
-      "Real payment, contract, money transfer, and reservation confirmation are not connected yet.",
-      "This page is a mock state showing the reservation request flow.",
-    ],
+    completeMvpNotes: ["Next steps will be guided based on the request details and payment review status."],
     nextSteps: [
       "MapleHouse reviews the reservation request information.",
-      "In the real operation stage, payment and contract conditions will be provided separately.",
+      "Payment and contract conditions will be provided separately.",
       "After the landlord's final confirmation, reservation confirmation or cancellation guidance may follow.",
     ],
     inquiryHistoryAction: "View my inquiries",
-    reservationHistoryAction: "View my reservations · MVP coming",
+    reservationHistoryAction: "View my reservations",
   },
   fr: {
     home: "Accueil",
@@ -549,15 +543,15 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
     listingsAction: "Voir les logements",
     heroTitle: "Détails du paiement",
     heroSubtitle:
-      "Vérifiez les détails de paiement et les éléments de confirmation avant d’envoyer une demande de réservation dans cet écran mock MVP.",
+      "Vérifiez les détails de paiement et les éléments de confirmation avant d’envoyer une demande de réservation.",
     heroNote:
-      "Le paiement réel, le transfert d’argent, le contrat et la confirmation de réservation ne sont pas encore connectés.",
+      "Vérifiez le montant et les conditions avant d’envoyer la demande de paiement.",
     emptyCheckoutTitle: "Les informations de paiement sont introuvables.",
     emptyCheckoutDescription:
       "Revenez à une page de réservation avec un logement et une chambre sélectionnés.",
     emptyCompleteTitle: "Aucune information de demande de réservation n’a été trouvée.",
     emptyCompleteDescription:
-      "La page de confirmation apparaît après l’étape mock de vérification du paiement.",
+      "La page de confirmation apparaît après la réception de la demande de paiement.",
     metadata: {
       listing: "Logement",
       room: "Chambre choisie",
@@ -569,8 +563,8 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       moveIn: "15 août 2026",
       guests: "1 personne",
       stay: "3 mois",
-      tax: "À calculer lors de l’exploitation réelle",
-      total: "Avant connexion au paiement réel",
+      tax: "Calculé après vérification",
+      total: "Avant demande de paiement",
     },
     profile: {
       title: "Logement et chambre choisis",
@@ -586,7 +580,7 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       summary: "Résumé du paiement",
       completeReservation: "Résumé de la demande",
       completePayment: "Résumé du paiement",
-      mvp: "Note MVP",
+      mvp: "Note",
       nextSteps: "Prochaines étapes",
     },
     paymentRows: {
@@ -595,80 +589,80 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       initialPayment: "Paiement initial",
       supportFee: "Frais de service",
       tax: "Taxes supplémentaires",
-      total: "Montant total estimé",
+      total: "Montant total à payer",
     },
     paymentHelp: {
-      initialPayment: "Montant mock combinant un mois de loyer et le dépôt.",
-      supportFee: "Frais mock pour l’aide MapleHouse à la demande et à la vérification.",
+      initialPayment: "Montant estimé à partir du premier mois de loyer, du dépôt et du dernier mois de loyer, selon une structure fréquente à Toronto/Ontario. Le montant et les conditions peuvent varier selon le logement et le propriétaire.",
+      supportFee: "Frais MapleHouse pour l’organisation de la demande, l’aide à la réservation et le support client. Le montant peut varier selon l’étendue du service.",
     },
     paymentMethodNote:
-      "La saisie réelle de la carte et l’authentification du paiement seront fournies après la connexion d’un prestataire de paiement.",
+      "Choisissez un moyen de paiement et vérifiez les détails de la demande.",
     productSummaryTitle: "Résumé de la demande",
-    cardIssuerTitle: "Émetteur de carte ou banque · mock MVP",
-    cardIssuerNote: "La saisie réelle de la carte sera fournie après la connexion d’un prestataire de paiement. Ce sont des placeholders texte.",
-    transferTitle: "Informations de virement · mock MVP",
+    cardIssuerTitle: "Émetteur de carte ou banque",
+    cardIssuerNote: "Sélectionnez l’émetteur de carte ou la banque à utiliser.",
+    transferTitle: "Informations de virement",
     transferAccountLabel: "Numéro de compte de dépôt",
     transferHolderLabel: "Titulaire du compte",
     transferPayerLabel: "Nom du payeur",
     transferPayerPlaceholder: "Saisir le nom du payeur",
-    transferNote: "Ce n’est pas un vrai virement. Le numéro de compte et le titulaire sont des informations mock pour vérifier l’écran MVP.",
-    quickPayNote: "Le paiement rapide est prévu pour le MVP. Aucun portefeuille réel ni authentification n’est connecté.",
+    transferNote: "Ne procédez pas via des numéros de compte ou des liens de paiement externes. La demande sera vérifiée selon la procédure indiquée.",
+    quickPayNote: "Sélectionnez le moyen de paiement rapide à utiliser.",
     receiptEmailLabel: "E-mail de reçu, facultatif",
     receiptEmailPlaceholder: "name@example.com",
     receiptEmailHelper:
-      "Il pourra être utilisé pour recevoir un reçu de paiement lorsqu’un prestataire de paiement réel sera connecté. Il n’est ni stocké ni envoyé maintenant.",
+      "Vous pouvez saisir un e-mail pour recevoir les informations de paiement et le reçu.",
     selectedMethodBadge: "Choisi",
-    mvpBadge: "MVP",
+    mvpBadge: "Disponible",
     paymentMethods: [
       {
         key: "card",
         label: "Paiement par carte",
-        description: "Choisissez un émetteur ou une banque dans cette étape mock.",
+        description: "Choisissez un émetteur ou une banque.",
       },
       {
         key: "transfer",
         label: "Virement bancaire",
-        description: "Laissez un nom de payeur dans cette étape mock MVP.",
+        description: "Vérifiez le nom du payeur et les informations de virement.",
       },
       {
         key: "quick",
-        label: "Paiement rapide · MVP à venir",
-        description: "La connexion réelle au paiement rapide sera fournie plus tard.",
+        label: "Paiement rapide",
+        description: "Choisissez un moyen de paiement rapide.",
       },
     ],
     cardIssuers: ["RBC", "TD", "BMO", "CIBC", "Scotia", "Visa", "Mastercard", "Amex"],
     disabledFields: [
-      "Numéro de carte · MVP à venir",
-      "Date d’expiration · MVP à venir",
-      "CVC · MVP à venir",
+      "Numéro de carte",
+      "Date d’expiration",
+      "CVC",
     ],
     cautionNotes: [
-      "Cet écran est un mock MVP, pas une vraie page de paiement.",
-      "Aucun paiement réel n’est encore traité.",
-      "La confirmation de réservation pourra être indiquée séparément après le paiement réel et la vérification opérationnelle.",
+      "Vérifiez le montant et le moyen de paiement choisi avant de demander le paiement.",
+      "Ne procédez pas via des numéros de compte ou des liens de paiement externes.",
+      "Les montants et conditions peuvent varier selon le logement et le propriétaire.",
       "Ne procédez pas via des numéros de compte bancaire ou des liens de paiement externes.",
     ],
     checklistItems: [
-      "Je comprends que cet écran est un mock MVP, pas une vraie page de paiement.",
-      "Je comprends que le paiement réel, le transfert d’argent, le contrat et la confirmation de réservation ne sont pas encore connectés.",
-      "Je comprends que le montant total, le dépôt et les conditions de remboursement devront être revérifiés avant tout paiement réel.",
+      "J’ai vérifié le montant et le moyen de paiement choisi avant de demander le paiement.",
+      "Je ne procéderai pas via des numéros de compte ou des liens de paiement externes.",
+      "Je comprends que le montant total, le dépôt et les conditions de remboursement doivent être vérifiés avant paiement.",
     ],
     checklistValidation: "Veuillez cocher tous les éléments avant de demander le paiement.",
     cancellationNotes: [
-      "Les politiques réelles d’annulation, de remboursement et de retrait ne sont pas encore connectées.",
-      "Lors d’une future exploitation, les montants remboursables pourront varier selon la date de réservation, la date d’entrée et le moment de l’annulation.",
-      "Si la réservation ne peut pas se poursuivre pour une raison liée au propriétaire, une procédure de retour séparée pourra être indiquée dans l’exploitation réelle.",
-      "Cet écran est un mock MVP qui présente seulement la structure de la politique.",
+      "Les conditions d’annulation, de remboursement et de retrait doivent être vérifiées avant paiement.",
+      "Les montants remboursables peuvent varier selon la date de réservation, la date d’entrée et le moment de l’annulation.",
+      "Si la réservation ne peut pas se poursuivre pour une raison liée au propriétaire, une procédure de retour séparée pourra être indiquée.",
+      "Vérifiez les conditions d’annulation et de remboursement avant d’envoyer la demande de paiement.",
     ],
     railTitle: "Résumé du paiement",
-    requestPaymentAction: "Demander le paiement · MVP à venir",
+    requestPaymentAction: "Demander le paiement",
     completeTitle: "Demande de réservation reçue",
     completeSubtitle:
-      "Ceci est un écran de confirmation mock MVP. Le paiement réel, le contrat, le transfert d’argent et la confirmation de réservation ne sont pas encore connectés.",
+      "Votre demande de réservation et les informations de vérification du paiement sont résumées ci-dessous.",
     completeSections: {
       reservation: "Résumé de la demande de réservation",
       payment: "Résumé de la demande de paiement",
-      mvp: "Note MVP",
+      mvp: "Note",
       next: "Prochaines étapes",
     },
     completeRows: {
@@ -679,25 +673,22 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       stay: "Durée du séjour",
       paymentStatus: "État du paiement",
       paymentRequestStatus: "État de la demande de paiement",
-      requestAmount: "Montant demandé",
+      requestAmount: "Montant total à payer",
       paymentMethod: "Moyen de paiement",
-      requestNumber: "N° de demande mock",
+      requestNumber: "N° de demande",
     },
     completeValues: {
       paymentStatus: "En attente de vérification",
-      paymentRequestStatus: "Reçu / en attente de vérification",
+      paymentRequestStatus: "En attente de vérification",
     },
-    completeMvpNotes: [
-      "Le paiement réel, le contrat, le transfert d’argent et la confirmation de réservation ne sont pas encore connectés.",
-      "Cette page est un état mock qui montre le flux de demande de réservation.",
-    ],
+    completeMvpNotes: ["Les prochaines étapes seront indiquées selon les détails de la demande et l’état de vérification du paiement."],
     nextSteps: [
       "MapleHouse vérifie les informations de demande de réservation.",
-      "Lors de l’exploitation réelle, les conditions de paiement et de contrat seront indiquées séparément.",
+      "Les conditions de paiement et de contrat seront indiquées séparément.",
       "Après la confirmation finale du propriétaire, une confirmation de réservation ou une indication d’annulation pourra suivre.",
     ],
     inquiryHistoryAction: "Voir mes demandes",
-    reservationHistoryAction: "Voir mes réservations · MVP à venir",
+    reservationHistoryAction: "Voir mes réservations",
   },
 };
 
@@ -706,24 +697,24 @@ const CHECKOUT_UI_COPY: Record<Locale, CheckoutUiCopy> = {
     selectedIssuerLabel: "선택 카드/은행",
     issuerRequired: "선택 카드/은행 선택 필요",
     otherIssuerAction: "그 외 카드/은행 선택",
-    otherIssuerTitle: "그 외 카드/은행 · MVP mock",
+    otherIssuerTitle: "그 외 카드/은행",
     closeAction: "닫기",
-    previewPaymentAction: "결제창 미리보기 · MVP 예정",
-    paymentWindowTitle: "MapleHouse 결제창 mock",
-    paymentWindowSubtitle: "실제 결제사 화면처럼 보이도록 만든 로컬 mock 창입니다.",
+    previewPaymentAction: "결제창 미리보기",
+    paymentWindowTitle: "MapleHouse 결제창",
+    paymentWindowSubtitle: "결제 요청 내용을 한 번 더 확인합니다.",
     paymentWindowClose: "닫기",
-    paymentWindowNotice: "실제 결제는 연결되어 있지 않습니다. 카드 입력, 은행 인증, 송금은 진행되지 않습니다.",
+    paymentWindowNotice: "계좌번호나 외부 결제링크를 통한 거래를 진행하지 마세요.",
     duplicateTitle: "이미 접수된 예약 요청입니다.",
     duplicateBody: "같은 예약 요청은 다시 접수되지 않습니다.",
     duplicateRedirect: "이미 접수된 예약 요청입니다. 기존 접수 정보를 확인합니다.",
     duplicateViewAction: "접수 정보 보기",
     processingLabel: "처리 중...",
     transferBankLabel: "입금 은행",
-    quickPayTitle: "간편결제 · MVP 예정",
+    quickPayTitle: "간편결제",
     selectedQuickPayLabel: "선택 간편결제",
     submittedAtLabel: "요청 시각",
     processingStatusLabel: "결제 처리 상태",
-    processingStatusValue: "실제 결제 미연결",
+    processingStatusValue: "확인 대기",
     directIssuers: [
       { mark: "KB", name: "KB국민카드", logoId: "kb-card" },
       { mark: "SH", name: "신한카드", logoId: "shinhan-card" },
@@ -760,24 +751,24 @@ const CHECKOUT_UI_COPY: Record<Locale, CheckoutUiCopy> = {
     selectedIssuerLabel: "Selected card/bank",
     issuerRequired: "Select a card or bank",
     otherIssuerAction: "Other card/bank",
-    otherIssuerTitle: "Other card/bank · MVP mock",
+    otherIssuerTitle: "Other card/bank",
     closeAction: "Close",
-    previewPaymentAction: "Preview payment window · MVP coming",
-    paymentWindowTitle: "MapleHouse payment window mock",
-    paymentWindowSubtitle: "A local mock window shaped like a payment provider screen.",
+    previewPaymentAction: "Preview payment window",
+    paymentWindowTitle: "MapleHouse payment window",
+    paymentWindowSubtitle: "Review the payment request details once more.",
     paymentWindowClose: "Close",
-    paymentWindowNotice: "Real payment is not connected. No card entry, bank authentication, or transfer is processed.",
+    paymentWindowNotice: "Do not proceed through account numbers or external payment links.",
     duplicateTitle: "This reservation request has already been received.",
     duplicateBody: "The same reservation request will not be submitted again.",
     duplicateRedirect: "This reservation request was already received. Showing the existing request information.",
     duplicateViewAction: "View request details",
     processingLabel: "Processing...",
     transferBankLabel: "Deposit bank",
-    quickPayTitle: "Quick pay · MVP coming",
+    quickPayTitle: "Quick pay",
     selectedQuickPayLabel: "Selected quick pay",
     submittedAtLabel: "Request time",
     processingStatusLabel: "Payment processing status",
-    processingStatusValue: "Real payment not connected",
+    processingStatusValue: "Pending review",
     directIssuers: [
       { mark: "KB", name: "KB Kookmin Card", logoId: "kb-card" },
       { mark: "SH", name: "Shinhan Card", logoId: "shinhan-card" },
@@ -822,24 +813,24 @@ const CHECKOUT_UI_COPY: Record<Locale, CheckoutUiCopy> = {
     selectedIssuerLabel: "Carte/banque choisie",
     issuerRequired: "Carte ou banque à choisir",
     otherIssuerAction: "Autre carte/banque",
-    otherIssuerTitle: "Autre carte/banque · mock MVP",
+    otherIssuerTitle: "Autre carte/banque",
     closeAction: "Fermer",
-    previewPaymentAction: "Aperçu de la fenêtre de paiement · MVP à venir",
-    paymentWindowTitle: "Fenêtre de paiement MapleHouse mock",
-    paymentWindowSubtitle: "Une fenêtre locale mock inspirée d’un écran de prestataire de paiement.",
+    previewPaymentAction: "Aperçu de la fenêtre de paiement",
+    paymentWindowTitle: "Fenêtre de paiement MapleHouse",
+    paymentWindowSubtitle: "Vérifiez encore une fois les détails de la demande de paiement.",
     paymentWindowClose: "Fermer",
-    paymentWindowNotice: "Le paiement réel n’est pas connecté. Aucune saisie de carte, authentification bancaire ou transfert n’est traité.",
+    paymentWindowNotice: "Ne procédez pas via des numéros de compte ou des liens de paiement externes.",
     duplicateTitle: "Cette demande de réservation a déjà été reçue.",
     duplicateBody: "La même demande de réservation ne sera pas envoyée une deuxième fois.",
     duplicateRedirect: "Cette demande de réservation a déjà été reçue. Les informations existantes vont être affichées.",
     duplicateViewAction: "Voir les détails",
     processingLabel: "Traitement...",
     transferBankLabel: "Banque de dépôt",
-    quickPayTitle: "Paiement rapide · MVP à venir",
+    quickPayTitle: "Paiement rapide",
     selectedQuickPayLabel: "Paiement rapide choisi",
     submittedAtLabel: "Heure de demande",
     processingStatusLabel: "État du traitement du paiement",
-    processingStatusValue: "Paiement réel non connecté",
+    processingStatusValue: "En attente de vérification",
     directIssuers: [
       { mark: "KB", name: "KB Kookmin Card", logoId: "kb-card" },
       { mark: "SH", name: "Shinhan Card", logoId: "shinhan-card" },
@@ -927,7 +918,7 @@ export function LocaleReservationCheckoutPage({
         checkoutSessionId,
       );
     } catch {
-      // Frontend-only MVP duplicate protection can still continue without storage.
+      // Frontend-only duplicate protection can still continue without storage.
     }
 
     setExistingRequest(readCheckoutRequest(checkoutSessionId));
@@ -977,7 +968,7 @@ export function LocaleReservationCheckoutPage({
   };
   const selectedPaymentChoice =
     selectedPaymentMethod === "transfer"
-      ? "MapleHouse mock bank"
+      ? "MapleHouse payment desk"
       : selectedPaymentMethod === "quick"
         ? uiCopy.quickProviders.some((provider) => provider.name === selectedQuickProvider)
           ? selectedQuickProvider
@@ -1031,7 +1022,7 @@ export function LocaleReservationCheckoutPage({
     window.location.replace(`/${locale}/reservations/complete`);
   };
 
-  const summaryRows: Array<[string, ReactNode]> = [
+  const summaryRows: Array<[ReactNode, ReactNode]> = [
     [copy.metadata.listing, listing.title[locale]],
     [copy.metadata.room, room.label[locale]],
     [copy.completeRows.paymentMethod, getPaymentMethodLabel(copy, selectedPaymentMethod)],
@@ -1044,8 +1035,20 @@ export function LocaleReservationCheckoutPage({
       selectedPaymentChoice,
     ],
     [copy.paymentRows.rent, <ReservationAmountText value={amounts.monthlyRent} />],
-    [copy.paymentRows.initialPayment, <ReservationAmountText value={amounts.initialPayment} />],
-    [copy.paymentRows.supportFee, <ReservationAmountText value={amounts.supportFee} />],
+    [
+      <ReservationHelpLabel
+        label={copy.paymentRows.initialPayment}
+        items={[copy.paymentHelp.initialPayment]}
+      />,
+      <ReservationAmountText value={amounts.initialPayment} />,
+    ],
+    [
+      <ReservationHelpLabel
+        label={copy.paymentRows.supportFee}
+        items={[copy.paymentHelp.supportFee]}
+      />,
+      <ReservationAmountText value={amounts.supportFee} />,
+    ],
     [copy.completeRows.requestAmount, buildRequestAmountLabel(amounts)],
   ];
 
@@ -1061,7 +1064,7 @@ export function LocaleReservationCheckoutPage({
         />
 
         <ReservationHero
-          eyebrow="MAPLEHOUSE MVP CHECKOUT MOCK"
+          eyebrow="MAPLEHOUSE CHECKOUT"
           title={copy.heroTitle}
           subtitle={copy.heroSubtitle}
           note={copy.heroNote}
@@ -1078,16 +1081,22 @@ export function LocaleReservationCheckoutPage({
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0 space-y-5">
-            <CheckoutProductSummary
-              copy={copy}
-              locale={locale}
-              listing={listing}
-              room={room}
-              amounts={amounts}
-            />
-
-            <ReservationSection title={copy.sections.paymentMethod}>
+            <ReservationSection title={copy.productSummaryTitle}>
               <div className="space-y-4">
+                <CheckoutProductSummary
+                  copy={copy}
+                  locale={locale}
+                  listing={listing}
+                  room={room}
+                  amounts={amounts}
+                />
+
+                <div className="border-t border-border" />
+
+                <div>
+                  <h2 className="text-lg font-bold text-foreground">{copy.sections.paymentMethod}</h2>
+                </div>
+
                 <p className="rounded-2xl border border-primary/15 bg-[#FFF8F1] px-4 py-3 text-sm font-semibold leading-6 text-primary">
                   {copy.paymentMethodNote}
                 </p>
@@ -1318,7 +1327,7 @@ export function LocaleReservationCompletePage({ locale }: { locale: Locale }) {
         <ReservationBreadcrumb locale={locale} items={[{ label: copy.complete }]} />
 
         <ReservationHero
-          eyebrow="MAPLEHOUSE MVP RESERVATION MOCK"
+          eyebrow="MAPLEHOUSE RESERVATION"
           title={copy.completeTitle}
           subtitle={copy.completeSubtitle}
           note={copy.heroNote}
@@ -1345,7 +1354,7 @@ export function LocaleReservationCompletePage({ locale }: { locale: Locale }) {
               [copy.completeRows.requestAmount, state.requestAmount],
               [copy.completeRows.paymentMethod, getPaymentMethodLabel(copy, state.paymentMethod)],
               ...(state.selectedIssuer
-                ? ([[uiCopy.selectedIssuerLabel, state.selectedIssuer]] as Array<[string, string]>)
+                ? ([[uiCopy.selectedIssuerLabel, state.selectedIssuer]] as Array<[ReactNode, ReactNode]>)
                 : []),
               [copy.completeRows.requestNumber, state.requestNumber],
               [uiCopy.submittedAtLabel, formatMockSubmittedAt(state.submittedAt, locale)],
@@ -1515,7 +1524,7 @@ function CheckoutProductSummary({
   amounts: ReturnType<typeof buildPaymentAmounts>;
 }) {
   return (
-    <section className="rounded-3xl border border-border bg-white p-4 shadow-sm sm:p-5">
+    <div>
       <div className="grid gap-4 sm:grid-cols-[96px_minmax(0,1fr)] sm:items-center">
         <ListingImageFrame
           src={listing.imagePath}
@@ -1523,12 +1532,9 @@ function CheckoutProductSummary({
           className="aspect-square w-full max-w-28 rounded-2xl border border-border bg-muted sm:max-w-none"
         />
         <div className="min-w-0">
-          <p className="text-sm font-bold text-foreground">
-            {copy.productSummaryTitle}
-          </p>
-          <h2 className="mt-1 text-lg font-bold leading-snug text-foreground">
+          <h3 className="text-lg font-bold leading-snug text-foreground">
             {listing.title[locale]}
-          </h2>
+          </h3>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
             <span className="font-semibold text-muted-foreground">
               {copy.metadata.room}{" "}
@@ -1545,7 +1551,7 @@ function CheckoutProductSummary({
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -1576,7 +1582,6 @@ function CardIssuerGrid({
         {uiCopy.directIssuers.map((issuer) => {
           const selected = selectedIssuer === issuer.name;
           const logo = getPaymentLogoForOption(issuer, logoManifest, "compact");
-          const logoImageClass = getIssuerLogoImageClass(issuer.logoId);
 
           return (
             <button
@@ -1585,26 +1590,19 @@ function CardIssuerGrid({
               aria-label={issuer.name}
               onClick={() => onSelect(issuer.name)}
               className={cn(
-                "group flex min-w-0 flex-col items-center gap-1.5 text-center transition hover:-translate-y-0.5",
-                selected ? "text-primary" : "text-foreground",
+                "payment-logo-option group flex min-w-0 flex-col items-center gap-1.5 bg-transparent p-0 text-center",
+                selected ? "is-selected text-primary" : "text-foreground",
               )}
             >
+              <PaymentLogoMark
+                logo={logo}
+                fallback={issuer.mark}
+                className="payment-logo-image"
+              />
               <span
                 className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-xl border border-transparent bg-white transition group-hover:border-primary/30 group-hover:bg-[#FFF8F1]",
-                  selected ? "border-primary/45 text-primary" : "",
-                )}
-              >
-                <PaymentLogoMark
-                  logo={logo}
-                  fallback={issuer.mark}
-                  className={cn("object-contain text-center", logoImageClass)}
-                />
-              </span>
-              <span
-                className={cn(
-                  "min-h-8 w-full text-[11px] font-bold leading-4",
-                  selected ? "text-primary" : "text-muted-foreground group-hover:text-primary",
+                  "payment-logo-label min-h-8 w-full text-[11px] font-bold leading-4",
+                  selected ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 {issuer.name}
@@ -1679,7 +1677,7 @@ function QuickPayMockPanel({
       <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-4">
         {uiCopy.quickProviders.map((provider) => {
           const selected = selectedProvider === provider.name;
-          const logo = getPaymentLogoForOption(provider, logoManifest, "compact");
+          const logo = getPaymentLogoForOption(provider, logoManifest, "signature");
 
           return (
             <button
@@ -1688,33 +1686,23 @@ function QuickPayMockPanel({
               aria-label={provider.name}
               onClick={() => onSelect(provider.name)}
               className={cn(
-                "group flex min-w-0 flex-col items-center justify-center gap-1.5 text-center transition hover:-translate-y-0.5",
-                selected ? "text-primary" : "text-foreground",
+                "easy-payment-option group flex min-w-0 flex-col items-center justify-center gap-1.5 bg-transparent p-0 text-center",
+                provider.logoId ? `provider-${provider.logoId}` : "",
+                selected ? "is-selected text-primary" : "text-foreground",
               )}
             >
-              {logo ? (
+              <span className="easy-payment-visual">
                 <PaymentLogoMark
                   logo={logo}
                   fallback={provider.mark}
-                  className={cn(
-                    "h-9 w-24 rounded-lg object-contain transition group-hover:shadow-[0_0_0_2px_rgba(232,119,34,0.22)]",
-                    selected ? "shadow-[0_0_0_2px_rgba(232,119,34,0.38)]" : "",
-                  )}
+                  className="easy-payment-image"
+                  fit="cover"
                 />
-              ) : (
-                <span
-                  className={cn(
-                    "inline-flex h-9 w-24 items-center justify-center rounded-lg text-xs font-bold leading-4 transition group-hover:shadow-[0_0_0_2px_rgba(232,119,34,0.22)]",
-                    selected ? "shadow-[0_0_0_2px_rgba(232,119,34,0.38)]" : "",
-                  )}
-                >
-                  {provider.name}
-                </span>
-              )}
+              </span>
               <span
                 className={cn(
-                  "text-[11px] font-bold leading-4",
-                  selected ? "text-primary" : "text-muted-foreground group-hover:text-primary",
+                  "easy-payment-label text-[11px] font-bold leading-4",
+                  selected ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 {provider.name}
@@ -1748,9 +1736,9 @@ function TransferMockPanel({
       </div>
       <ReservationRows
         rows={[
-          [uiCopy.transferBankLabel, "MapleHouse mock bank"],
-          [copy.transferAccountLabel, "000-000-000000 · MVP MOCK"],
-          [copy.transferHolderLabel, "MapleHouse MVP"],
+          [uiCopy.transferBankLabel, "MapleHouse payment desk"],
+          [copy.transferAccountLabel, "000-000-000000"],
+          [copy.transferHolderLabel, "MapleHouse"],
         ]}
       />
       <label className="block">
@@ -1799,7 +1787,7 @@ function PaymentWindowMock({
       <section className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-border bg-white shadow-2xl">
         <div className="border-b border-border px-5 py-4">
           <p className="text-xs font-extrabold tracking-[0.16em] text-primary">
-            MAPLEHOUSE MVP
+            MAPLEHOUSE CHECKOUT
           </p>
           <h2 className="mt-1 text-xl font-bold text-foreground">{uiCopy.paymentWindowTitle}</h2>
           <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
@@ -1840,8 +1828,20 @@ function PaymentWindowMock({
                 </span>,
               ],
               [copy.paymentRows.rent, amounts.monthlyRent],
-              [copy.paymentRows.initialPayment, amounts.initialPayment],
-              [copy.paymentRows.supportFee, amounts.supportFee],
+              [
+                <ReservationHelpLabel
+                  label={copy.paymentRows.initialPayment}
+                  items={[copy.paymentHelp.initialPayment]}
+                />,
+                amounts.initialPayment,
+              ],
+              [
+                <ReservationHelpLabel
+                  label={copy.paymentRows.supportFee}
+                  items={[copy.paymentHelp.supportFee]}
+                />,
+                amounts.supportFee,
+              ],
               [copy.completeRows.requestAmount, buildRequestAmountLabel(amounts)],
             ]}
           />
@@ -1877,17 +1877,19 @@ function PaymentLogoMark({
   logo,
   fallback,
   className,
+  fit = "contain",
 }: {
   logo: PaymentLogoAsset | null;
   fallback: string;
   className?: string;
+  fit?: "contain" | "cover";
 }) {
   if (logo) {
     return (
       <img
         src={logo.src}
         alt={logo.alt}
-        className={cn("object-contain", className)}
+        className={cn(fit === "cover" ? "object-cover" : "object-contain", className)}
         loading="lazy"
       />
     );
@@ -1919,6 +1921,39 @@ function ReservationRows({ rows }: { rows: Array<[ReactNode, ReactNode]> }) {
         </div>
       ))}
     </div>
+  );
+}
+
+function ReservationHelpLabel({ label, items }: { label: string; items: string[] }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <span className="group relative inline-flex max-w-full items-center gap-1.5">
+      <span>{label}</span>
+      <button
+        type="button"
+        aria-label={`${label} help`}
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-white text-primary transition hover:border-primary hover:bg-[#FFF8F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+      >
+        <CircleHelp className="h-3.5 w-3.5" aria-hidden />
+      </button>
+      <span
+        role="tooltip"
+        className={cn(
+          "pointer-events-none absolute left-0 top-full z-30 mt-2 w-[min(20rem,calc(100vw-3rem))] rounded-2xl border border-primary/15 bg-white p-3 text-xs font-medium leading-5 text-muted-foreground opacity-0 shadow-lg transition",
+          "group-hover:opacity-100 group-focus-within:opacity-100",
+          open && "pointer-events-auto opacity-100",
+        )}
+      >
+        {items.map((item) => (
+          <span key={item} className="block [&+&]:mt-1.5">
+            {item}
+          </span>
+        ))}
+      </span>
+    </span>
   );
 }
 
@@ -2006,7 +2041,7 @@ function CheckoutSummaryRail({
 }: {
   copy: CheckoutCopy;
   uiCopy: CheckoutUiCopy;
-  rows: Array<[string, ReactNode]>;
+  rows: Array<[ReactNode, ReactNode]>;
   onSubmit: () => void;
   onPreview: () => void;
   validationMessage: string;
@@ -2019,8 +2054,8 @@ function CheckoutSummaryRail({
         {copy.railTitle}
       </h2>
       <div className="divide-y divide-border/70">
-        {rows.map(([label, value]) => (
-          <div key={label} className="py-3 text-sm">
+        {rows.map(([label, value], index) => (
+          <div key={index} className="py-3 text-sm">
             <p className="font-semibold text-foreground">{label}</p>
             <p className="mt-1 min-w-0 leading-6 text-muted-foreground">{value}</p>
           </div>
@@ -2164,18 +2199,6 @@ function getPaymentLogoForIssuerName(
   return option ? getPaymentLogoForOption(option, manifest, purpose) : null;
 }
 
-function getIssuerLogoImageClass(logoId?: string) {
-  if (logoId === "samsung-card" || logoId === "hyundai-card") {
-    return "max-h-6 max-w-10";
-  }
-
-  if (logoId === "lotte-card" || logoId === "bc-card") {
-    return "max-h-7 max-w-10";
-  }
-
-  return "max-h-8 max-w-8";
-}
-
 function getPaymentLogoForOption(
   option: IssuerOption,
   manifest: PaymentLogoManifestEntry[],
@@ -2283,7 +2306,7 @@ function saveCheckoutRequest(state: CompletionState) {
       JSON.stringify(state),
     );
   } catch {
-    // Mock-only duplicate protection; failure should not crash the MVP page.
+    // Frontend-only duplicate protection; failure should not crash the page.
   }
 }
 
@@ -2357,7 +2380,7 @@ function saveCompletionState(state: CompletionState) {
   try {
     window.sessionStorage.setItem(RESERVATION_COMPLETION_STORAGE_KEY, JSON.stringify(state));
   } catch {
-    // Session storage is only a frontend MVP handoff; navigation can still continue.
+    // Session storage is only a frontend handoff; navigation can still continue.
   }
 }
 

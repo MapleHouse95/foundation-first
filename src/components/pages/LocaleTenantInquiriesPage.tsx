@@ -184,12 +184,12 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
   ko: {
     home: "홈",
     listTitle: "문의 내역",
-    listSubtitle: "내가 보낸 매물 문의와 진행 상태를 확인하는 MVP mock 화면입니다.",
+    listSubtitle: "내가 보낸 매물 문의와 진행 상태를 확인합니다.",
     detailTitle: "문의 상세",
-    detailSubtitle: "문의 진행 상태와 답변 내용을 확인하는 MVP mock 화면입니다.",
-    mvpNote: "실제 메시지, 예약, 결제, 계약은 아직 연결되어 있지 않습니다.",
+    detailSubtitle: "문의 진행 상태와 답변 내용을 확인합니다.",
+    mvpNote: "문의 답변과 예약 진행에 필요한 정보를 확인해 주세요.",
     emptyTitle: "문의 정보를 찾을 수 없습니다.",
-    emptyBody: "선택한 문의 ID에 해당하는 mock 문의가 없습니다.",
+    emptyBody: "선택한 문의 ID에 해당하는 문의가 없습니다.",
     backToList: "문의 목록으로 돌아가기",
     detailAction: "상세 보기",
     listingAction: "매물 상세 페이지로 이동",
@@ -237,18 +237,18 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
     },
     tabs: {
       progress: "문의 진행",
-      dm: "DM 대화 · MVP 예정",
+      dm: "DM 대화",
     },
     dm: {
       title: "집주인과의 DM",
-      subtitle: "실제 메시지 전송, 채팅, 파일 업로드, 번역 기능은 아직 연결되어 있지 않습니다.",
+      subtitle: "문의 내용을 기준으로 대화와 확인 항목을 정리합니다.",
       landlordLabel: "임대인",
       customerLabel: "나",
-      translationNote: "번역 지원 기능은 추후 연결 예정입니다.",
-      inputPlaceholder: "메시지를 입력하세요 · MVP 예정",
+      translationNote: "번역이 필요한 내용은 조금 더 자세하게 설명해 주세요.",
+      inputPlaceholder: "메시지를 입력하세요",
       attach: "파일 첨부",
-      send: "전송 · MVP 예정",
-      fileNote: "PDF, JPG, PNG 파일 첨부 예정",
+      send: "전송",
+      fileNote: "PDF, JPG, PNG 파일 첨부",
       guidelinesTitle: "채팅 시 주의사항",
       guidelines: [
         "상호간의 예의있는 대화를 해주세요.",
@@ -272,23 +272,23 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
       ],
     },
     reservationNotes: [
-      "실제 예약, 결제, 계약은 아직 연결되어 있지 않습니다.",
-      "현재 단계에서는 답변 내용을 확인하는 MVP mock 상태입니다.",
+      "답변 내용을 확인한 뒤 예약 진행 여부를 결정해 주세요.",
+      "현재 단계에서는 답변 내용과 확인 항목을 정리합니다.",
     ],
-    reservationAction: "예약하기 · MVP 예정",
+    reservationAction: "예약하기",
     reservationReview: {
       title: "예약 검토",
-      subtitle: "문의 답변을 바탕으로 예약 진행 여부를 검토하는 MVP mock 화면입니다.",
-      mvpNote: "실제 예약, 결제, 계약, 송금은 아직 연결되어 있지 않습니다.",
+      subtitle: "문의 답변을 바탕으로 예약 진행 여부를 검토합니다.",
+      mvpNote: "예약 전 결제 금액, 계약 조건, 송금 여부를 다시 확인해 주세요.",
       breadcrumb: "예약 검토",
       backToDetail: "문의 상세로 돌아가기",
       emptyTitle: "예약 검토 정보를 찾을 수 없습니다.",
-      emptyBody: "선택한 문의 ID에 해당하는 mock 예약 검토 정보가 없습니다.",
+      emptyBody: "선택한 문의 ID에 해당하는 예약 검토 정보가 없습니다.",
       readyTitle: "답변 내용을 바탕으로 예약 진행 여부를 검토할 수 있습니다.",
-      readyBody: "아직 실제 예약은 진행되지 않았으며, 입금 전 확인해야 할 항목이 남아 있을 수 있습니다.",
-      notReadyTitle: "아직 예약을 확정할 수 있는 단계가 아닙니다.",
+      readyBody: "입금 전 확인해야 할 항목이 남아 있을 수 있습니다.",
+      notReadyTitle: "예약 전 추가 확인이 필요합니다.",
       notReadyBody: "답변 확인 후 예약 검토를 진행할 수 있습니다.",
-      mockNote: "현재 화면은 실제 예약 신청이 아닌 MVP mock 검토 화면입니다.",
+      mockNote: "예약 신청 전 확인 항목을 검토합니다.",
       sections: {
         responseSummary: "문의 답변 요약",
         assistedSummary: "MapleHouse가 정리한 답변 요약",
@@ -320,18 +320,18 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
       },
       costValues: {
         needsConfirm: "확인 필요",
-        supportFee: "MVP 단계에서 산정 예정",
-        paymentStatus: "실제 결제 연결 전",
+        supportFee: "확인 후 산정",
+        paymentStatus: "결제 전 확인",
       },
-      costNote: "실제 결제는 아직 연결되어 있지 않습니다. 입금 전 총 금액과 환불 조건 확인이 필요합니다.",
+      costNote: "입금 전 총 금액과 환불 조건 확인이 필요합니다.",
       cancellationNotes: [
-        "실제 취소, 환불, 노쇼 보상 정책은 아직 연결되어 있지 않습니다.",
+        "취소, 환불, 노쇼 보상 조건은 반드시 확인해야 합니다.",
         "추후 운영 단계에서는 예약 시점, 입주 예정일, 취소 시점에 따라 환불 가능 금액이 달라질 수 있습니다.",
-        "현재 화면은 정책 구조를 보여주는 MVP mock 상태입니다.",
+        "정책 구조와 확인 항목을 정리했습니다.",
       ],
       finalConfirmItems: [
-        "이 화면은 실제 예약 신청이 아니라 MVP mock 화면임을 이해했습니다.",
-        "실제 결제, 계약, 송금은 아직 연결되어 있지 않음을 이해했습니다.",
+        "예약 신청 전 확인 항목을 검토했습니다.",
+        "결제, 계약, 송금 조건을 별도로 확인해야 함을 이해했습니다.",
         "입금 전 확인해야 할 항목이 남아 있을 수 있음을 이해했습니다.",
       ],
       summaryLabels: {
@@ -347,18 +347,18 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
         ready: "답변 확인 후 검토 가능",
       },
       confirmCount: "6개",
-      requestAction: "예약 요청 준비 · MVP 예정",
+      requestAction: "예약 요청 준비",
     },
   },
   en: {
     home: "Home",
     listTitle: "Inquiry history",
-    listSubtitle: "An MVP mock page for checking inquiries you sent and their progress.",
+    listSubtitle: "Review inquiries you sent and their progress.",
     detailTitle: "Inquiry detail",
-    detailSubtitle: "An MVP mock page for reviewing inquiry progress and reply details.",
-    mvpNote: "Real messages, reservations, payments, and contracts are not connected yet.",
+    detailSubtitle: "Review inquiry progress and reply details.",
+    mvpNote: "Review the reply and information needed before reservation.",
     emptyTitle: "Inquiry information was not found.",
-    emptyBody: "There is no mock inquiry for the selected inquiry ID.",
+    emptyBody: "There is no inquiry for the selected inquiry ID.",
     backToList: "Back to inquiry list",
     detailAction: "View detail",
     listingAction: "Go to listing details",
@@ -406,17 +406,17 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
     },
     tabs: {
       progress: "Inquiry progress",
-      dm: "DM chat · MVP coming",
+      dm: "DM chat",
     },
     dm: {
       title: "DM with landlord",
-      subtitle: "Real messaging, chat, file upload, and translation are not connected yet.",
+      subtitle: "Review the conversation and confirmation items for this inquiry.",
       landlordLabel: "Landlord",
       customerLabel: "Me",
       translationNote: "Translation support will be connected later.",
-      inputPlaceholder: "Type a message · MVP coming",
+      inputPlaceholder: "Type a message",
       attach: "Attach file",
-      send: "Send · MVP coming",
+      send: "Send",
       fileNote: "PDF, JPG, PNG attachments coming",
       guidelinesTitle: "Chat guidelines",
       guidelines: [
@@ -441,23 +441,23 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
       ],
     },
     reservationNotes: [
-      "Real reservations, payments, and contracts are not connected yet.",
-      "This MVP mock currently only shows the inquiry reply and confirmation flow.",
+      "Review the reply before deciding whether to reserve.",
+      "Review the inquiry reply and confirmation items.",
     ],
-    reservationAction: "Reserve · MVP coming",
+    reservationAction: "Reserve",
     reservationReview: {
       title: "Reservation review",
       subtitle: "Review whether to proceed with a reservation based on the inquiry response.",
-      mvpNote: "Real reservation, payment, contract, and money transfer are not connected yet.",
+      mvpNote: "Confirm payment, contract, and transfer terms before reservation.",
       breadcrumb: "Reservation review",
       backToDetail: "Back to inquiry detail",
       emptyTitle: "Reservation review information was not found.",
-      emptyBody: "There is no mock reservation review information for the selected inquiry ID.",
+      emptyBody: "There is no reservation review information for the selected inquiry ID.",
       readyTitle: "You can review whether to proceed based on the response details.",
       readyBody: "No real reservation has been made yet, and some items may still need confirmation before payment.",
       notReadyTitle: "This inquiry is not ready for reservation confirmation yet.",
       notReadyBody: "You can continue the reservation review after the reply has been checked.",
-      mockNote: "This is an MVP mock review screen, not a real reservation request.",
+      mockNote: "Review confirmation items before requesting a reservation.",
       sections: {
         responseSummary: "Inquiry response summary",
         assistedSummary: "Response summary prepared by MapleHouse",
@@ -489,18 +489,18 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
       },
       costValues: {
         needsConfirm: "Needs confirmation",
-        supportFee: "To be estimated in the MVP stage",
-        paymentStatus: "Real payment is not connected yet",
+        supportFee: "To be confirmed",
+        paymentStatus: "Pending review",
       },
-      costNote: "Real payment is not connected yet. Confirm the total amount and refund terms before any money transfer.",
+      costNote: "Pending review. Confirm the total amount and refund terms before any money transfer.",
       cancellationNotes: [
-        "Real cancellation, refund, and no-show compensation policies are not connected yet.",
+        "Cancellation, refund, and no-show compensation terms must be checked.",
         "In a later operating stage, refundable amounts may vary by reservation time, planned move-in date, and cancellation time.",
-        "This screen is an MVP mock showing the policy structure only.",
+        "Review the policy structure and confirmation items.",
       ],
       finalConfirmItems: [
-        "I understand this screen is an MVP mock, not a real reservation request.",
-        "I understand real payment, contract, and money transfer are not connected yet.",
+        "I reviewed the confirmation items before requesting a reservation.",
+        "I understand payment, contract, and transfer terms must be confirmed separately.",
         "I understand there may still be items to confirm before payment.",
       ],
       summaryLabels: {
@@ -516,18 +516,18 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
         ready: "Review possible after reply check",
       },
       confirmCount: "6 items",
-      requestAction: "Prepare reservation request · MVP coming",
+      requestAction: "Prepare reservation request",
     },
   },
   fr: {
     home: "Accueil",
     listTitle: "Historique des demandes",
-    listSubtitle: "Page mock MVP pour vérifier vos demandes envoyées et leur progression.",
+    listSubtitle: "Consultez vos demandes envoyées et leur progression.",
     detailTitle: "Détail de la demande",
-    detailSubtitle: "Page mock MVP pour suivre la progression et le contenu de la réponse.",
+    detailSubtitle: "Consultez la progression et le contenu de la réponse.",
     mvpNote: "Les messages, réservations, paiements et contrats réels ne sont pas encore connectés.",
     emptyTitle: "Information de demande introuvable.",
-    emptyBody: "Aucune demande mock ne correspond à cet ID.",
+    emptyBody: "Aucune demande ne correspond à cet ID.",
     backToList: "Retour à la liste des demandes",
     detailAction: "Voir le détail",
     listingAction: "Voir le logement",
@@ -575,7 +575,7 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
     },
     tabs: {
       progress: "Progression",
-      dm: "DM · MVP à venir",
+      dm: "DM",
     },
     dm: {
       title: "DM avec le propriétaire",
@@ -583,9 +583,9 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
       landlordLabel: "Propriétaire",
       customerLabel: "Moi",
       translationNote: "La traduction sera ajoutée plus tard.",
-      inputPlaceholder: "Écrire un message · MVP à venir",
+      inputPlaceholder: "Écrire un message",
       attach: "Joindre un fichier",
-      send: "Envoyer · MVP à venir",
+      send: "Envoyer",
       fileNote: "Pièces jointes PDF, JPG, PNG à venir",
       guidelinesTitle: "Conseils pour le chat",
       guidelines: [
@@ -611,9 +611,9 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
     },
     reservationNotes: [
       "Les réservations, paiements et contrats réels ne sont pas encore connectés.",
-      "Cet écran mock MVP sert uniquement à vérifier la réponse et les points à confirmer.",
+      "Vérifiez la réponse et les points à confirmer.",
     ],
-    reservationAction: "Réserver · MVP à venir",
+    reservationAction: "Réserver",
     reservationReview: {
       title: "Examen de réservation",
       subtitle: "Vérifiez si vous souhaitez poursuivre une réservation à partir de la réponse reçue.",
@@ -621,12 +621,12 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
       breadcrumb: "Examen de réservation",
       backToDetail: "Retour au détail de la demande",
       emptyTitle: "Information d’examen de réservation introuvable.",
-      emptyBody: "Aucune information mock d’examen de réservation ne correspond à cet ID.",
+      emptyBody: "Aucune information d’examen de réservation ne correspond à cet ID.",
       readyTitle: "Vous pouvez examiner la suite possible à partir de la réponse.",
       readyBody: "Aucune réservation réelle n’a encore été effectuée, et certains points peuvent rester à confirmer avant tout paiement.",
       notReadyTitle: "Cette demande n’est pas encore prête pour confirmer une réservation.",
       notReadyBody: "Vous pourrez poursuivre l’examen après vérification de la réponse.",
-      mockNote: "Cet écran est un mock MVP d’examen, pas une vraie demande de réservation.",
+      mockNote: "Vérifiez les points de confirmation avant de demander une réservation.",
       sections: {
         responseSummary: "Résumé de la réponse",
         assistedSummary: "Résumé préparé par MapleHouse",
@@ -658,17 +658,17 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
       },
       costValues: {
         needsConfirm: "À confirmer",
-        supportFee: "À estimer au stade MVP",
+        supportFee: "À confirmer",
         paymentStatus: "Le paiement réel n’est pas connecté",
       },
       costNote: "Le paiement réel n’est pas encore connecté. Vérifiez le montant total et les conditions de remboursement avant tout transfert.",
       cancellationNotes: [
         "Les politiques réelles d’annulation, de remboursement et de no-show ne sont pas encore connectées.",
         "En phase d’exploitation, le montant remboursable peut varier selon le moment de réservation, la date d’entrée prévue et le moment d’annulation.",
-        "Cet écran est un mock MVP qui montre uniquement la structure de la politique.",
+        "Vérifiez la structure de la politique et les points à confirmer.",
       ],
       finalConfirmItems: [
-        "Je comprends que cet écran est un mock MVP, pas une vraie demande de réservation.",
+        "J’ai vérifié les points de confirmation avant de demander une réservation.",
         "Je comprends que le paiement, le contrat et le transfert d’argent réels ne sont pas encore connectés.",
         "Je comprends qu’il peut rester des points à confirmer avant tout paiement.",
       ],
@@ -685,7 +685,7 @@ const TENANT_INQUIRY_COPY: Record<Locale, TenantInquiryCopy> = {
         ready: "Examen possible après vérification",
       },
       confirmCount: "6 points",
-      requestAction: "Préparer la demande · MVP à venir",
+      requestAction: "Préparer la demande",
     },
   },
 };
@@ -765,8 +765,8 @@ type TenantReservationNewCopy = {
 const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
   ko: {
     title: "예약하기",
-    subtitle: "선택한 매물의 예약 조건과 결제 전 확인 항목을 정리하는 MVP mock 화면입니다.",
-    mvpNote: "실제 결제와 예약 확정은 아직 진행되지 않습니다.",
+    subtitle: "선택한 매물의 예약 조건과 결제 전 확인 항목을 정리했습니다.",
+    mvpNote: "결제 전 금액과 예약 조건을 다시 확인해 주세요.",
     breadcrumb: "예약하기",
     linkedInquiryNote:
       "이전 문의 내역이 연결된 예약입니다. 문의 내용은 나의 문의내역에서 다시 확인할 수 있습니다.",
@@ -775,8 +775,8 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
     listingsAction: "매물 목록 보기",
     detailAction: "매물 상세 페이지로 돌아가기",
     inquiryListAction: "나의 문의내역 보기",
-    checkoutAction: "결제창으로 이동 · MVP 예정",
-    railCheckoutAction: "결제창으로 이동 · MVP 예정",
+    checkoutAction: "결제창으로 이동",
+    railCheckoutAction: "결제창으로 이동",
     sections: {
       listingProfile: "선택한 매물",
       reservationInfo: "예약 정보",
@@ -823,10 +823,10 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
       guests: "1명",
       name: "MEHA KIM",
       email: "name@example.com",
-      tax: "실제 운영 단계에서 산정 예정",
-      total: "실제 결제 연결 전",
+      tax: "확인 후 산정",
+      total: "결제 전 확인",
     },
-    paymentNote: "실제 결제 전 총 금액, 보증금, 환불 조건을 다시 확인해야 합니다.",
+    paymentNote: "결제 전 총 금액, 보증금, 환불 조건을 다시 확인해야 합니다.",
     paymentHelp: {
       initialPayment: [
         "첫 달 월세 + 보증금(마지막 달 월세로 사용됨) 기준으로 계산된 금액입니다.",
@@ -838,23 +838,23 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
         "실제 운영 단계에서는 서비스 범위에 따라 금액이 달라질 수 있습니다.",
       ],
     },
-    summaryNote: "실제 결제와 예약 확정은 아직 진행되지 않았습니다.",
+    summaryNote: "결제 전 금액과 예약 조건을 다시 확인해 주세요.",
     cancellationNotes: [
       "취소 가능 여부와 환불 조건은 실제 운영 단계에서 임대인 조건과 결제 방식에 따라 다시 안내됩니다.",
       "예약 전 보증금, 첫 달 월세, 서비스 이용료, 세금, 환불 가능 기간을 반드시 확인해야 합니다.",
-      "MapleHouse MVP 화면은 실제 계약, 송금, 예약 확정을 처리하지 않습니다.",
+      "계약, 송금, 예약 확정 조건은 별도로 확인해야 합니다.",
     ],
     finalConfirmItems: [
       "매물 정보, 입주예정일, 체류 기간이 맞는지 확인했습니다.",
-      "초기 입금액, 보증금, 서비스 이용료, 세금 산정 방식은 실제 결제 전 다시 확인해야 합니다.",
-      "이 화면은 MVP mock이며 실제 결제창과 예약 확정은 아직 연결되어 있지 않습니다.",
+      "초기 입금액, 보증금, 서비스 이용료, 세금 산정 방식은 결제 전 다시 확인해야 합니다.",
+      "결제 요청 전 금액과 예약 조건을 다시 확인했습니다.",
     ],
   },
   en: {
     title: "Reserve",
     subtitle:
-      "An MVP mock page for reviewing reservation details and pre-payment checks for the selected listing.",
-    mvpNote: "Real payment and reservation confirmation are not connected yet.",
+      "Review reservation details and pre-payment checks for the selected listing.",
+    mvpNote: "Review the amount and reservation conditions before payment.",
     breadcrumb: "Reserve",
     linkedInquiryNote:
       "This reservation is linked to a previous inquiry. You can review the inquiry details again in your inquiry history.",
@@ -863,8 +863,8 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
     listingsAction: "View listings",
     detailAction: "Back to listing details",
     inquiryListAction: "View my inquiries",
-    checkoutAction: "Go to checkout · MVP coming",
-    railCheckoutAction: "Proceed to checkout · MVP soon",
+    checkoutAction: "Go to checkout",
+    railCheckoutAction: "Proceed to checkout",
     sections: {
       listingProfile: "Selected listing",
       reservationInfo: "Reservation information",
@@ -931,18 +931,18 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
     cancellationNotes: [
       "Cancellation and refund conditions will be confirmed in the real operation stage based on landlord terms and payment method.",
       "Before reserving, confirm the deposit, first month rent, service fee, tax, and refundable period.",
-      "This MapleHouse MVP screen does not process a real contract, money transfer, or reservation confirmation.",
+      "Contract, money transfer, and reservation confirmation terms must be checked separately.",
     ],
     finalConfirmItems: [
       "I checked that the listing, move-in date, and stay period are correct.",
       "The initial payment, deposit, service fee, and tax calculation must be reviewed again before real checkout.",
-      "This is an MVP mock screen. Real checkout and reservation confirmation are not connected yet.",
+      "I reviewed the amount and reservation conditions before checkout.",
     ],
   },
   fr: {
     title: "Réserver",
     subtitle:
-      "Page mock MVP pour vérifier les détails de réservation et les points à confirmer avant paiement.",
+      "Vérifiez les détails de réservation et les points à confirmer avant paiement.",
     mvpNote: "Le paiement réel et la confirmation de réservation ne sont pas encore connectés.",
     breadcrumb: "Réserver",
     linkedInquiryNote:
@@ -952,8 +952,8 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
     listingsAction: "Voir les logements",
     detailAction: "Retour au logement",
     inquiryListAction: "Voir mes demandes",
-    checkoutAction: "Aller au paiement · MVP à venir",
-    railCheckoutAction: "Aller au paiement · MVP bientôt",
+    checkoutAction: "Aller au paiement",
+    railCheckoutAction: "Aller au paiement",
     sections: {
       listingProfile: "Logement sélectionné",
       reservationInfo: "Informations de réservation",
@@ -1020,12 +1020,12 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
     cancellationNotes: [
       "Les conditions d’annulation et de remboursement seront confirmées lors de l’exploitation réelle selon les conditions du propriétaire et le mode de paiement.",
       "Avant de réserver, vérifiez le dépôt, le premier mois de loyer, les frais de service, les taxes et la période remboursable.",
-      "Cet écran MapleHouse MVP ne traite pas de contrat réel, de transfert d’argent ni de confirmation de réservation.",
+      "Les conditions de contrat, de transfert d’argent et de confirmation de réservation doivent être vérifiées séparément.",
     ],
     finalConfirmItems: [
       "J’ai vérifié que le logement, la date d’arrivée et la durée du séjour sont corrects.",
       "Le montant initial, le dépôt, les frais de service et les taxes doivent être revérifiés avant tout paiement réel.",
-      "Cet écran est un mock MVP. Le paiement réel et la confirmation de réservation ne sont pas encore connectés.",
+      "J’ai vérifié le montant et les conditions de réservation avant le paiement.",
     ],
   },
 };
@@ -1493,7 +1493,7 @@ export function LocaleTenantInquiryListPage({ locale }: { locale: Locale }) {
         />
 
         <TenantInquiryHero
-          eyebrow="MAPLEHOUSE MVP MY PAGE MOCK"
+          eyebrow="MAPLEHOUSE MY PAGE"
           title={copy.listTitle}
           subtitle={copy.listSubtitle}
           note={copy.mvpNote}
@@ -1550,7 +1550,7 @@ export function LocaleTenantInquiryDetailPage({
         />
 
         <TenantInquiryHero
-          eyebrow="MAPLEHOUSE MVP MY PAGE MOCK"
+          eyebrow="MAPLEHOUSE MY PAGE"
           title={copy.detailTitle}
           subtitle={copy.detailSubtitle}
           note={copy.mvpNote}
@@ -1667,7 +1667,7 @@ export function LocaleReservationNewPage({
             items={[{ label: reservationCopy.breadcrumb }]}
           />
           <TenantInquiryHero
-            eyebrow="MAPLEHOUSE MVP RESERVATION MOCK"
+            eyebrow="MAPLEHOUSE RESERVATION"
             title={reservationCopy.title}
             subtitle={reservationCopy.subtitle}
             note={reservationCopy.mvpNote}
@@ -1715,7 +1715,7 @@ export function LocaleReservationNewPage({
         />
 
         <TenantInquiryHero
-          eyebrow="MAPLEHOUSE MVP RESERVATION MOCK"
+          eyebrow="MAPLEHOUSE RESERVATION"
           title={reservationCopy.title}
           subtitle={reservationCopy.subtitle}
           note={reservationCopy.mvpNote}

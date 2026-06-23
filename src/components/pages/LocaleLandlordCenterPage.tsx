@@ -366,7 +366,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
         recentUpdates: "최근 업데이트",
       },
       notice:
-        "이 화면은 임대인 센터 MVP 미리보기입니다. 실제 로그인, 매물 저장, 문의 수신 기능은 아직 연결되어 있지 않습니다.",
+        "임대인 센터에서 매물과 문의 현황을 한 곳에서 확인합니다.",
       emptyTitle: "아직 임대인 등록이 완료되지 않았습니다.",
       emptyBody: "임대인 기본 정보와 첫 매물을 먼저 등록해 주세요.",
       onboardingButton: "임대인 등록 및 첫 매물 등록 시작하기",
@@ -483,17 +483,17 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
       title: "추가 매물 등록",
       subtitle:
         "임대인 기본 정보는 다시 입력하지 않고, 새 매물 정보만 정리하는 흐름으로 확장할 예정입니다.",
-      cardTitle: "추가 매물 등록 흐름 준비 중",
+      cardTitle: "추가 매물 등록",
       cardBody:
-        "추가 매물 등록은 임대인 기본 정보 등록 후 사용할 수 있는 흐름으로 확장할 예정입니다.",
+        "임대인 기본 정보 등록 후 새 매물 정보를 이어서 정리할 수 있습니다.",
     },
     inquiries: {
       title: "문의 관리",
-      subtitle: "MapleHouse가 정리한 예비 입주자 문의를 한 곳에서 확인하는 mock 화면입니다.",
-      mvpNote: "실제 메시지 발송, 답변, 계약, 결제는 아직 연결되어 있지 않습니다.",
+      subtitle: "MapleHouse가 정리한 예비 입주자 문의를 한 곳에서 확인합니다.",
+      mvpNote: "문의 내용과 답변 준비 상태를 확인해 주세요.",
       emptyTitle: "아직 접수된 입주 문의가 없습니다.",
       emptyBody:
-        "입주 문의가 들어오면 입주 날짜, 예산, 체류 기간, 인원, 확인 질문을 정리해 보여줄 예정입니다.",
+        "입주 문의가 들어오면 입주 날짜, 예산, 체류 기간, 인원, 확인 질문을 정리해 보여줍니다.",
       summary: {
         total: "전체 문의",
         new: "새 문의",
@@ -518,7 +518,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
         detail: "상세",
       },
       action: "상세 보기",
-      detailComingSoon: "상세 mock 예정",
+      detailComingSoon: "상세 보기",
       items: [
         {
           id: "INQ-2026-001",
@@ -613,7 +613,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
         recentUpdates: "Recent updates",
       },
       notice:
-        "This is a landlord center MVP preview. Real login, listing storage, and inquiry receiving are not connected yet.",
+        "Review landlord listings and inquiry status in one place.",
       emptyTitle: "Landlord registration is not complete yet.",
       emptyBody: "Start by adding your landlord profile and first listing.",
       onboardingButton: "Start landlord registration and first listing",
@@ -729,14 +729,14 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
     newListing: {
       title: "Add a new listing",
       subtitle: "Your landlord profile will be reused. Only the new listing information will be organized.",
-      cardTitle: "Additional listing flow coming soon",
+      cardTitle: "Additional listing flow",
       cardBody:
         "Additional listing registration will be available after landlord profile setup.",
     },
     inquiries: {
       title: "Inquiry management",
-      subtitle: "A mock page for reviewing prospective tenant inquiries organized by MapleHouse.",
-      mvpNote: "Real messaging, replies, contracts, and payments are not connected yet.",
+      subtitle: "Review prospective tenant inquiries organized by MapleHouse.",
+      mvpNote: "Review inquiry details and reply status.",
       emptyTitle: "No tenant inquiries yet.",
       emptyBody:
         "When tenant inquiries arrive, this page can organize move-in date, budget, length of stay, occupants, and confirmation questions.",
@@ -764,7 +764,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
         detail: "Detail",
       },
       action: "View details",
-      detailComingSoon: "Detail mock coming",
+      detailComingSoon: "View detail",
       items: [
         {
           id: "INQ-2026-001",
@@ -859,7 +859,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
         recentUpdates: "Mises à jour récentes",
       },
       notice:
-        "Il s’agit d’un aperçu MVP de l’espace propriétaire. La connexion réelle, l’enregistrement des annonces et la réception des demandes ne sont pas encore connectés.",
+        "Consultez les annonces et les demandes propriétaire au même endroit.",
       emptyTitle: "L’inscription propriétaire n’est pas encore terminée.",
       emptyBody: "Commencez par ajouter votre profil propriétaire et votre première annonce.",
       onboardingButton: "Commencer l’inscription propriétaire et la première annonce",
@@ -982,7 +982,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
     },
     inquiries: {
       title: "Gestion des demandes",
-      subtitle: "Écran mock pour consulter au même endroit les demandes de locataires préparées par MapleHouse.",
+      subtitle: "Consultez au même endroit les demandes de locataires préparées par MapleHouse.",
       mvpNote: "L’envoi réel des messages, les réponses, les contrats et les paiements ne sont pas encore connectés.",
       emptyTitle: "Aucune demande de locataire pour le moment.",
       emptyBody:
@@ -1011,7 +1011,7 @@ const CENTER_COPY: Record<Locale, CenterCopy> = {
         detail: "Détail",
       },
       action: "Voir le détail",
-      detailComingSoon: "Détail mock à venir",
+      detailComingSoon: "Voir le détail",
       items: [
         {
           id: "INQ-2026-001",
@@ -1149,10 +1149,10 @@ const INQUIRY_DETAIL_COPY: Record<
     breadcrumb: { detail: "문의 상세" },
     backToList: "문의 목록으로 돌아가기",
     title: "문의 상세",
-    subtitle: "예비 입주자 문의 내용을 확인하는 mock 화면입니다.",
-    mvpNote: "실제 메시지 발송, 답변, 계약, 결제는 아직 연결되어 있지 않습니다.",
+    subtitle: "예비 입주자 문의 내용을 확인합니다.",
+    mvpNote: "문의 내용과 답변 준비 상태를 확인해 주세요.",
     emptyTitle: "문의 정보를 찾을 수 없습니다.",
-    emptyBody: "선택한 문의 ID에 해당하는 mock 문의가 없습니다.",
+    emptyBody: "선택한 문의 ID에 해당하는 문의가 없습니다.",
     keyInfo: {
       id: "문의 ID",
       status: "현재 상태",
@@ -1189,20 +1189,20 @@ const INQUIRY_DETAIL_COPY: Record<
     reviewDescription:
       "아래 항목은 고객 문의를 바탕으로 MapleHouse가 임대인에게 확인할 내용입니다.",
     responseDescription:
-      "아래 입력 영역은 실제 저장 없이 답변 항목을 보여주는 MVP mock 영역입니다.",
+      "아래 입력 영역에서 답변 항목을 정리합니다.",
     responseFields: {
       availableFrom: "입주 가능일 답변",
       includedItems: "포함 항목 답변",
       initialPayment: "초기 입금액 / 보증금 답변",
       extraNote: "기타 전달사항",
     },
-    mockSave: "답변 저장 · MVP 예정",
+    mockSave: "답변 저장",
     mockSaveNote:
       "실제 운영 단계에서는 이 답변이 문의 흐름에 맞게 예비 입주자에게 전달됩니다.",
     actions: {
       list: "문의 목록으로 돌아가기",
       listings: "해당 매물 관리로 이동",
-      save: "답변 저장 · MVP 예정",
+      save: "답변 저장",
     },
     progress: {
       new: "새 문의",
@@ -1427,10 +1427,10 @@ const INQUIRY_DETAIL_COPY: Record<
     breadcrumb: { detail: "Inquiry detail" },
     backToList: "Back to inquiry list",
     title: "Inquiry detail",
-    subtitle: "A mock page for reviewing a prospective tenant inquiry.",
-    mvpNote: "Real messaging, replies, contracts, and payments are not connected yet.",
+    subtitle: "Review a prospective tenant inquiry.",
+    mvpNote: "Review inquiry details and reply status.",
     emptyTitle: "Inquiry information was not found.",
-    emptyBody: "There is no mock inquiry for the selected inquiry ID.",
+    emptyBody: "There is no inquiry for the selected inquiry ID.",
     keyInfo: {
       id: "Inquiry ID",
       status: "Current status",
@@ -1467,20 +1467,20 @@ const INQUIRY_DETAIL_COPY: Record<
     reviewDescription:
       "These are the items MapleHouse would organize and ask the landlord based on the tenant inquiry.",
     responseDescription:
-      "This is a mock response area only. Nothing is saved or sent.",
+      "Use this area to organize reply items.",
     responseFields: {
       availableFrom: "Available-from response",
       includedItems: "Included-items response",
       initialPayment: "Initial payment / deposit response",
       extraNote: "Other note",
     },
-    mockSave: "Save response · MVP coming",
+    mockSave: "Save response",
     mockSaveNote:
       "In the real operation stage, this reply would be delivered to the prospective tenant according to the inquiry flow.",
     actions: {
       list: "Back to inquiry list",
       listings: "Go to listing management",
-      save: "Save response · MVP coming",
+      save: "Save response",
     },
     progress: {
       new: "New inquiry",
@@ -1704,10 +1704,10 @@ const INQUIRY_DETAIL_COPY: Record<
     breadcrumb: { detail: "Détail de la demande" },
     backToList: "Retour à la liste des demandes",
     title: "Détail de la demande",
-    subtitle: "Écran mock pour consulter une demande de locataire potentielle.",
+    subtitle: "Consultez une demande de locataire potentielle.",
     mvpNote: "L’envoi réel des messages, les réponses, les contrats et les paiements ne sont pas encore connectés.",
     emptyTitle: "Impossible de trouver cette demande.",
-    emptyBody: "Aucune demande mock ne correspond à cet identifiant.",
+    emptyBody: "Aucune demande ne correspond à cet identifiant.",
     keyInfo: {
       id: "ID de demande",
       status: "Statut actuel",
@@ -1744,20 +1744,20 @@ const INQUIRY_DETAIL_COPY: Record<
     reviewDescription:
       "Ces éléments seraient organisés par MapleHouse avant de poser les questions au propriétaire.",
     responseDescription:
-      "Cette zone de réponse est un mock MVP. Rien n’est enregistré ni envoyé.",
+      "Utilisez cette zone pour organiser les réponses.",
     responseFields: {
       availableFrom: "Réponse sur la disponibilité",
       includedItems: "Réponse sur les éléments inclus",
       initialPayment: "Réponse sur le paiement initial / dépôt",
       extraNote: "Autre note",
     },
-    mockSave: "Enregistrer la réponse · MVP à venir",
+    mockSave: "Enregistrer la réponse",
     mockSaveNote:
       "En phase réelle, cette réponse serait transmise au locataire potentiel selon le flux de demande.",
     actions: {
       list: "Retour à la liste des demandes",
       listings: "Voir dans la gestion du logement",
-      save: "Enregistrer la réponse · MVP à venir",
+      save: "Enregistrer la réponse",
     },
     progress: {
       new: "Nouvelle demande",
@@ -2414,13 +2414,13 @@ function DashboardPanel({
           </article>
 
           <aside className="rounded-3xl border border-primary/20 bg-[#FFFDF9] p-6 text-sm leading-6 text-muted-foreground shadow-sm">
-            <p className="font-bold text-primary">{copy.breadcrumb.center} MVP</p>
+            <p className="font-bold text-primary">{copy.breadcrumb.center}</p>
             <p className="mt-2">{copy.dashboard.notice}</p>
           </aside>
         </div>
       ) : (
         <aside className="rounded-3xl border border-primary/20 bg-[#FFFDF9] p-6 text-sm leading-6 text-muted-foreground shadow-sm">
-          <p className="font-bold text-primary">{copy.breadcrumb.center} MVP</p>
+          <p className="font-bold text-primary">{copy.breadcrumb.center}</p>
           <p className="mt-2">{copy.dashboard.notice}</p>
         </aside>
       )}
@@ -3194,8 +3194,8 @@ function getInquiryDetailStructureCopy(locale: Locale, method: LandlordInquiryMe
       directQuestionLabel: "질문 목록",
       responseTitle: "임대인 답변 내용",
       responseDescription:
-        "문의 질문별로 임대인 답변을 확인하는 MVP mock 영역입니다.",
-      responsePlaceholder: "임대인이 답변을 입력하는 mock 영역",
+        "문의 질문별로 임대인 답변을 확인합니다.",
+      responsePlaceholder: "임대인이 답변을 입력하는 영역",
       assistedNote:
         "실제 운영 단계에서는 이 답변이 MapleHouse 검토 후 예비 입주자에게 전달됩니다.",
       directNote:
@@ -3208,8 +3208,8 @@ function getInquiryDetailStructureCopy(locale: Locale, method: LandlordInquiryMe
       directQuestionLabel: "Question list",
       responseTitle: "Landlord response",
       responseDescription:
-        "This MVP mock area shows landlord replies by inquiry question.",
-      responsePlaceholder: "Mock area for the landlord reply",
+        "Review landlord replies by inquiry question.",
+      responsePlaceholder: "Area for the landlord reply",
       assistedNote:
         "In the real operation stage, MapleHouse would review this reply and deliver it to the prospective tenant.",
       directNote:
@@ -3222,8 +3222,8 @@ function getInquiryDetailStructureCopy(locale: Locale, method: LandlordInquiryMe
       directQuestionLabel: "Liste de questions",
       responseTitle: "Réponse du propriétaire",
       responseDescription:
-        "Cette zone mock MVP affiche les réponses du propriétaire par question.",
-      responsePlaceholder: "Zone mock pour la réponse du propriétaire",
+        "Consultez les réponses du propriétaire par question.",
+      responsePlaceholder: "Zone pour la réponse du propriétaire",
       assistedNote:
         "En phase réelle, MapleHouse vérifierait cette réponse puis la transmettrait au locataire potentiel.",
       directNote:
@@ -3242,10 +3242,10 @@ function getInquiryDetailStructureCopy(locale: Locale, method: LandlordInquiryMe
             : "Contenu de la demande directe",
       itemsDescription:
         locale === "ko"
-          ? "고객이 임대인에게 직접 전달하려는 문의 내용을 확인하는 mock 영역입니다."
+          ? "고객이 임대인에게 직접 전달하려는 문의 내용을 확인합니다."
           : locale === "en"
-            ? "A mock area for the inquiry content the customer wants to send directly to the landlord."
-            : "Zone mock pour le contenu que le client souhaite envoyer directement au propriétaire.",
+            ? "Review the inquiry content the customer wants to send directly to the landlord."
+            : "Consultez le contenu que le client souhaite envoyer directement au propriétaire.",
       questionListLabel: shared.directQuestionLabel,
       responseNote: shared.directNote,
     };
@@ -3261,10 +3261,10 @@ function getInquiryDetailStructureCopy(locale: Locale, method: LandlordInquiryMe
           : "Points de demande assistée par MapleHouse",
     itemsDescription:
       locale === "ko"
-        ? "고객이 입력한 내용을 바탕으로 MapleHouse가 임대인에게 확인할 질문을 정리한 mock 영역입니다."
+        ? "고객이 입력한 내용을 바탕으로 MapleHouse가 임대인에게 확인할 질문을 정리합니다."
         : locale === "en"
-          ? "A mock area where MapleHouse organizes questions to ask the landlord based on the customer's inquiry."
-          : "Zone mock où MapleHouse organise les questions à poser au propriétaire à partir de la demande du client.",
+          ? "MapleHouse organizes questions to ask the landlord based on the customer's inquiry."
+          : "MapleHouse organise les questions à poser au propriétaire à partir de la demande du client.",
     questionListLabel: shared.assistedQuestionLabel,
     responseNote: shared.assistedNote,
   };

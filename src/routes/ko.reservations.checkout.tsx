@@ -11,7 +11,7 @@ export const Route = createFileRoute("/ko/reservations/checkout")({
   head: () => ({
     meta: [
       { title: "결제 정보 확인 | MapleHouse" },
-      { name: "description", content: "MapleHouse MVP checkout mock page." },
+      { name: "description", content: "MapleHouse checkout page." },
     ],
   }),
   component: ReservationCheckoutRoute,

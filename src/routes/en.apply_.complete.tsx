@@ -7,7 +7,7 @@ export const Route = createFileRoute("/en/apply_/complete")({
       { title: "Inquiry received | MapleHouse" },
       {
         name: "description",
-        content: "MapleHouse MVP inquiry completion screen.",
+        content: "MapleHouse inquiry completion screen.",
       },
     ],
   }),

@@ -96,7 +96,7 @@ function LanguageSelect() {
           </div>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            MVP preview · Real payments, contracts, and property registration are not active yet.
+            Preview · Real payments, contracts, and property registration are not active yet.
           </p>
         </div>
       </Container>

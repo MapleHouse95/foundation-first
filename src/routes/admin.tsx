@@ -36,7 +36,7 @@ function AdminPage() {
         ))}
       </div>
       <p className="mt-10 text-xs text-muted-foreground">
-        MVP 미리보기 · 실제 결제/계약/매물 등록은 아직 활성화되지 않았습니다.
+         MapleHouse 관리 화면입니다.
       </p>
     </Section>
   );

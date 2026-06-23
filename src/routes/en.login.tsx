@@ -5,7 +5,7 @@ export const Route = createFileRoute("/en/login")({
   head: () => ({
     meta: [
       { title: "Login · MapleHouse" },
-      { name: "description", content: "MapleHouse login placeholder page." },
+      { name: "description", content: "MapleHouse login  page." },
     ],
   }),
   component: () => <LocaleAuthPlaceholderPage locale="en" mode="login" />,

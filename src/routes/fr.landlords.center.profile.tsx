@@ -7,7 +7,7 @@ export const Route = createFileRoute("/fr/landlords/center/profile")({
       { title: "Profil propriétaire · MapleHouse" },
       {
         name: "description",
-        content: "Aperçu MVP du profil propriétaire MapleHouse.",
+        content: "Aperçu du profil propriétaire MapleHouse.",
       },
     ],
   }),

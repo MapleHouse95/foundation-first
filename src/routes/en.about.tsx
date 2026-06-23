@@ -7,7 +7,7 @@ export const Route = createFileRoute("/en/about")({
       { title: "About MapleHouse · MapleHouse" },
       {
         name: "description",
-        content: "Learn what MapleHouse is and what the MVP preview currently includes.",
+        content: "Learn what MapleHouse is and what the Preview currently includes.",
       },
     ],
   }),

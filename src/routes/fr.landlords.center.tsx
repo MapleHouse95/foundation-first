@@ -7,7 +7,7 @@ export const Route = createFileRoute("/fr/landlords/center")({
       { title: "Espace propriétaire · MapleHouse" },
       {
         name: "description",
-        content: "Aperçu MVP de l’espace propriétaire MapleHouse.",
+        content: "Aperçu de l’espace propriétaire MapleHouse.",
       },
     ],
   }),

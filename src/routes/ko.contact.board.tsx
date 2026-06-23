@@ -7,7 +7,7 @@ export const Route = createFileRoute("/ko/contact/board")({
       { title: "문의 게시판 · MapleHouse" },
       {
         name: "description",
-        content: "MapleHouse 문의 게시판 MVP 목업 페이지입니다.",
+        content: "MapleHouse 문의 게시판 페이지입니다.",
       },
     ],
   }),

@@ -5,7 +5,7 @@ export const Route = createFileRoute("/ko/reservations/complete")({
   head: () => ({
     meta: [
       { title: "예약 요청 접수 | MapleHouse" },
-      { name: "description", content: "MapleHouse MVP reservation request complete page." },
+      { name: "description", content: "MapleHouse reservation request complete page." },
     ],
   }),
   component: ReservationCompleteRoute,

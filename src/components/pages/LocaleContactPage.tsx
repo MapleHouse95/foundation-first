@@ -101,7 +101,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "실제 계약이나 송금도 진행하나요?",
             answer:
-              "현재 MVP 단계에서는 실제 결제, 송금, 전자서명을 진행하지 않습니다. 관련 기능은 추후 별도 안내가 필요합니다.",
+              "결제, 송금, 전자서명은 별도 안내와 확인 절차가 필요합니다.",
           },
         ],
       },
@@ -126,7 +126,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "등록한 매물 정보는 어떻게 관리하나요?",
             answer:
-              "MVP 단계에서는 운영자 확인을 통해 정보가 정리되며, 추후 임대인이 직접 수정하고 관리할 수 있는 기능으로 확장할 수 있습니다.",
+              "운영자 확인을 통해 정보가 정리되며, 임대인이 직접 수정하고 관리할 수 있는 기능으로 확장할 수 있습니다.",
           },
           {
             question: "한국 출국 예정자에게 어떤 식으로 안내되나요?",
@@ -141,7 +141,7 @@ const CONTENT: Record<Locale, ContactContent> = {
         description: "유료 서비스 이용 범위, 진행 방식, 정책 안내",
         detailTitle: "메이플패스 도움말",
         detailDescription:
-          "메이플패스는 향후 유료 지원 서비스의 가칭입니다. 현재 MVP에서는 범위와 정책을 안내하는 수준으로만 다룹니다.",
+          "메이플패스는 유료 지원 서비스의 가칭이며, 범위와 정책은 별도 안내를 기준으로 합니다.",
         faqs: [
           {
             question: "메이플패스는 어떤 서비스인가요?",
@@ -151,7 +151,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "메이플패스 이용 범위는 어디까지인가요?",
             answer:
-              "현재 MVP 단계에서는 실제 유료 기능이 완전히 연결되어 있지 않을 수 있으며, 정식 서비스 범위는 추후 별도로 안내할 예정입니다.",
+              "유료 지원 범위와 제공 조건은 별도 안내를 기준으로 확인할 수 있습니다.",
           },
           {
             question: "환불이나 변경 정책은 어떻게 되나요?",
@@ -161,7 +161,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "이용 중 진행 상태는 어디서 확인하나요?",
             answer:
-              "추후 마이페이지와 진행 현황 확인 기능을 추가할 수 있습니다. 현재 MVP에서는 화면 구조와 안내 흐름을 우선 구성합니다.",
+              "마이페이지와 진행 현황 확인 기능을 통해 안내 흐름을 더 자세히 확인할 수 있습니다.",
           },
         ],
       },
@@ -212,8 +212,8 @@ const CONTENT: Record<Locale, ContactContent> = {
       ],
       noticeTitle: "현재 안내",
       notices: [
-        "현재 MVP 단계에서는 실제 문의 전송 기능이 연결되어 있지 않습니다.",
-        "실제 결제, 송금, 전자서명 기능은 아직 지원하지 않습니다.",
+        "문의 내용은 안내 화면에서 확인할 수 있습니다.",
+        "결제, 송금, 전자서명은 별도 안내와 확인 절차가 필요합니다.",
         "정식 오픈 전까지 세부 운영 정책은 별도로 안내할 예정입니다.",
       ],
     },
@@ -241,7 +241,7 @@ const CONTENT: Record<Locale, ContactContent> = {
     eyebrow: "CONTACT / SUPPORT",
     title: "How can MapleHouse help?",
     heroDescription:
-      "Find answers about listings, provider registration, MaplePass support, and MVP service scope. Start with common questions, then use the contact guidance if you need more help.",
+      "Find answers about listings, provider registration, and MaplePass support. Start with common questions, then use the contact guidance if you need more help.",
     searchLabel: "Find support topics",
     searchPlaceholder: "Search support topics",
     chips: ["Listing questions", "Checklist", "Landlords", "MaplePass", "General"],
@@ -289,7 +289,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "Is there a listing fee now?",
             answer:
-              "The current MVP direction is provider-friendly and does not activate listing fees.",
+              "The current direction is provider-friendly and does not activate listing fees.",
           },
           {
             question: "What listing types can be introduced?",
@@ -304,7 +304,7 @@ const CONTENT: Record<Locale, ContactContent> = {
         description: "Paid support scope and future policy",
         detailTitle: "MaplePass support",
         detailDescription:
-          "MaplePass is a working name for future paid support. This MVP only explains the intended support scope.",
+          "MaplePass is a working name for paid support, with scope guided by separate service details.",
         faqs: [
           {
             question: "What is MaplePass?",
@@ -339,7 +339,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "How can I report a bug?",
             answer:
-              "A formal report channel is not connected in this MVP, but the support page explains what information will be useful.",
+              "The support page explains what information will be useful for a formal report.",
           },
           {
             question: "Does MapleHouse handle contracts or payments?",
@@ -365,7 +365,7 @@ const CONTENT: Record<Locale, ContactContent> = {
       ],
       noticeTitle: "Current status",
       notices: [
-        "Real contact submission is not connected in this MVP preview.",
+        "Contact guidance is available on this page.",
         "Payment, remittance, and e-signature features are not supported.",
         "Official support policies will be announced separately before launch.",
       ],
@@ -394,7 +394,7 @@ const CONTENT: Record<Locale, ContactContent> = {
     eyebrow: "CONTACT / SUPPORT",
     title: "Comment MapleHouse peut aider?",
     heroDescription:
-      "Retrouvez les réponses sur les annonces, l’inscription propriétaire, MaplePass et les limites du MVP. Consultez d’abord les questions courantes, puis les indications de contact si nécessaire.",
+      "Retrouvez les réponses sur les annonces, l’inscription propriétaire et MaplePass. Consultez d’abord les questions courantes, puis les indications de contact si nécessaire.",
     searchLabel: "Trouvez un sujet d’aide",
     searchPlaceholder: "Rechercher un sujet d’aide",
     chips: ["Annonces", "Check-list", "Propriétaires", "MaplePass", "Général"],
@@ -442,7 +442,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "Y a-t-il des frais maintenant?",
             answer:
-              "Le MVP garde une approche favorable aux propriétaires et n’active pas de frais de listing.",
+              "L’approche reste favorable aux propriétaires et n’active pas de frais de listing.",
           },
           {
             question: "Quels logements peuvent être présentés?",
@@ -457,7 +457,7 @@ const CONTENT: Record<Locale, ContactContent> = {
         description: "Portée du support payant et futures règles",
         detailTitle: "Assistance MaplePass",
         detailDescription:
-          "MaplePass est un nom de travail pour un futur support payant. Ce MVP explique seulement le périmètre prévu.",
+          "MaplePass est un nom de travail pour un support payant, avec un périmètre précisé séparément.",
         faqs: [
           {
             question: "Qu’est-ce que MaplePass?",
@@ -492,7 +492,7 @@ const CONTENT: Record<Locale, ContactContent> = {
           {
             question: "Comment signaler une erreur?",
             answer:
-              "Un canal formel n’est pas connecté dans ce MVP, mais cette page indique les informations utiles.",
+              "Cette page indique les informations utiles pour un signalement formel.",
           },
           {
             question: "MapleHouse gère-t-il les contrats ou paiements?",
@@ -518,7 +518,7 @@ const CONTENT: Record<Locale, ContactContent> = {
       ],
       noticeTitle: "État actuel",
       notices: [
-        "L’envoi réel de message n’est pas connecté dans cet aperçu MVP.",
+        "Les indications de contact sont disponibles sur cette page.",
         "Le paiement, le transfert d’argent et la signature électronique ne sont pas pris en charge.",
         "Les règles officielles seront annoncées séparément avant le lancement.",
       ],

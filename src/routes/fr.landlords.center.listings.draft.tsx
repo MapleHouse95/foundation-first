@@ -7,7 +7,7 @@ export const Route = createFileRoute("/fr/landlords/center/listings/draft")({
       { title: "First listing draft · MapleHouse" },
       {
         name: "description",
-        content: "Review the first landlord listing draft in the MapleHouse MVP preview.",
+        content: "Review the first landlord listing draft in the MapleHouse Preview.",
       },
     ],
   }),

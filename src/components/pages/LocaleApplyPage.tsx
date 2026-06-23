@@ -317,7 +317,7 @@ const SELECTED_INQUIRY_COPY: Record<Locale, SelectedInquiryApplyCopy> = {
   ko: {
     eyebrow: "MapleHouse 문의",
     title: "문의 신청",
-    subtitle: "선택한 매물과 방 정보를 바탕으로 문의 내용을 정리합니다. 실제 전송은 아직 연결되어 있지 않습니다.",
+    subtitle: "선택한 매물과 방 정보를 바탕으로 문의 내용을 정리합니다.",
     selectedTitle: "선택한 매물",
     detailsTitle: "매물 상세 정보",
     noListingTitle: "선택한 매물이 없습니다.",
@@ -342,20 +342,20 @@ const SELECTED_INQUIRY_COPY: Record<Locale, SelectedInquiryApplyCopy> = {
       questions: { label: "꼭 확인하고 싶은 내용", placeholder: "계약 조건, 공과금, 룸메이트, 주소 등 확인할 내용을 적어주세요." },
       request: { label: "추가 요청사항", placeholder: "추가로 MapleHouse에 전달할 내용을 적어주세요." },
     },
-    agreementTitle: "MVP 안내 확인",
+    agreementTitle: "문의 전 확인",
     agreements: [
-      "MapleHouse는 현재 MVP 단계에서 문의 확인 흐름을 미리보기로 제공하며, 실제 계약·결제·송금 기능은 아직 연결되어 있지 않음을 이해했습니다.",
+      "계약·결제·송금 조건은 문의 후 별도로 확인해야 함을 이해했습니다.",
       "최종 계약 여부, 입금 여부, 입주 여부는 사용자가 직접 확인해야 함을 이해했습니다.",
     ],
     submit: "문의 초안 만들기",
     successTitle: "문의 초안이 생성되었습니다.",
-    successBody: "실제 전송, 결제, 예약, 계약 기능은 아직 연결되어 있지 않습니다.",
+    successBody: "문의 내용과 예약 전 확인 항목을 정리했습니다.",
     backToListings: "매물 보러가기",
   },
   en: {
     eyebrow: "MapleHouse inquiry",
     title: "Inquiry request",
-    subtitle: "We will organize your inquiry based on the selected listing and room. Real sending is not connected yet.",
+    subtitle: "We will organize your inquiry based on the selected listing and room.",
     selectedTitle: "Selected listing",
     detailsTitle: "Listing details",
     noListingTitle: "No listing selected.",
@@ -380,14 +380,14 @@ const SELECTED_INQUIRY_COPY: Record<Locale, SelectedInquiryApplyCopy> = {
       questions: { label: "Questions to confirm", placeholder: "Contract terms, utilities, roommates, exact address, and other details." },
       request: { label: "Additional request", placeholder: "Anything else you want MapleHouse to know." },
     },
-    agreementTitle: "MVP scope confirmation",
+    agreementTitle: "Inquiry confirmation",
     agreements: [
-      "I understand that MapleHouse currently provides this inquiry flow as an MVP preview, and real contract, payment, and payout features are not connected yet.",
+      "I understand contract, payment, and payout terms must be confirmed separately after inquiry.",
       "I understand that final contract, payment, and move-in decisions must be confirmed by the user.",
     ],
     submit: "Create inquiry draft",
     successTitle: "Inquiry draft created.",
-    successBody: "Real sending, payment, reservation, and contract features are not connected yet.",
+    successBody: "Your inquiry and pre-reservation confirmation items have been organized.",
     backToListings: "View listings",
   },
   fr: {
@@ -418,9 +418,9 @@ const SELECTED_INQUIRY_COPY: Record<Locale, SelectedInquiryApplyCopy> = {
       questions: { label: "Questions à vérifier", placeholder: "Contrat, charges, colocataires, adresse exacte et autres détails." },
       request: { label: "Demande supplémentaire", placeholder: "Autre information à transmettre à MapleHouse." },
     },
-    agreementTitle: "Confirmation du périmètre MVP",
+    agreementTitle: "Confirmation de la demande",
     agreements: [
-      "Je comprends que MapleHouse propose actuellement ce flux de demande comme aperçu MVP, et que les fonctions réelles de contrat, paiement et virement ne sont pas encore connectées.",
+      "Je comprends que les conditions de contrat, paiement et virement doivent être confirmées séparément après la demande.",
       "Je comprends que la décision finale de contrat, de paiement et d’arrivée doit être vérifiée par l’utilisateur.",
     ],
     submit: "Créer un brouillon de demande",
@@ -447,7 +447,7 @@ const DIRECT_SELECTED_INQUIRY_COPY_OVERRIDES: Record<
     eyebrow: "직접 문의",
     title: "집주인에게 직접 문의하기",
     subtitle:
-      "선택한 매물에 대해 임대인에게 직접 전달할 문의 내용을 작성하는 MVP mock 화면입니다. 실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않습니다.",
+      "선택한 매물에 대해 임대인에게 직접 전달할 문의 내용을 작성합니다.",
     fields: {
       questions: {
         label: "문의 내용",
@@ -459,19 +459,19 @@ const DIRECT_SELECTED_INQUIRY_COPY_OVERRIDES: Record<
       },
     },
     agreements: [
-      "MapleHouse는 현재 MVP 단계에서 직접 문의 내용을 미리보기로 접수하며, 실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않음을 이해했습니다.",
+      "직접 문의 내용은 임대인 확인을 위해 정리되며, 답변 조건은 별도로 확인해야 함을 이해했습니다.",
       "최종 계약 여부, 입금 여부, 입주 여부는 사용자가 직접 확인해야 함을 이해했습니다.",
     ],
     submit: "직접 문의 접수하기",
     successTitle: "직접 문의 내용이 접수되었습니다.",
     successBody:
-      "실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않습니다.",
+      "직접 문의 내용과 확인 항목을 정리했습니다.",
   },
   en: {
     eyebrow: "Direct inquiry",
     title: "Contact the landlord directly",
     subtitle:
-      "Write the inquiry you want to send directly to the landlord for the selected listing. This is an MVP mock screen. Real messaging, chat, and translation are not connected yet.",
+      "Write the inquiry you want to send directly to the landlord for the selected listing.",
     fields: {
       questions: {
         label: "Inquiry message",
@@ -483,18 +483,18 @@ const DIRECT_SELECTED_INQUIRY_COPY_OVERRIDES: Record<
       },
     },
     agreements: [
-      "I understand that MapleHouse currently receives this direct inquiry as an MVP preview, and real messaging, chat, and translation are not connected yet.",
+      "I understand direct inquiry details will be organized for landlord review and reply terms must be confirmed separately.",
       "I understand that final contract, payment, and move-in decisions must be confirmed by the user.",
     ],
     submit: "Submit direct inquiry",
     successTitle: "Direct inquiry received.",
-    successBody: "Real messaging, chat, and translation are not connected yet.",
+    successBody: "Your direct inquiry and confirmation items have been organized.",
   },
   fr: {
     eyebrow: "Demande directe",
     title: "Contacter directement le propriétaire",
     subtitle:
-      "Rédigez la demande à transmettre directement au propriétaire pour le logement choisi. Ceci est un écran mock MVP. La messagerie réelle, le chat et la traduction ne sont pas encore connectés.",
+      "Rédigez la demande à transmettre directement au propriétaire pour le logement choisi.",
     fields: {
       questions: {
         label: "Message de demande",
@@ -506,7 +506,7 @@ const DIRECT_SELECTED_INQUIRY_COPY_OVERRIDES: Record<
       },
     },
     agreements: [
-      "Je comprends que MapleHouse reçoit actuellement cette demande directe comme aperçu MVP, et que la messagerie réelle, le chat et la traduction ne sont pas encore connectés.",
+      "Je comprends que la demande directe sera organisée pour le propriétaire et que les conditions de réponse doivent être confirmées séparément.",
       "Je comprends que la décision finale de contrat, de paiement et d’arrivée doit être vérifiée par l’utilisateur.",
     ],
     submit: "Envoyer la demande directe",
@@ -532,14 +532,14 @@ function getSelectedInquiryApplyCopy(locale: Locale, method: InquiryApplyMethod)
 
 const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
   ko: {
-    eyebrow: "MapleHouse MVP 문의",
+    eyebrow: "MapleHouse 문의",
     title: "문의 신청이 접수되었습니다",
     subtitle:
-      "아래 내용은 MVP mock 접수 화면입니다. 실제 전송이나 계약 절차는 아직 연결되어 있지 않습니다.",
+      "아래 내용으로 문의가 접수되었습니다.",
     inquirerSummaryTitle: "문의자 정보 요약",
     inquirySummaryTitle: "문의 내용 요약",
-    mvpNoticeTitle: "MVP 안내",
-    mvpNoticeBody: "실제 전송, 결제, 계약, 송금은 아직 연결되어 있지 않습니다.",
+    mvpNoticeTitle: "안내",
+    mvpNoticeBody: "결제, 계약, 송금 조건은 별도로 확인해 주세요.",
     nextStepsTitle: "문의 진행 순서",
     nextSteps: [
       "MapleHouse가 고객님이 입력해주신 정보와 조건을 파악합니다.",
@@ -551,18 +551,18 @@ const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
     backToDetail: "매물 상세로 돌아가기",
     viewListings: "매물 목록 보기",
     viewHistory: "나의 문의내역 보기",
-    mvpPlanned: "MVP 예정",
+    mvpPlanned: "확인 필요",
     submittedAt: "접수 시각",
   },
   en: {
-    eyebrow: "MapleHouse MVP inquiry",
+    eyebrow: "MapleHouse inquiry",
     title: "Your inquiry has been received",
     subtitle:
-      "This is an MVP mock completion screen. Real sending, contracts, and payments are not connected yet.",
+      "Your inquiry has been received with the details below.",
     inquirerSummaryTitle: "Inquirer summary",
     inquirySummaryTitle: "Inquiry summary",
-    mvpNoticeTitle: "MVP note",
-    mvpNoticeBody: "Real sending, payment, contract, and payout features are not connected yet.",
+    mvpNoticeTitle: "Note",
+    mvpNoticeBody: "Payment, contract, and payout terms must be confirmed separately.",
     nextStepsTitle: "Inquiry progress",
     nextSteps: [
       "MapleHouse reviews the information and conditions you submitted.",
@@ -574,17 +574,17 @@ const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
     backToDetail: "Back to listing detail",
     viewListings: "View listings",
     viewHistory: "My inquiries",
-    mvpPlanned: "MVP planned",
+    mvpPlanned: "Needs review",
     submittedAt: "Submitted at",
   },
   fr: {
-    eyebrow: "Demande MVP MapleHouse",
+    eyebrow: "Demande MapleHouse",
     title: "Votre demande a été reçue",
     subtitle:
-      "Ceci est un écran de confirmation mock MVP. L’envoi réel, les contrats et les paiements ne sont pas encore connectés.",
+      "Votre demande a été reçue avec les détails ci-dessous.",
     inquirerSummaryTitle: "Résumé du demandeur",
     inquirySummaryTitle: "Résumé de la demande",
-    mvpNoticeTitle: "Note MVP",
+    mvpNoticeTitle: "Note",
     mvpNoticeBody: "L’envoi réel, le paiement, le contrat et le virement ne sont pas encore connectés.",
     nextStepsTitle: "Suivi de la demande",
     nextSteps: [
@@ -597,7 +597,7 @@ const APPLY_COMPLETE_COPY: Record<Locale, ApplyCompleteCopy> = {
     backToDetail: "Retour au détail du logement",
     viewListings: "Voir les logements",
     viewHistory: "Mes demandes",
-    mvpPlanned: "Prévu MVP",
+    mvpPlanned: "À vérifier",
     submittedAt: "Reçu le",
   },
 };
@@ -607,37 +607,37 @@ const DIRECT_APPLY_COMPLETE_COPY_OVERRIDES: Record<
   Pick<ApplyCompleteCopy, "eyebrow" | "title" | "subtitle" | "nextStepsTitle" | "nextSteps">
 > = {
   ko: {
-    eyebrow: "직접 문의 MVP",
+    eyebrow: "직접 문의",
     title: "직접 문의 내용이 접수되었습니다",
     subtitle:
-      "아래 내용은 MVP mock 접수 화면입니다. 실제 메시지 발송, 채팅, 번역 기능은 아직 연결되어 있지 않습니다.",
+      "아래 내용으로 직접 문의가 접수되었습니다. 직접 문의 내용과 확인 항목을 정리했습니다.",
     nextStepsTitle: "직접 문의 진행 안내",
     nextSteps: [
-      "입력하신 직접 문의 내용이 MVP mock 상태로 정리되었습니다.",
-      "실제 운영 단계에서는 임대인 메시지 전송, 채팅, 번역 지원을 연결할 예정입니다.",
+      "입력하신 직접 문의 내용이 정리되었습니다.",
+      "임대인 확인과 답변 조건은 별도로 안내될 수 있습니다.",
       "문의 진행 상황은 나의 문의내역에서 확인할 수 있습니다.",
     ],
   },
   en: {
-    eyebrow: "Direct inquiry MVP",
+    eyebrow: "Direct inquiry",
     title: "Your direct inquiry has been received",
     subtitle:
-      "This is an MVP mock completion screen. Real messaging, chat, and translation are not connected yet.",
+      "Your direct inquiry has been received. Your direct inquiry and confirmation items have been organized.",
     nextStepsTitle: "Direct inquiry progress",
     nextSteps: [
-      "Your direct inquiry content has been saved in this MVP mock flow.",
+      "Your direct inquiry content has been organized.",
       "In the real operation stage, landlord messaging, chat, and translation support can be connected.",
       "You can check inquiry progress in My inquiries.",
     ],
   },
   fr: {
-    eyebrow: "Demande directe MVP",
+    eyebrow: "Demande directe",
     title: "Votre demande directe a été reçue",
     subtitle:
-      "Ceci est un écran de confirmation mock MVP. La messagerie réelle, le chat et la traduction ne sont pas encore connectés.",
+      "Votre demande directe a été reçue avec les détails ci-dessous.",
     nextStepsTitle: "Suivi de la demande directe",
     nextSteps: [
-      "Le contenu de votre demande directe est enregistré dans ce flux mock MVP.",
+      "Le contenu de votre demande directe a été organisé.",
       "Dans la phase réelle, la messagerie avec le propriétaire, le chat et l’aide à la traduction pourront être connectés.",
       "Vous pouvez suivre la demande dans Mes demandes.",
     ],
@@ -707,7 +707,7 @@ const KO_LISTING_CHECK_ITEMS = [
 const KO_SERVICE_SCOPE_ITEMS = [
   "MapleHouse는 계약 당사자가 아니며, 문의 내용을 정리하고 확인을 돕는 서비스임을 이해했습니다.",
   "실제 계약 여부와 송금 여부는 사용자가 직접 판단해야 함을 이해했습니다.",
-  "현재 MVP 단계에서는 실제 결제, 송금, 전자서명을 진행하지 않음을 이해했습니다.",
+  "결제, 송금, 전자서명 조건은 별도로 확인해야 함을 이해했습니다.",
   "집주인 또는 주거 제공자의 응답 가능 여부와 응답 시간은 보장되지 않을 수 있음을 이해했습니다.",
 ];
 
@@ -717,7 +717,7 @@ const CONTENT: Record<Locale, ApplyPageContent> = {
     title: "상담/예약 신청",
     subtitle:
       "원하는 주거 조건과 상담 정보를 남겨주시면 메이플하우스가 확인 후 안내드리는 흐름입니다.",
-    mvpNotice: "현재는 MVP 미리보기 단계입니다. 입력 내용은 실제로 저장되지 않습니다.",
+    mvpNotice: "입력 내용을 확인한 뒤 상담 요청을 정리합니다.",
     sections: {
       basic: "기본 정보",
       housing: "희망 주거 조건",
@@ -753,7 +753,7 @@ const CONTENT: Record<Locale, ApplyPageContent> = {
       },
     },
     checkboxes: [
-      "실제 결제와 계약은 아직 진행되지 않는 MVP 단계임을 이해했습니다.",
+      "결제와 계약 조건은 상담 후 별도로 확인해야 함을 이해했습니다.",
       "상담 내용은 확인 후 안내되는 흐름임을 이해했습니다.",
       "입력 정보가 실제 저장되지 않는 미리보기 단계임을 이해했습니다.",
     ],
@@ -788,7 +788,7 @@ const CONTENT: Record<Locale, ApplyPageContent> = {
     helperItems: [
       "상담에 필요한 기본 정보를 한 번에 정리합니다.",
       "도시, 예산, 입주일 등 주거 조건을 미리 맞춰봅니다.",
-      "실제 저장과 제출은 다음 단계에서 연결됩니다.",
+      "입력 내용을 기준으로 다음 단계 안내가 이어집니다.",
     ],
   },
   en: {
@@ -796,7 +796,7 @@ const CONTENT: Record<Locale, ApplyPageContent> = {
     title: "Apply for Consultation / Reservation",
     subtitle:
       "Share your housing conditions and consultation details so MapleHouse can guide the next step.",
-    mvpNotice: "This is an MVP preview. Your input is not actually saved yet.",
+    mvpNotice: "Review your input before organizing the consultation request.",
     sections: {
       basic: "Basic information",
       housing: "Housing preferences",
@@ -835,7 +835,7 @@ const CONTENT: Record<Locale, ApplyPageContent> = {
       },
     },
     checkboxes: [
-      "I understand that real payments and contracts are not active in this MVP stage.",
+      "I understand payment and contract terms must be confirmed separately after consultation.",
       "I understand that consultation details will be reviewed before guidance is provided.",
       "I understand that the input is not actually saved in this preview stage.",
     ],
@@ -878,7 +878,7 @@ const CONTENT: Record<Locale, ApplyPageContent> = {
     title: "Demande de consultation / réservation",
     subtitle:
       "Indiquez vos conditions de logement et vos informations de consultation afin que MapleHouse puisse préparer l’étape suivante.",
-    mvpNotice: "Ceci est un aperçu MVP. Les informations saisies ne sont pas encore enregistrées.",
+    mvpNotice: "Vérifiez vos informations avant d’organiser la demande de consultation.",
     sections: {
       basic: "Informations de base",
       housing: "Conditions de logement souhaitées",
@@ -917,7 +917,7 @@ const CONTENT: Record<Locale, ApplyPageContent> = {
       },
     },
     checkboxes: [
-      "Je comprends que les paiements et contrats réels ne sont pas actifs dans cette étape MVP.",
+      "Je comprends que les conditions de paiement et de contrat doivent être confirmées séparément après la consultation.",
       "Je comprends que les informations de consultation seront vérifiées avant l’accompagnement.",
       "Je comprends que les informations saisies ne sont pas réellement enregistrées dans cet aperçu.",
     ],
@@ -1833,7 +1833,7 @@ function SelectedInquiryApplyPage({
       window.sessionStorage.setItem(MOCK_INQUIRY_DRAFT_STORAGE_KEY, JSON.stringify(draft));
       saveMockInquiryCompletion(completion);
     } catch {
-      // MVP preview only; the success state still communicates that no real sending happened.
+      // Frontend-only completion state; delivery is handled outside this screen.
     }
     clearSelectedInquiryDraft(locale, selectedInquiry.listingId, inquiryMethod);
     setDraftRestored(false);
@@ -2640,7 +2640,7 @@ function KoreanSelectedListingApplyPage() {
                   </h1>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     선택한 매물에 대해 집주인 또는 주거 제공자에게 확인하고 싶은 내용을
-                    정리해 주세요. 아직 실제 결제나 계약은 진행되지 않습니다.
+                    정리해 주세요. 결제와 계약 조건은 별도로 확인됩니다.
                   </p>
                   <div className="mt-4 rounded-2xl border border-border bg-background p-4">
                     <h2 className="text-base font-bold text-foreground">{selectedListing.title}</h2>
@@ -2809,7 +2809,7 @@ function KoreanSelectedListingApplyPage() {
               {previewVisible && (
                 <PreviewPanel
                   title="요청서 초안이 준비되었습니다."
-                  body="현재 MVP에서는 실제 전송하지 않습니다. 입력한 내용은 이 화면에서만 확인할 수 있습니다."
+                  body="입력한 내용은 이 화면에서 확인할 수 있습니다."
                   summaryTitle="요청 요약"
                   emptyValue="미입력"
                   rows={summaryRows}

@@ -18,7 +18,7 @@ export function Footer() {
             Calm, trustworthy home consultation for first-time renters and buyers.
           </p>
           <p className="text-xs text-muted-foreground">
-            Legal text to be finalized before launch.
+            Support for overseas home search, inquiry, and reservation preparation.
           </p>
         </div>
 
@@ -31,16 +31,13 @@ export function Footer() {
               aria-disabled
             >
               {link.label}
-              <span className="ml-1 text-[10px] uppercase tracking-wider text-primary/70">
-                TBD
-              </span>
             </a>
           ))}
         </nav>
       </Container>
       <div className="border-t border-border/60">
         <Container className="py-4 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} MapleHouse · Responsive web service · Test mode
+          © {new Date().getFullYear()} MapleHouse · Responsive web service
         </Container>
       </div>
     </footer>

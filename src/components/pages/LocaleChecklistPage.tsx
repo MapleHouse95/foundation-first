@@ -577,7 +577,7 @@ function TranslatedChecklistPage({ locale }: { locale: TranslatedChecklistLocale
   }
 
   return (
-    <main className="bg-background [overflow-wrap:break-word]">
+    <main className="mh-page-grid [overflow-wrap:break-word]">
       <Container className="py-10 sm:py-14">
         {mode === "overview" && (
           <TranslatedHeroSection content={content} onStartGeneral={startGeneralChecklist} />
@@ -1386,7 +1386,7 @@ function KoreanChecklistPage() {
   }
 
   return (
-    <main className="bg-background">
+    <main className="mh-page-grid">
       <Container className="py-10 sm:py-14">
         <PageBreadcrumb
           className="mb-5"
@@ -2005,7 +2005,7 @@ function HeroSection({ onStartGeneral }: { onStartGeneral: () => void }) {
       <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:p-10">
         <div className="min-w-0">
           <p className="inline-flex w-fit rounded-full border border-[#FFE8CC] bg-[#FFF7ED] px-3 py-1 text-xs font-semibold text-primary">
-            Toronto Station Checklist · MVP
+            Toronto Station Checklist
           </p>
           <h1 className="mt-5 max-w-3xl text-[2rem] font-semibold leading-[1.16] text-foreground [word-break:keep-all] sm:text-[2.35rem] lg:text-[2.65rem]">
             <span className="block">처음 토론토에서 집을 <span className="whitespace-nowrap">구할 때,</span></span>
@@ -2419,7 +2419,7 @@ function WorkingResultSection({
 
       {supportNotice && (
         <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground [word-break:keep-all]">
-          메이플하우스와 함께 문의하기는 유료 플랜 흐름으로 연결될 예정입니다. 현재는 MVP 미리보기 단계입니다.
+          메이플하우스와 함께 문의하기는 유료 지원 흐름으로 안내될 수 있습니다.
         </p>
       )}
 
@@ -2527,7 +2527,7 @@ function LanguageStudyResultSection({
 
       {supportNotice && (
         <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground [word-break:keep-all]">
-          메이플하우스와 함께 문의하기는 유료 플랜 흐름으로 연결될 예정입니다. 현재는 MVP 미리보기 단계입니다.
+          메이플하우스와 함께 문의하기는 유료 지원 흐름으로 안내될 수 있습니다.
         </p>
       )}
 
@@ -2653,7 +2653,7 @@ function StudyAbroadResultSection({
 
       {supportNotice && (
         <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground [word-break:keep-all]">
-          메이플하우스와 함께 문의하기는 유료 플랜 흐름으로 연결될 예정입니다. 현재는 MVP 미리보기 단계입니다.
+          메이플하우스와 함께 문의하기는 유료 지원 흐름으로 안내될 수 있습니다.
         </p>
       )}
 
@@ -2755,7 +2755,7 @@ function GeneralChecklistResult({
 
       {supportNotice && (
         <p className="mt-4 rounded-2xl border border-[#FFE8CC] bg-[#FFF7ED] p-4 text-sm font-medium text-foreground [word-break:keep-all]">
-          메이플하우스와 함께 문의하기는 유료 플랜 흐름으로 연결될 예정입니다. 현재는 MVP 미리보기 단계입니다.
+          메이플하우스와 함께 문의하기는 유료 지원 흐름으로 안내될 수 있습니다.
         </p>
       )}
 

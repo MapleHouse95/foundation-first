@@ -7,7 +7,7 @@ export const Route = createFileRoute("/ko/landlords/center/profile")({
       { title: "임대인 정보 · MapleHouse" },
       {
         name: "description",
-        content: "MapleHouse 임대인 센터 프로필 MVP 미리보기 화면입니다.",
+        content: "MapleHouse 임대인 센터 프로필 화면입니다.",
       },
     ],
   }),

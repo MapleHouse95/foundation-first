@@ -341,7 +341,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
         "확인·예약 의사 조율",
       ],
       notice:
-        "MapleHouse는 MVP 흐름에서 계약 당사자, 법률 자문가, 중개인 또는 결제 보증인이 아닙니다. 최종 계약, 입금, 결제, 입주 여부는 당사자가 직접 확인하고 결정해야 합니다.",
+        "MapleHouse는 계약 당사자, 법률 자문가, 중개인 또는 결제 보증인이 아닙니다. 최종 계약, 입금, 결제, 입주 여부는 당사자가 직접 확인하고 결정해야 합니다.",
     },
     guide: {
       title: "매물 등록 전에 확인할 것",
@@ -402,11 +402,11 @@ const CONTENT: Record<Locale, LandlordContent> = {
         description:
           "첫 온보딩에서 입력한 핵심 정보만 요약합니다. 상세 조건은 임대인 센터에서 나중에 보완할 수 있습니다.",
         checkbox:
-          "이 MVP에서는 실제 매물 등록, 계약, 결제, 송금, 파일 업로드 기능이 아직 연결되어 있지 않음을 이해했습니다.",
+          "매물 등록 전 계약, 결제, 송금, 파일 업로드 조건을 별도로 확인해야 함을 이해했습니다.",
         submit: "미리보기 제출하기",
         successTitle: "미리보기 제출 화면입니다",
         successBody:
-          "실제 접수는 아직 연결되어 있지 않습니다. 다음 단계에서는 MapleHouse 검토 상태와 입주자 문의 흐름을 연결할 예정입니다.",
+          "제출한 매물 정보는 MapleHouse 검토와 입주자 문의 준비에 사용됩니다.",
         edit: "수정",
         sections: {
           contact: "연락처 / 역할",
@@ -537,7 +537,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
         "Coordinate confirmation and reservation intent",
       ],
       notice:
-        "MapleHouse is not a contracting party, legal advisor, broker, or payment guarantor in this MVP flow. Final agreement, deposit, payment, and move-in decisions must be confirmed by the parties.",
+        "MapleHouse is not a contracting party, legal advisor, broker, or payment guarantor. Final agreement, deposit, payment, and move-in decisions must be confirmed by the parties.",
     },
     guide: {
       title: "Before submitting a listing inquiry",
@@ -598,11 +598,11 @@ const CONTENT: Record<Locale, LandlordContent> = {
         description:
           "This preview summarizes only the quick onboarding essentials. Detailed conditions can be added later from the landlord center.",
         checkbox:
-          "I understand that this MVP does not yet process real listing submission, contracts, payments, payouts, or file uploads.",
+          "I understand listing submission, contracts, payments, payouts, and file uploads require separate confirmation.",
         submit: "Submit preview",
         successTitle: "Preview submitted locally",
         successBody:
-          "This is a preview submission only. Real intake is not connected yet. A later version can connect MapleHouse review status and tenant inquiry flow.",
+          "Submitted listing information is used for MapleHouse review and tenant inquiry preparation.",
         edit: "Edit",
         sections: {
           contact: "Contact / role",
@@ -733,7 +733,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
         "Coordonner la confirmation et l’intention de réservation",
       ],
       notice:
-        "MapleHouse n’est pas partie au contrat, conseiller juridique, courtier ni garant de paiement dans ce flux MVP. Les décisions finales concernant le contrat, le dépôt, le paiement et l’emménagement doivent être confirmées par les parties.",
+        "MapleHouse n’est pas partie au contrat, conseiller juridique, courtier ni garant de paiement. Les décisions finales concernant le contrat, le dépôt, le paiement et l’emménagement doivent être confirmées par les parties.",
     },
     guide: {
       title: "Avant d’envoyer une demande d’annonce",
@@ -794,7 +794,7 @@ const CONTENT: Record<Locale, LandlordContent> = {
         description:
           "Cet aperçu résume seulement les informations essentielles de l’onboarding rapide. Les conditions détaillées pourront être ajoutées plus tard depuis l’espace propriétaire.",
         checkbox:
-          "Je comprends que ce MVP ne traite pas encore les annonces réelles, les contrats, les paiements, les versements ou les téléversements de fichiers.",
+          "Je comprends que les annonces, contrats, paiements, versements et téléversements doivent être confirmés séparément.",
         submit: "Envoyer l’aperçu",
         successTitle: "Aperçu envoyé localement",
         successBody:
@@ -1023,9 +1023,9 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       remove: "삭제",
       maxNotice: "사진은 최대 20장까지 선택할 수 있습니다.",
       previewCheckbox:
-        "이 화면은 매물 정보 미리보기이며, 실제 매물 등록·계약·결제·송금·파일 업로드 기능은 아직 연결되어 있지 않음을 이해했습니다.",
+        "매물 정보와 계약·결제·송금·파일 업로드 조건을 별도로 확인해야 함을 이해했습니다.",
       previewSuccess:
-        "미리보기 제출 화면입니다. 다음 단계에서는 MapleHouse 검토 상태와 입주자 문의 흐름이 연결될 예정입니다.",
+        "제출한 매물 정보는 MapleHouse 검토와 입주자 문의 준비에 사용됩니다.",
       previewSuccessTitle: "미리보기 제출 화면입니다",
       submitPreview: "미리보기 제출하기",
       edit: "수정",
@@ -1171,7 +1171,7 @@ const LANDLORD_REFINEMENTS: Record<Locale, LandlordRefinementContent> = {
       remove: "Remove",
       maxNotice: "You can select up to 20 photos.",
       previewCheckbox:
-        "I understand this is a listing information preview and that real listing submission, contracts, payments, payouts, and file uploads are not connected yet.",
+        "I understand listing submission, contracts, payments, payouts, and file uploads require separate confirmation.",
       previewSuccess:
         "This is a preview submission. A later version can connect MapleHouse review status and tenant inquiry flow.",
       previewSuccessTitle: "Preview submitted",

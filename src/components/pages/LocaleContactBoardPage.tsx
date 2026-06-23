@@ -102,13 +102,13 @@ const CATEGORY_FILTERS: Array<{ key: "all" | BoardCategory; label: string }> = [
 const BOARD_NOTICES: ContactBoardNotice[] = [
   {
     id: "notice-2",
-    title: "MVP 문의 게시판은 실제 접수 기능이 연결되어 있지 않습니다.",
+    title: "문의 게시판은 접수 전 확인용으로 안내됩니다.",
     date: "2026-06-05",
     views: 42,
   },
   {
     id: "notice-1",
-    title: "비밀글 목업 비밀번호는 1234로 확인할 수 있습니다.",
+    title: "비밀글 비밀번호는 1234로 확인할 수 있습니다.",
     date: "2026-06-05",
     views: 38,
   },
@@ -130,7 +130,7 @@ export const CONTACT_BOARD_POSTS: ContactBoardPost[] = [
     content:
       "체크리스트에서 추천받은 기준역 근처 매물을 보고 있습니다. 실제 입주 가능 여부와 먼저 확인해야 할 조건이 궁금합니다.",
     reply:
-      "안녕하세요. 선택하신 매물은 실제 입주 가능일, 포함 비용, 집주인과의 커뮤니케이션 방식을 먼저 확인하는 것이 좋습니다. 현재 MVP에서는 실제 문의 전송은 연결되어 있지 않습니다.",
+      "안녕하세요. 선택하신 매물은 입주 가능일, 포함 비용, 집주인과의 커뮤니케이션 방식을 먼저 확인하는 것이 좋습니다.",
   },
   {
     id: "103",
@@ -548,7 +548,7 @@ export function ContactBoardListPage() {
                 문의 게시판
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/85">
-                공개 문의와 답변 상태를 확인하거나 새 문의글을 작성할 수 있습니다. 현재는 실제 전송이 연결되지 않은 MVP 목업 게시판입니다.
+                공개 문의와 답변 상태를 확인하거나 새 문의글을 작성할 수 있습니다.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -677,7 +677,7 @@ export function ContactBoardListPage() {
       {passwordPost ? (
         <PasswordDialog
           title="비밀글 확인"
-          description="비밀글 내용을 보려면 목업 비밀번호를 입력해 주세요."
+          description="비밀글 내용을 보려면 비밀번호를 입력해 주세요."
           value={passwordInput}
           error={passwordError}
           onChange={setPasswordInput}
@@ -774,7 +774,7 @@ export function ContactBoardDetailPage({ postId }: { postId: string }) {
                 <div>
                   <h1 className="text-base font-bold text-foreground">비밀글 확인</h1>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                    이 문의글은 비밀글입니다. 내용을 보려면 목업 비밀번호를 입력해 주세요.
+                    이 문의글은 비밀글입니다. 내용을 보려면 비밀번호를 입력해 주세요.
                   </p>
                 </div>
               </div>
@@ -967,7 +967,7 @@ export function ContactBoardWritePage() {
       !form.content.trim() ||
       !form.scopeAccepted
     ) {
-      setFormError("제목, 작성자명, 비밀번호, 문의 내용, MVP 안내 동의를 확인해 주세요.");
+      setFormError("제목, 작성자명, 비밀번호, 문의 내용, 안내 동의를 확인해 주세요.");
       setSavedPost(null);
       return;
     }
@@ -1010,13 +1010,13 @@ export function ContactBoardWritePage() {
             문의글 작성
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/85">
-            현재 작성 내용은 실제 전송되지 않는 MVP 목업입니다. 저장 후 같은 브라우저 세션에서 목록에 표시될 수 있습니다.
+            현재 작성 내용은 저장 후 같은 브라우저 세션에서 목록에 표시될 수 있습니다.
           </p>
         </section>
 
         {savedPost ? (
           <section className="mt-5 rounded-3xl border border-primary/20 bg-[#FFF8F1] p-5">
-            <h2 className="text-base font-bold text-foreground">목업 문의글이 등록되었습니다.</h2>
+            <h2 className="text-base font-bold text-foreground">문의글이 등록되었습니다.</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               실제 접수나 이메일 발송은 연결되어 있지 않습니다.
             </p>
@@ -1112,7 +1112,7 @@ export function ContactBoardWritePage() {
                 className="mt-2 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-primary"
               />
               <span className="mt-1 block text-xs text-muted-foreground">
-                비밀글 확인에 사용할 목업 비밀번호입니다.
+                비밀글 확인에 사용할 비밀번호입니다.
               </span>
             </label>
           </div>
@@ -1158,7 +1158,7 @@ export function ContactBoardWritePage() {
           <div className="rounded-2xl border border-dashed border-primary/30 bg-[#FFF8F1] p-4">
             <p className="text-sm font-bold text-foreground">첨부 파일</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              실제 파일 업로드는 아직 연결되어 있지 않은 목업 영역입니다.
+              파일 첨부 내용은 화면에서 확인용으로 표시됩니다.
             </p>
           </div>
 
@@ -1177,7 +1177,7 @@ export function ContactBoardWritePage() {
                 onChange={(event) => updateForm("scopeAccepted", event.target.checked)}
                 className="mh-orange-checkbox mt-1"
               />
-              <span>이 MVP에서는 실제 문의 접수, 이메일 발송, 관리자 답변 기능이 연결되어 있지 않음을 이해했습니다.</span>
+              <span>입력한 문의 내용과 안내 사항을 확인했습니다.</span>
             </label>
           </div>
 
@@ -1193,7 +1193,7 @@ export function ContactBoardWritePage() {
               className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm"
             >
               <Send className="h-4 w-4" aria-hidden />
-              목업 문의 등록
+              문의 등록
             </button>
             <button
               type="button"

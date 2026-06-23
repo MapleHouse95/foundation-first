@@ -7,7 +7,7 @@ export const Route = createFileRoute("/fr/apply_/complete")({
       { title: "Demande recue | MapleHouse" },
       {
         name: "description",
-        content: "Ecran de confirmation de demande MVP MapleHouse.",
+        content: "Ecran de confirmation de demande  MapleHouse.",
       },
     ],
   }),
