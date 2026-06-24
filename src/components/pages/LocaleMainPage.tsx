@@ -49,6 +49,16 @@ type PopularFilter = {
   imageSrc?: string;
 };
 
+type PopularFilterKey =
+  | "school-nearby"
+  | "good-transit"
+  | "male-only"
+  | "female-only"
+  | "furnished"
+  | "immediate-move-in"
+  | "short-term"
+  | "verified";
+
 type HomeGatewayContent = {
   heroLabel: string;
   heroTitleLines: string[];
@@ -282,7 +292,7 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
         imageSrc: "/home/popular-filters/popular-furnished.webp",
       },
       {
-        title: "Move in now",
+        title: "Move-in now",
         tags: ["Available", "Fast", "Vacant"],
         icon: <Clock3 />,
         imageSrc: "/home/popular-filters/popular-immediate-move-in.webp",
@@ -294,7 +304,7 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
         imageSrc: "/home/popular-filters/popular-short-term.webp",
       },
       {
-        title: "Checked",
+        title: "Verified",
         tags: ["Checked", "Status", "Trust"],
         icon: <BadgeCheck />,
         imageSrc: "/home/popular-filters/popular-verified.webp",
@@ -361,7 +371,7 @@ const CONTENT: Record<Locale, HomeGatewayContent> = {
         imageSrc: "/home/popular-filters/popular-school-nearby.webp",
       },
       {
-        title: "Transports pratiques",
+        title: "Bon transport",
         tags: ["TTC", "Station", "Quotidien"],
         icon: <TrainFront />,
         imageSrc: "/home/popular-filters/popular-good-transit.webp",
@@ -480,6 +490,17 @@ const HERO_IMAGES = [
   "/hero/quebec-3.png",
   "/hero/montreal-3.png",
 ] as const;
+
+const POPULAR_FILTER_KEYS: PopularFilterKey[] = [
+  "school-nearby",
+  "good-transit",
+  "male-only",
+  "female-only",
+  "furnished",
+  "immediate-move-in",
+  "short-term",
+  "verified",
+];
 
 type HeroSlide = {
   title: string;
@@ -680,6 +701,96 @@ function cityOptions(locale: Locale) {
   return ["Toronto", "Vancouver", "Montreal", "Quebec City"];
 }
 
+function normalizeHomeQueryValue(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+function mapHomePurposeToQuery(locale: Locale, value: string) {
+  const maps: Record<Locale, Record<string, string>> = {
+    ko: {
+      "\uC6CC\uD0B9\uD640\uB9AC\uB370\uC774": "working-holiday",
+      "\uC720\uD559\uC0DD": "study",
+      "\uB2E8\uAE30\uAC70\uC8FC": "short-term",
+      "\uC9C1\uC7A5\uC778": "work",
+      "\uAE30\uD0C0": "other",
+    },
+    en: {
+      "Working holiday": "working-holiday",
+      Student: "study",
+      "Short-term stay": "short-term",
+      Worker: "work",
+      Other: "other",
+    },
+    fr: {
+      PVT: "working-holiday",
+      "\u00C9tudes": "study",
+      "Court s\u00E9jour": "short-term",
+      Travail: "work",
+      Autre: "other",
+    },
+  };
+  return maps[locale][value] ?? "";
+}
+
+function mapHomeHousingToQuery(locale: Locale, value: string) {
+  const maps: Record<Locale, Record<string, string>> = {
+    ko: {
+      "\uB8F8\uB80C\uD2B8": "room",
+      "\uC2A4\uD29C\uB514\uC624": "studio",
+      "\uCF58\uB3C4": "condo",
+      "\uC170\uC5B4\uD558\uC6B0\uC2A4": "share",
+      "\uC258\uC5B4\uD558\uC6B0\uC2A4": "share",
+    },
+    en: {
+      "Room rental": "room",
+      Studio: "studio",
+      Condo: "condo",
+      "Share house": "share",
+    },
+    fr: {
+      Chambre: "room",
+      Studio: "studio",
+      Condo: "condo",
+      Colocation: "share",
+    },
+  };
+  return maps[locale][value] ?? "";
+}
+
+function buildHomeListingsHref({
+  locale,
+  city,
+  purpose,
+  housingType,
+  budget,
+  moveInDate,
+  people,
+  extra,
+}: {
+  locale: Locale;
+  city?: string;
+  purpose?: string;
+  housingType?: string;
+  budget?: number | null;
+  moveInDate?: string | null;
+  people?: number;
+  extra?: PopularFilterKey;
+}) {
+  const params = new URLSearchParams();
+  if (city) params.set("city", normalizeHomeQueryValue(city));
+  const purposeKey = purpose ? mapHomePurposeToQuery(locale, purpose) : "";
+  if (purposeKey) params.set("purpose", purposeKey);
+  const housingKey = housingType ? mapHomeHousingToQuery(locale, housingType) : "";
+  if (housingKey) params.set("housing", housingKey);
+  if (budget !== null && budget !== undefined) params.set("budgetMax", String(budget * 10000));
+  if (moveInDate) params.set("moveIn", moveInDate);
+  if (people && people > 0) params.set("people", String(people));
+  if (extra) params.set("extra", extra);
+
+  const query = params.toString();
+  return `/${locale}/listings${query ? `?${query}` : ""}`;
+}
+
 export function LocaleMainPage({ locale }: { locale: Locale }) {
   const t = CONTENT[locale];
   const listingCopy = HOME_LISTING_COPY[locale];
@@ -851,8 +962,8 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
 
   return (
     <div className="mh-page-grid">
-      <section className="overflow-visible border-b border-border">
-        <div className="relative overflow-visible pb-8">
+      <section className="overflow-visible">
+        <div className="relative overflow-visible pb-0">
           <div
             aria-hidden
             className="absolute left-1/2 top-8 h-72 w-[54rem] -translate-x-1/2 rounded-full bg-accent blur-3xl"
@@ -960,20 +1071,25 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <section className="overflow-x-hidden pb-1 pt-8">
+      <section className="overflow-x-hidden pb-0 pt-6">
         <Container className="max-w-[82rem]">
           <SectionHeading title={t.popularTitle} />
-          <div className="mt-3 max-w-full overflow-x-auto pb-2">
+          <div className="mt-5 max-w-full overflow-x-auto pb-1">
             <div className="grid min-w-[52rem] grid-cols-8 gap-3 lg:min-w-0">
-              {t.popularFilters.map((filter) => (
-                <PopularFilterCard key={filter.title} filter={filter} />
+              {t.popularFilters.map((filter, index) => (
+                <PopularFilterCard
+                  key={filter.title}
+                  locale={locale}
+                  filter={filter}
+                  extraKey={POPULAR_FILTER_KEYS[index]}
+                />
               ))}
             </div>
           </div>
         </Container>
       </section>
 
-      <section className="pb-10 pt-3">
+      <section className="pb-10 pt-6">
         <Container className="max-w-[82rem] space-y-10">
           <HomeListingSection
             locale={locale}
@@ -1014,6 +1130,15 @@ function SearchModule({
   const [moveInDate, setMoveInDate] = useState<string | null>(null);
   const [draftMoveInDate, setDraftMoveInDate] = useState<string | null>(null);
   const [people, setPeople] = useState(1);
+  const matchingListingsHref = buildHomeListingsHref({
+    locale,
+    city,
+    purpose,
+    housingType,
+    budget,
+    moveInDate,
+    people,
+  });
 
   return (
     <div className="relative z-30 mx-auto mt-6 min-h-[18rem] max-w-[82rem] overflow-visible rounded-3xl border-2 border-[#FA7000]/65 bg-card p-5 shadow-xl shadow-black/10 sm:p-7">
@@ -1215,24 +1340,24 @@ function SearchModule({
       </div>
 
       <div className="mt-5 grid gap-2 md:grid-cols-3">
-        <Link
-          to={`/${locale}/listings`}
-          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-white px-4 text-center text-sm font-semibold text-[#B55300] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8F1]"
+        <a
+          href={`/${locale}/listings`}
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-white px-4 text-center text-sm font-semibold text-[#FA7000] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8F1]"
         >
           {content.browseCta}
-        </Link>
+        </a>
         <Link
           to={`/${locale}/checklist`}
-          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-white px-4 text-center text-sm font-semibold text-[#B55300] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8F1]"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-white px-4 text-center text-sm font-semibold text-[#FA7000] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8F1]"
         >
           {content.checklistCta}
         </Link>
-        <Link
-          to={`/${locale}/listings`}
-          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#FA7000] px-4 text-center text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#E66600]"
+        <a
+          href={matchingListingsHref}
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-[#FFF3E6] px-4 text-center text-sm font-semibold text-[#FA7000] shadow-sm transition hover:-translate-y-0.5 hover:border-[#FA7000] hover:bg-[#FFE8CC]"
         >
           {content.primaryCta}
-        </Link>
+        </a>
       </div>
     </div>
   );
@@ -1602,15 +1727,22 @@ function homeListingStatusClass(status: MockListing["status"]) {
   return "border-border bg-white text-muted-foreground";
 }
 
-function PopularFilterCard({ filter }: { filter: PopularFilter }) {
+function PopularFilterCard({
+  locale,
+  filter,
+  extraKey,
+}: {
+  locale: Locale;
+  filter: PopularFilter;
+  extraKey: PopularFilterKey;
+}) {
   return (
-    <button
-      type="button"
+    <a
+      href={buildHomeListingsHref({ locale, extra: extraKey })}
       className="group flex min-h-[7.5rem] flex-col items-center justify-start px-2 py-2 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      aria-disabled="true"
     >
       {filter.imageSrc ? (
-        <span className="relative block h-[4.75rem] w-[4.75rem] overflow-hidden rounded-full border border-black/10 transition duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-md group-hover:-translate-y-0.5 group-hover:scale-[1.03] group-hover:shadow-md">
+        <span className="relative block h-[4.75rem] w-[4.75rem] overflow-hidden rounded-full border border-border transition duration-200 hover:-translate-y-px hover:scale-[1.02] hover:border-primary hover:shadow-[0_0_0_2px_rgba(255,102,0,0.14)]">
           <img
             src={filter.imageSrc}
             alt={filter.title}
@@ -1626,7 +1758,7 @@ function PopularFilterCard({ filter }: { filter: PopularFilter }) {
       <span className="mh-clamp-2 mt-3 block min-h-9 text-xs font-normal leading-snug text-foreground sm:text-sm">
         {filter.title}
       </span>
-    </button>
+    </a>
   );
 }
 

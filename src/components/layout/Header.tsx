@@ -38,6 +38,7 @@ export function Header() {
   const locale = localeFromPath(pathname);
   const isEntry = pathname === "/";
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+  const isListingsPage = /^\/(ko|en|fr)\/listings(?:\/|$)/.test(pathname);
   const logoTo = locale ? `/${locale}` : "/";
 
   if (isEntry || isAdmin) {
@@ -92,7 +93,14 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-      <div className="mx-auto grid h-16 w-[calc(100%-2rem)] max-w-[82rem] grid-cols-[minmax(10rem,1fr)_auto] items-center gap-3 sm:w-[calc(100%-3rem)] xl:w-[calc(100%-4rem)] xl:grid-cols-[10.5rem_minmax(0,1fr)_20rem] xl:gap-5 2xl:grid-cols-[12rem_minmax(0,1fr)_21rem]">
+      <div
+        className={cn(
+          "mx-auto grid h-16 grid-cols-[minmax(10rem,1fr)_auto] items-center gap-3 xl:grid-cols-[10.5rem_minmax(0,1fr)_20rem] xl:gap-5 2xl:grid-cols-[12rem_minmax(0,1fr)_21rem]",
+          isListingsPage
+            ? "w-full max-w-none px-4 sm:px-5 lg:px-6"
+            : "w-[calc(100%-2rem)] max-w-[82rem] sm:w-[calc(100%-3rem)] xl:w-[calc(100%-4rem)]",
+        )}
+      >
         <div className="flex min-w-0 items-center justify-start">
           <Logo to={logoTo} />
         </div>
