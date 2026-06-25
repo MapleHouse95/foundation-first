@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { startTransition, useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useLocation } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -31,7 +31,7 @@ import {
   type GoogleMapsApi,
   type GoogleMapsLatLngLiteral,
 } from "@/lib/googleMapsLoader";
-import { TTC_LINES, TTC_STATIONS } from "@/lib/mockTtcOverlay";
+import { TTC_LINES, TTC_STATIONS, type TtcLineId } from "@/lib/mockTtcOverlay";
 import { DEFAULT_TRANSIT_CITY_ID, TRANSIT_CITY_PROFILES } from "@/lib/transitCityProfiles";
 import {
   buildSelectedInquiryPayload,
@@ -72,6 +72,11 @@ interface ListingMapGroupFilter {
 interface ListingMapGroup extends ListingMapGroupFilter {
   lat: number;
   lng: number;
+}
+
+interface StationFocusRequest {
+  id: string;
+  nonce: number;
 }
 
 export interface MockListing {
@@ -184,6 +189,9 @@ interface L10n {
   mapLabel: string;
   mapActiveArea: string;
   mapEmpty: string;
+  mapViewportEmpty: string;
+  mapViewportEmptyBody: string;
+  showAllListingLocations: string;
   mapMissingKey: string;
   clusterTitle: (count: number) => string;
   ttcLines: string;
@@ -399,6 +407,7 @@ interface GeneratedListingArea {
   baseLat: number;
   baseLng: number;
   count: number;
+  scatterKind?: "station" | "corridor" | "residential";
   priceBaseKRW: number;
   priceStepKRW: number;
   housingCycle: HousingTypeId[];
@@ -414,7 +423,8 @@ const GENERATED_LISTING_AREAS: GeneratedListingArea[] = [
     label: "Christie / Koreatown",
     baseLat: 43.6645,
     baseLng: -79.4207,
-    count: 17,
+    count: 8,
+    scatterKind: "station",
     priceBaseKRW: 1480000,
     priceStepKRW: 45000,
     housingCycle: ["studio", "room", "share"],
@@ -437,7 +447,8 @@ const GENERATED_LISTING_AREAS: GeneratedListingArea[] = [
     label: "Union / St Andrew",
     baseLat: 43.646,
     baseLng: -79.384,
-    count: 21,
+    count: 10,
+    scatterKind: "station",
     priceBaseKRW: 2450000,
     priceStepKRW: 65000,
     housingCycle: ["condo", "studio", "room"],
@@ -460,7 +471,8 @@ const GENERATED_LISTING_AREAS: GeneratedListingArea[] = [
     label: "North York Centre / Finch",
     baseLat: 43.7685,
     baseLng: -79.4126,
-    count: 17,
+    count: 5,
+    scatterKind: "station",
     priceBaseKRW: 980000,
     priceStepKRW: 38000,
     housingCycle: ["share", "room", "studio"],
@@ -478,12 +490,49 @@ const GENERATED_LISTING_AREAS: GeneratedListingArea[] = [
     ],
   },
   {
+    key: "finch-station",
+    area: "North York",
+    label: "Finch / Yonge",
+    baseLat: 43.7801,
+    baseLng: -79.4157,
+    count: 3,
+    scatterKind: "station",
+    priceBaseKRW: 1020000,
+    priceStepKRW: 36000,
+    housingCycle: ["share", "room", "studio"],
+    roomTypeCycle: [
+      { ko: "Share room", en: "Share room", fr: "Chambre partagee" },
+      { ko: "Room", en: "Room", fr: "Chambre" },
+      { ko: "Studio", en: "Studio", fr: "Studio" },
+    ],
+    /*
+    roomTypeCycle: [
+      { ko: "?먯뼱猷?, en: "Share room", fr: "Chambre partag챕e" },
+      { ko: "猷몃젋??, en: "Room", fr: "Chambre" },
+      { ko: "?ㅽ뒠?붿삤", en: "Studio", fr: "Studio" },
+    ],
+    purposeCycle: [["study"], ["study", "short-term"], ["working-holiday"]],
+    extraCycle: [
+      ["female-only", "good-transit"],
+      ["good-transit", "short-term"],
+      ["furnished", "verified"],
+    ],
+    */
+    purposeCycle: [["study"], ["study", "short-term"], ["working-holiday"]],
+    extraCycle: [
+      ["female-only", "good-transit"],
+      ["good-transit", "short-term"],
+      ["furnished", "verified"],
+    ],
+  },
+  {
     key: "midtown",
     area: "Midtown",
     label: "Eglinton / Davisville",
     baseLat: 43.706,
     baseLng: -79.398,
-    count: 15,
+    count: 7,
+    scatterKind: "station",
     priceBaseKRW: 1720000,
     priceStepKRW: 52000,
     housingCycle: ["house", "condo", "studio"],
@@ -506,7 +555,8 @@ const GENERATED_LISTING_AREAS: GeneratedListingArea[] = [
     label: "Spadina / St George",
     baseLat: 43.6689,
     baseLng: -79.4028,
-    count: 13,
+    count: 5,
+    scatterKind: "station",
     priceBaseKRW: 1320000,
     priceStepKRW: 42000,
     housingCycle: ["studio", "room", "share"],
@@ -529,7 +579,8 @@ const GENERATED_LISTING_AREAS: GeneratedListingArea[] = [
     label: "Broadview / Danforth",
     baseLat: 43.678,
     baseLng: -79.352,
-    count: 12,
+    count: 7,
+    scatterKind: "station",
     priceBaseKRW: 1180000,
     priceStepKRW: 39000,
     housingCycle: ["room", "share", "studio"],
@@ -548,7 +599,175 @@ const GENERATED_LISTING_AREAS: GeneratedListingArea[] = [
   },
 ];
 
-const GENERATED_TITLES: Record<string, (index: number) => LocalizedText> = {
+const NON_STATION_GENERATED_AREAS: GeneratedListingArea[] = [
+  {
+    key: "lawrence-dufferin",
+    area: "Lawrence West",
+    label: "Lawrence Ave W / Dufferin",
+    baseLat: 43.7139,
+    baseLng: -79.4548,
+    count: 6,
+    scatterKind: "corridor",
+    priceBaseKRW: 1260000,
+    priceStepKRW: 36000,
+    housingCycle: ["room", "share", "house"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[0].roomTypeCycle,
+    purposeCycle: [["study"], ["working-holiday"], ["work", "study"]],
+    extraCycle: [["good-transit", "furnished"], ["immediate-move-in"], ["short-term", "good-transit"]],
+  },
+  {
+    key: "lawrence-avenue-road",
+    area: "Lawrence Park",
+    label: "Lawrence Ave W / Avenue Rd",
+    baseLat: 43.7214,
+    baseLng: -79.4103,
+    count: 5,
+    scatterKind: "corridor",
+    priceBaseKRW: 1520000,
+    priceStepKRW: 42000,
+    housingCycle: ["house", "room", "studio"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[3].roomTypeCycle,
+    purposeCycle: [["study", "work"], ["work"], ["working-holiday"]],
+    extraCycle: [["furnished", "verified"], ["school-nearby"], ["good-transit"]],
+  },
+  {
+    key: "thorncliffe-overlea",
+    area: "Thorncliffe Park",
+    label: "Thorncliffe Park / Overlea",
+    baseLat: 43.7055,
+    baseLng: -79.3448,
+    count: 5,
+    scatterKind: "corridor",
+    priceBaseKRW: 1120000,
+    priceStepKRW: 34000,
+    housingCycle: ["share", "room", "condo"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[2].roomTypeCycle,
+    purposeCycle: [["working-holiday"], ["study"], ["other", "work"]],
+    extraCycle: [["good-transit"], ["female-only", "furnished"], ["immediate-move-in"]],
+  },
+  {
+    key: "stclair-davenport",
+    area: "St Clair West",
+    label: "St Clair W / Davenport",
+    baseLat: 43.6776,
+    baseLng: -79.4328,
+    count: 5,
+    scatterKind: "corridor",
+    priceBaseKRW: 1340000,
+    priceStepKRW: 38000,
+    housingCycle: ["room", "studio", "share"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[4].roomTypeCycle,
+    purposeCycle: [["study"], ["working-holiday"], ["short-term"]],
+    extraCycle: [["good-transit"], ["furnished", "short-term"], ["verified"]],
+  },
+  {
+    key: "bathurst-eglinton",
+    area: "Cedarvale",
+    label: "Bathurst / Eglinton",
+    baseLat: 43.6996,
+    baseLng: -79.4272,
+    count: 5,
+    scatterKind: "corridor",
+    priceBaseKRW: 1420000,
+    priceStepKRW: 39000,
+    housingCycle: ["room", "house", "studio"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[3].roomTypeCycle,
+    purposeCycle: [["study"], ["work"], ["working-holiday", "study"]],
+    extraCycle: [["school-nearby"], ["good-transit", "furnished"], ["immediate-move-in"]],
+  },
+  {
+    key: "keele-rogers",
+    area: "Keelesdale",
+    label: "Keele / Rogers",
+    baseLat: 43.6825,
+    baseLng: -79.4719,
+    count: 5,
+    scatterKind: "corridor",
+    priceBaseKRW: 1080000,
+    priceStepKRW: 31000,
+    housingCycle: ["room", "share", "house"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[0].roomTypeCycle,
+    purposeCycle: [["working-holiday"], ["study"], ["work"]],
+    extraCycle: [["good-transit"], ["furnished"], ["short-term"]],
+  },
+  {
+    key: "dufferin-dupont",
+    area: "Dufferin Grove",
+    label: "Dufferin / Dupont",
+    baseLat: 43.6686,
+    baseLng: -79.4385,
+    count: 4,
+    scatterKind: "corridor",
+    priceBaseKRW: 1280000,
+    priceStepKRW: 35000,
+    housingCycle: ["room", "studio", "share"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[4].roomTypeCycle,
+    purposeCycle: [["study"], ["short-term"], ["working-holiday"]],
+    extraCycle: [["good-transit"], ["furnished"], ["female-only"]],
+  },
+  {
+    key: "rosedale-summerhill",
+    area: "Rosedale",
+    label: "Rosedale / Summerhill",
+    baseLat: 43.6818,
+    baseLng: -79.3809,
+    count: 4,
+    scatterKind: "residential",
+    priceBaseKRW: 1760000,
+    priceStepKRW: 46000,
+    housingCycle: ["house", "studio", "room"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[3].roomTypeCycle,
+    purposeCycle: [["study", "work"], ["work"], ["other"]],
+    extraCycle: [["furnished"], ["verified"], ["school-nearby"]],
+  },
+  {
+    key: "cabbagetown-parliament",
+    area: "Cabbagetown",
+    label: "Cabbagetown / Parliament",
+    baseLat: 43.6652,
+    baseLng: -79.3687,
+    count: 4,
+    scatterKind: "residential",
+    priceBaseKRW: 1380000,
+    priceStepKRW: 37000,
+    housingCycle: ["room", "studio", "house"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[4].roomTypeCycle,
+    purposeCycle: [["study"], ["working-holiday"], ["work"]],
+    extraCycle: [["furnished"], ["good-transit"], ["short-term"]],
+  },
+  {
+    key: "leslieville-riverdale",
+    area: "Leslieville",
+    label: "Leslieville / Riverdale",
+    baseLat: 43.6657,
+    baseLng: -79.3369,
+    count: 4,
+    scatterKind: "residential",
+    priceBaseKRW: 1320000,
+    priceStepKRW: 36000,
+    housingCycle: ["room", "house", "share"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[5].roomTypeCycle,
+    purposeCycle: [["working-holiday"], ["study"], ["short-term"]],
+    extraCycle: [["furnished"], ["immediate-move-in"], ["good-transit"]],
+  },
+  {
+    key: "east-york-residential",
+    area: "East York",
+    label: "East York Residential",
+    baseLat: 43.6943,
+    baseLng: -79.3218,
+    count: 3,
+    scatterKind: "residential",
+    priceBaseKRW: 1140000,
+    priceStepKRW: 33000,
+    housingCycle: ["room", "share", "house"],
+    roomTypeCycle: GENERATED_LISTING_AREAS[5].roomTypeCycle,
+    purposeCycle: [["working-holiday"], ["study"], ["work"]],
+    extraCycle: [["good-transit"], ["furnished"], ["verified"]],
+  },
+];
+
+const GENERATED_TITLES: Partial<Record<string, (index: number) => LocalizedText>> = {
   koreatown: (index) => ({
     ko: `Koreatown 코지 룸 ${formatListingNumber(index)}`,
     en: `Koreatown Cozy Room ${formatListingNumber(index)}`,
@@ -591,11 +810,24 @@ function getGeneratedStatus(index: number): Status {
   return "verified";
 }
 
+function getGeneratedTitle(area: GeneratedListingArea, index: number): LocalizedText {
+  const titleBuilder = GENERATED_TITLES[area.key];
+  if (titleBuilder) return titleBuilder(index);
+
+  return {
+    ko: `${area.area} Room ${formatListingNumber(index)}`,
+    en: `${area.area} Room ${formatListingNumber(index)}`,
+    fr: `Chambre ${area.area} ${formatListingNumber(index)}`,
+  };
+}
+
 function buildGeneratedListings(): MockListing[] {
-  return GENERATED_LISTING_AREAS.flatMap((area) =>
+  const generatedAreas = [...GENERATED_LISTING_AREAS, ...NON_STATION_GENERATED_AREAS];
+
+  return generatedAreas.flatMap((area, areaIndex) =>
     Array.from({ length: area.count }, (_, index) => {
       const id = `L-${area.key.toUpperCase().replace(/-/g, "")}-${formatListingNumber(index)}`;
-      const mapOffset = getGeneratedListingOffset(area.baseLat, area.baseLng, index, GENERATED_LISTING_AREAS.indexOf(area));
+      const mapOffset = getGeneratedListingOffset(area.baseLat, area.baseLng, index, areaIndex, area.scatterKind ?? "station");
       const housingTypeId = area.housingCycle[index % area.housingCycle.length];
       const roomType = area.roomTypeCycle[index % area.roomTypeCycle.length];
       const extraFilters = area.extraCycle[index % area.extraCycle.length];
@@ -605,7 +837,7 @@ function buildGeneratedListings(): MockListing[] {
 
       return {
         id,
-        title: GENERATED_TITLES[area.key](index),
+        title: getGeneratedTitle(area, index),
         area: area.area,
         roomType,
         mapLocation: {
@@ -640,9 +872,17 @@ function buildGeneratedListings(): MockListing[] {
   );
 }
 
-function getGeneratedListingOffset(baseLat: number, baseLng: number, index: number, areaIndex: number) {
-  const radiusMeters = 120 + ((index * 73 + areaIndex * 41) % 331);
-  const angle = ((index * 137.5 + areaIndex * 29) % 360) * (Math.PI / 180);
+function getGeneratedListingOffset(
+  baseLat: number,
+  baseLng: number,
+  index: number,
+  areaIndex: number,
+  scatterKind: NonNullable<GeneratedListingArea["scatterKind"]>,
+) {
+  const minRadius = scatterKind === "station" ? 120 : scatterKind === "corridor" ? 180 : 220;
+  const radiusRange = scatterKind === "station" ? 331 : scatterKind === "corridor" ? 521 : 561;
+  const radiusMeters = minRadius + ((index * 47 + areaIndex * 61) % radiusRange);
+  const angle = ((index * 137.508 + areaIndex * 31) % 360) * (Math.PI / 180);
   const latMeters = Math.cos(angle) * radiusMeters;
   const lngMeters = Math.sin(angle) * radiusMeters;
   const metersPerDegreeLng = 111_320 * Math.cos(baseLat * (Math.PI / 180));
@@ -871,9 +1111,12 @@ const L: Record<Locale, L10n> = {
     mapLabel: "지도 보기",
     mapActiveArea: "활성 지역 · Downtown Toronto",
     mapEmpty: "조건에 맞는 매물 위치가 없습니다",
+    mapViewportEmpty: "현재 지도 화면에 표시된 매물이 없습니다",
+    mapViewportEmptyBody: "지도를 이동하거나 축소해 보세요.",
+    showAllListingLocations: "전체 매물 위치 보기",
     mapMissingKey: "지도를 불러오려면 지도 설정이 필요합니다",
     clusterTitle: (count) => `매물 ${count}개`,
-    ttcLines: "TTC 노선",
+    ttcLines: "노선도",
     ttcAttribution: "TTC 노선 정보 출처: Open Government Licence - Toronto",
     listingLocation: "위치",
     priceFact: "월세",
@@ -965,9 +1208,12 @@ const L: Record<Locale, L10n> = {
     mapLabel: "Map view",
     mapActiveArea: "Active area · Downtown Toronto",
     mapEmpty: "No matching listing locations",
+    mapViewportEmpty: "No listings are visible in this map area",
+    mapViewportEmptyBody: "Move or zoom the map to explore more areas.",
+    showAllListingLocations: "Show all listing locations",
     mapMissingKey: "Map settings are required to load the map",
     clusterTitle: (count) => `${count} listings`,
-    ttcLines: "TTC lines",
+    ttcLines: "Lines",
     ttcAttribution: "TTC route data: Open Government Licence - Toronto",
     listingLocation: "Location",
     priceFact: "Monthly rent",
@@ -1061,9 +1307,12 @@ const L: Record<Locale, L10n> = {
     mapLabel: "Carte",
     mapActiveArea: "Zone active · Downtown Toronto",
     mapEmpty: "Aucun emplacement correspondant",
+    mapViewportEmpty: "Aucun logement n'est visible dans cette zone de la carte",
+    mapViewportEmptyBody: "Déplacez ou dézoomez la carte pour explorer d'autres zones.",
+    showAllListingLocations: "Voir tous les logements",
     mapMissingKey: "Les paramètres de carte sont requis pour charger la carte",
     clusterTitle: (count) => `${count} logements`,
-    ttcLines: "Lignes TTC",
+    ttcLines: "Lignes",
     ttcAttribution: "Données TTC : Open Government Licence - Toronto",
     listingLocation: "Emplacement",
     priceFact: "Loyer mensuel",
@@ -1152,7 +1401,6 @@ function serializeListingQueryFilters(filters: ListingQueryFilters) {
   if (filters.moveIn) params.set("moveIn", filters.moveIn);
   if (filters.people > 1) params.set("people", String(filters.people));
   if (filters.extra.length > 0) params.set("extra", filters.extra.join(","));
-  if (filters.station) params.set("station", filters.station);
   if (filters.area) params.set("area", filters.area);
   return params.toString();
 }
@@ -1257,11 +1505,10 @@ function filterListingsByQuery(listings: MockListing[], filters: ListingQueryFil
   const budgetMaxKRW = getBudgetMaxInKRW(filters.budgetMax);
 
   return listings.filter((listing) => {
-    const mapGroup = filters.station || filters.area ? getListingMapGroup(listing) : null;
+    const mapGroup = filters.area ? getListingMapGroup(listing) : null;
     if (filters.city && listing.city !== filters.city) return false;
     if (filters.purpose && !listing.purposeIds.includes(filters.purpose)) return false;
     if (filters.housing && listing.housingTypeId !== filters.housing) return false;
-    if (filters.station && (mapGroup?.kind !== "station" || mapGroup.id !== filters.station)) return false;
     if (filters.area && (mapGroup?.kind !== "area" || mapGroup.id !== filters.area)) return false;
     if (budgetMaxKRW && listing.priceKRW > budgetMaxKRW) return false;
     if (filters.moveIn && listing.availableFrom > filters.moveIn) return false;
@@ -1296,10 +1543,6 @@ function getListingResultTags(locale: Locale, t: L10n, listing: MockListing) {
   const tags = priority
     .filter((filter) => listing.extraFilters.includes(filter))
     .map((filter) => getExtraFilterLabel(locale, filter));
-
-  if (listing.status !== "verified" && tags.length < 3) {
-    tags.push(t.status[listing.status]);
-  }
 
   return tags.slice(0, 3);
 }
@@ -1394,6 +1637,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const t = L[locale];
   const location = useLocation() as { href?: string; searchStr?: string };
   const initialQueryFilters = parseListingQueryFilters(location.searchStr);
+  const stationFocusNonceRef = useRef(0);
   const rawChecklistContext = parseChecklistListingsContext(location.searchStr, locale);
   const [showChecklistFilters, setShowChecklistFilters] = useState(false);
   const [removedChecklistFilters, setRemovedChecklistFilters] = useState<Set<string>>(new Set());
@@ -1428,8 +1672,14 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const [moreFilters, setMoreFilters] = useState<Set<ExtraFilterId>>(
     new Set(initialQueryFilters.extra),
   );
-  const [stationFilter, setStationFilter] = useState(initialQueryFilters.station);
   const [areaFilter, setAreaFilter] = useState(initialQueryFilters.area);
+  const [focusedStationRequest, setFocusedStationRequest] = useState<StationFocusRequest | null>(() =>
+    initialQueryFilters.station
+      ? { id: initialQueryFilters.station, nonce: stationFocusNonceRef.current++ }
+      : null,
+  );
+  const [visibleListingIds, setVisibleListingIds] = useState<string[] | null>(null);
+  const [manualFitNonce, setManualFitNonce] = useState(0);
   const [showAppliedFilters, setShowAppliedFilters] = useState(false);
   const [selectedListing, setSelectedListing] = useState<MockListing | null>(null);
   const [activeListingId, setActiveListingId] = useState("");
@@ -1454,8 +1704,10 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
     setPeopleCount(filters.people);
     setDraftMoreFilters(new Set(filters.extra));
     setMoreFilters(new Set(filters.extra));
-    setStationFilter(filters.station);
     setAreaFilter(filters.area);
+    if (filters.station) {
+      setFocusedStationRequest({ id: filters.station, nonce: stationFocusNonceRef.current++ });
+    }
   }, [location.searchStr]);
 
   useEffect(() => {
@@ -1474,8 +1726,10 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
       setPeopleCount(filters.people);
       setDraftMoreFilters(new Set(filters.extra));
       setMoreFilters(new Set(filters.extra));
-      setStationFilter(filters.station);
       setAreaFilter(filters.area);
+      if (filters.station) {
+        setFocusedStationRequest({ id: filters.station, nonce: stationFocusNonceRef.current++ });
+      }
     };
 
     window.addEventListener("popstate", syncFromUrl);
@@ -1493,7 +1747,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
       moveIn,
       people: peopleCount,
       extra: Array.from(moreFilters),
-      station: stationFilter,
+      station: "",
       area: areaFilter,
     });
     const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
@@ -1501,7 +1755,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
     if (nextUrl !== currentUrl) {
       window.history.pushState(window.history.state, "", nextUrl);
     }
-  }, [appliedBudgetMax, areaFilter, cityFilter, housingType, moreFilters, moveIn, peopleCount, purposeFilter, stationFilter]);
+  }, [appliedBudgetMax, areaFilter, cityFilter, housingType, moreFilters, moveIn, peopleCount, purposeFilter]);
 
   const toggleFav = (id: string) =>
     setFavs((s) => {
@@ -1514,7 +1768,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const fmtCAD = (v: number) => `$${v.toLocaleString("en-CA")} /m`;
   const fmtSelectedPrice = (listing: MockListing) =>
     currency === "KRW" ? fmtKRW(listing.priceKRW) : fmtCAD(listing.priceCAD);
-  const filteredListings = filterListingsByQuery(MOCK_LISTINGS, {
+  const hardFilterSignature = serializeListingQueryFilters({
     city: cityFilter,
     purpose: purposeFilter,
     housing: housingType ?? "",
@@ -1522,9 +1776,25 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
     moveIn,
     people: peopleCount,
     extra: Array.from(moreFilters),
-    station: stationFilter,
+    station: "",
     area: areaFilter,
   });
+  const hardFilteredListings = filterListingsByQuery(MOCK_LISTINGS, {
+    city: cityFilter,
+    purpose: purposeFilter,
+    housing: housingType ?? "",
+    budgetMax: appliedBudgetMax ? appliedBudgetMax * 10000 : null,
+    moveIn,
+    people: peopleCount,
+    extra: Array.from(moreFilters),
+    station: "",
+    area: areaFilter,
+  });
+  const visibleListingIdSet = visibleListingIds ? new Set(visibleListingIds) : null;
+  const displayedListings = visibleListingIdSet
+    ? hardFilteredListings.filter((listing) => visibleListingIdSet.has(listing.id))
+    : hardFilteredListings;
+  const isViewportEmpty = hardFilteredListings.length > 0 && displayedListings.length === 0;
   const hasActiveFilters = Boolean(
     cityFilter ||
       purposeFilter ||
@@ -1533,21 +1803,19 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
       moveIn ||
       peopleCount > 1 ||
       moreFilters.size > 0 ||
-      stationFilter ||
       areaFilter,
   );
   const pageTitle = hasActiveFilters ? t.pageTitle : t.allListingsTitle;
-  const activeListingInResults = filteredListings.find((listing) => listing.id === activeListingId);
-  const hoveredListingInResults = filteredListings.find((listing) => listing.id === hoveredListingId);
+  const activeListingInResults = displayedListings.find((listing) => listing.id === activeListingId);
+  const hoveredListingInResults = displayedListings.find((listing) => listing.id === hoveredListingId);
   const selectedListingInResults = selectedListing
-    ? filteredListings.find((listing) => listing.id === selectedListing.id)
+    ? displayedListings.find((listing) => listing.id === selectedListing.id)
     : undefined;
   const activeMapListing = hoveredListingInResults ?? activeListingInResults ?? selectedListingInResults ?? null;
   const effectiveActiveListingId = activeMapListing?.id ?? "";
   const housingLabel = housingType
     ? HOUSING_OPTIONS.find((option) => option.id === housingType)?.label[locale]
     : undefined;
-  const stationFilterLabel = stationFilter ? getListingMapGroupLabel("station", stationFilter) : "";
   const areaFilterLabel = areaFilter ? getListingMapGroupLabel("area", areaFilter) : "";
   const activeChips = [
     ...(cityFilter ? [{ id: "city", label: t.cityChip(formatCityLabel(cityFilter)) }] : []),
@@ -1564,9 +1832,6 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const appliedFilterRows = [
     ...(cityFilter
       ? [{ id: "city", group: t.filterGroupLabels.city, value: formatCityLabel(cityFilter) }]
-      : []),
-    ...(stationFilterLabel
-      ? [{ id: "station", group: t.filterGroupLabels.station, value: stationFilterLabel }]
       : []),
     ...(areaFilterLabel
       ? [{ id: "area", group: t.filterGroupLabels.area, value: areaFilterLabel }]
@@ -1594,10 +1859,10 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   useEffect(() => {
     if (!activeListingId && !selectedListing) return;
     const activeStillVisible = activeListingId
-      ? filteredListings.some((listing) => listing.id === activeListingId)
+      ? displayedListings.some((listing) => listing.id === activeListingId)
       : true;
     const selectedStillVisible = selectedListing
-      ? filteredListings.some((listing) => listing.id === selectedListing.id)
+      ? displayedListings.some((listing) => listing.id === selectedListing.id)
       : true;
 
     if (!activeStillVisible) {
@@ -1606,7 +1871,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
     if (!selectedStillVisible) {
       setSelectedListing(null);
     }
-  }, [activeListingId, filteredListings, selectedListing]);
+  }, [activeListingId, displayedListings, selectedListing]);
 
   useEffect(() => {
     if (appliedFilterRows.length === 0) {
@@ -1615,12 +1880,29 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   }, [appliedFilterRows.length]);
 
   useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    document.documentElement.classList.add("mh-listings-scroll-lock");
+    document.body.classList.add("mh-listings-scroll-lock");
+    return () => {
+      document.documentElement.classList.remove("mh-listings-scroll-lock");
+      document.body.classList.remove("mh-listings-scroll-lock");
+    };
+  }, []);
+
+  useEffect(() => {
     setHoveredListingId("");
     setActiveListingId((current) => {
-      if (filteredListings.some((listing) => listing.id === current)) return current;
-      return filteredListings[0]?.id ?? "";
+      if (displayedListings.some((listing) => listing.id === current)) return current;
+      return displayedListings[0]?.id ?? "";
     });
-  }, [filteredListings]);
+  }, [displayedListings]);
+
+  useEffect(() => {
+    setVisibleListingIds(null);
+    setSelectedListing(null);
+    setHoveredListingId("");
+  }, [hardFilterSignature]);
 
   const clearChecklistRecommendation = () => {
     setShowChecklistFilters(false);
@@ -1657,7 +1939,6 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   const removeActiveChip = (id: string) => {
     if (id === "city") setCityFilter("");
     if (id === "purpose") setPurposeFilter("");
-    if (id === "station") setStationFilter("");
     if (id === "area") setAreaFilter("");
     if (id === "budget") setAppliedBudgetMax(null);
     if (id === "housing") setHousingType(null);
@@ -1699,22 +1980,43 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
     setPeopleCount(1);
     setDraftMoreFilters(new Set());
     setMoreFilters(new Set());
-    setStationFilter("");
     setAreaFilter("");
+    setFocusedStationRequest(null);
+    setVisibleListingIds(null);
+    setManualFitNonce((value) => value + 1);
   };
 
-  const applyMapGroupFilter = (group: ListingMapGroupFilter) => {
+  const focusMapGroup = useCallback((group: ListingMapGroupFilter) => {
     setShowAppliedFilters(false);
     setSelectedListing(null);
     setActiveListingId("");
     if (group.kind === "station") {
-      setStationFilter(group.id);
-      setAreaFilter("");
+      setFocusedStationRequest({ id: group.id, nonce: stationFocusNonceRef.current++ });
       return;
     }
     setAreaFilter(group.id);
-    setStationFilter("");
-  };
+  }, []);
+
+  const handleMapSelectListing = useCallback((listing: MockListing) => {
+    setActiveListingId(listing.id);
+    if (typeof document !== "undefined") {
+      document.getElementById(`listing-result-${listing.id}`)?.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    }
+    setSelectedListing(listing);
+  }, []);
+
+  const handleVisibleListingIdsChange = useCallback((ids: string[] | null) => {
+    startTransition(() => {
+      setVisibleListingIds((current) => {
+        if (current === null && ids === null) return current;
+        if (current !== null && ids !== null && current.join("|") === ids.join("|")) return current;
+        return ids;
+      });
+    });
+  }, []);
 
   const toggleDraftMoreFilter = (id: ExtraFilterId) => {
     setDraftMoreFilters((current) => {
@@ -1725,8 +2027,8 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
   };
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-secondary">
-      <section className="border-b border-border bg-card">
+    <main className="flex h-[calc(100dvh-4rem)] min-h-0 flex-col overflow-hidden bg-secondary overscroll-none">
+      <section className="shrink-0 border-b border-border bg-card">
         <div className="flex min-h-[4.75rem] w-full flex-col gap-3 px-4 py-3 sm:px-5 lg:px-6 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex min-w-0 flex-1 items-center gap-2 xl:max-w-[38rem]">
             <div className="relative min-w-0 flex-1">
@@ -2042,8 +2344,8 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <section className="grid w-full gap-0 px-4 py-3 sm:px-5 lg:grid-cols-[5rem_minmax(20rem,23.5rem)_minmax(0,1fr)] lg:px-6">
-        <aside className="mb-3 flex gap-2 overflow-x-auto border-border bg-card p-2 shadow-sm lg:mb-0 lg:h-[calc(100vh-10rem)] lg:flex-col lg:overflow-visible lg:rounded-l-2xl lg:border lg:border-r-0">
+      <section className="grid min-h-0 flex-1 w-full gap-0 overflow-hidden px-4 py-3 sm:px-5 lg:grid-cols-[5rem_minmax(20rem,23.5rem)_minmax(0,1fr)] lg:px-6">
+        <aside className="mb-3 flex shrink-0 gap-2 overflow-x-auto border-border bg-card p-2 shadow-sm lg:mb-0 lg:h-full lg:flex-col lg:overflow-hidden lg:rounded-l-2xl lg:border lg:border-r-0">
           {SIDEBAR_ITEMS.map((item, index) => {
             const selected = index === 0;
 
@@ -2065,12 +2367,12 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
           })}
         </aside>
 
-        <section className="border border-border bg-card p-3 shadow-sm lg:h-[calc(100vh-10rem)] lg:overflow-y-auto lg:rounded-none">
+        <section className="min-h-0 overflow-y-auto overscroll-contain border border-border bg-card p-3 shadow-sm lg:h-full lg:rounded-none">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h1 className="text-xl font-bold text-foreground">{pageTitle}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                {t.resultCount(filteredListings.length)}
+                {t.resultCount(displayedListings.length)}
               </p>
             </div>
             <CurrencyToggle value={currency} onChange={setCurrency} />
@@ -2158,9 +2460,9 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
             )}
           </div>
 
-          {filteredListings.length > 0 ? (
+          {displayedListings.length > 0 ? (
             <ul className="mt-4 space-y-3">
-              {filteredListings.map((listing) => (
+              {displayedListings.map((listing) => (
                 <ListingResultCard
                   key={listing.id}
                   listing={listing}
@@ -2177,6 +2479,14 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
                 />
               ))}
             </ul>
+          ) : isViewportEmpty ? (
+            <ViewportEmptyState
+              t={t}
+              onShowAll={() => {
+                setVisibleListingIds(null);
+                setManualFitNonce((value) => value + 1);
+              }}
+            />
           ) : (
             <ZeroResultState locale={locale} t={t} onClearFilters={resetFilters} />
           )}
@@ -2186,17 +2496,18 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
           </p>
         </section>
 
-        <section className="relative mt-4 min-h-[34rem] overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:mt-0 lg:h-[calc(100vh-10rem)] lg:rounded-l-none">
+        <section className="relative mt-4 min-h-[24rem] overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:mt-0 lg:h-full lg:min-h-0 lg:rounded-l-none">
           <GoogleListingsMap
-            listings={filteredListings}
+            listings={hardFilteredListings}
             activeListingId={effectiveActiveListingId}
+            locale={locale}
             t={t}
             ttcOverlayLabel={t.ttcLines}
-            onSelectListing={(listing) => {
-              activateListing(listing, true);
-              setSelectedListing(listing);
-            }}
-            onSelectGroup={applyMapGroupFilter}
+            focusedStationRequest={focusedStationRequest}
+            fitRequestKey={`${hardFilterSignature}|${manualFitNonce}`}
+            onVisibleListingIdsChange={handleVisibleListingIdsChange}
+            onSelectListing={handleMapSelectListing}
+            onSelectGroup={focusMapGroup}
           />
 
           <div className="absolute left-4 top-4 z-10 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
@@ -2204,10 +2515,10 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
               {t.mapLabel}
             </span>
           </div>
-          {filteredListings.length === 0 && (
+          {(hardFilteredListings.length === 0 || isViewportEmpty) && (
             <div className="absolute inset-x-6 top-1/2 z-10 flex -translate-y-1/2 justify-center">
               <div className="rounded-full border border-border bg-background/95 px-4 py-2 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
-                {t.mapEmpty}
+                {hardFilteredListings.length === 0 ? t.mapEmpty : t.mapViewportEmpty}
               </div>
             </div>
           )}
@@ -2225,7 +2536,6 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
         onClose={() => setSelectedListing(null)}
       />
 
-      <p className="px-4 pb-6 text-center text-xs text-muted-foreground">{t.mvpNotice}</p>
     </main>
   );
 }
@@ -2513,6 +2823,24 @@ function ZeroResultState({
   );
 }
 
+function ViewportEmptyState({ t, onShowAll }: { t: L10n; onShowAll: () => void }) {
+  return (
+    <div className="mt-4 rounded-xl border border-border bg-white px-4 py-5">
+      <h2 className="text-sm font-bold text-foreground">{t.mapViewportEmpty}</h2>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{t.mapViewportEmptyBody}</p>
+      <div className="mt-4 border-t border-border pt-4">
+        <button
+          type="button"
+          onClick={onShowAll}
+          className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#FA7000]/60 bg-[#FFF3E6] px-3 text-xs font-semibold text-primary transition hover:bg-[#FFE8CC]"
+        >
+          {t.showAllListingLocations}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function CurrencyToggle({
   value,
   onChange,
@@ -2636,7 +2964,7 @@ function ListingResultCard({
               {resultTags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex h-5 min-w-0 items-center truncate rounded-full border border-primary/20 bg-[#FFF3E6] px-2 text-[11px] font-semibold leading-none text-primary"
+                  className="inline-flex h-5 min-w-0 items-center truncate rounded-full border border-slate-300/60 bg-white px-2 text-[11px] font-semibold leading-none text-slate-500"
                 >
                   {tag}
                 </span>
@@ -3189,32 +3517,60 @@ function InquiryOptionCard({
 function GoogleListingsMap({
   listings,
   activeListingId,
+  locale,
   t,
   ttcOverlayLabel,
+  focusedStationRequest,
+  fitRequestKey,
+  onVisibleListingIdsChange,
   onSelectListing,
   onSelectGroup,
 }: {
   listings: MockListing[];
   activeListingId: string;
+  locale: Locale;
   t: L10n;
   ttcOverlayLabel: string;
+  focusedStationRequest: StationFocusRequest | null;
+  fitRequestKey: string;
+  onVisibleListingIdsChange: (ids: string[] | null) => void;
   onSelectListing: (listing: MockListing) => void;
   onSelectGroup: (group: ListingMapGroupFilter) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<InstanceType<GoogleMapsApi["maps"]["Map"]> | null>(null);
-  const markersRef = useRef<Array<InstanceType<GoogleMapsApi["maps"]["Marker"]>>>([]);
-  const placeLabelMarkersRef = useRef<Array<InstanceType<GoogleMapsApi["maps"]["Marker"]>>>([]);
-  const ttcLinesRef = useRef<Array<InstanceType<GoogleMapsApi["maps"]["Polyline"]>>>([]);
-  const ttcStationMarkersRef = useRef<Array<InstanceType<GoogleMapsApi["maps"]["Marker"]>>>([]);
+  const markersRef = useRef<Map<string, InstanceType<GoogleMapsApi["maps"]["Marker"]>>>(new Map());
+  const placeLabelMarkersRef = useRef<Map<string, InstanceType<GoogleMapsApi["maps"]["Marker"]>>>(new Map());
+  const ttcLinesRef = useRef<Map<string, InstanceType<GoogleMapsApi["maps"]["Polyline"]>>>(new Map());
+  const ttcStationMarkersRef = useRef<Map<string, InstanceType<GoogleMapsApi["maps"]["Marker"]>>>(new Map());
+  const clusterDataRef = useRef<Map<string, ListingCluster>>(new Map());
   const projectionOverlayRef = useRef<InstanceType<GoogleMapsApi["maps"]["OverlayView"]> | null>(null);
-  const lastFitSignatureRef = useRef("");
+  const lastFitRequestKeyRef = useRef("");
+  const lastStationFocusKeyRef = useRef("");
+  const consumedStationFocusKeysRef = useRef<Set<string>>(new Set());
+  const markerOverlaySignatureRef = useRef("");
+  const ttcRouteOverlaySignatureRef = useRef("");
+  const projectionRetryIdRef = useRef<number | null>(null);
+  const mapZoomRef = useRef(12);
+  const programmaticMapMoveRef = useRef(false);
+  const userHasInteractedWithMapRef = useRef(false);
+  const onSelectListingRef = useRef(onSelectListing);
+  const onSelectGroupRef = useRef(onSelectGroup);
   const [loadState, setLoadState] = useState<"idle" | "loading" | "ready" | "missing" | "error">("idle");
-  const [mapZoom, setMapZoom] = useState(12);
   const [mapRevision, setMapRevision] = useState(0);
   const [showTtcOverlay, setShowTtcOverlay] = useState(true);
+  const [mapTypeId, setMapTypeId] = useState<ListingMapTypeId>(() => getStoredListingMapType());
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   const transitProfile = TRANSIT_CITY_PROFILES[DEFAULT_TRANSIT_CITY_ID];
+  const mapTypeLabels = LISTING_MAP_TYPE_LABELS[locale];
+
+  useEffect(() => {
+    onSelectListingRef.current = onSelectListing;
+  }, [onSelectListing]);
+
+  useEffect(() => {
+    onSelectGroupRef.current = onSelectGroup;
+  }, [onSelectGroup]);
 
   useEffect(() => {
     if (!apiKey?.trim()) {
@@ -3236,6 +3592,7 @@ function GoogleListingsMap({
             clickableIcons: false,
             fullscreenControl: false,
             mapTypeControl: false,
+            mapTypeId,
             streetViewControl: false,
             styles: [
               { featureType: "poi", stylers: [{ visibility: "off" }] },
@@ -3247,9 +3604,24 @@ function GoogleListingsMap({
 
           mapRef.current.addListener("zoom_changed", () => {
             const zoom = mapRef.current?.getZoom();
-            if (typeof zoom === "number") setMapZoom(zoom);
+            if (typeof zoom === "number") {
+              mapZoomRef.current = zoom;
+            }
+            if (!programmaticMapMoveRef.current) {
+              userHasInteractedWithMapRef.current = true;
+            }
+          });
+          mapRef.current.addListener("dragstart", () => {
+            if (!programmaticMapMoveRef.current) {
+              userHasInteractedWithMapRef.current = true;
+            }
           });
           mapRef.current.addListener("idle", () => {
+            const zoom = mapRef.current?.getZoom();
+            if (typeof zoom === "number") {
+              mapZoomRef.current = zoom;
+            }
+            programmaticMapMoveRef.current = false;
             setMapRevision((revision) => revision + 1);
           });
 
@@ -3262,7 +3634,9 @@ function GoogleListingsMap({
         }
 
         const zoom = mapRef.current.getZoom();
-        if (typeof zoom === "number") setMapZoom(zoom);
+        if (typeof zoom === "number") {
+          mapZoomRef.current = zoom;
+        }
         setLoadState("ready");
       })
       .catch(() => {
@@ -3271,78 +3645,196 @@ function GoogleListingsMap({
 
     return () => {
       cancelled = true;
+      if (projectionRetryIdRef.current !== null) {
+        window.clearTimeout(projectionRetryIdRef.current);
+        projectionRetryIdRef.current = null;
+      }
     };
   }, [apiKey]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    mapRef.current.setMapTypeId(mapTypeId);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(LISTING_MAP_TYPE_STORAGE_KEY, mapTypeId);
+    }
+  }, [mapTypeId]);
+
+  useEffect(() => {
+    if (!apiKey?.trim() || loadState !== "ready" || !mapRef.current) return;
+
+    if (listings.length === 0) {
+      onVisibleListingIdsChange([]);
+      return;
+    }
+
+    const bounds = mapRef.current.getBounds();
+    if (!bounds) {
+      onVisibleListingIdsChange(null);
+      return;
+    }
+
+    const ids = listings
+      .filter((listing) => bounds.contains(listing.mapLocation))
+      .map((listing) => listing.id)
+      .sort();
+    onVisibleListingIdsChange(ids);
+  }, [apiKey, listings, loadState, mapRevision, onVisibleListingIdsChange]);
 
   useEffect(() => {
     if (!apiKey?.trim() || loadState !== "ready" || !window.google?.maps || !mapRef.current) return;
 
     const google = window.google;
-    markersRef.current.forEach((marker) => marker.setMap(null));
-    placeLabelMarkersRef.current.forEach((marker) => marker.setMap(null));
-    markersRef.current = [];
-    placeLabelMarkersRef.current = [];
 
     if (listings.length === 0) {
-      mapRef.current.setCenter(transitProfile.center);
-      mapRef.current.setZoom(11);
+      if (markerOverlaySignatureRef.current !== "empty") {
+        markersRef.current.forEach((marker) => marker.setMap(null));
+        placeLabelMarkersRef.current.forEach((marker) => marker.setMap(null));
+        markersRef.current.clear();
+        placeLabelMarkersRef.current.clear();
+        clusterDataRef.current.clear();
+        markerOverlaySignatureRef.current = "empty";
+      }
       return;
     }
 
     const projection = projectionOverlayRef.current?.getProjection();
-    if (!projection) return;
+    if (!projection) {
+      if (projectionRetryIdRef.current === null) {
+        projectionRetryIdRef.current = window.setTimeout(() => {
+          projectionRetryIdRef.current = null;
+          setMapRevision((revision) => revision + 1);
+        }, 120);
+      }
+      return;
+    }
 
-    const clusters = buildListingClusters(listings, mapZoom, google, projection);
+    const effectiveMapZoom = mapRef.current.getZoom() ?? mapZoomRef.current;
+    const clusters = buildListingClusters(listings, effectiveMapZoom, google, projection);
     const countMarkerBoxes = clusters.map((cluster) =>
       getPixelBox(cluster.x, cluster.y, getClusterMarkerDiameter(cluster.count, cluster.listings.some((listing) => listing.id === activeListingId))),
     );
+    const stationLabels =
+      showTtcOverlay && effectiveMapZoom >= 13
+        ? buildVisibleStationLabels(listings, effectiveMapZoom, google, projection, mapRef.current, countMarkerBoxes)
+        : [];
+    const nextOverlaySignature = `${getClusterOverlaySignature(clusters, activeListingId)}::${getStationLabelOverlaySignature(stationLabels)}`;
+
+    if (nextOverlaySignature === markerOverlaySignatureRef.current) return;
+
+    markerOverlaySignatureRef.current = nextOverlaySignature;
+    const nextClusterKeys = new Set<string>();
 
     clusters.forEach((cluster) => {
+      nextClusterKeys.add(cluster.id);
+      clusterDataRef.current.set(cluster.id, cluster);
       const isActive = cluster.listings.some((listing) => listing.id === activeListingId);
+      const label = {
+        color: "#FFFFFF",
+        fontSize: cluster.count >= 20 ? "13px" : "12px",
+        fontWeight: "800",
+        text: String(cluster.count),
+      };
+      const position = { lat: cluster.lat, lng: cluster.lng };
+      const existingMarker = markersRef.current.get(cluster.id);
+
+      if (existingMarker) {
+        const marker = existingMarker as unknown as MutableGoogleMarker;
+        marker.setIcon(createClusterMarkerIcon(google, cluster.count, isActive));
+        marker.setLabel(label);
+        marker.setPosition(position);
+        marker.setTitle(t.clusterTitle(cluster.count));
+        marker.setZIndex(isActive ? 140 : 120);
+        marker.setMap(mapRef.current);
+        return;
+      }
+
       const marker = new google.maps.Marker({
         icon: createClusterMarkerIcon(google, cluster.count, isActive),
-        label: {
-          color: "#FFFFFF",
-          fontSize: cluster.count >= 20 ? "13px" : "12px",
-          fontWeight: "800",
-          text: String(cluster.count),
-        },
+        label,
         map: mapRef.current,
-        position: { lat: cluster.lat, lng: cluster.lng },
+        position,
         title: t.clusterTitle(cluster.count),
         zIndex: isActive ? 140 : 120,
       });
 
+      const clusterKey = cluster.id;
       marker.addListener("click", () => {
-        if (cluster.count === 1) {
-          onSelectListing(cluster.listings[0]);
+        const currentCluster = clusterDataRef.current.get(clusterKey);
+        if (!currentCluster) return;
+        if (currentCluster.count === 1) {
+          onSelectListingRef.current(currentCluster.listings[0]);
           return;
         }
 
-        mapRef.current?.setCenter({ lat: cluster.lat, lng: cluster.lng });
-        mapRef.current?.setZoom(Math.min((mapRef.current.getZoom() ?? mapZoom) + 2, 17));
+        programmaticMapMoveRef.current = true;
+        mapRef.current?.setCenter({ lat: currentCluster.lat, lng: currentCluster.lng });
+        mapRef.current?.setZoom(Math.min((mapRef.current.getZoom() ?? mapZoomRef.current) + 2, 17));
       });
-      markersRef.current.push(marker);
+      markersRef.current.set(cluster.id, marker);
     });
 
-    if (mapZoom >= 15) {
-      buildVisiblePlaceLabels(listings, mapZoom, google, projection, countMarkerBoxes).forEach((place) => {
+    markersRef.current.forEach((marker, key) => {
+      if (nextClusterKeys.has(key)) return;
+      marker.setMap(null);
+      markersRef.current.delete(key);
+      clusterDataRef.current.delete(key);
+    });
+
+    const nextStationLabelKeys = new Set<string>();
+
+    if (stationLabels.length > 0) {
+      stationLabels.forEach((place) => {
+        nextStationLabelKeys.add(place.station.id);
+        const icon = createStationLabelIcon(
+          google,
+          place.label,
+          place.placement,
+          effectiveMapZoom >= 17,
+          place.visual,
+        );
+        const position = { lat: place.station.lat, lng: place.station.lng };
+        const existingMarker = placeLabelMarkersRef.current.get(place.station.id);
+
+        if (existingMarker) {
+          const marker = existingMarker as unknown as MutableGoogleMarker;
+          marker.setIcon(icon);
+          marker.setPosition(position);
+          marker.setTitle(place.label);
+          marker.setMap(mapRef.current);
+          return;
+        }
+
         const marker = new google.maps.Marker({
-          icon: createPlaceLabelIcon(google, place.label),
+          icon,
           map: mapRef.current,
-          position: { lat: place.lat, lng: place.lng },
+          position,
           title: place.label,
-          zIndex: 95,
+          zIndex: 90,
         });
-        marker.addListener("click", () => onSelectGroup(place));
-        placeLabelMarkersRef.current.push(marker);
+        marker.addListener("click", () =>
+          onSelectGroupRef.current({ kind: "station", id: place.station.id, label: place.label }),
+        );
+        placeLabelMarkersRef.current.set(place.station.id, marker);
       });
     }
 
-    const fitSignature = listings.map((listing) => listing.id).join("|");
-    if (fitSignature === lastFitSignatureRef.current) return;
-    lastFitSignatureRef.current = fitSignature;
+    placeLabelMarkersRef.current.forEach((marker, key) => {
+      if (nextStationLabelKeys.has(key)) return;
+      marker.setMap(null);
+      placeLabelMarkersRef.current.delete(key);
+    });
+  }, [activeListingId, apiKey, listings, loadState, mapRevision, showTtcOverlay]);
 
+  useEffect(() => {
+    if (!apiKey?.trim() || loadState !== "ready" || !window.google?.maps || !mapRef.current) return;
+    if (fitRequestKey === lastFitRequestKeyRef.current) return;
+    lastFitRequestKeyRef.current = fitRequestKey;
+    if (listings.length === 0) return;
+
+    const google = window.google;
+    programmaticMapMoveRef.current = true;
     if (listings.length === 1) {
       mapRef.current.panTo(listings[0].mapLocation);
       mapRef.current.setZoom(14);
@@ -3351,46 +3843,91 @@ function GoogleListingsMap({
       listings.forEach((listing) => bounds.extend(listing.mapLocation));
       mapRef.current.fitBounds(bounds, 72);
     }
-  }, [activeListingId, apiKey, listings, loadState, mapRevision, mapZoom, onSelectGroup, onSelectListing, t, transitProfile.center]);
+  }, [apiKey, fitRequestKey, listings, loadState]);
+
+  useEffect(() => {
+    if (!focusedStationRequest || !apiKey?.trim() || loadState !== "ready" || !window.google?.maps || !mapRef.current) return;
+
+    const focusKey = `${focusedStationRequest.id}:${focusedStationRequest.nonce}`;
+    if (focusKey === lastStationFocusKeyRef.current || consumedStationFocusKeysRef.current.has(focusKey)) return;
+
+    const google = window.google;
+    const station = TTC_STATIONS.find((item) => item.id === focusedStationRequest.id);
+    if (!station) return;
+
+    lastStationFocusKeyRef.current = focusKey;
+    consumedStationFocusKeysRef.current.add(focusKey);
+    programmaticMapMoveRef.current = true;
+
+    const nearbyListings = listings.filter(
+      (listing) => getDistanceMeters(listing.mapLocation, station) <= TTC_STATION_FOCUS_RADIUS_METERS,
+    );
+
+    if (nearbyListings.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend({ lat: station.lat, lng: station.lng });
+      nearbyListings.forEach((listing) => bounds.extend(listing.mapLocation));
+      mapRef.current.fitBounds(bounds, 80);
+      return;
+    }
+
+    mapRef.current.panTo({ lat: station.lat, lng: station.lng });
+    if ((mapRef.current.getZoom() ?? mapZoomRef.current) < 15) {
+      mapRef.current.setZoom(15);
+    }
+  }, [apiKey, focusedStationRequest, listings, loadState]);
 
   useEffect(() => {
     if (!apiKey?.trim() || loadState !== "ready" || !window.google?.maps || !mapRef.current) return;
 
     const google = window.google;
-    ttcLinesRef.current.forEach((line) => line.setMap(null));
-    ttcStationMarkersRef.current.forEach((marker) => marker.setMap(null));
-    ttcLinesRef.current = [];
-    ttcStationMarkersRef.current = [];
-
-    if (!showTtcOverlay) return;
+    const nextRouteSignature = showTtcOverlay ? "ttc-on" : "ttc-off";
+    if (nextRouteSignature === ttcRouteOverlaySignatureRef.current) return;
+    ttcRouteOverlaySignatureRef.current = nextRouteSignature;
 
     TTC_LINES.forEach((line) => {
+      const key = `line-${line.id}`;
+      const existingLine = ttcLinesRef.current.get(key);
+      if (existingLine) {
+        existingLine.setMap(showTtcOverlay ? mapRef.current : null);
+        return;
+      }
+
       const polyline = new google.maps.Polyline({
         clickable: false,
-        map: mapRef.current,
+        map: showTtcOverlay ? mapRef.current : null,
         path: line.path,
         strokeColor: line.color,
         strokeOpacity: 0.58,
         strokeWeight: line.id === "1" ? 4 : 3,
         zIndex: 10,
       });
-      ttcLinesRef.current.push(polyline);
+      ttcLinesRef.current.set(key, polyline);
     });
 
     TTC_STATIONS.forEach((station) => {
+      const existingMarker = ttcStationMarkersRef.current.get(station.id);
+      if (existingMarker) {
+        existingMarker.setMap(showTtcOverlay ? mapRef.current : null);
+        return;
+      }
+
       const primaryLine = TTC_LINES.find((line) => station.lineIds.includes(line.id));
       const color = primaryLine?.color ?? "#8A8F98";
       const marker = new google.maps.Marker({
-        clickable: false,
+        clickable: true,
         icon: createTtcStationIcon(google, color, Boolean(station.major)),
-        map: mapRef.current,
+        map: showTtcOverlay ? mapRef.current : null,
         position: { lat: station.lat, lng: station.lng },
         title: station.name,
         zIndex: station.major ? 25 : 20,
       });
-      ttcStationMarkersRef.current.push(marker);
+      marker.addListener("click", () =>
+        onSelectGroupRef.current({ kind: "station", id: station.id, label: getStationMapLabel(station.name) }),
+      );
+      ttcStationMarkersRef.current.set(station.id, marker);
     });
-  }, [apiKey, loadState, mapZoom, showTtcOverlay]);
+  }, [apiKey, loadState, showTtcOverlay]);
 
   if (loadState === "missing") {
     return (
@@ -3415,21 +3952,42 @@ function GoogleListingsMap({
   return (
     <>
       <div ref={containerRef} className="absolute inset-0 bg-[#EEF1F2]" />
-      <button
-        type="button"
-        onClick={() => setShowTtcOverlay((value) => !value)}
-        className={cn(
-          "absolute right-4 top-4 z-20 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur transition",
-          showTtcOverlay
-            ? "border-primary/30 bg-[#FFF3E6]/95 text-primary hover:bg-[#FFE8CC]"
-            : "border-border bg-background/95 text-muted-foreground hover:text-foreground",
-        )}
-      >
-        {ttcOverlayLabel}
-      </button>
-      <div className="absolute bottom-7 right-4 z-20 max-w-[15rem] rounded-full bg-white/75 px-3 py-1 text-[10px] font-medium leading-tight text-slate-700/70 shadow-sm backdrop-blur">
-        {t.ttcAttribution}
+      <div className="absolute right-4 top-4 z-20 flex max-w-[calc(100%-2rem)] flex-wrap justify-end gap-2">
+        <div className="flex rounded-full border border-border bg-background/95 p-0.5 text-xs font-semibold shadow-sm backdrop-blur">
+          {LISTING_MAP_TYPE_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => setMapTypeId(option.id)}
+              className={cn(
+                "rounded-full px-2.5 py-1 transition",
+                mapTypeId === option.id
+                  ? "border border-primary/30 bg-[#FFF3E6] text-primary"
+                  : "border border-transparent text-slate-600 hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {mapTypeLabels[option.id]}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowTtcOverlay((value) => !value)}
+          className={cn(
+            "rounded-full border px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur transition",
+            showTtcOverlay
+              ? "border-primary/30 bg-[#FFF3E6]/95 text-primary hover:bg-[#FFE8CC]"
+              : "border-border bg-background/95 text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {ttcOverlayLabel}
+        </button>
       </div>
+      {showTtcOverlay && (
+        <div className="absolute bottom-7 right-4 z-20 max-w-[15rem] rounded-full bg-white/75 px-3 py-1 text-[10px] font-medium leading-tight text-slate-700/70 shadow-sm backdrop-blur">
+          {t.ttcAttribution}
+        </div>
+      )}
       {loadState === "loading" && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/60">
           <div className="rounded-full border border-border bg-background/95 px-4 py-2 text-xs font-medium text-muted-foreground shadow-sm">
@@ -3452,6 +4010,15 @@ interface ListingCluster {
   group?: ListingMapGroupFilter;
 }
 
+interface MutableGoogleMarker {
+  setIcon: (icon: Record<string, unknown>) => void;
+  setLabel: (label: Record<string, string>) => void;
+  setMap: (map: unknown) => void;
+  setPosition: (position: GoogleMapsLatLngLiteral) => void;
+  setTitle: (title: string) => void;
+  setZIndex: (zIndex: number) => void;
+}
+
 interface PixelBox {
   bottom: number;
   left: number;
@@ -3459,9 +4026,99 @@ interface PixelBox {
   top: number;
 }
 
+type TtcStation = (typeof TTC_STATIONS)[number];
+type StationLabelPlacement =
+  | "above"
+  | "below"
+  | "left"
+  | "right"
+  | "above-left"
+  | "above-right"
+  | "below-left"
+  | "below-right";
+
+interface VisibleStationLabel {
+  label: string;
+  placement: StationLabelPlacement;
+  station: TtcStation;
+  visual: TtcStationLabelVisual;
+}
+
+interface TtcStationLabelVisual {
+  backgroundColor: string;
+  borderColor: string;
+  lineColors: string[];
+  textColor: string;
+  textStrokeColor: string;
+  transfer: boolean;
+}
+
+type ListingMapTypeId = "roadmap" | "satellite" | "hybrid";
+
+const LISTING_MAP_TYPE_STORAGE_KEY = "maplehouse:listingsMapType";
+const TTC_STATION_FOCUS_RADIUS_METERS = 1200;
+const LISTING_MAP_TYPE_OPTIONS: Array<{ id: ListingMapTypeId }> = [
+  { id: "roadmap" },
+  { id: "satellite" },
+  { id: "hybrid" },
+];
+const LISTING_MAP_TYPE_LABELS: Record<Locale, Record<ListingMapTypeId, string>> = {
+  ko: {
+    roadmap: "지도",
+    satellite: "위성",
+    hybrid: "혼합",
+  },
+  en: {
+    roadmap: "Map",
+    satellite: "Satellite",
+    hybrid: "Hybrid",
+  },
+  fr: {
+    roadmap: "Carte",
+    satellite: "Satellite",
+    hybrid: "Hybride",
+  },
+};
+const TTC_STATION_LABEL_COLORS: Record<TtcLineId, string> = {
+  "1": "rgba(226, 216, 122, 0.54)",
+  "2": "rgba(128, 184, 137, 0.54)",
+  "4": "rgba(190, 162, 204, 0.54)",
+  "5": "rgba(238, 178, 124, 0.54)",
+  "6": "rgba(176, 184, 190, 0.54)",
+};
+
 type GoogleProjection = NonNullable<
   ReturnType<InstanceType<GoogleMapsApi["maps"]["OverlayView"]>["getProjection"]>
 >;
+
+function isListingMapTypeId(value: string | null): value is ListingMapTypeId {
+  return value === "roadmap" || value === "satellite" || value === "hybrid";
+}
+
+function getStoredListingMapType(): ListingMapTypeId {
+  if (typeof window === "undefined") return "roadmap";
+  const storedValue = window.localStorage.getItem(LISTING_MAP_TYPE_STORAGE_KEY);
+  return isListingMapTypeId(storedValue) ? storedValue : "roadmap";
+}
+
+function getTtcStationLabelColor(lineId: TtcLineId) {
+  return TTC_STATION_LABEL_COLORS[lineId];
+}
+
+function getTtcStationLabelVisual(station: TtcStation): TtcStationLabelVisual {
+  const lineIds = station.lineIds.filter((lineId, index, lineIds) => lineIds.indexOf(lineId) === index);
+  const lineColors = lineIds.map(getTtcStationLabelColor);
+  const transfer = lineColors.length === 2;
+
+  return {
+    backgroundColor: lineColors[0] ?? "rgba(176, 184, 190, 0.54)",
+    borderColor: "rgba(255, 255, 255, 0.48)",
+    lineColors,
+    textColor: "#334155",
+    textStrokeColor: "rgba(255, 255, 255, 0.36)",
+    transfer,
+  };
+}
 
 function getClusterRadiusPx(zoom: number) {
   if (zoom <= 10) return 110;
@@ -3497,6 +4154,12 @@ function boxesOverlap(a: PixelBox, b: PixelBox, gap = 8) {
   );
 }
 
+function getOverlapArea(a: PixelBox, b: PixelBox) {
+  const width = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const height = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  return width * height;
+}
+
 function projectListingPoint(
   google: GoogleMapsApi,
   projection: GoogleProjection,
@@ -3507,53 +4170,135 @@ function projectListingPoint(
   return point;
 }
 
-function buildVisiblePlaceLabels(
+function getStationLabelBox(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  placement: StationLabelPlacement,
+): PixelBox {
+  const offsets: Record<StationLabelPlacement, { dx: number; dy: number }> = {
+    above: { dx: 0, dy: -25 },
+    below: { dx: 0, dy: 25 },
+    left: { dx: -(width / 2 + 11), dy: 0 },
+    right: { dx: width / 2 + 11, dy: 0 },
+    "above-left": { dx: -(width / 2 + 8), dy: -22 },
+    "above-right": { dx: width / 2 + 8, dy: -22 },
+    "below-left": { dx: -(width / 2 + 8), dy: 22 },
+    "below-right": { dx: width / 2 + 8, dy: 22 },
+  };
+  const offset = offsets[placement];
+  const centerX = x + offset.dx;
+  const centerY = y + offset.dy;
+
+  return {
+    bottom: centerY + height / 2,
+    left: centerX - width / 2,
+    right: centerX + width / 2,
+    top: centerY - height / 2,
+  };
+}
+
+function getStationLabelSize(name: string, compact: boolean) {
+  return {
+    height: compact ? 18 : 19,
+    width: Math.min(Math.max(name.length * (compact ? 5.6 : 5.8) + 22, compact ? 54 : 60), compact ? 148 : 172),
+  };
+}
+
+function getStationMapLabel(name: string) {
+  const normalizedName = name.replace(/\s+Station$/i, "").trim();
+  return `${normalizedName} Station`;
+}
+
+function getStationLabelPriority(
+  station: TtcStation,
+  viewportCenter: GoogleMapsLatLngLiteral,
+  focusedStationIds: Set<string>,
+) {
+  const distance = getDistanceMeters(station, viewportCenter);
+  const selectedWeight = focusedStationIds.has(station.id) ? -500000 : 0;
+  const majorWeight = station.major ? -300000 : 0;
+  const terminalWeight = station.terminal ? -200000 : 0;
+  return selectedWeight + majorWeight + terminalWeight + distance;
+}
+
+function buildVisibleStationLabels(
   listings: MockListing[],
   zoom: number,
   google: GoogleMapsApi,
   projection: GoogleProjection,
+  map: InstanceType<GoogleMapsApi["maps"]["Map"]>,
   countMarkerBoxes: PixelBox[],
-): ListingMapGroup[] {
-  const grouped = new Map<string, ListingMapGroup & { count: number }>();
+): VisibleStationLabel[] {
+  if (zoom <= 12) return [];
 
-  listings.forEach((listing) => {
-    const group = getListingMapGroup(listing);
-    const key = `${group.kind}:${group.id}`;
-    const current = grouped.get(key);
-    if (current) {
-      current.count += 1;
-      return;
-    }
-    grouped.set(key, { ...group, count: 1 });
-  });
-
-  const visible: ListingMapGroup[] = [];
+  const focusedStationIds = new Set(
+    listings
+      .map(getListingMapGroup)
+      .filter((group) => group.kind === "station")
+      .map((group) => group.id),
+  );
+  const bounds = map.getBounds();
+  const boundStations = TTC_STATIONS.filter((station) => !bounds || bounds.contains(station));
+  const focusedStations = TTC_STATIONS.filter((station) => focusedStationIds.has(station.id));
+  const visibleStations = Array.from(
+    new Map([...focusedStations, ...boundStations].map((station) => [station.id, station])).values(),
+  );
+  const viewportCenter =
+    visibleStations.length > 0
+      ? {
+          lat: visibleStations.reduce((sum, station) => sum + station.lat, 0) / visibleStations.length,
+          lng: visibleStations.reduce((sum, station) => sum + station.lng, 0) / visibleStations.length,
+        }
+      : { lat: 43.6532, lng: -79.3832 };
+  const visible: VisibleStationLabel[] = [];
   const usedBoxes = [...countMarkerBoxes];
-  const candidates = Array.from(grouped.values()).sort((a, b) => {
-    if (a.kind !== b.kind) return a.kind === "station" ? -1 : 1;
-    return b.count - a.count || a.label.localeCompare(b.label);
-  });
-  const maxLabels = zoom >= 16 ? 18 : 8;
+  const candidates = visibleStations
+    .sort((a, b) => getStationLabelPriority(a, viewportCenter, focusedStationIds) - getStationLabelPriority(b, viewportCenter, focusedStationIds));
+  const placements: StationLabelPlacement[] = [
+    "above",
+    "below",
+    "left",
+    "right",
+    "above-left",
+    "above-right",
+    "below-left",
+    "below-right",
+  ];
 
-  candidates.forEach((candidate) => {
-    if (visible.length >= maxLabels) return;
-    if (zoom === 15 && candidate.kind !== "station" && candidate.count < 3) return;
-
-    const point = projectListingPoint(google, projection, candidate);
+  candidates.forEach((station) => {
+    const point = projectListingPoint(google, projection, station);
     if (!point) return;
 
-    const width = Math.min(Math.max(candidate.label.length * 7.2 + 24, 72), 138);
-    const box = {
-      bottom: point.y + 14,
-      left: point.x - width / 2,
-      right: point.x + width / 2,
-      top: point.y - 14,
-    };
+    const label = getStationMapLabel(station.name);
+    const visual = getTtcStationLabelVisual(station);
+    const compact = zoom >= 17;
+    const collisionGap = zoom >= 17 ? 2 : zoom >= 16 ? 4 : zoom >= 15 ? 6 : 8;
+    const size = getStationLabelSize(label, compact);
+    const boxes = placements.map((placement) => ({
+      box: getStationLabelBox(point.x, point.y, size.width, size.height, placement),
+      placement,
+    }));
+    const firstSafe = boxes.find(({ box }) => !usedBoxes.some((usedBox) => boxesOverlap(box, usedBox, collisionGap)));
 
-    const overlaps = usedBoxes.some((usedBox) => boxesOverlap(box, usedBox, 10));
-    if (!overlaps) {
-      visible.push(candidate);
-      usedBoxes.push(box);
+    if (firstSafe) {
+      visible.push({ label, placement: firstSafe.placement, station, visual });
+      usedBoxes.push(firstSafe.box);
+      return;
+    }
+
+    if (zoom >= 16) {
+      const leastOverlap = boxes
+        .map((candidate) => ({
+          ...candidate,
+          score: usedBoxes.reduce((sum, usedBox) => sum + getOverlapArea(candidate.box, usedBox), 0),
+        }))
+        .sort((a, b) => a.score - b.score)[0];
+      if (leastOverlap) {
+        visible.push({ label, placement: leastOverlap.placement, station, visual });
+        usedBoxes.push(leastOverlap.box);
+      }
     }
   });
 
@@ -3618,10 +4363,36 @@ function buildListingClusters(
         const clusterPoint = projectListingPoint(google, projection, clusterListing.mapLocation);
         return sum + (clusterPoint?.y ?? cluster.y);
       }, 0) / cluster.count;
-    cluster.id = cluster.listings.map((clusterListing) => clusterListing.id).join("|");
+    cluster.id = cluster.listings.map((clusterListing) => clusterListing.id).sort().join("|");
   });
 
   return clusters;
+}
+
+function getClusterOverlaySignature(clusters: ListingCluster[], activeListingId: string) {
+  return clusters
+    .map((cluster) => {
+      const listingIds = cluster.listings.map((listing) => listing.id).sort().join(",");
+      const active = cluster.listings.some((listing) => listing.id === activeListingId) ? "active" : "idle";
+      return [
+        listingIds,
+        active,
+        cluster.count,
+        Math.round(cluster.lat * 100000),
+        Math.round(cluster.lng * 100000),
+        Math.round(cluster.x),
+        Math.round(cluster.y),
+      ].join(":");
+    })
+    .sort()
+    .join("|");
+}
+
+function getStationLabelOverlaySignature(labels: VisibleStationLabel[]) {
+  return labels
+    .map((label) => `${label.station.id}:${label.placement}:${label.label}`)
+    .sort()
+    .join("|");
 }
 
 function createClusterMarkerIcon(google: GoogleMapsApi, count: number, active: boolean) {
@@ -3639,18 +4410,42 @@ function createClusterMarkerIcon(google: GoogleMapsApi, count: number, active: b
   };
 }
 
-function createPlaceLabelIcon(google: GoogleMapsApi, text: string) {
-  const width = Math.min(Math.max(text.length * 7.2 + 24, 72), 138);
-  const height = 28;
+function createStationLabelIcon(
+  google: GoogleMapsApi,
+  text: string,
+  placement: StationLabelPlacement,
+  compact: boolean,
+  visual: TtcStationLabelVisual,
+) {
+  const { height, width } = getStationLabelSize(text, compact);
+  const offsets: Record<StationLabelPlacement, { dx: number; dy: number }> = {
+    above: { dx: 0, dy: -25 },
+    below: { dx: 0, dy: 25 },
+    left: { dx: -(width / 2 + 11), dy: 0 },
+    right: { dx: width / 2 + 11, dy: 0 },
+    "above-left": { dx: -(width / 2 + 8), dy: -22 },
+    "above-right": { dx: width / 2 + 8, dy: -22 },
+    "below-left": { dx: -(width / 2 + 8), dy: 22 },
+    "below-right": { dx: width / 2 + 8, dy: 22 },
+  };
+  const offset = offsets[placement];
   const safeText = text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect x="0" y="0" width="${width}" height="${height}" rx="14" fill="#3B82F6" fill-opacity="0.94"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="11" font-weight="700">${safeText}</text></svg>`;
+  const fontSize = compact ? 9.4 : 10.1;
+  const rx = height / 2 - 1;
+  const rightStartTop = Math.round(width * 0.47);
+  const rightStartBottom = Math.round(width * 0.55);
+  const fill =
+    visual.transfer && visual.lineColors.length === 2
+      ? `<defs><clipPath id="stationPillClip"><rect x="1" y="1" width="${width - 2}" height="${height - 2}" rx="${rx}"/></clipPath><filter id="stationShadow" x="-18%" y="-55%" width="136%" height="210%"><feDropShadow dx="0" dy="2" stdDeviation="1.8" flood-color="#0F172A" flood-opacity="0.08"/></filter></defs><g clip-path="url(#stationPillClip)" filter="url(#stationShadow)"><rect x="1" y="1" width="${width - 2}" height="${height - 2}" fill="${visual.lineColors[0]}"/><polygon points="${rightStartTop},1 ${width - 1},1 ${width - 1},${height - 1} ${rightStartBottom},${height - 1}" fill="${visual.lineColors[1]}"/></g><rect x="1" y="1" width="${width - 2}" height="${height - 2}" rx="${rx}" fill="none" stroke="${visual.borderColor}" stroke-width="1"/>`
+      : `<defs><filter id="stationShadow" x="-18%" y="-55%" width="136%" height="210%"><feDropShadow dx="0" dy="2" stdDeviation="1.8" flood-color="#0F172A" flood-opacity="0.08"/></filter></defs><rect x="1" y="1" width="${width - 2}" height="${height - 2}" rx="${rx}" fill="${visual.backgroundColor}" stroke="${visual.borderColor}" stroke-width="1" filter="url(#stationShadow)"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${fill}<text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="${visual.textColor}" stroke="${visual.textStrokeColor}" stroke-width="0.75" paint-order="stroke fill" stroke-linejoin="round" font-family="Arial, sans-serif" font-size="${fontSize}" font-weight="600">${safeText}</text></svg>`;
 
   return {
-    anchor: new google.maps.Point(width / 2, height / 2),
+    anchor: new google.maps.Point(width / 2 - offset.dx, height / 2 - offset.dy),
     scaledSize: new google.maps.Size(width, height),
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
   };

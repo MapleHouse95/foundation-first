@@ -7,6 +7,7 @@ export interface TtcStation {
   lat: number;
   lng: number;
   major?: boolean;
+  terminal?: boolean;
 }
 
 export interface TtcLine {
@@ -94,10 +95,12 @@ export const TTC_STATIONS: TtcStation[] = [
     "id": "bloor-yonge",
     "name": "Bloor-Yonge",
     "lineIds": [
-      "1"
+      "1",
+      "2"
     ],
-    "lat": 43.670049,
-    "lng": -79.385389
+    "lat": 43.670523,
+    "lng": -79.3856725,
+    "major": true
   },
   {
     "id": "broadview",
@@ -133,8 +136,9 @@ export const TTC_STATIONS: TtcStation[] = [
       "1",
       "5"
     ],
-    "lat": 43.700648,
-    "lng": -79.436691
+    "lat": 43.699788999999996,
+    "lng": -79.43616499999999,
+    "major": true
   },
   {
     "id": "chaplin",
@@ -197,7 +201,8 @@ export const TTC_STATIONS: TtcStation[] = [
       "4"
     ],
     "lat": 43.775547,
-    "lng": -79.346584
+    "lng": -79.346584,
+    "terminal": true
   },
   {
     "id": "don-valley",
@@ -278,8 +283,9 @@ export const TTC_STATIONS: TtcStation[] = [
       "1",
       "5"
     ],
-    "lat": 43.704648,
-    "lng": -79.39889
+    "lat": 43.705514,
+    "lng": -79.3988275,
+    "major": true
   },
   {
     "id": "emery",
@@ -306,25 +312,20 @@ export const TTC_STATIONS: TtcStation[] = [
       "1"
     ],
     "lat": 43.780147,
-    "lng": -79.415692
+    "lng": -79.415692,
+    "terminal": true
   },
   {
     "id": "finch-west",
     "name": "Finch West",
     "lineIds": [
-      "1"
-    ],
-    "lat": 43.764855,
-    "lng": -79.491118
-  },
-  {
-    "id": "finch-west-station-lrt",
-    "name": "Finch West Station LRT",
-    "lineIds": [
+      "1",
       "6"
     ],
-    "lat": 43.763147,
-    "lng": -79.490703
+    "lat": 43.76400099999999,
+    "lng": -79.4909105,
+    "major": true,
+    "terminal": true
   },
   {
     "id": "forest-hill",
@@ -390,13 +391,14 @@ export const TTC_STATIONS: TtcStation[] = [
     "lng": -79.523454
   },
   {
-    "id": "humber-college-station-lrt",
-    "name": "Humber College Station LRT",
+    "id": "humber-college",
+    "name": "Humber College",
     "lineIds": [
       "6"
     ],
     "lat": 43.729905,
-    "lng": -79.601445
+    "lng": -79.601445,
+    "terminal": true
   },
   {
     "id": "ionview",
@@ -456,19 +458,13 @@ export const TTC_STATIONS: TtcStation[] = [
     "id": "kennedy",
     "name": "Kennedy",
     "lineIds": [
-      "2"
-    ],
-    "lat": 43.732487,
-    "lng": -79.263718
-  },
-  {
-    "id": "kennedy-station-lrt",
-    "name": "Kennedy Station LRT",
-    "lineIds": [
+      "2",
       "5"
     ],
-    "lat": 43.732791,
-    "lng": -79.26448
+    "lat": 43.732639,
+    "lng": -79.264099,
+    "major": true,
+    "terminal": true
   },
   {
     "id": "king",
@@ -486,7 +482,8 @@ export const TTC_STATIONS: TtcStation[] = [
       "2"
     ],
     "lat": 43.637648,
-    "lng": -79.535694
+    "lng": -79.535694,
+    "terminal": true
   },
   {
     "id": "laird",
@@ -570,13 +567,14 @@ export const TTC_STATIONS: TtcStation[] = [
     "lng": -79.552029
   },
   {
-    "id": "mount-dennis-station-lrt",
-    "name": "Mount Dennis Station LRT",
+    "id": "mount-dennis",
+    "name": "Mount Dennis",
     "lineIds": [
       "5"
     ],
     "lat": 43.688025,
-    "lng": -79.485789
+    "lng": -79.485789,
+    "terminal": true
   },
   {
     "id": "mount-olive",
@@ -783,8 +781,10 @@ export const TTC_STATIONS: TtcStation[] = [
       "1",
       "4"
     ],
-    "lat": 43.760348,
-    "lng": -79.410691
+    "lat": 43.760920999999996,
+    "lng": -79.41054249999999,
+    "major": true,
+    "terminal": true
   },
   {
     "id": "sherbourne",
@@ -820,8 +820,9 @@ export const TTC_STATIONS: TtcStation[] = [
       "1",
       "2"
     ],
-    "lat": 43.670249,
-    "lng": -79.405189
+    "lat": 43.668749,
+    "lng": -79.404539,
+    "major": true
   },
   {
     "id": "st-andrew",
@@ -857,8 +858,9 @@ export const TTC_STATIONS: TtcStation[] = [
       "1",
       "2"
     ],
-    "lat": 43.668249,
-    "lng": -79.399689
+    "lat": 43.668399,
+    "lng": -79.398839,
+    "major": true
   },
   {
     "id": "st-patrick",
@@ -930,7 +932,8 @@ export const TTC_STATIONS: TtcStation[] = [
       "1"
     ],
     "lat": 43.794021,
-    "lng": -79.527906
+    "lng": -79.527906,
+    "terminal": true
   },
   {
     "id": "victoria-park",
@@ -994,15 +997,6 @@ export const TTC_STATIONS: TtcStation[] = [
     ],
     "lat": 43.724139,
     "lng": -79.326236
-  },
-  {
-    "id": "yonge",
-    "name": "Yonge",
-    "lineIds": [
-      "2"
-    ],
-    "lat": 43.670997,
-    "lng": -79.385956
   },
   {
     "id": "york-mills",
@@ -5497,7 +5491,7 @@ export const TTC_LINES: TtcLine[] = [
       "spadina",
       "st-george",
       "bay",
-      "yonge",
+      "bloor-yonge",
       "sherbourne",
       "castle-frank",
       "broadview",
@@ -6958,7 +6952,7 @@ export const TTC_LINES: TtcLine[] = [
       }
     ],
     "stationIds": [
-      "mount-dennis-station-lrt",
+      "mount-dennis",
       "keelesdale",
       "caledonia",
       "fairbank",
@@ -6982,7 +6976,7 @@ export const TTC_LINES: TtcLine[] = [
       "golden-mile",
       "birchmount",
       "ionview",
-      "kennedy-station-lrt"
+      "kennedy"
     ]
   },
   {
@@ -7632,7 +7626,7 @@ export const TTC_LINES: TtcLine[] = [
       }
     ],
     "stationIds": [
-      "humber-college-station-lrt",
+      "humber-college",
       "westmore",
       "martin-grove",
       "albion",
@@ -7649,7 +7643,7 @@ export const TTC_LINES: TtcLine[] = [
       "driftwood",
       "tobermory",
       "sentinel",
-      "finch-west-station-lrt"
+      "finch-west"
     ]
   }
 ];

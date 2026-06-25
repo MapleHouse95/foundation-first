@@ -160,6 +160,13 @@
     line-height: 1.6;
   }
 
+  html.mh-listings-scroll-lock,
+  body.mh-listings-scroll-lock {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   h1,
   h2,
   h3,

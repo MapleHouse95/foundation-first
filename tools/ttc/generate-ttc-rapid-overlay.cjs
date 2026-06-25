@@ -96,14 +96,17 @@ function normalizeStationName(value) {
   const name = value
     .replace(/\s*-\s*(Subway|LRT)?\s*Platform.*$/i, "")
     .replace(/\s*-\s*(Northbound|Southbound|Eastbound|Westbound)\s*Platform.*$/i, "")
+    .replace(/\s*-\s*(Northbound|Southbound|Eastbound|Westbound).*$/i, "")
     .replace(/\s+(Northbound|Southbound|Eastbound|Westbound)\s*Platform.*$/i, "")
     .replace(/\s+(Northbound|Southbound|Eastbound|Westbound).*$/i, "")
     .replace(/\s+Platform.*$/i, "")
+    .replace(/\s+Station\s+(Subway|LRT)$/i, "")
+    .replace(/\s+(Subway|LRT)\s+Station$/i, "")
     .replace(/\s+Station$/i, "")
     .replace(/\s+/g, " ")
     .trim();
 
-  if (name === "Bloor") return "Bloor-Yonge";
+  if (name === "Bloor" || name === "Yonge") return "Bloor-Yonge";
   if (name === "St. George") return "St George";
   return name;
 }
@@ -115,21 +118,50 @@ function toCoord(stop) {
   };
 }
 
-function getDisplayStop(stop, stopsById) {
-  if (stop.parent_station && stopsById.has(stop.parent_station)) {
-    return stopsById.get(stop.parent_station);
-  }
-  return stop;
+function hasUsableCoord(stop) {
+  const coord = toCoord(stop);
+  return Number.isFinite(coord.lat) && Number.isFinite(coord.lng);
 }
 
-function getStation(stop, lineId, stopsById) {
-  const displayStop = getDisplayStop(stop, stopsById);
-  const name = normalizeStationName(displayStop.stop_name || stop.stop_name || "");
-  const coord = toCoord(displayStop);
-  if (!name || !Number.isFinite(coord.lat) || !Number.isFinite(coord.lng)) return null;
+function averageCoord(stops) {
+  const coords = stops.map(toCoord).filter((coord) => Number.isFinite(coord.lat) && Number.isFinite(coord.lng));
+  if (coords.length === 0) return null;
 
   return {
-    id: slugify(name),
+    lat: coords.reduce((sum, coord) => sum + coord.lat, 0) / coords.length,
+    lng: coords.reduce((sum, coord) => sum + coord.lng, 0) / coords.length,
+  };
+}
+
+function buildChildrenByParent(stops) {
+  const childrenByParent = new Map();
+
+  stops.forEach((stop) => {
+    if (!stop.parent_station) return;
+    const children = childrenByParent.get(stop.parent_station) ?? [];
+    children.push(stop);
+    childrenByParent.set(stop.parent_station, children);
+  });
+
+  return childrenByParent;
+}
+
+function getStation(stop, lineId, stopsById, childrenByParent) {
+  const parent =
+    stop.parent_station && stopsById.has(stop.parent_station)
+      ? stopsById.get(stop.parent_station)
+      : null;
+  const parentIsStation = parent?.location_type === "1";
+  const displayStop = parentIsStation ? parent : stop;
+  const name = normalizeStationName(displayStop.stop_name || stop.stop_name || "");
+  const parentChildren = parent ? childrenByParent.get(parent.stop_id) ?? [] : [];
+  const averaged = parentChildren.length > 0 ? averageCoord(parentChildren) : null;
+  const coord = parentIsStation && hasUsableCoord(parent) ? toCoord(parent) : averaged ?? toCoord(stop);
+  if (!name || !Number.isFinite(coord.lat) || !Number.isFinite(coord.lng)) return null;
+  const id = parentIsStation ? slugify(name) : slugify(name);
+
+  return {
+    id,
     name,
     lineIds: [lineId],
     lat: coord.lat,
@@ -147,6 +179,8 @@ function mergeStations(stations) {
       return;
     }
     current.lineIds = Array.from(new Set([...current.lineIds, ...station.lineIds])).sort();
+    current.lat = (current.lat + station.lat) / 2;
+    current.lng = (current.lng + station.lng) / 2;
   });
 
   return Array.from(merged.values()).sort((a, b) => a.name.localeCompare(b.name));
@@ -176,6 +210,7 @@ export interface TtcStation {
   lat: number;
   lng: number;
   major?: boolean;
+  terminal?: boolean;
 }
 
 export interface TtcLine {
@@ -203,7 +238,9 @@ async function main() {
     .filter((route) => activeRapidRouteShortNames.has(route.route_short_name))
     .sort((a, b) => Number(a.route_short_name) - Number(b.route_short_name));
   const routeById = new Map(routes.map((route) => [route.route_id, route]));
-  const stopsById = new Map(readCsv("stops.txt").map((stop) => [stop.stop_id, stop]));
+  const stops = readCsv("stops.txt");
+  const stopsById = new Map(stops.map((stop) => [stop.stop_id, stop]));
+  const childrenByParent = buildChildrenByParent(stops);
   const tripsByRoute = new Map(routes.map((route) => [route.route_id, []]));
   const tripToRoute = new Map();
   const shapeToRoute = new Map();
@@ -282,7 +319,7 @@ async function main() {
       const stop = stopsById.get(stopId);
       if (!stop) return;
 
-      const station = getStation(stop, lineId, stopsById);
+      const station = getStation(stop, lineId, stopsById, childrenByParent);
       if (!station || seen.has(station.id)) return;
 
       seen.add(station.id);
@@ -294,6 +331,16 @@ async function main() {
   });
 
   const stations = mergeStations(stationCandidates);
+  const terminalStationIds = new Set();
+  routeStationLists.forEach((stationList) => {
+    if (stationList.length === 0) return;
+    terminalStationIds.add(stationList[0].id);
+    terminalStationIds.add(stationList[stationList.length - 1].id);
+  });
+  stations.forEach((station) => {
+    if (station.lineIds.length > 1) station.major = true;
+    if (terminalStationIds.has(station.id)) station.terminal = true;
+  });
   assertNoPlatformLabels(stations);
   const lines = routes.map((route) => {
     const lineId = route.route_short_name;

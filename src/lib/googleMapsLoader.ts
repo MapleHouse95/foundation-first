@@ -15,9 +15,15 @@ export interface GoogleMapsApi {
     ) => {
       addListener: (eventName: string, handler: () => void) => { remove: () => void };
       fitBounds: (bounds: unknown, padding?: number) => void;
+      getBounds: () =>
+        | {
+            contains: (location: GoogleMapsLatLngLiteral) => boolean;
+          }
+        | undefined;
       getZoom: () => number | undefined;
       panTo: (location: GoogleMapsLatLngLiteral) => void;
       setCenter: (location: GoogleMapsLatLngLiteral) => void;
+      setMapTypeId: (mapTypeId: string) => void;
       setZoom: (zoom: number) => void;
     };
     Marker: new (options: Record<string, unknown>) => {
