@@ -17,9 +17,17 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/Container";
+import { DirectLandlordDmApplyPage } from "@/components/pages/ListingDirectDmDialog";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
+import { createInquiry, getInquiryById } from "@/lib/inquiryStore";
+import {
+  formatMaximumOccupancy,
+  normalizeInquiryMoveInDate,
+  resolveInquiryMoveInDate,
+  resolveLocalizedListingMeta,
+} from "@/lib/listingResolver";
 import {
   buildSelectedInquiryPayload,
   MOCK_INQUIRY_DRAFT_STORAGE_KEY,
@@ -174,6 +182,7 @@ type SavedSelectedInquiryDraft = {
 
 type MockInquiryCompletionPayload = {
   locale: Locale;
+  inquiryId?: string;
   inquiryMethod?: InquiryApplyMethod;
   selectedInquiry: SelectedInquiryPayload;
   form: SelectedInquiryApplyFormState;
@@ -273,6 +282,12 @@ const DEFAULT_MOCK_APPLY_PROFILE: MockApplyProfile = {
 
 const HISTORY_BACK_PENDING_HREF = "__maplehouse_apply_history_back__";
 const MOCK_INQUIRY_COMPLETION_STORAGE_KEY_PREFIX = "maplehouse.applyCompletion";
+
+const SELECTED_INQUIRY_VALIDATION_COPY: Record<Locale, string> = {
+  ko: "이름, 연락처, 문의 내용, 동의 항목을 확인해 주세요.",
+  en: "Please check your name, contact information, message, and agreement.",
+  fr: "Veuillez vérifier le nom, les coordonnées, le message et l'accord.",
+};
 
 const SELECTED_INQUIRY_DETAIL_BUTTON: Record<Locale, string> = {
   ko: "매물 상세 페이지로 이동",
@@ -971,23 +986,43 @@ const SELECT_FIELDS: Array<{
 ];
 const TEXTAREA_FIELDS: FieldKey[] = ["area", "conditions", "requests"];
 
-function buildSelectedInquiryFromMockListing(locale: Locale, listingId: string) {
+const INQUIRY_DATE_NOT_SELECTED: Record<Locale, string> = {
+  ko: "선택 안 함",
+  en: "Not selected",
+  fr: "Non sélectionnée",
+};
+
+const INQUIRY_NO_ROOM_SELECTED: Record<Locale, string> = {
+  ko: "방 미선택",
+  en: "No room selected",
+  fr: "Aucune chambre sélectionnée",
+};
+
+function buildSelectedInquiryFromMockListing(
+  locale: Locale,
+  listingId: string,
+  roomIdFromQuery?: string,
+  moveInDateFromQuery?: string,
+) {
   const listing = MOCK_LISTINGS.find((item) => item.id === listingId);
   if (!listing) return null;
 
+  const roomId = roomIdFromQuery ?? new URLSearchParams(normalizeSearchString()).get("roomId") ?? undefined;
+  const meta = resolveLocalizedListingMeta({ listingId: listing.id, roomId, locale });
   const galleryUrls = getStableMockListingGalleryImages(listing.id, 5);
   return buildSelectedInquiryPayload({
     locale,
     listingId: listing.id,
-    listingTitle: listing.title[locale],
+    roomId,
+    listingTitle: meta.listingTitle,
     city: "Toronto",
     area: listing.area,
     rentCad: listing.priceCAD,
     rentKrw: listing.priceKRW,
     housingType: listing.roomType[locale],
-    roomName: SELECTED_INQUIRY_COPY[locale].fallback,
+    roomName: meta.roomTitle ?? "",
     roomType: listing.roomType[locale],
-    selectedMoveInDate: "",
+    selectedMoveInDate: moveInDateFromQuery ?? "",
     selectedGuestCount: listing.maxPeople,
     thumbnailUrl: galleryUrls[0] ?? listing.imagePath,
     galleryUrls,
@@ -1007,27 +1042,62 @@ function getInitialSelectedInquiryState(locale: Locale, searchStr?: string) {
   const inquiryMethod: InquiryApplyMethod | null =
     requestedMode === "direct"
       ? "direct"
-      : requestedMode === "assisted"
+      : requestedMode === "assisted" || requestedMode === "maplehouse-assisted"
         ? "assisted"
-        : null;
+        : params.get("listingId")
+          ? "assisted"
+          : null;
   const queryListingId = params.get("listingId");
+  const queryRoomId = params.get("roomId") ?? undefined;
+  const queryMoveInDate =
+    normalizeInquiryMoveInDate(params.get("moveInDate")) ??
+    (typeof window === "undefined"
+      ? undefined
+      : normalizeInquiryMoveInDate(
+          new URLSearchParams(window.location.search).get("moveInDate"),
+        ));
   if (!inquiryMethod) {
     return { loaded: true, shouldRender: false, inquiry: null, inquiryMethod: "assisted" as const };
   }
 
   try {
     const storedInquiry = readSelectedInquiryPayload({ locale, listingId: queryListingId });
-    if (storedInquiry) {
+    if (storedInquiry && (!queryRoomId || storedInquiry.roomId === queryRoomId)) {
+      const selectedMoveInDate =
+        storedInquiry.source === "listing_detail"
+          ? resolveInquiryMoveInDate({
+              detailSelectedMoveInDate: storedInquiry.selectedMoveInDate,
+              routeMoveInDate: queryMoveInDate,
+            })
+          : resolveInquiryMoveInDate({
+              listingsFilterMoveInDate: queryMoveInDate ?? storedInquiry.selectedMoveInDate,
+              routeMoveInDate: queryMoveInDate,
+            });
+      const meta = resolveLocalizedListingMeta({
+        listingId: queryListingId ?? storedInquiry.listingId,
+        roomId: queryRoomId ?? storedInquiry.roomId,
+        locale,
+        fallbackListingTitle: storedInquiry.listingTitle,
+        fallbackRoomTitle: storedInquiry.roomName,
+        fallbackImage: storedInquiry.thumbnailUrl,
+      });
       return {
         loaded: true,
         shouldRender: true,
-        inquiry: storedInquiry,
+        inquiry: {
+          ...storedInquiry,
+          roomId: queryRoomId ?? storedInquiry.roomId,
+          listingTitle: meta.listingTitle,
+          roomName: meta.roomTitle ?? "",
+          selectedMoveInDate: selectedMoveInDate ?? "",
+          thumbnailUrl: meta.image || storedInquiry.thumbnailUrl,
+        },
         inquiryMethod,
       };
     }
 
     if (queryListingId) {
-      const restoredInquiry = buildSelectedInquiryFromMockListing(locale, queryListingId);
+      const restoredInquiry = buildSelectedInquiryFromMockListing(locale, queryListingId, queryRoomId, queryMoveInDate);
       if (restoredInquiry) {
         saveSelectedInquiryPayload(restoredInquiry);
         return { loaded: true, shouldRender: true, inquiry: restoredInquiry, inquiryMethod };
@@ -1183,6 +1253,59 @@ function readMockInquiryCompletion(locale: Locale) {
   }
 }
 
+function buildCompletionFromInquiryId(locale: Locale, inquiryId: string): MockInquiryCompletionPayload | null {
+  const inquiry = getInquiryById(inquiryId);
+  if (!inquiry) return null;
+
+  const meta = resolveLocalizedListingMeta({
+    listingId: inquiry.listingId,
+    roomId: inquiry.roomId,
+    locale,
+    fallbackListingTitle: inquiry.listingTitleSnapshots?.[locale] ?? inquiry.listingTitleSnapshot,
+    fallbackRoomTitle: inquiry.roomTitleSnapshots?.[locale] ?? inquiry.roomTitleSnapshot,
+    fallbackImage: inquiry.listingImageSnapshot,
+  });
+  const firstCustomerMessage =
+    inquiry.messages.find((message) => message.author === "customer")?.body ?? "";
+
+  return {
+    locale,
+    inquiryId: inquiry.id,
+    inquiryMethod:
+      inquiry.inquiryMethod === "direct" || inquiry.inquiryMethod === "direct-landlord-dm"
+        ? "direct"
+        : "assisted",
+    selectedInquiry: buildSelectedInquiryPayload({
+      locale,
+      listingId: inquiry.listingId,
+      roomId: inquiry.roomId,
+      listingTitle: meta.listingTitle,
+      city: "Toronto",
+      area: meta.listing?.area ?? meta.location,
+      rentCad: meta.listing?.priceCAD ?? 0,
+      rentKrw: meta.listing?.priceKRW ?? 0,
+      housingType: meta.listing?.roomType[locale] ?? "",
+      roomName: meta.roomTitle ?? "",
+      roomType: meta.roomTitle ?? "",
+      selectedMoveInDate: inquiry.desiredMoveInDate ?? "",
+      selectedGuestCount: meta.maxGuests ?? 0,
+      thumbnailUrl: meta.image,
+      galleryUrls: meta.image ? [meta.image] : [],
+      source: "listings_drawer",
+    }),
+    form: {
+      ...EMPTY_SELECTED_INQUIRY_FORM,
+      name: inquiry.customerName,
+      email: inquiry.contactMethod === "email" ? inquiry.contactValue : "",
+      phone: inquiry.contactMethod === "phone" ? inquiry.contactValue : "",
+      preferredMoveInDate: inquiry.desiredMoveInDate ?? "",
+      stayLength: inquiry.expectedStay ?? "",
+      questions: firstCustomerMessage,
+    },
+    submittedAt: inquiry.createdAt,
+  };
+}
+
 function isValidSelectedInquiryEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
@@ -1201,6 +1324,16 @@ export function LocaleApplyPage({ locale }: { locale: Locale }) {
   const location = useLocation() as { searchStr?: string };
   const selectedInquiryState = useSelectedInquiryForApply(locale, location.searchStr);
   if (selectedInquiryState.shouldRender) {
+    if (selectedInquiryState.inquiryMethod === "direct") {
+      return (
+        <DirectLandlordDmApplyPage
+          locale={locale}
+          loaded={selectedInquiryState.loaded}
+          selectedInquiry={selectedInquiryState.inquiry}
+        />
+      );
+    }
+
     return (
       <SelectedInquiryApplyPage
         locale={locale}
@@ -1219,6 +1352,7 @@ export function LocaleApplyPage({ locale }: { locale: Locale }) {
 }
 
 export function LocaleApplyCompletePage({ locale }: { locale: Locale }) {
+  const location = useLocation() as { searchStr?: string };
   const [completion, setCompletion] = useState<MockInquiryCompletionPayload | null>(null);
   const [loaded, setLoaded] = useState(false);
   const inquiryMethod = completion?.inquiryMethod ?? "assisted";
@@ -1226,9 +1360,12 @@ export function LocaleApplyCompletePage({ locale }: { locale: Locale }) {
   const inquiryCopy = getSelectedInquiryApplyCopy(locale, inquiryMethod);
 
   useEffect(() => {
-    setCompletion(readMockInquiryCompletion(locale));
+    const params = new URLSearchParams(normalizeSearchString(location.searchStr));
+    const inquiryId = params.get("inquiryId");
+    const inquiryCompletion = inquiryId ? buildCompletionFromInquiryId(locale, inquiryId) : null;
+    setCompletion(inquiryCompletion ?? readMockInquiryCompletion(locale));
     setLoaded(true);
-  }, [locale]);
+  }, [locale, location.searchStr]);
 
   if (!loaded) {
     return (
@@ -1262,21 +1399,16 @@ export function LocaleApplyCompletePage({ locale }: { locale: Locale }) {
   }
 
   const { selectedInquiry, form, submittedAt } = completion;
-  const isDirectCompletion = inquiryMethod === "direct";
   const inquirerRows = [
     { label: inquiryCopy.fields.name.label, value: form.name },
     { label: inquiryCopy.fields.email.label, value: form.email },
     { label: inquiryCopy.fields.phone.label, value: form.phone },
-    ...(!isDirectCompletion
-      ? [
-          {
-            label: inquiryCopy.fields.preferredMoveInDate.label,
-            value: formatSelectedDateLabel(locale, form.preferredMoveInDate, inquiryCopy.fallback),
-          },
-          { label: inquiryCopy.fields.stayLength.label, value: form.stayLength },
-          { label: inquiryCopy.fields.people.label, value: form.people },
-        ]
-      : []),
+    {
+      label: inquiryCopy.fields.preferredMoveInDate.label,
+      value: formatSelectedDateLabel(locale, form.preferredMoveInDate, INQUIRY_DATE_NOT_SELECTED[locale]),
+    },
+    { label: inquiryCopy.fields.stayLength.label, value: form.stayLength },
+    { label: inquiryCopy.fields.people.label, value: form.people },
     { label: copy.submittedAt, value: formatApplyCompletionTimestamp(locale, submittedAt) },
   ];
   const inquiryRows = [
@@ -1574,6 +1706,7 @@ function SelectedInquiryApplyPage({
   const [form, setForm] = useState<SelectedInquiryApplyFormState>(EMPTY_SELECTED_INQUIRY_FORM);
   const [checked, setChecked] = useState<boolean[]>(() => t.agreements.map(() => false));
   const [successVisible, setSuccessVisible] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
   const [pendingNavigationHref, setPendingNavigationHref] = useState<string | null>(null);
@@ -1626,6 +1759,7 @@ function SelectedInquiryApplyPage({
   const canSubmit =
     form.name.trim().length > 0 &&
     isValidSelectedInquiryEmail(form.email) &&
+    (form.questions.trim().length > 0 || form.request.trim().length > 0) &&
     checked.every(Boolean);
 
   const summaryRows = selectedInquiry
@@ -1637,15 +1771,11 @@ function SelectedInquiryApplyPage({
           value: formatSelectedInquiryRent(locale, selectedInquiry.rentCad, selectedInquiry.rentKrw),
         },
         { label: t.summaryLabels.housingType, value: selectedInquiry.housingType || t.fallback },
-        { label: t.summaryLabels.room, value: selectedInquiry.roomName || t.fallback },
-        { label: t.summaryLabels.moveInDate, value: formatSelectedDateLabel(locale, form.preferredMoveInDate, t.fallback) },
+        { label: t.summaryLabels.room, value: selectedInquiry.roomName || INQUIRY_NO_ROOM_SELECTED[locale] },
+        { label: t.summaryLabels.moveInDate, value: formatSelectedDateLabel(locale, form.preferredMoveInDate, INQUIRY_DATE_NOT_SELECTED[locale]) },
         {
           label: t.summaryLabels.people,
-          value: form.people
-            ? form.people
-            : selectedInquiry.selectedGuestCount
-              ? String(selectedInquiry.selectedGuestCount)
-            : t.fallback,
+          value: formatMaximumOccupancy(selectedInquiry.selectedGuestCount, locale, t.fallback),
         },
       ]
     : [];
@@ -1807,7 +1937,12 @@ function SelectedInquiryApplyPage({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedInquiry || !canSubmit) return;
+    if (!selectedInquiry) return;
+    if (!canSubmit) {
+      setSubmitError(SELECTED_INQUIRY_VALIDATION_COPY[locale]);
+      return;
+    }
+    setSubmitError("");
 
     const selectedInquiryForCompletion = {
       ...selectedInquiry,
@@ -1828,8 +1963,42 @@ function SelectedInquiryApplyPage({
       form,
       submittedAt: draft.createdAt,
     };
+    let createdInquiryId = "";
 
     try {
+      const message = [form.questions.trim(), form.request.trim()].filter(Boolean).join("\n\n");
+      const inquiryRecord = createInquiry({
+        listingId: selectedInquiryForCompletion.listingId,
+        roomId: selectedInquiryForCompletion.roomId,
+        inquiryMethod,
+        listingTitleSnapshot: selectedInquiryForCompletion.listingTitle,
+        listingTitleSnapshots: resolveLocalizedListingMeta({
+          listingId: selectedInquiryForCompletion.listingId,
+          roomId: selectedInquiryForCompletion.roomId,
+          locale,
+          fallbackListingTitle: selectedInquiryForCompletion.listingTitle,
+          fallbackRoomTitle: selectedInquiryForCompletion.roomName,
+          fallbackImage: selectedInquiryForCompletion.thumbnailUrl,
+        }).listingTitleSnapshots,
+        roomTitleSnapshot: selectedInquiryForCompletion.roomName || undefined,
+        roomTitleSnapshots: resolveLocalizedListingMeta({
+          listingId: selectedInquiryForCompletion.listingId,
+          roomId: selectedInquiryForCompletion.roomId,
+          locale,
+          fallbackListingTitle: selectedInquiryForCompletion.listingTitle,
+          fallbackRoomTitle: selectedInquiryForCompletion.roomName,
+          fallbackImage: selectedInquiryForCompletion.thumbnailUrl,
+        }).roomTitleSnapshots,
+        listingImageSnapshot: selectedInquiryForCompletion.thumbnailUrl,
+        customerName: form.name,
+        contactMethod: form.phone.trim() ? "phone" : "email",
+        contactValue: form.phone.trim() || form.email,
+        desiredMoveInDate: form.preferredMoveInDate || undefined,
+        expectedStay: form.stayLength || undefined,
+        message,
+      });
+      createdInquiryId = inquiryRecord.id;
+      completion.inquiryId = inquiryRecord.id;
       window.sessionStorage.setItem(MOCK_INQUIRY_DRAFT_STORAGE_KEY, JSON.stringify(draft));
       saveMockInquiryCompletion(completion);
     } catch {
@@ -1839,7 +2008,10 @@ function SelectedInquiryApplyPage({
     setDraftRestored(false);
     setSuccessVisible(true);
     allowNavigationRef.current = true;
-    window.location.href = `/${locale}/apply/complete`;
+    const completeParams = new URLSearchParams();
+    if (createdInquiryId) completeParams.set("inquiryId", createdInquiryId);
+    const completeQuery = completeParams.toString();
+    window.location.href = `/${locale}/apply/complete${completeQuery ? `?${completeQuery}` : ""}`;
   };
 
   if (!loaded) {
@@ -1931,16 +2103,16 @@ function SelectedInquiryApplyPage({
                   value={form.phone}
                   onChange={(value) => updateField("phone", value)}
                 />
+                <DateSelectField
+                  id={`${locale}-inquiry-move-in`}
+                  field={t.fields.preferredMoveInDate}
+                  value={form.preferredMoveInDate}
+                  locale={locale}
+                  fallback={INQUIRY_DATE_NOT_SELECTED[locale]}
+                  onOpen={() => setDatePickerOpen(true)}
+                />
                 {!isDirectInquiry ? (
                   <>
-                    <DateSelectField
-                      id={`${locale}-inquiry-move-in`}
-                      field={t.fields.preferredMoveInDate}
-                      value={form.preferredMoveInDate}
-                      locale={locale}
-                      fallback={t.fallback}
-                      onOpen={() => setDatePickerOpen(true)}
-                    />
                     <TextField
                       id={`${locale}-inquiry-stay-length`}
                       field={t.fields.stayLength}
@@ -1995,10 +2167,15 @@ function SelectedInquiryApplyPage({
 
             <div className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs leading-relaxed text-muted-foreground">{t.subtitle}</p>
-              <Button type="submit" size="lg" className="min-h-11 px-5" disabled={!canSubmit}>
+              <Button type="submit" size="lg" className="min-h-11 px-5">
                 {t.submit}
               </Button>
             </div>
+            {submitError ? (
+              <p className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700">
+                {submitError}
+              </p>
+            ) : null}
 
             {successVisible ? (
               <PreviewPanel
@@ -2319,7 +2496,6 @@ function ApplyDatePickerModal({
   onApply: () => void;
 }) {
   const [baseMonth, setBaseMonth] = useState(() => new Date(2026, 7, 1));
-  const months = [baseMonth, new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 1)];
   const unavailableDates = new Set(["2026-08-09", "2026-08-15", "2026-08-28", "2026-09-04"]);
 
   return (
@@ -2334,7 +2510,7 @@ function ApplyDatePickerModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="apply-date-picker-title"
-        className="w-full max-w-3xl rounded-3xl border border-border bg-white p-5 shadow-2xl sm:p-6"
+        className="w-full max-w-md rounded-3xl border border-border bg-white p-5 shadow-2xl sm:p-6"
       >
         <div className="flex min-w-0 items-start justify-between gap-4">
           <h2 id="apply-date-picker-title" className="break-words text-xl font-bold text-foreground">
@@ -2370,18 +2546,15 @@ function ApplyDatePickerModal({
           </button>
         </div>
 
-        <div className="mt-4 grid gap-5 md:grid-cols-2">
-          {months.map((month) => (
-            <ApplyCalendarMonth
-              key={`${month.getFullYear()}-${month.getMonth()}`}
-              copy={copy}
-              locale={locale}
-              month={month}
-              unavailableDates={unavailableDates}
-              selectedDate={selectedDate}
-              onSelectDate={onSelectDate}
-            />
-          ))}
+        <div className="mt-4">
+          <ApplyCalendarMonth
+            copy={copy}
+            locale={locale}
+            month={baseMonth}
+            unavailableDates={unavailableDates}
+            selectedDate={selectedDate}
+            onSelectDate={onSelectDate}
+          />
         </div>
 
         <div className="mt-5 flex flex-col gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -2492,8 +2665,9 @@ function formatApplyMonthLabel(date: Date, locale: Locale) {
 }
 
 function formatSelectedDateLabel(locale: Locale, dateKey: string, fallback: string) {
-  if (!dateKey) return fallback;
-  const date = new Date(`${dateKey}T00:00:00`);
+  const normalizedDateKey = normalizeInquiryMoveInDate(dateKey);
+  if (!normalizedDateKey) return fallback;
+  const date = new Date(`${normalizedDateKey}T00:00:00`);
   if (Number.isNaN(date.getTime())) return dateKey;
   if (locale === "ko") return new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium" }).format(date);
   if (locale === "fr") return new Intl.DateTimeFormat("fr-CA", { dateStyle: "medium" }).format(date);

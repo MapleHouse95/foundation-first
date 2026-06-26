@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Link } from "@tanstack/react-router";
 import {
   BadgeCheck,
@@ -23,13 +24,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Container } from "@/components/layout/Container";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
@@ -502,6 +497,9 @@ const POPULAR_FILTER_KEYS: PopularFilterKey[] = [
   "verified",
 ];
 
+const DEFAULT_PEOPLE_COUNT = 1;
+type OpenHomeFilter = "city" | "purpose" | "housing" | "budget" | "moveIn" | null;
+
 type HeroSlide = {
   title: string;
   body: string;
@@ -660,6 +658,12 @@ function resetLabel(locale: Locale) {
   return "Reset";
 }
 
+function searchValidationMessage(locale: Locale) {
+  if (locale === "ko") return "조건을 먼저 선택해 주세요.";
+  if (locale === "fr") return "Veuillez sélectionner au moins un critère de recherche.";
+  return "Please select at least one search condition.";
+}
+
 function cancelLabel(locale: Locale) {
   if (locale === "ko") return "\uCDE8\uC18C";
   if (locale === "fr") return "Annuler";
@@ -784,7 +788,7 @@ function buildHomeListingsHref({
   if (housingKey) params.set("housing", housingKey);
   if (budget !== null && budget !== undefined) params.set("budgetMax", String(budget * 10000));
   if (moveInDate) params.set("moveIn", moveInDate);
-  if (people && people > 0) params.set("people", String(people));
+  if (people && people > DEFAULT_PEOPLE_COUNT) params.set("people", String(people));
   if (extra) params.set("extra", extra);
 
   const query = params.toString();
@@ -1089,7 +1093,7 @@ export function LocaleMainPage({ locale }: { locale: Locale }) {
         </Container>
       </section>
 
-      <section className="pb-10 pt-6">
+      <section className="pb-10 pt-2 lg:pt-6">
         <Container className="max-w-[82rem] space-y-10">
           <HomeListingSection
             locale={locale}
@@ -1124,12 +1128,19 @@ function SearchModule({
   const [purpose, setPurpose] = useState("");
   const [housingType, setHousingType] = useState("");
   const [budget, setBudget] = useState<number | null>(null);
-  const [draftBudget, setDraftBudget] = useState(150);
-  const [budgetOpen, setBudgetOpen] = useState(false);
-  const [moveInOpen, setMoveInOpen] = useState(false);
+  const [draftBudget, setDraftBudget] = useState<number | null>(null);
+  const [openFilter, setOpenFilter] = useState<OpenHomeFilter>(null);
   const [moveInDate, setMoveInDate] = useState<string | null>(null);
   const [draftMoveInDate, setDraftMoveInDate] = useState<string | null>(null);
-  const [people, setPeople] = useState(1);
+  const [people, setPeople] = useState(DEFAULT_PEOPLE_COUNT);
+  const [validationMessage, setValidationMessage] = useState("");
+  const hasMeaningfulCondition =
+    Boolean(city) ||
+    Boolean(purpose) ||
+    Boolean(housingType) ||
+    budget !== null ||
+    Boolean(moveInDate) ||
+    people !== DEFAULT_PEOPLE_COUNT;
   const matchingListingsHref = buildHomeListingsHref({
     locale,
     city,
@@ -1140,8 +1151,30 @@ function SearchModule({
     people,
   });
 
+  useEffect(() => {
+    if (hasMeaningfulCondition && validationMessage) {
+      setValidationMessage("");
+    }
+  }, [hasMeaningfulCondition, validationMessage]);
+
+  function handleMatchingListingsClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (hasMeaningfulCondition) return;
+    event.preventDefault();
+    setValidationMessage(searchValidationMessage(locale));
+  }
+
+  function openHomeFilter(nextFilter: OpenHomeFilter) {
+    if (openFilter === "budget" && nextFilter !== "budget") {
+      setDraftBudget(budget);
+    }
+    if (openFilter === "moveIn" && nextFilter !== "moveIn") {
+      setDraftMoveInDate(moveInDate);
+    }
+    setOpenFilter(nextFilter);
+  }
+
   return (
-    <div className="relative z-30 mx-auto mt-6 min-h-[18rem] max-w-[82rem] overflow-visible rounded-3xl border-2 border-[#FA7000]/65 bg-card p-5 shadow-xl shadow-black/10 sm:p-7">
+    <div className="relative z-30 mx-auto mt-6 min-h-[18rem] max-w-[82rem] overflow-visible rounded-3xl border border-[#FA7000]/30 bg-card p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] sm:p-7">
       <div className="mb-4 flex min-h-[4.75rem] items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
@@ -1156,30 +1189,48 @@ function SearchModule({
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(8.5rem,1fr)_minmax(10rem,1.1fr)_minmax(10rem,1.05fr)_minmax(8.5rem,1fr)_minmax(9rem,1fr)_minmax(14rem,1.25fr)]">
         <GatewaySelectField
+          filterId="city"
           icon={<MapPinned />}
           label={content.cityLabel}
           placeholder={cityPlaceholder(locale)}
           options={cityOptions(locale)}
           value={city}
-          onChange={setCity}
+          open={openFilter === "city"}
+          onOpenChange={(open) => openHomeFilter(open ? "city" : null)}
+          onChange={(nextValue) => {
+            setCity(nextValue);
+            openHomeFilter(null);
+          }}
           className="xl:col-span-1"
         />
         <GatewaySelectField
+          filterId="purpose"
           icon={<SlidersHorizontal />}
           label={content.purposeLabel}
           placeholder={purposePlaceholder(locale)}
           options={content.purposeOptions}
           value={purpose}
-          onChange={setPurpose}
+          open={openFilter === "purpose"}
+          onOpenChange={(open) => openHomeFilter(open ? "purpose" : null)}
+          onChange={(nextValue) => {
+            setPurpose(nextValue);
+            openHomeFilter(null);
+          }}
           className="xl:col-span-1"
         />
         <GatewaySelectField
+          filterId="housing"
           icon={<Home />}
           label={content.housingTypeLabel}
           placeholder={housingPlaceholder(locale)}
           options={content.housingTypes}
           value={housingType}
-          onChange={setHousingType}
+          open={openFilter === "housing"}
+          onOpenChange={(open) => openHomeFilter(open ? "housing" : null)}
+          onChange={(nextValue) => {
+            setHousingType(nextValue);
+            openHomeFilter(null);
+          }}
           className="xl:col-span-1"
         />
         <SearchPopoverField
@@ -1188,31 +1239,36 @@ function SearchModule({
           value={budget === null ? budgetPlaceholder(locale) : formatBudget(locale, budget)}
           valueMuted={budget === null}
           className="xl:col-span-1"
-          open={budgetOpen}
-          onToggle={() => {
-            setDraftBudget(budget ?? 150);
-            setBudgetOpen((value) => !value);
-            setMoveInOpen(false);
+          open={openFilter === "budget"}
+          onOpenChange={(open) => {
+            if (open) {
+              setDraftBudget(budget);
+              openHomeFilter("budget");
+            }
+          }}
+          onOutsideClose={() => {
+            setDraftBudget(budget);
+            openHomeFilter(null);
           }}
         >
-          <div className="w-80 rounded-2xl border border-border bg-card p-4 shadow-lg">
+          <div className="w-80 max-w-[calc(100vw-32px)] rounded-2xl border border-border bg-card p-4 shadow-lg">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
               {content.budgetLabel}
             </p>
             <p className="mt-2 text-lg font-semibold text-foreground">
-              {formatMaxBudget(locale, draftBudget)}
+              {draftBudget === null ? budgetPlaceholder(locale) : formatMaxBudget(locale, draftBudget)}
             </p>
             <input
               type="range"
               min={0}
               max={400}
               step={10}
-              value={draftBudget}
+              value={draftBudget ?? 150}
               onChange={(event) => setDraftBudget(Number(event.target.value))}
               className="mh-budget-range mt-4 w-full"
               style={
                 {
-                  "--mh-range-progress": `${(draftBudget / 400) * 100}%`,
+                  "--mh-range-progress": `${((draftBudget ?? 150) / 400) * 100}%`,
                 } as CSSProperties
               }
             />
@@ -1226,9 +1282,7 @@ function SearchModule({
                 variant="soft"
                 size="sm"
                 onClick={() => {
-                  setBudget(null);
-                  setDraftBudget(150);
-                  setBudgetOpen(false);
+                  setDraftBudget(null);
                 }}
               >
                 {resetLabel(locale)}
@@ -1238,7 +1292,7 @@ function SearchModule({
                 size="sm"
                 onClick={() => {
                   setBudget(draftBudget);
-                  setBudgetOpen(false);
+                  openHomeFilter(null);
                 }}
               >
                 {applyLabel(locale)}
@@ -1252,14 +1306,21 @@ function SearchModule({
           value={formatMoveIn(locale, moveInDate, content.moveInPlaceholder)}
           valueMuted={!moveInDate}
           className="xl:col-span-1"
-          open={moveInOpen}
-          onToggle={() => {
+          open={openFilter === "moveIn"}
+          contentClassName="w-[21rem] max-w-[calc(100vw-32px)] overflow-visible"
+          align="end"
+          onOpenChange={(open) => {
+            if (open) {
+              setDraftMoveInDate(moveInDate);
+              openHomeFilter("moveIn");
+            }
+          }}
+          onOutsideClose={() => {
             setDraftMoveInDate(moveInDate);
-            setMoveInOpen((value) => !value);
-            setBudgetOpen(false);
+            openHomeFilter(null);
           }}
         >
-          <div className="w-80 rounded-2xl border border-border bg-card p-4 text-foreground shadow-lg">
+          <div className="w-full rounded-2xl border border-border bg-card p-3 text-foreground shadow-lg">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
@@ -1271,14 +1332,15 @@ function SearchModule({
               </div>
               <button
                 type="button"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
-                onClick={() => setMoveInOpen(false)}
-                aria-label="close calendar"
+                className="hidden"
+                onClick={() => openHomeFilter(null)}
+                aria-hidden="true"
+                tabIndex={-1}
               >
                 ×
               </button>
             </div>
-            <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground">
+            <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground">
               {CALENDAR_WEEKDAYS.map((day) => (
                 <span key={day}>{day}</span>
               ))}
@@ -1294,7 +1356,7 @@ function SearchModule({
                   key={date}
                   type="button"
                   className={cn(
-                    "flex h-9 items-center justify-center rounded-lg text-sm font-medium transition-colors",
+                    "flex h-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
                     draftMoveInDate === date
                       ? "bg-[#FA7000] text-white"
                       : "text-foreground hover:bg-accent",
@@ -1306,22 +1368,15 @@ function SearchModule({
                 );
               })}
             </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="soft"
-                size="sm"
-                onClick={() => setMoveInOpen(false)}
-              >
-                {cancelLabel(locale)}
-              </Button>
+            <div className="mt-3 flex justify-end gap-2">
               <Button
                 type="button"
                 size="sm"
-                disabled={!draftMoveInDate || draftMoveInDate === moveInDate}
+                disabled={!draftMoveInDate}
                 onClick={() => {
+                  if (!draftMoveInDate) return;
                   setMoveInDate(draftMoveInDate);
-                  setMoveInOpen(false);
+                  openHomeFilter(null);
                 }}
               >
                 {applyLabel(locale)}
@@ -1342,23 +1397,30 @@ function SearchModule({
       <div className="mt-5 grid gap-2 md:grid-cols-3">
         <a
           href={`/${locale}/listings`}
-          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-white px-4 text-center text-sm font-semibold text-[#FA7000] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8F1]"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#CBD5E1] bg-white px-4 text-center text-sm font-semibold text-[#64748B] shadow-sm transition hover:-translate-y-0.5 hover:border-[#94A3B8] hover:bg-[#F8FAFC] hover:text-[#475569] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(100,116,139,0.25)]"
         >
           {content.browseCta}
         </a>
         <Link
           to={`/${locale}/checklist`}
-          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-white px-4 text-center text-sm font-semibold text-[#FA7000] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8F1]"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#CBD5E1] bg-white px-4 text-center text-sm font-semibold text-[#64748B] shadow-sm transition hover:-translate-y-0.5 hover:border-[#94A3B8] hover:bg-[#F8FAFC] hover:text-[#475569] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(100,116,139,0.25)]"
         >
           {content.checklistCta}
         </Link>
         <a
           href={matchingListingsHref}
+          onClick={handleMatchingListingsClick}
           className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#FA7000]/70 bg-[#FFF3E6] px-4 text-center text-sm font-semibold text-[#FA7000] shadow-sm transition hover:-translate-y-0.5 hover:border-[#FA7000] hover:bg-[#FFE8CC]"
         >
           {content.primaryCta}
         </a>
       </div>
+      <p
+        aria-live="polite"
+        className="mt-2 min-h-5 text-sm font-semibold leading-5 text-[#B45309]"
+      >
+        {validationMessage}
+      </p>
     </div>
   );
 }
@@ -1439,64 +1501,157 @@ function PeopleField({
 }
 
 function GatewaySelectField({
+  filterId,
   icon,
   label,
   placeholder,
   options,
   value,
+  open,
   onChange,
+  onOpenChange,
   className = "",
 }: {
+  filterId: Exclude<OpenHomeFilter, "budget" | "moveIn" | null>;
   icon: ReactNode;
   label: string;
   placeholder: string;
   options: string[];
   value: string;
+  open: boolean;
   onChange: (value: string) => void;
+  onOpenChange: (open: boolean) => void;
   className?: string;
 }) {
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const displayValue = value || placeholder;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (wrapperRef.current?.contains(target)) return;
+      onOpenChange(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onOpenChange(false);
+        requestAnimationFrame(() => {
+          triggerRef.current?.focus({ preventScroll: true });
+        });
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("keydown", handleKeyDown, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [onOpenChange, open]);
+
+  function focusOptionByOffset(offset: number) {
+    const optionButtons = Array.from(
+      wrapperRef.current?.querySelectorAll<HTMLButtonElement>("[data-home-menu-option]") ?? [],
+    );
+    if (optionButtons.length === 0) return;
+
+    const activeIndex = optionButtons.findIndex((button) => button === document.activeElement);
+    const currentIndex = activeIndex >= 0 ? activeIndex : optionButtons.findIndex((button) => button.dataset.checked === "true");
+    const nextIndex = currentIndex >= 0
+      ? (currentIndex + offset + optionButtons.length) % optionButtons.length
+      : 0;
+    optionButtons[nextIndex]?.focus({ preventScroll: true });
+  }
+
   return (
-    <Select value={value || undefined} onValueChange={onChange}>
-      <SelectTrigger
-        className={cn(
-          "flex h-[4.25rem] w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-border bg-background px-3 py-1.5 text-left shadow-none transition-colors hover:border-primary hover:bg-accent/40 focus:ring-1 focus:ring-primary [&>svg]:ml-auto [&>svg]:h-4 [&>svg]:w-4",
-          className,
-        )}
-      >
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
-          {icon}
-        </div>
-        <div className="min-w-0 flex-1">
-          <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
-            {label}
-          </span>
-          <span
-            className={cn(
-              "block truncate whitespace-nowrap text-sm font-medium",
-              value ? "text-foreground" : "text-muted-foreground",
-            )}
+    <DropdownMenuPrimitive.Root open={open} onOpenChange={onOpenChange} modal={false}>
+      <div ref={wrapperRef} className={cn("relative", className)}>
+        <DropdownMenuPrimitive.Trigger asChild>
+          <button
+            ref={triggerRef}
+            type="button"
+            aria-expanded={open}
+            aria-haspopup="menu"
+            aria-label={`${label}: ${displayValue}`}
+            className="flex h-[4.25rem] w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border border-border bg-background px-3 py-1.5 text-left shadow-none transition-colors hover:border-primary hover:bg-accent/40 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            onKeyDown={(event) => {
+              if (event.key === "ArrowDown") {
+                event.preventDefault();
+                onOpenChange(true);
+                requestAnimationFrame(() => focusOptionByOffset(1));
+              }
+            }}
           >
-            <SelectValue placeholder={placeholder} />
-          </span>
-        </div>
-      </SelectTrigger>
-      <SelectContent
-        side="bottom"
-        align="start"
-        avoidCollisions={false}
-        className="rounded-xl border-border bg-white text-foreground shadow-xl"
-      >
-        {options.map((option) => (
-          <SelectItem
-            key={option}
-            value={option}
-            className="rounded-lg px-3 py-2 pr-8 text-sm font-semibold focus:bg-[#FFF3E6] focus:text-primary data-[state=checked]:bg-[#FFF3E6] data-[state=checked]:text-primary"
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
+              {icon}
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
+                {label}
+              </span>
+              <span
+                className={cn(
+                  "block truncate whitespace-nowrap text-sm font-medium",
+                  value ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {displayValue}
+              </span>
+            </div>
+            <ChevronDown className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
+          </button>
+        </DropdownMenuPrimitive.Trigger>
+        {open ? (
+          <div
+            role="menu"
+            data-side="bottom"
+            data-home-filter-menu={filterId}
+            className="absolute left-0 top-full z-50 mt-2 min-w-full rounded-xl border border-border bg-white p-1 text-foreground shadow-xl"
+            onKeyDown={(event) => {
+              if (event.key === "ArrowDown") {
+                event.preventDefault();
+                focusOptionByOffset(1);
+              }
+              if (event.key === "ArrowUp") {
+                event.preventDefault();
+                focusOptionByOffset(-1);
+              }
+            }}
           >
-            {option}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+            {options.map((option) => {
+              const checked = value === option;
+
+              return (
+                <button
+                  key={`${filterId}-${option}`}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={checked}
+                  data-home-menu-option=""
+                  data-checked={checked ? "true" : "false"}
+                  className={cn(
+                    "relative flex w-full cursor-default select-none items-center rounded-lg px-3 py-2 pl-8 pr-8 text-left text-sm font-semibold outline-none transition-colors hover:bg-[#FFF3E6] hover:text-primary focus:bg-[#FFF3E6] focus:text-primary",
+                    checked && "bg-[#FFF3E6] text-primary",
+                  )}
+                  onClick={() => onChange(option)}
+                >
+                  <span className="absolute left-3 flex h-3.5 w-3.5 items-center justify-center">
+                    {checked ? <span className="block h-1.5 w-1.5 rounded-full bg-current" /> : null}
+                  </span>
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    </DropdownMenuPrimitive.Root>
   );
 }
 
@@ -1507,7 +1662,10 @@ function SearchPopoverField({
   valueMuted = false,
   children,
   open,
-  onToggle,
+  onOpenChange,
+  onOutsideClose,
+  align = "start",
+  contentClassName = "w-80 max-w-[calc(100vw-32px)]",
   className = "",
 }: {
   icon: ReactNode;
@@ -1516,72 +1674,82 @@ function SearchPopoverField({
   valueMuted?: boolean;
   children: ReactNode;
   open: boolean;
-  onToggle: () => void;
+  onOpenChange: (open: boolean) => void;
+  onOutsideClose: () => void;
+  align?: "start" | "center" | "end";
+  contentClassName?: string;
   className?: string;
 }) {
-  const [popoverFrame, setPopoverFrame] = useState<{
-    left: number;
-    top: number;
-    width: number;
-    maxHeight: number;
-  } | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (wrapperRef.current?.contains(target)) return;
+      onOutsideClose();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+    };
+  }, [onOutsideClose, open]);
 
   return (
-    <div className={`relative ${className}`}>
-      <button
-        type="button"
-        className="flex h-[4.25rem] w-full cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-1.5 pr-9 text-left transition-colors hover:border-primary hover:bg-accent/40 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-        onClick={(event) => {
-          const triggerRect = event.currentTarget.getBoundingClientRect();
-          const popoverWidth = Math.min(320, window.innerWidth - 24);
-          const left = Math.min(
-            Math.max(12, triggerRect.left),
-            Math.max(12, window.innerWidth - popoverWidth - 12),
-          );
-          const top = triggerRect.bottom + 8;
-
-          setPopoverFrame({
-            left,
-            top,
-            width: popoverWidth,
-            maxHeight: Math.max(160, window.innerHeight - top - 16),
-          });
-          onToggle();
-        }}
-        aria-expanded={open}
-      >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
-          {icon}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
-            {label}
-          </span>
-          <span
-            className={cn(
-              "block whitespace-nowrap text-sm font-medium",
-              valueMuted ? "text-muted-foreground" : "text-foreground",
-            )}
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) onOpenChange(true);
+      }}
+    >
+      <div ref={wrapperRef} className={`relative ${className}`}>
+        <PopoverTrigger asChild>
+          <button
+            ref={triggerRef}
+            type="button"
+            className="flex h-[4.25rem] w-full cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-1.5 pr-9 text-left transition-colors hover:border-primary hover:bg-accent/40 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            aria-expanded={open}
           >
-            {value}
-          </span>
-        </span>
-        <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      </button>
-      {open && popoverFrame && (
-        <div
-          className="fixed z-[1000] overflow-y-auto"
-          style={{
-            left: popoverFrame.left,
-            top: popoverFrame.top,
-            width: popoverFrame.width,
-            maxHeight: popoverFrame.maxHeight,
-          }}
-        >
-          {children}
-        </div>
-      )}
-    </div>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary [&_svg]:h-4 [&_svg]:w-4">
+              {icon}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block min-h-[1rem] text-[11px] font-medium text-muted-foreground">
+                {label}
+              </span>
+              <span
+                className={cn(
+                  "block whitespace-nowrap text-sm font-medium",
+                  valueMuted ? "text-muted-foreground" : "text-foreground",
+                )}
+              >
+                {value}
+              </span>
+            </span>
+            <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          </button>
+        </PopoverTrigger>
+        {open ? (
+          <div
+            className={cn(
+              "absolute top-full z-[60] mt-2 overflow-visible rounded-2xl border-0 bg-transparent p-0 text-foreground shadow-none",
+              align === "end" ? "right-0" : align === "center" ? "left-1/2 -translate-x-1/2" : "left-0",
+              contentClassName,
+            )}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") event.preventDefault();
+            }}
+          >
+            {children}
+          </div>
+        ) : null}
+      </div>
+    </Popover>
   );
 }
 

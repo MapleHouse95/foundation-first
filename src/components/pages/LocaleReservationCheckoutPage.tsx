@@ -275,7 +275,7 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       initialPayment: "초기 입금액",
       supportFee: "서비스 이용료",
       tax: "부가세·세금",
-      total: "총 납부 금액",
+      total: "총 결제 금액",
     },
     paymentHelp: {
       initialPayment: "첫 월세와 보증금, 마지막 달 월세로 사용될 금액을 기준으로 계산한 금액입니다. 토론토·온타리오 지역 임대 계약에서 자주 사용하는 일반적인 형태를 기준으로 안내합니다. 금액과 조건은 매물 및 임대인 조건에 따라 달라질 수 있습니다.",
@@ -359,7 +359,7 @@ const CHECKOUT_COPY: Record<Locale, CheckoutCopy> = {
       stay: "체류 기간",
       paymentStatus: "결제 상태",
       paymentRequestStatus: "결제 요청 상태",
-      requestAmount: "총 납부 금액",
+      requestAmount: "총 결제 금액",
       paymentMethod: "결제 수단",
       requestNumber: "접수번호",
     },
@@ -1134,7 +1134,7 @@ export function LocaleReservationCheckoutPage({
                         </button>
                         <div
                           className={cn(
-                            "grid transition-[grid-template-rows,opacity,transform] duration-200 ease-out motion-reduce:transition-none",
+                            "grid overflow-hidden transition-[grid-template-rows,opacity,transform] duration-200 ease-out motion-reduce:transition-none",
                             open
                               ? "grid-rows-[1fr] opacity-100 translate-y-0"
                               : "grid-rows-[0fr] opacity-0 -translate-y-1",

@@ -8,6 +8,10 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
+import {
+  SharedTenantInquiryDetailPage,
+  SharedTenantInquiryListPage,
+} from "@/components/pages/InquiryFlowPages";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import type { Locale } from "@/lib/i18n";
 import { getMockListingRoomOption } from "@/lib/mockListingRooms";
@@ -835,7 +839,7 @@ const TENANT_RESERVATION_NEW_COPY: Record<Locale, TenantReservationNewCopy> = {
       ],
       supportFee: [
         "MapleHouse가 문의 정리, 예약 보조, 고객 응대 등의 운영 지원을 위해 부과하는 비용입니다.",
-        "실제 운영 단계에서는 서비스 범위에 따라 금액이 달라질 수 있습니다.",
+        "서비스 범위에 따라 금액이 달라질 수 있습니다.",
       ],
     },
     summaryNote: "결제 전 금액과 예약 조건을 다시 확인해 주세요.",
@@ -1482,6 +1486,8 @@ function formatOneTimeReservationAmount(locale: Locale, amount: string) {
 }
 
 export function LocaleTenantInquiryListPage({ locale }: { locale: Locale }) {
+  return <SharedTenantInquiryListPage locale={locale} />;
+
   const copy = TENANT_INQUIRY_COPY[locale];
 
   return (
@@ -1534,8 +1540,10 @@ export function LocaleTenantInquiryDetailPage({
   locale: Locale;
   inquiryId: string;
 }) {
+  return <SharedTenantInquiryDetailPage locale={locale} inquiryId={inquiryId} />;
+
   const copy = TENANT_INQUIRY_COPY[locale];
-  const inquiry = getTenantInquiry(inquiryId);
+  const inquiry = getTenantInquiry(inquiryId)!;
   const [activeTab, setActiveTab] = useState<"progress" | "dm">("progress");
 
   return (

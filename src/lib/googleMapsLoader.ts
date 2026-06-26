@@ -24,6 +24,7 @@ export interface GoogleMapsApi {
       panTo: (location: GoogleMapsLatLngLiteral) => void;
       setCenter: (location: GoogleMapsLatLngLiteral) => void;
       setMapTypeId: (mapTypeId: string) => void;
+      setOptions: (options: Record<string, unknown>) => void;
       setZoom: (zoom: number) => void;
     };
     Marker: new (options: Record<string, unknown>) => {

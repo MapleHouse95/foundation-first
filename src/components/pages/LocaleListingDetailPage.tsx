@@ -40,12 +40,14 @@ import {
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
+import { getListingDmHref } from "@/components/pages/ListingDirectDmDialog";
 import type { Locale } from "@/lib/i18n";
 import { getAllMockListingImages } from "@/lib/mockListingImages";
 import {
   buildMockListingRoomOptions,
   type MockListingRoomOption,
 } from "@/lib/mockListingRooms";
+import { normalizeInquiryMoveInDate } from "@/lib/listingResolver";
 import {
   buildSelectedInquiryPayload as buildStoredSelectedInquiryPayload,
   saveSelectedInquiryPayload,
@@ -130,6 +132,7 @@ type PublicPhoto = {
 
 type PublicListing = {
   id: string;
+  selectedRoomId?: string;
   source: PublicListingSource;
   sourceListing?: MockListing;
   title: string;
@@ -600,14 +603,14 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     inquirySeparateGuide: "문의 및 예약 지원은 별도 안내 후 진행됩니다.",
     modal: {
       title: "이 매물에 어떻게 문의할까요?",
-      subtitle: "문의 방식을 선택해 매물 확인을 이어가세요.",
-      directTitle: "집주인에게 직접 문의하기",
+      subtitle: "집주인에게 바로 DM을 보내거나, 메이플하우스의 도움을 받아 문의할 수 있습니다.",
+      directTitle: "집주인에게 DM 문의하기",
       directDescription:
-        "무료로 집주인에게 직접 문의하는 흐름입니다.",
+        "집주인과 이 매물에 대해 바로 대화할 수 있습니다.",
       supportTitle: "메이플하우스와 함께 문의하기",
       supportDescription:
         "MapleHouse가 문의 전 확인할 항목을 정리하고, 예약 전 확인 절차를 도와주는 흐름입니다.",
-      directMessage: "직접 문의 내용을 정리해 보낼 수 있습니다.",
+      directMessage: "집주인에게 바로 DM을 보냅니다.",
     },
   },
   en: {
@@ -823,13 +826,13 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     modal: {
       title: "How would you like to inquire?",
       subtitle: "Choose how you would like to inquire about this listing.",
-      directTitle: "Contact landlord directly",
+      directTitle: "DM the landlord",
       directDescription:
-        "This is a free direct inquiry flow.",
+        "Start a direct conversation with the landlord about this listing.",
       supportTitle: "Ask with MapleHouse support",
       supportDescription:
         "MapleHouse helps organize key questions and pre-inquiry checks before reservation.",
-      directMessage: "Prepare a direct inquiry message.",
+      directMessage: "Send a direct message to the landlord.",
     },
   },
   fr: {
@@ -1047,14 +1050,14 @@ const DETAIL_COPY: Record<Locale, DetailCopy> = {
     modal: {
       title: "Comment souhaitez-vous faire une demande ?",
       subtitle: "Choisissez comment vous souhaitez faire une demande pour ce logement.",
-      directTitle: "Contacter directement le propriétaire",
+      directTitle: "Envoyer un DM au propriétaire",
       directDescription:
-        "Flux de contact direct gratuit.",
+        "Démarrez une conversation directe avec le propriétaire au sujet de ce logement.",
       supportTitle: "Demander avec l’aide de MapleHouse",
       supportDescription:
         "MapleHouse aide à organiser les questions importantes et les vérifications avant réservation.",
       directMessage:
-        "Préparez un message direct.",
+        "Envoyez un message direct au propriétaire.",
     },
   },
 };
@@ -1212,12 +1215,6 @@ export function LocaleListingDetailPage({
     setPhotoViewerIndex(null);
     closeDetailModals();
     setInquiryOpen(false);
-
-    if (!selectedMoveInDate) {
-      setMissingDateOpen(true);
-      return;
-    }
-
     openInquiryModal(target);
   };
   const openDatePicker = (returnToInquiry = false) => {
@@ -1602,6 +1599,10 @@ export function LocaleListingDetailPage({
           listing={listing}
           inquiryTarget={pendingInquiryTarget}
           selectedMoveInDate={selectedMoveInDate}
+          onDirectDm={() => {
+            setInquiryOpen(false);
+            openDirectDmPage(locale, listing, pendingInquiryTarget);
+          }}
           onClose={() => {
             setInquiryOpen(false);
           }}
@@ -2789,7 +2790,6 @@ function DatePickerModal({
   onApply: () => void;
 }) {
   const [baseMonth, setBaseMonth] = useState(() => new Date(2026, 7, 1));
-  const months = [baseMonth, new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 1)];
   // TODO: Replace mock availability dates with real listing availability data later.
   const unavailableDates = new Set(["2026-08-09", "2026-08-15", "2026-08-28", "2026-09-04"]);
 
@@ -2805,7 +2805,7 @@ function DatePickerModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="date-picker-title"
-        className="w-full max-w-3xl rounded-3xl border border-border bg-white p-5 shadow-2xl sm:p-6"
+        className="w-full max-w-md rounded-3xl border border-border bg-white p-5 shadow-2xl sm:p-6"
       >
         <div className="flex min-w-0 items-start justify-between gap-4">
           <h2 id="date-picker-title" className="break-words text-xl font-bold text-foreground">
@@ -2841,18 +2841,15 @@ function DatePickerModal({
           </button>
         </div>
 
-        <div className="mt-4 grid gap-5 md:grid-cols-2">
-          {months.map((month) => (
-            <CalendarMonth
-              key={`${month.getFullYear()}-${month.getMonth()}`}
-              copy={copy}
-              locale={locale}
-              month={month}
-              unavailableDates={unavailableDates}
-              selectedDate={selectedDate}
-              onSelectDate={onSelectDate}
-            />
-          ))}
+        <div className="mt-4">
+          <CalendarMonth
+            copy={copy}
+            locale={locale}
+            month={baseMonth}
+            unavailableDates={unavailableDates}
+            selectedDate={selectedDate}
+            onSelectDate={onSelectDate}
+          />
         </div>
 
         <div className="mt-5 flex flex-col gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -3130,6 +3127,7 @@ function PublicInquiryModal({
   listing,
   inquiryTarget,
   selectedMoveInDate,
+  onDirectDm,
   onClose,
 }: {
   copy: DetailCopy;
@@ -3137,6 +3135,7 @@ function PublicInquiryModal({
   listing: PublicListing;
   inquiryTarget: InquiryTarget;
   selectedMoveInDate: string;
+  onDirectDm: () => void;
   onClose: () => void;
 }) {
   return (
@@ -3173,7 +3172,7 @@ function PublicInquiryModal({
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <button
             type="button"
-            onClick={() => openDirectApply(locale, listing, inquiryTarget, selectedMoveInDate)}
+            onClick={onDirectDm}
             className="min-w-0 rounded-2xl border border-border bg-white p-4 text-left shadow-sm transition hover:border-primary hover:bg-[#FFF8F1]"
           >
             <p className="break-words font-semibold text-foreground">{copy.modal.directTitle}</p>
@@ -3257,6 +3256,7 @@ function applyRoomOptionToPublicListing(
 
   return {
     ...listing,
+    selectedRoomId: room.id,
     rentLabel: `C$${room.priceCAD.toLocaleString("en-CA")}`,
     rentValue: room.priceCAD,
     rentKrwValue: room.priceKRW,
@@ -3636,6 +3636,7 @@ function buildSelectedInquiryPayload(
   return buildStoredSelectedInquiryPayload({
     locale,
     listingId: listing.id,
+    roomId: inquiryTarget === "room" ? listing.selectedRoomId : undefined,
     listingTitle: listing.title,
     city: listing.city,
     area: listing.area,
@@ -3671,6 +3672,16 @@ function buildApplySummaryFromPublicListing(listing: PublicListing) {
   };
 }
 
+function openDirectDmPage(
+  locale: Locale,
+  listing: PublicListing,
+  inquiryTarget: InquiryTarget,
+) {
+  if (typeof window === "undefined") return;
+  const roomId = inquiryTarget === "room" ? listing.selectedRoomId : undefined;
+  window.location.href = getListingDmHref(locale, listing.id, roomId);
+}
+
 function openAssistedApply(
   locale: Locale,
   listing: PublicListing,
@@ -3693,44 +3704,19 @@ function openAssistedApply(
       window.sessionStorage.setItem(APPLY_SELECTED_LISTING_STORAGE_KEY, JSON.stringify(summary));
     }
   } catch {
-    // MVP handoff only; navigation still works if sessionStorage is unavailable.
+    // Frontend handoff only; navigation still works if sessionStorage is unavailable.
   }
 
   const params = new URLSearchParams({
     mode: "assisted",
     listingId: listing.id,
   });
-  window.location.href = `/${locale}/apply?${params.toString()}`;
-}
-
-function openDirectApply(
-  locale: Locale,
-  listing: PublicListing,
-  inquiryTarget: InquiryTarget,
-  selectedMoveInDate: string,
-) {
-  if (typeof window === "undefined") return;
-
-  try {
-    const selectedInquiry = buildSelectedInquiryPayload(
-      locale,
-      listing,
-      inquiryTarget,
-      selectedMoveInDate,
-    );
-    saveSelectedInquiryPayload(selectedInquiry);
-
-    const summary = buildApplySummaryFromPublicListing(listing);
-    if (locale === "ko") {
-      window.sessionStorage.setItem(APPLY_SELECTED_LISTING_STORAGE_KEY, JSON.stringify(summary));
-    }
-  } catch {
-    // MVP handoff only; navigation still works if sessionStorage is unavailable.
+  if (inquiryTarget === "room" && listing.selectedRoomId) {
+    params.set("roomId", listing.selectedRoomId);
   }
-
-  const params = new URLSearchParams({
-    mode: "direct",
-    listingId: listing.id,
-  });
+  const normalizedMoveInDate = normalizeInquiryMoveInDate(selectedMoveInDate);
+  if (normalizedMoveInDate) {
+    params.set("moveInDate", normalizedMoveInDate);
+  }
   window.location.href = `/${locale}/apply?${params.toString()}`;
 }

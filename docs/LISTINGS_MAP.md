@@ -17,6 +17,17 @@
 - TTC rapid transit overlay, controlled by the localized `노선도` / `Lines` / `Lignes` toggle.
 - Listing slide-over.
 
+## Left Rail Rules
+
+- The left rail is a local UI view selector, not a URL filter.
+- Rail order is All, Room / Share, Condo, House, Studio, Favorites, Guide.
+- Rail category filtering runs after the top search/filter bar and before viewport filtering.
+- The map should receive the rail-scoped listing array so cards, clusters, and map overlays stay in sync.
+- The All rail item only switches the rail view. It must not clear top filters, URL filters, chips, or map viewport state.
+- Favorites are persisted in `localStorage` under `maplehouse:listings:favorites:v1` as a JSON array of listing IDs.
+- Favorites are shared across localized listing routes.
+- Corrupt favorite storage should fall back to an empty set.
+
 ## Map Marker Rules
 
 - Listing count markers use blue translucent circles.

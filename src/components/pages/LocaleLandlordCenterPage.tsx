@@ -13,6 +13,11 @@ import {
   UserRound,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import {
+  getPendingInquiryListingCount,
+  SharedLandlordInquiriesPage,
+  SharedLandlordInquiryDetailPage,
+} from "@/components/pages/InquiryFlowPages";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
 import type { Locale } from "@/lib/i18n";
 import { getMockListingThumbnailImage } from "@/lib/mockListingImages";
@@ -1198,7 +1203,7 @@ const INQUIRY_DETAIL_COPY: Record<
     },
     mockSave: "답변 저장",
     mockSaveNote:
-      "실제 운영 단계에서는 이 답변이 문의 흐름에 맞게 예비 입주자에게 전달됩니다.",
+      "이 답변은 문의 흐름에 맞게 예비 입주자에게 안내됩니다.",
     actions: {
       list: "문의 목록으로 돌아가기",
       listings: "해당 매물 관리로 이동",
@@ -2062,11 +2067,6 @@ export function LocaleLandlordCenterPage({
               <p className="text-base leading-7 text-muted-foreground">
                 {heroSubtitle}
               </p>
-              {page === "inquiries" ? (
-                <p className="inline-flex max-w-full rounded-full border border-primary/20 bg-[#FFF8F1] px-3 py-1.5 text-xs font-bold leading-relaxed text-primary">
-                  {copy.inquiries.mvpNote}
-                </p>
-              ) : null}
             </div>
             {page === "inquiries" ? null : (
               <Link
@@ -2159,6 +2159,8 @@ export function LocaleLandlordInquiryDetailPage({
   locale: Locale;
   inquiryId: string;
 }) {
+  return <SharedLandlordInquiryDetailPage locale={locale} inquiryId={inquiryId} />;
+
   const copy = CENTER_COPY[locale];
   const detailCopy = INQUIRY_DETAIL_COPY[locale];
   const inquiry = detailCopy.details[toInquirySlug(inquiryId)];
@@ -2370,7 +2372,7 @@ function DashboardPanel({
   const count = loaded && hasDraft ? 1 : 0;
   const cards = [
     { label: copy.dashboard.cards.listings, value: count, icon: Building2 },
-    { label: copy.dashboard.cards.pendingInquiries, value: 0, icon: Inbox },
+    { label: copy.dashboard.cards.pendingInquiries, value: getPendingInquiryListingCount(), icon: Inbox },
     { label: copy.dashboard.cards.needsReview, value: count, icon: ClipboardList },
     { label: copy.dashboard.cards.recentUpdates, value: 0, icon: Home },
   ];
@@ -3036,6 +3038,8 @@ const INQUIRY_STATUS_STYLES: Record<LandlordInquiryStatusKey, string> = {
 };
 
 function InquiriesPanel({ copy, locale }: { copy: CenterCopy; locale: Locale }) {
+  return <SharedLandlordInquiriesPage locale={locale} />;
+
   const inquiries = copy.inquiries.items;
 
   if (!inquiries.length) {
@@ -3197,9 +3201,9 @@ function getInquiryDetailStructureCopy(locale: Locale, method: LandlordInquiryMe
         "문의 질문별로 임대인 답변을 확인합니다.",
       responsePlaceholder: "임대인이 답변을 입력하는 영역",
       assistedNote:
-        "실제 운영 단계에서는 이 답변이 MapleHouse 검토 후 예비 입주자에게 전달됩니다.",
+        "이 답변은 MapleHouse 검토 후 예비 입주자에게 안내됩니다.",
       directNote:
-        "실제 운영 단계에서는 임대인이 작성한 답변이 예비 입주자에게 전달됩니다.",
+        "임대인이 작성한 답변은 예비 입주자에게 안내됩니다.",
     },
     en: {
       listingAction: "Go to listing management",

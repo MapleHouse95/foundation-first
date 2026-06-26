@@ -22,6 +22,8 @@ Current map rules:
 - The TTC route toggle is localized as `노선도` / `Lines` / `Lignes` and controls route lines, station dots, station labels, and TTC attribution together.
 - The map has a compact roadmap / satellite / hybrid toggle and defaults to roadmap.
 - Listing card bottom chips use white backgrounds with grey text and grey borders.
+- The `/listings` left rail is a local view selector. It is separate from URL filters and uses the order All, Room / Share, Condo, House, Studio, Favorites, Guide.
+- Listing favorites are local-only and use `localStorage` key `maplehouse:listings:favorites:v1`.
 
 ## Files To Read First
 

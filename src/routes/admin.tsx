@@ -15,7 +15,7 @@ export const Route = createFileRoute("/admin")({
 function AdminPage() {
   return (
     <Section
-      eyebrow="관리자 · 테스트 모드"
+      eyebrow="관리자"
       title="CRM 작업공간"
       description="고객, 신청, 결제, 환불, 계약서 초안 관리는 이후 단계에서 구축됩니다."
     >

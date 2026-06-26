@@ -7,9 +7,11 @@ import {
   CalendarDays,
   ChevronDown,
   CheckCircle2,
-  Home,
+  BedDouble,
   House,
+  LayoutGrid,
   MapPin,
+  PanelsTopLeft,
   RotateCcw,
   Search,
   SlidersHorizontal,
@@ -19,6 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListingImageFrame } from "@/components/ui/listing-image-frame";
+import { getListingDmHref } from "@/components/pages/ListingDirectDmDialog";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
 import { formatStationDisplayName } from "@/lib/stationRecommendationData";
@@ -37,11 +40,14 @@ import {
   buildSelectedInquiryPayload,
   saveSelectedInquiryPayload,
 } from "@/lib/mockInquiryStorage";
+import { formatMaximumOccupancy } from "@/lib/listingResolver";
 
 export type Status = "verified" | "needs_check" | "preparing";
 export type LocalizedText = Record<Locale, string>;
 type FilterPopover = "budget" | "housing" | "moveIn" | "people" | "more" | null;
 type HousingTypeId = "room" | "studio" | "condo" | "share" | "house";
+type ListingRailCategory = "room-share" | "condo" | "house" | "studio";
+type ListingRailView = "all" | ListingRailCategory | "favorites";
 type ChecklistListingSource = "workingHoliday" | "languageStudy" | "studyAbroad";
 type MoreFilterId =
   | "school-nearby"
@@ -91,6 +97,7 @@ export interface MockListing {
   city: string;
   purposeIds: PurposeId[];
   housingTypeId: HousingTypeId;
+  railCategory: ListingRailCategory;
   availableFrom: string;
   extraFilters: ExtraFilterId[];
   status: Status;
@@ -102,9 +109,12 @@ export interface MockListing {
 }
 
 interface SidebarItem {
-  key: string;
+  key: ListingRailView | "guide";
   icon: ReactNode;
   label: LocalizedText;
+  railLabelLines?: Record<Locale, [string, string]>;
+  railAriaLabel?: LocalizedText;
+  dividerBefore?: boolean;
 }
 
 interface ChecklistListingsContext {
@@ -249,6 +259,7 @@ const BASE_MOCK_LISTINGS: MockListing[] = [
     city: "toronto",
     purposeIds: ["working-holiday", "study", "work"],
     housingTypeId: "studio",
+    railCategory: "studio",
     availableFrom: "2026-05-15",
     extraFilters: ["good-transit", "furnished", "verified", "immediate-move-in"],
     status: "verified",
@@ -282,6 +293,7 @@ const BASE_MOCK_LISTINGS: MockListing[] = [
     city: "toronto",
     purposeIds: ["working-holiday", "short-term", "work"],
     housingTypeId: "condo",
+    railCategory: "condo",
     availableFrom: "2026-06-01",
     extraFilters: ["good-transit", "furnished", "verified", "short-term"],
     status: "verified",
@@ -315,6 +327,7 @@ const BASE_MOCK_LISTINGS: MockListing[] = [
     city: "toronto",
     purposeIds: ["study", "short-term"],
     housingTypeId: "share",
+    railCategory: "room-share",
     availableFrom: "2026-05-20",
     extraFilters: ["female-only", "good-transit", "short-term"],
     status: "needs_check",
@@ -348,6 +361,7 @@ const BASE_MOCK_LISTINGS: MockListing[] = [
     city: "toronto",
     purposeIds: ["study", "work", "other"],
     housingTypeId: "house",
+    railCategory: "house",
     availableFrom: "2026-07-01",
     extraFilters: ["school-nearby", "good-transit", "furnished", "male-only", "short-term"],
     status: "preparing",
@@ -381,6 +395,7 @@ const BASE_MOCK_LISTINGS: MockListing[] = [
     city: "toronto",
     purposeIds: ["study", "working-holiday"],
     housingTypeId: "studio",
+    railCategory: "studio",
     availableFrom: "2026-05-10",
     extraFilters: ["school-nearby", "good-transit", "verified"],
     status: "verified",
@@ -810,14 +825,48 @@ function getGeneratedStatus(index: number): Status {
   return "verified";
 }
 
-function getGeneratedTitle(area: GeneratedListingArea, index: number): LocalizedText {
+function getRailCategoryForHousing(housingTypeId: HousingTypeId): ListingRailCategory {
+  if (housingTypeId === "condo") return "condo";
+  if (housingTypeId === "house") return "house";
+  if (housingTypeId === "studio") return "studio";
+  return "room-share";
+}
+
+function getGeneratedTitle(
+  area: GeneratedListingArea,
+  index: number,
+  railCategory: ListingRailCategory,
+): LocalizedText {
   const titleBuilder = GENERATED_TITLES[area.key];
-  if (titleBuilder) return titleBuilder(index);
+  if (titleBuilder && railCategory === "room-share") return titleBuilder(index);
+
+  const number = formatListingNumber(index);
+  if (railCategory === "condo") {
+    return {
+      ko: `${area.area} \uCF58\uB3C4 ${number}`,
+      en: `${area.area} Condo ${number}`,
+      fr: `Condo ${area.area} ${number}`,
+    };
+  }
+  if (railCategory === "house") {
+    return {
+      ko: `${area.area} \uD558\uC6B0\uC2A4 ${number}`,
+      en: `${area.area} House ${number}`,
+      fr: `Maison ${area.area} ${number}`,
+    };
+  }
+  if (railCategory === "studio") {
+    return {
+      ko: `${area.area} \uC2A4\uD29C\uB514\uC624 ${number}`,
+      en: `${area.area} Studio ${number}`,
+      fr: `Studio ${area.area} ${number}`,
+    };
+  }
 
   return {
-    ko: `${area.area} Room ${formatListingNumber(index)}`,
-    en: `${area.area} Room ${formatListingNumber(index)}`,
-    fr: `Chambre ${area.area} ${formatListingNumber(index)}`,
+    ko: `${area.area} \uB8F8\uB80C\uD2B8 / \uC250\uC5B4 ${number}`,
+    en: `${area.area} Room / Share ${number}`,
+    fr: `Chambre / coloc. ${area.area} ${number}`,
   };
 }
 
@@ -829,6 +878,7 @@ function buildGeneratedListings(): MockListing[] {
       const id = `L-${area.key.toUpperCase().replace(/-/g, "")}-${formatListingNumber(index)}`;
       const mapOffset = getGeneratedListingOffset(area.baseLat, area.baseLng, index, areaIndex, area.scatterKind ?? "station");
       const housingTypeId = area.housingCycle[index % area.housingCycle.length];
+      const railCategory = getRailCategoryForHousing(housingTypeId);
       const roomType = area.roomTypeCycle[index % area.roomTypeCycle.length];
       const extraFilters = area.extraCycle[index % area.extraCycle.length];
       const status = extraFilters.includes("verified") ? "verified" : getGeneratedStatus(index);
@@ -837,7 +887,7 @@ function buildGeneratedListings(): MockListing[] {
 
       return {
         id,
-        title: getGeneratedTitle(area, index),
+        title: getGeneratedTitle(area, index, railCategory),
         area: area.area,
         roomType,
         mapLocation: {
@@ -851,6 +901,7 @@ function buildGeneratedListings(): MockListing[] {
         city: "toronto",
         purposeIds: area.purposeCycle[index % area.purposeCycle.length],
         housingTypeId,
+        railCategory,
         availableFrom: `2026-0${5 + (index % 3)}-${String(1 + (index % 24)).padStart(2, "0")}`,
         extraFilters,
         status,
@@ -923,6 +974,7 @@ function buildSelectedInquiryFromMockListing(
   locale: Locale,
   listing: MockListing,
   source: "listings_drawer" | "listing_detail" = "listings_drawer",
+  selectedMoveInDate = "",
 ) {
   const galleryUrls = getStableMockListingGalleryImages(listing.id, 5);
   return buildSelectedInquiryPayload({
@@ -934,9 +986,9 @@ function buildSelectedInquiryFromMockListing(
     rentCad: listing.priceCAD,
     rentKrw: listing.priceKRW,
     housingType: listing.roomType[locale],
-    roomName: SELECTED_INQUIRY_FALLBACK[locale],
+    roomName: "",
     roomType: listing.roomType[locale],
-    selectedMoveInDate: "",
+    selectedMoveInDate,
     selectedGuestCount: listing.maxPeople,
     thumbnailUrl: galleryUrls[0] ?? listing.imagePath,
     galleryUrls,
@@ -944,11 +996,11 @@ function buildSelectedInquiryFromMockListing(
   });
 }
 
-function openAssistedApplyFromListing(locale: Locale, listing: MockListing) {
+function openAssistedApplyFromListing(locale: Locale, listing: MockListing, moveInDate?: string) {
   if (typeof window === "undefined") return;
 
   try {
-    saveSelectedInquiryPayload(buildSelectedInquiryFromMockListing(locale, listing));
+    saveSelectedInquiryPayload(buildSelectedInquiryFromMockListing(locale, listing, "listings_drawer", moveInDate ?? ""));
     if (locale === "ko") {
       window.sessionStorage.setItem(
         APPLY_SELECTED_LISTING_STORAGE_KEY,
@@ -963,63 +1015,119 @@ function openAssistedApplyFromListing(locale: Locale, listing: MockListing) {
     mode: "assisted",
     listingId: listing.id,
   });
-  window.location.href = `/${locale}/apply?${params.toString()}`;
-}
-
-function openDirectApplyFromListing(locale: Locale, listing: MockListing) {
-  if (typeof window === "undefined") return;
-
-  try {
-    saveSelectedInquiryPayload(buildSelectedInquiryFromMockListing(locale, listing));
-    if (locale === "ko") {
-      window.sessionStorage.setItem(
-        APPLY_SELECTED_LISTING_STORAGE_KEY,
-        JSON.stringify(buildApplySelectedListingSummary(listing)),
-      );
-    }
-  } catch {
-    // Session storage is only a frontend handoff; navigation can still continue.
-  }
-
-  const params = new URLSearchParams({
-    mode: "direct",
-    listingId: listing.id,
-  });
+  if (moveInDate) params.set("moveInDate", moveInDate);
   window.location.href = `/${locale}/apply?${params.toString()}`;
 }
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   {
-    key: "rent",
-    icon: <Home className="h-4 w-4" />,
-    label: { ko: "월/룸", en: "Room", fr: "Chambre" },
+    key: "all",
+    icon: <LayoutGrid className="h-4 w-4" />,
+    label: { ko: "\uC804\uCCB4", en: "All", fr: "Tous" },
+  },
+  {
+    key: "room-share",
+    icon: <BedDouble className="h-4 w-4" />,
+    label: { ko: "\uB8F8\uB80C\uD2B8 / \uC250\uC5B4", en: "Room / Share", fr: "Chambre / Coloc." },
+    railLabelLines: {
+      ko: ["\uB8F8\uB80C\uD2B8", "\uC250\uC5B4"],
+      en: ["Room", "Share"],
+      fr: ["Chambre", "Coloc."],
+    },
+    railAriaLabel: {
+      ko: "\uB8F8\uB80C\uD2B8\uC640 \uC250\uC5B4",
+      en: "Room rental and share",
+      fr: "Chambre et colocation",
+    },
   },
   {
     key: "condo",
     icon: <Building2 className="h-4 w-4" />,
-    label: { ko: "콘도", en: "Condo", fr: "Condo" },
+    label: { ko: "\uCF58\uB3C4", en: "Condo", fr: "Condo" },
   },
   {
     key: "house",
     icon: <House className="h-4 w-4" />,
-    label: { ko: "하우스", en: "House", fr: "Maison" },
+    label: { ko: "\uD558\uC6B0\uC2A4", en: "House", fr: "Maison" },
   },
   {
-    key: "share",
-    icon: <Users className="h-4 w-4" />,
-    label: { ko: "쉐어", en: "Share", fr: "Colocation" },
+    key: "studio",
+    icon: <PanelsTopLeft className="h-4 w-4" />,
+    label: { ko: "\uC2A4\uD29C\uB514\uC624", en: "Studio", fr: "Studio" },
   },
   {
     key: "favorites",
     icon: <Star className="h-4 w-4" />,
-    label: { ko: "즐겨찾기", en: "Favorites", fr: "Favoris" },
+    label: { ko: "\uC990\uACA8\uCC3E\uAE30", en: "Favorites", fr: "Favoris" },
   },
   {
     key: "guide",
     icon: <BookOpen className="h-4 w-4" />,
-    label: { ko: "가이드", en: "Guide", fr: "Guide" },
+    label: { ko: "\uAC00\uC774\uB4DC", en: "Guide", fr: "Guide" },
   },
 ];
+
+const SIDEBAR_PRIMARY_ITEMS = SIDEBAR_ITEMS.filter(
+  (item) => item.key !== "favorites" && item.key !== "guide",
+);
+const SIDEBAR_SECONDARY_ITEMS = SIDEBAR_ITEMS.filter(
+  (item) => item.key === "favorites" || item.key === "guide",
+);
+
+const LISTING_FAVORITES_STORAGE_KEY = "maplehouse:listings:favorites:v1";
+
+const RAIL_VIEW_TITLES: Record<ListingRailView, LocalizedText> = {
+  all: { ko: "\uC804\uCCB4 \uB9E4\uBB3C", en: "All listings", fr: "Tous les logements" },
+  "room-share": { ko: "\uB8F8\uB80C\uD2B8 / \uC250\uC5B4", en: "Room / Share", fr: "Chambre / coloc." },
+  condo: { ko: "\uCF58\uB3C4", en: "Condo", fr: "Condo" },
+  house: { ko: "\uD558\uC6B0\uC2A4", en: "House", fr: "Maison" },
+  studio: { ko: "\uC2A4\uD29C\uB514\uC624", en: "Studio", fr: "Studio" },
+  favorites: { ko: "\uC990\uACA8\uCC3E\uAE30", en: "Favorites", fr: "Favoris" },
+};
+
+const FAVORITE_BUTTON_LABELS = {
+  add: {
+    ko: "\uC990\uACA8\uCC3E\uAE30\uC5D0 \uCD94\uAC00",
+    en: "Add to favorites",
+    fr: "Ajouter aux favoris",
+  },
+  remove: {
+    ko: "\uC990\uACA8\uCC3E\uAE30\uC5D0\uC11C \uC81C\uAC70",
+    en: "Remove from favorites",
+    fr: "Retirer des favoris",
+  },
+} satisfies Record<"add" | "remove", LocalizedText>;
+
+const FAVORITES_EMPTY_COPY = {
+  title: {
+    ko: "\uC544\uC9C1 \uC990\uACA8\uCC3E\uAE30\uD55C \uB9E4\uBB3C\uC774 \uC5C6\uC2B5\uB2C8\uB2E4",
+    en: "No favorite listings yet",
+    fr: "Aucun favori pour le moment",
+  },
+  body: {
+    ko: "\uB9C8\uC74C\uC5D0 \uB4DC\uB294 \uB9E4\uBB3C\uC758 \uBCC4\uD45C\uB97C \uB204\uB974\uBA74 \uC774\uACF3\uC5D0 \uBAA8\uC544\uBCFC \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    en: "Tap the star on listings you like to collect them here.",
+    fr: "Touchez l'etoile des logements qui vous plaisent pour les retrouver ici.",
+  },
+  action: {
+    ko: "\uC804\uCCB4 \uB9E4\uBB3C \uBCF4\uAE30",
+    en: "View all listings",
+    fr: "Voir tous les logements",
+  },
+} satisfies Record<"title" | "body" | "action", LocalizedText>;
+
+const RAIL_EMPTY_COPY = {
+  title: {
+    ko: "\uC774 \uBD84\uB958\uC5D0 \uB9DE\uB294 \uB9E4\uBB3C\uC774 \uC5C6\uC2B5\uB2C8\uB2E4",
+    en: "No listings in this category",
+    fr: "Aucun logement dans cette categorie",
+  },
+  body: {
+    ko: "\uC0C1\uB2E8 \uD544\uD130\uB97C \uC870\uAE08 \uC904\uC774\uAC70\uB098 \uC67C\uCABD\uC5D0\uC11C \uC804\uCCB4 \uB9E4\uBB3C\uC744 \uC120\uD0DD\uD574\uBCF4\uC138\uC694.",
+    en: "Try reducing the top filters or choose All from the left rail.",
+    fr: "Reduisez les filtres du haut ou choisissez Tous dans la barre de gauche.",
+  },
+} satisfies Record<"title" | "body", LocalizedText>;
 
 const HOUSING_OPTIONS: LocalizedOption<HousingTypeId>[] = [
   { id: "room", label: { ko: "룸렌트", en: "Room rental", fr: "Chambre" } },
@@ -1140,14 +1248,14 @@ const L: Record<Locale, L10n> = {
     inquiryModal: {
       title: "이 매물에 어떻게 문의할까요?",
       subtitle:
-        "선택한 방식에 따라 집주인에게 직접 문의하거나, 메이플하우스의 도움을 받아 문의할 수 있습니다.",
-      directTitle: "집주인에게 직접 문의하기",
+        "빠르게 집주인에게 직접 DM을 보내거나, 메이플하우스의 도움을 받아 문의할 수 있습니다.",
+      directTitle: "집주인에게 DM 문의하기",
       directBadge: "무료",
       directDescription:
-        "체크리스트를 참고해 직접 집주인에게 문의하는 방식입니다.",
-      directAction: "직접 문의 미리보기",
+        "집주인과 이 매물에 대해 바로 대화할 수 있습니다.",
+      directAction: "DM 문의 시작하기",
       directMessage:
-        "집주인에게 직접 확인할 질문을 정리합니다.",
+        "집주인에게 바로 DM을 보냅니다.",
       supportTitle: "메이플하우스와 함께 문의하기",
       supportBadge: "유료 플랜 예정",
       supportDescription:
@@ -1238,13 +1346,13 @@ const L: Record<Locale, L10n> = {
       title: "How would you like to ask about this listing?",
       subtitle:
         "Choose whether to contact the landlord directly or ask with MapleHouse support.",
-      directTitle: "Contact landlord directly",
+      directTitle: "DM the landlord",
       directBadge: "Free",
       directDescription:
-        "Contact the landlord yourself using the listing details and checklist.",
-      directAction: "Preview direct inquiry",
+        "Start a direct conversation with the landlord about this listing.",
+      directAction: "Start DM",
       directMessage:
-        "Prepare questions to confirm directly with the landlord.",
+        "Send a direct message to the landlord.",
       supportTitle: "Ask with MapleHouse support",
       supportBadge: "Paid plan planned",
       supportDescription:
@@ -1337,13 +1445,13 @@ const L: Record<Locale, L10n> = {
       title: "Comment souhaitez-vous vous renseigner sur ce logement ?",
       subtitle:
         "Choisissez de contacter directement le propriétaire ou de demander l’aide de MapleHouse.",
-      directTitle: "Contacter directement le propriétaire",
+      directTitle: "Envoyer un DM au propriétaire",
       directBadge: "Gratuit",
       directDescription:
-        "Contactez vous-même le propriétaire à l’aide des informations du logement et de la liste de vérification.",
-      directAction: "Aperçu du contact direct",
+        "Démarrez une conversation directe avec le propriétaire au sujet de ce logement.",
+      directAction: "Démarrer le DM",
       directMessage:
-        "Préparez les questions à confirmer directement avec le propriétaire.",
+        "Envoyez un message direct au propriétaire.",
       supportTitle: "Demander l’aide de MapleHouse",
       supportBadge: "Forfait payant prévu",
       supportDescription:
@@ -1520,6 +1628,55 @@ function filterListingsByQuery(listings: MockListing[], filters: ListingQueryFil
   });
 }
 
+function readFavoriteListingIds() {
+  if (typeof window === "undefined") return new Set<string>();
+
+  try {
+    const stored = window.localStorage.getItem(LISTING_FAVORITES_STORAGE_KEY);
+    const parsed = stored ? JSON.parse(stored) : [];
+    if (!Array.isArray(parsed)) return new Set<string>();
+    return new Set(parsed.filter((value): value is string => typeof value === "string"));
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function writeFavoriteListingIds(ids: Set<string>) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(LISTING_FAVORITES_STORAGE_KEY, JSON.stringify(Array.from(ids).sort()));
+  } catch {
+    // Favorites are a local UI convenience; storage failures should not block browsing.
+  }
+}
+
+function filterListingsByRailView(
+  listings: MockListing[],
+  activeRailView: ListingRailView,
+  favoriteListingIds: Set<string>,
+) {
+  if (activeRailView === "all") return listings;
+  if (activeRailView === "favorites") {
+    return listings.filter((listing) => favoriteListingIds.has(listing.id));
+  }
+  return listings.filter((listing) => listing.railCategory === activeRailView);
+}
+
+function getRailViewTitle(locale: Locale, activeRailView: ListingRailView) {
+  return RAIL_VIEW_TITLES[activeRailView][locale];
+}
+
+function getFavoriteButtonLabel(locale: Locale, isFavorite: boolean) {
+  return FAVORITE_BUTTON_LABELS[isFavorite ? "remove" : "add"][locale];
+}
+
+function getListingStatusFactLabel(locale: Locale) {
+  if (locale === "en") return "Status";
+  if (locale === "fr") return "Statut";
+  return "\uC0C1\uD0DC";
+}
+
 function getExtraFilterLabel(locale: Locale, id: ExtraFilterId) {
   return EXTRA_FILTER_OPTIONS.find((option) => option.id === id)?.label[locale] ?? id;
 }
@@ -1649,7 +1806,8 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
       ? appliedChecklistContext
       : null;
   const [searchValue, setSearchValue] = useState("");
-  const [favs, setFavs] = useState<Set<string>>(new Set());
+  const [activeRailView, setActiveRailView] = useState<ListingRailView>("all");
+  const [favoriteListingIds, setFavoriteListingIds] = useState<Set<string>>(() => readFavoriteListingIds());
   const [openFilter, setOpenFilter] = useState<FilterPopover>(null);
   const [cityFilter, setCityFilter] = useState(initialQueryFilters.city);
   const [purposeFilter, setPurposeFilter] = useState<PurposeId | "">(initialQueryFilters.purpose);
@@ -1757,11 +1915,20 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
     }
   }, [appliedBudgetMax, areaFilter, cityFilter, housingType, moreFilters, moveIn, peopleCount, purposeFilter]);
 
-  const toggleFav = (id: string) =>
-    setFavs((s) => {
-      const n = new Set(s);
-      n.has(id) ? n.delete(id) : n.add(id);
-      return n;
+  const toggleFavorite = (id: string, action?: "add" | "remove") =>
+    setFavoriteListingIds((current) => {
+      const next = new Set(current);
+      if (action === "remove") {
+        next.delete(id);
+      } else if (action === "add") {
+        next.add(id);
+      } else if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      writeFavoriteListingIds(next);
+      return next;
     });
 
   const fmtKRW = (v: number) => `월 ${v.toLocaleString("ko-KR")}원`;
@@ -1790,22 +1957,17 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
     station: "",
     area: areaFilter,
   });
+  const railScopedListings = filterListingsByRailView(
+    hardFilteredListings,
+    activeRailView,
+    favoriteListingIds,
+  );
   const visibleListingIdSet = visibleListingIds ? new Set(visibleListingIds) : null;
   const displayedListings = visibleListingIdSet
-    ? hardFilteredListings.filter((listing) => visibleListingIdSet.has(listing.id))
-    : hardFilteredListings;
-  const isViewportEmpty = hardFilteredListings.length > 0 && displayedListings.length === 0;
-  const hasActiveFilters = Boolean(
-    cityFilter ||
-      purposeFilter ||
-      housingType ||
-      appliedBudgetMax ||
-      moveIn ||
-      peopleCount > 1 ||
-      moreFilters.size > 0 ||
-      areaFilter,
-  );
-  const pageTitle = hasActiveFilters ? t.pageTitle : t.allListingsTitle;
+    ? railScopedListings.filter((listing) => visibleListingIdSet.has(listing.id))
+    : railScopedListings;
+  const isViewportEmpty = railScopedListings.length > 0 && displayedListings.length === 0;
+  const pageTitle = getRailViewTitle(locale, activeRailView);
   const activeListingInResults = displayedListings.find((listing) => listing.id === activeListingId);
   const hoveredListingInResults = displayedListings.find((listing) => listing.id === hoveredListingId);
   const selectedListingInResults = selectedListing
@@ -2345,29 +2507,35 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
       </section>
 
       <section className="grid min-h-0 flex-1 w-full gap-0 overflow-hidden px-4 py-3 sm:px-5 lg:grid-cols-[5rem_minmax(20rem,23.5rem)_minmax(0,1fr)] lg:px-6">
-        <aside className="mb-3 flex shrink-0 gap-2 overflow-x-auto border-border bg-card p-2 shadow-sm lg:mb-0 lg:h-full lg:flex-col lg:overflow-hidden lg:rounded-l-2xl lg:border lg:border-r-0">
-          {SIDEBAR_ITEMS.map((item, index) => {
-            const selected = index === 0;
-
-            return (
-              <button
+        <aside className="mb-3 flex shrink-0 gap-2 overflow-x-auto border-border bg-card p-2 shadow-sm lg:mb-0 lg:h-full lg:flex-col lg:overflow-visible lg:rounded-l-2xl lg:border lg:border-r-0">
+          <div className="flex shrink-0 gap-2 lg:flex-col">
+            {SIDEBAR_PRIMARY_ITEMS.map((item) => (
+              <ListingRailButton
                 key={item.key}
-                type="button"
-                className={cn(
-                  "flex min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl border px-2 py-3 text-xs font-semibold transition lg:min-w-0",
-                  selected
-                    ? "border-primary bg-accent text-primary"
-                    : "border-transparent text-muted-foreground hover:border-primary/35 hover:bg-background hover:text-foreground",
-                )}
-              >
-                {item.icon}
-                <span className="mh-clamp-2 leading-tight">{item.label[locale]}</span>
-              </button>
-            );
-          })}
+                item={item}
+                locale={locale}
+                activeRailView={activeRailView}
+                onSelectRail={setActiveRailView}
+              />
+            ))}
+          </div>
+
+          <div className="my-1 w-px shrink-0 self-stretch bg-border/80 lg:mx-3 lg:mb-2.5 lg:mt-1.5 lg:h-px lg:w-auto lg:self-auto" aria-hidden="true" />
+
+          <div className="flex shrink-0 gap-2 lg:flex-col">
+            {SIDEBAR_SECONDARY_ITEMS.map((item) => (
+              <ListingRailButton
+                key={item.key}
+                item={item}
+                locale={locale}
+                activeRailView={activeRailView}
+                onSelectRail={setActiveRailView}
+              />
+            ))}
+          </div>
         </aside>
 
-        <section className="min-h-0 overflow-y-auto overscroll-contain border border-border bg-card p-3 shadow-sm lg:h-full lg:rounded-none">
+        <section className="listing-results-scroll min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain border border-border bg-card p-3 shadow-sm [scrollbar-gutter:stable] lg:h-full lg:rounded-none">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h1 className="text-xl font-bold text-foreground">{pageTitle}</h1>
@@ -2468,8 +2636,9 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
                   listing={listing}
                   locale={locale}
                   t={t}
-                  favs={favs}
-                  onToggleFav={toggleFav}
+                  favoriteListingIds={favoriteListingIds}
+                  onToggleFavorite={toggleFavorite}
+                  forceFavorite={activeRailView === "favorites"}
                   active={listing.id === effectiveActiveListingId}
                   onActivate={() => activateListing(listing)}
                   onOpenSummary={() => openListing(listing)}
@@ -2479,6 +2648,8 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
                 />
               ))}
             </ul>
+          ) : activeRailView === "favorites" && railScopedListings.length === 0 ? (
+            <FavoritesEmptyState locale={locale} onShowAll={() => setActiveRailView("all")} />
           ) : isViewportEmpty ? (
             <ViewportEmptyState
               t={t}
@@ -2487,6 +2658,8 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
                 setManualFitNonce((value) => value + 1);
               }}
             />
+          ) : activeRailView !== "all" ? (
+            <RailEmptyState locale={locale} onShowAll={() => setActiveRailView("all")} />
           ) : (
             <ZeroResultState locale={locale} t={t} onClearFilters={resetFilters} />
           )}
@@ -2498,7 +2671,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
 
         <section className="relative mt-4 min-h-[24rem] overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:mt-0 lg:h-full lg:min-h-0 lg:rounded-l-none">
           <GoogleListingsMap
-            listings={hardFilteredListings}
+            listings={railScopedListings}
             activeListingId={effectiveActiveListingId}
             locale={locale}
             t={t}
@@ -2515,10 +2688,10 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
               {t.mapLabel}
             </span>
           </div>
-          {(hardFilteredListings.length === 0 || isViewportEmpty) && (
+          {(railScopedListings.length === 0 || isViewportEmpty) && (
             <div className="absolute inset-x-6 top-1/2 z-10 flex -translate-y-1/2 justify-center">
               <div className="rounded-full border border-border bg-background/95 px-4 py-2 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
-                {hardFilteredListings.length === 0 ? t.mapEmpty : t.mapViewportEmpty}
+                {railScopedListings.length === 0 ? t.mapEmpty : t.mapViewportEmpty}
               </div>
             </div>
           )}
@@ -2533,6 +2706,7 @@ export function LocaleListingsPage({ locale }: { locale: Locale }) {
         fmtKRW={fmtKRW}
         fmtCAD={fmtCAD}
         price={selectedListing ? fmtSelectedPrice(selectedListing) : ""}
+        listingsFilterMoveInDate={moveIn}
         onClose={() => setSelectedListing(null)}
       />
 
@@ -2742,6 +2916,55 @@ function FilterTrigger({
   );
 }
 
+function ListingRailButton({
+  item,
+  locale,
+  activeRailView,
+  onSelectRail,
+}: {
+  item: SidebarItem;
+  locale: Locale;
+  activeRailView: ListingRailView;
+  onSelectRail: (value: ListingRailView) => void;
+}) {
+  const isListingRailView = item.key !== "guide";
+  const selected = isListingRailView && activeRailView === item.key;
+  const labelLines = item.railLabelLines?.[locale];
+
+  return (
+    <button
+      type="button"
+      aria-label={item.railAriaLabel?.[locale] ?? item.label[locale]}
+      aria-pressed={isListingRailView ? selected : undefined}
+      onClick={() => {
+        if (isListingRailView) {
+          onSelectRail(item.key as ListingRailView);
+          return;
+        }
+        if (typeof window !== "undefined") {
+          window.location.href = `/${locale}/checklist`;
+        }
+      }}
+      className={cn(
+        "relative z-[1] flex min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl border px-2 py-3 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:min-w-0",
+        selected
+          ? "border-primary bg-accent text-primary"
+          : "border-transparent text-muted-foreground hover:border-primary/35 hover:bg-background hover:text-foreground",
+      )}
+    >
+      {item.icon}
+      {labelLines ? (
+        <span className="flex w-full flex-col items-center justify-center gap-px text-center leading-[1.15]">
+          <span>{labelLines[0]}</span>
+          <span>{labelLines[1]}</span>
+        </span>
+      ) : (
+        <span className="mh-clamp-2 leading-tight">{item.label[locale]}</span>
+      )}
+    </button>
+  );
+}
+
 function FilterPanel({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <div
@@ -2841,6 +3064,42 @@ function ViewportEmptyState({ t, onShowAll }: { t: L10n; onShowAll: () => void }
   );
 }
 
+function FavoritesEmptyState({ locale, onShowAll }: { locale: Locale; onShowAll: () => void }) {
+  return (
+    <div className="mt-4 rounded-xl border border-border bg-white px-4 py-5">
+      <h2 className="text-sm font-bold text-foreground">{FAVORITES_EMPTY_COPY.title[locale]}</h2>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{FAVORITES_EMPTY_COPY.body[locale]}</p>
+      <div className="mt-4 border-t border-border pt-4">
+        <button
+          type="button"
+          onClick={onShowAll}
+          className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#FA7000]/60 bg-[#FFF3E6] px-3 text-xs font-semibold text-primary transition hover:bg-[#FFE8CC]"
+        >
+          {FAVORITES_EMPTY_COPY.action[locale]}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function RailEmptyState({ locale, onShowAll }: { locale: Locale; onShowAll: () => void }) {
+  return (
+    <div className="mt-4 rounded-xl border border-border bg-white px-4 py-5">
+      <h2 className="text-sm font-bold text-foreground">{RAIL_EMPTY_COPY.title[locale]}</h2>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{RAIL_EMPTY_COPY.body[locale]}</p>
+      <div className="mt-4 border-t border-border pt-4">
+        <button
+          type="button"
+          onClick={onShowAll}
+          className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#FA7000]/60 bg-[#FFF3E6] px-3 text-xs font-semibold text-primary transition hover:bg-[#FFE8CC]"
+        >
+          {FAVORITES_EMPTY_COPY.action[locale]}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function CurrencyToggle({
   value,
   onChange,
@@ -2871,8 +3130,9 @@ function ListingResultCard({
   listing,
   locale,
   t,
-  favs,
-  onToggleFav,
+  favoriteListingIds,
+  onToggleFavorite,
+  forceFavorite = false,
   active,
   onActivate,
   onOpenSummary,
@@ -2883,8 +3143,9 @@ function ListingResultCard({
   listing: MockListing;
   locale: Locale;
   t: L10n;
-  favs: Set<string>;
-  onToggleFav: (id: string) => void;
+  favoriteListingIds: Set<string>;
+  onToggleFavorite: (id: string, action?: "add" | "remove") => void;
+  forceFavorite?: boolean;
   active: boolean;
   onActivate: () => void;
   onOpenSummary: () => void;
@@ -2893,6 +3154,7 @@ function ListingResultCard({
   price: string;
 }) {
   const resultTags = getListingResultTags(locale, t, listing);
+  const isFavorite = forceFavorite || favoriteListingIds.has(listing.id);
   const openSummary = () => {
     onActivate();
     onOpenSummary();
@@ -2916,7 +3178,7 @@ function ListingResultCard({
       }}
       aria-label={t.viewListingAria(listing.title[locale])}
       className={cn(
-        "mh-interactive-card cursor-pointer overflow-hidden rounded-xl border bg-card p-2.5 shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        "listing-card mh-interactive-card cursor-pointer overflow-hidden rounded-xl border bg-card p-2.5 shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         active
           ? "border-primary/80 shadow-md ring-2 ring-primary/15"
           : "border-border hover:border-primary/45 hover:shadow-md",
@@ -2929,7 +3191,7 @@ function ListingResultCard({
           t={t}
           className="h-20 w-24 shrink-0"
           imageClassName="rounded-lg"
-          badgeClassName="left-2 top-2"
+          showStatusBadge={false}
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
@@ -2942,13 +3204,15 @@ function ListingResultCard({
               <button
                 type="button"
                 onClick={(event) => {
+                  event.preventDefault();
                   event.stopPropagation();
-                  onToggleFav(listing.id);
+                  onToggleFavorite(listing.id, forceFavorite ? "remove" : undefined);
                 }}
-                aria-label="favorite"
+                aria-label={getFavoriteButtonLabel(locale, isFavorite)}
+                aria-pressed={isFavorite}
                 className="rounded-full p-1 text-muted-foreground transition hover:bg-accent hover:text-primary"
               >
-                <Star className={cn("h-4 w-4", favs.has(listing.id) && "fill-primary text-primary")} />
+                <Star className={cn("h-4 w-4", isFavorite && "fill-primary text-primary")} />
               </button>
             </div>
           </div>
@@ -2982,8 +3246,8 @@ function ListingCard({
   listing,
   locale,
   t,
-  favs,
-  onToggleFav,
+  favoriteListingIds,
+  onToggleFavorite,
   onOpenDetail,
   fmtKRW,
   fmtCAD,
@@ -2991,12 +3255,14 @@ function ListingCard({
   listing: MockListing;
   locale: Locale;
   t: L10n;
-  favs: Set<string>;
-  onToggleFav: (id: string) => void;
+  favoriteListingIds: Set<string>;
+  onToggleFavorite: (id: string) => void;
   onOpenDetail: (listing: MockListing) => void;
   fmtKRW: (value: number) => string;
   fmtCAD: (value: number) => string;
 }) {
+  const isFavorite = favoriteListingIds.has(listing.id);
+
   return (
     <li
       role="button"
@@ -3008,7 +3274,7 @@ function ListingCard({
           onOpenDetail(listing);
         }
       }}
-      className="mh-interactive-card cursor-pointer overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      className="listing-card mh-interactive-card cursor-pointer overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
       <div className="flex gap-3">
         <MockListingImage
@@ -3017,7 +3283,7 @@ function ListingCard({
           t={t}
           className="h-24 w-28 shrink-0"
           imageClassName="rounded-xl"
-          badgeClassName="left-2 top-2"
+          showStatusBadge={false}
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
@@ -3032,13 +3298,15 @@ function ListingCard({
             <button
               type="button"
               onClick={(event) => {
+                event.preventDefault();
                 event.stopPropagation();
-                onToggleFav(listing.id);
+                onToggleFavorite(listing.id);
               }}
-              aria-label="favorite"
+              aria-label={getFavoriteButtonLabel(locale, isFavorite)}
+              aria-pressed={isFavorite}
               className="rounded-full p-1 text-muted-foreground transition hover:bg-accent hover:text-primary"
             >
-              <Star className={cn("h-4 w-4", favs.has(listing.id) && "fill-primary text-primary")} />
+              <Star className={cn("h-4 w-4", isFavorite && "fill-primary text-primary")} />
             </button>
           </div>
 
@@ -3067,6 +3335,7 @@ function MockListingImage({
   className,
   imageClassName,
   badgeClassName,
+  showStatusBadge = true,
   showSampleLabel = false,
 }: {
   listing: MockListing;
@@ -3075,6 +3344,7 @@ function MockListingImage({
   className?: string;
   imageClassName?: string;
   badgeClassName?: string;
+  showStatusBadge?: boolean;
   showSampleLabel?: boolean;
 }) {
   return (
@@ -3093,15 +3363,17 @@ function MockListingImage({
         </div>
       }
     >
-      <span
-        className={cn(
-          "absolute max-w-[calc(100%-1rem)] truncate rounded-full border px-2 py-0.5 text-[10px] font-bold",
-          STATUS_CLASS[listing.status],
-          badgeClassName,
-        )}
-      >
-        {t.status[listing.status]}
-      </span>
+      {showStatusBadge && (
+        <span
+          className={cn(
+            "absolute max-w-[calc(100%-1rem)] truncate rounded-full border px-2 py-0.5 text-[10px] font-bold",
+            STATUS_CLASS[listing.status],
+            badgeClassName,
+          )}
+        >
+          {t.status[listing.status]}
+        </span>
+      )}
       {showSampleLabel && (
         <span className="absolute bottom-2 left-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur">
           {t.sampleImage}
@@ -3118,6 +3390,7 @@ function ListingSummaryDrawer({
   fmtKRW,
   fmtCAD,
   price,
+  listingsFilterMoveInDate,
   onClose,
 }: {
   listing: MockListing | null;
@@ -3126,24 +3399,28 @@ function ListingSummaryDrawer({
   fmtKRW: (value: number) => string;
   fmtCAD: (value: number) => string;
   price: string;
+  listingsFilterMoveInDate?: string;
   onClose: () => void;
 }) {
+  const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
+
   if (!listing) return null;
 
   const detailHref = `/${locale}/listings/${listing.id}`;
-  const inquiryHref = `/${locale}/apply?listingId=${encodeURIComponent(listing.id)}`;
   const facts = [
     { label: t.listingLocation, value: listing.mapLocation.label },
     { label: t.priceFact, value: price },
     { label: t.housingFact, value: listing.roomType[locale] },
-    { label: t.capacityFact, value: t.maxPeopleLabel(listing.maxPeople) },
+    { label: t.capacityFact, value: formatMaximumOccupancy(listing.maxPeople, locale, t.maxPeopleLabel(listing.maxPeople)) },
+    { label: getListingStatusFactLabel(locale), value: t.status[listing.status] },
   ];
 
   return (
-    <aside
-      className="mh-drawer-slide-in fixed bottom-0 right-0 top-0 z-50 flex w-full max-w-[27rem] flex-col border-l border-border bg-card shadow-2xl"
-      aria-label={t.detailLabel}
-    >
+    <>
+      <aside
+        className="mh-drawer-slide-in fixed bottom-0 right-0 top-0 z-50 flex w-full max-w-[27rem] flex-col border-l border-border bg-card shadow-2xl"
+        aria-label={t.detailLabel}
+      >
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card/95 px-5 backdrop-blur">
         <h2 className="text-sm font-bold text-foreground">{t.detailLabel}</h2>
         <button
@@ -3164,7 +3441,7 @@ function ListingSummaryDrawer({
           t={t}
           className="h-44 w-full"
           imageClassName="rounded-xl"
-          badgeClassName="left-3 top-3"
+          showStatusBadge={false}
         />
 
         <div className="mt-4 min-w-0">
@@ -3207,12 +3484,13 @@ function ListingSummaryDrawer({
           {t.detailAction}
           <ArrowRight className="h-4 w-4" aria-hidden />
         </a>
-        <a
-          href={inquiryHref}
+        <button
+          type="button"
+          onClick={() => setInquiryModalOpen(true)}
           className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-primary/35 bg-[#FFF3E6] px-4 py-2 text-sm font-bold text-primary transition hover:border-primary/55 hover:bg-[#FFE8CC]"
         >
           {t.inquireAction}
-        </a>
+        </button>
         <button
           type="button"
           onClick={onClose}
@@ -3221,7 +3499,23 @@ function ListingSummaryDrawer({
           {t.closeAction}
         </button>
       </div>
-    </aside>
+      </aside>
+      {inquiryModalOpen && (
+        <InquiryChoiceModal
+          listing={listing}
+          locale={locale}
+          t={t}
+          fmtKRW={fmtKRW}
+          fmtCAD={fmtCAD}
+          listingsFilterMoveInDate={listingsFilterMoveInDate}
+          onDirectDm={() => {
+            setInquiryModalOpen(false);
+            window.location.href = getListingDmHref(locale, listing.id);
+          }}
+          onClose={() => setInquiryModalOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
@@ -3348,6 +3642,10 @@ function ListingDetailDrawer({
           t={t}
           fmtKRW={fmtKRW}
           fmtCAD={fmtCAD}
+          onDirectDm={() => {
+            setInquiryModalOpen(false);
+            window.location.href = getListingDmHref(locale, listing.id);
+          }}
           onClose={() => setInquiryModalOpen(false)}
         />
       )}
@@ -3361,6 +3659,8 @@ function InquiryChoiceModal({
   t,
   fmtKRW,
   fmtCAD,
+  listingsFilterMoveInDate,
+  onDirectDm,
   onClose,
 }: {
   listing: MockListing;
@@ -3368,6 +3668,8 @@ function InquiryChoiceModal({
   t: L10n;
   fmtKRW: (value: number) => string;
   fmtCAD: (value: number) => string;
+  listingsFilterMoveInDate?: string;
+  onDirectDm: () => void;
   onClose: () => void;
 }) {
   return (
@@ -3421,7 +3723,7 @@ function InquiryChoiceModal({
               <span>·</span>
               <span className="min-w-0 [overflow-wrap:break-word]">{listing.roomType[locale]}</span>
               <span>·</span>
-              <span>{t.maxPeopleLabel(listing.maxPeople)}</span>
+              <span>{formatMaximumOccupancy(listing.maxPeople, locale, t.maxPeopleLabel(listing.maxPeople))}</span>
             </div>
             <p className="mt-2 text-sm font-extrabold text-primary">
               {fmtKRW(listing.priceKRW)}
@@ -3439,7 +3741,9 @@ function InquiryChoiceModal({
             description={t.inquiryModal.directDescription}
             action={t.inquiryModal.directAction}
             active={false}
-            onClick={() => openDirectApplyFromListing(locale, listing)}
+            onClick={() => {
+              onDirectDm();
+            }}
           />
           <InquiryOptionCard
             title={t.inquiryModal.supportTitle}
@@ -3449,7 +3753,8 @@ function InquiryChoiceModal({
             active={false}
             tone="support"
             onClick={() => {
-              openAssistedApplyFromListing(locale, listing);
+              onClose();
+              openAssistedApplyFromListing(locale, listing, listingsFilterMoveInDate);
             }}
           />
         </div>
@@ -3565,6 +3870,23 @@ function GoogleListingsMap({
   const mapTypeLabels = LISTING_MAP_TYPE_LABELS[locale];
 
   useEffect(() => {
+    const mapHost = containerRef.current;
+    if (!mapHost) return;
+
+    const preventBrowserZoomOverMap = (event: WheelEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.cancelable) {
+        event.preventDefault();
+      }
+    };
+
+    mapHost.addEventListener("wheel", preventBrowserZoomOverMap, { passive: false, capture: true });
+
+    return () => {
+      mapHost.removeEventListener("wheel", preventBrowserZoomOverMap, true);
+    };
+  }, []);
+
+  useEffect(() => {
     onSelectListingRef.current = onSelectListing;
   }, [onSelectListing]);
 
@@ -3591,8 +3913,10 @@ function GoogleListingsMap({
             zoom: transitProfile.zoom,
             clickableIcons: false,
             fullscreenControl: false,
+            gestureHandling: "greedy",
             mapTypeControl: false,
             mapTypeId,
+            scrollwheel: true,
             streetViewControl: false,
             styles: [
               { featureType: "poi", stylers: [{ visibility: "off" }] },
@@ -3637,6 +3961,10 @@ function GoogleListingsMap({
         if (typeof zoom === "number") {
           mapZoomRef.current = zoom;
         }
+        mapRef.current.setOptions({
+          gestureHandling: "greedy",
+          scrollwheel: true,
+        });
         setLoadState("ready");
       })
       .catch(() => {
@@ -3951,7 +4279,7 @@ function GoogleListingsMap({
 
   return (
     <>
-      <div ref={containerRef} className="absolute inset-0 bg-[#EEF1F2]" />
+      <div ref={containerRef} className="absolute inset-0 bg-[#EEF1F2]" style={{ overscrollBehavior: "contain" }} />
       <div className="absolute right-4 top-4 z-20 flex max-w-[calc(100%-2rem)] flex-wrap justify-end gap-2">
         <div className="flex rounded-full border border-border bg-background/95 p-0.5 text-xs font-semibold shadow-sm backdrop-blur">
           {LISTING_MAP_TYPE_OPTIONS.map((option) => (

@@ -167,11 +167,11 @@ const englishWorkingQuestions: WizardQuestion[] = [
     id: "budget",
     title: "Q2. What monthly rent range are you considering?",
     intro:
-      "Canadian dollar prices may be hard to estimate at first. For this MVP preview, MapleHouse uses a simple estimate of 1 CAD ≈ 1,000 KRW.",
+      "Canadian dollar prices may be hard to estimate at first. MapleHouse uses a simple planning estimate of 1 CAD ≈ 1,000 KRW.",
     notice:
       "This is monthly rent only. Deposit, first month cost, living expenses, and transit costs should be considered separately.",
     footerNote:
-      "KRW amounts are simple MVP estimates based on 1 CAD ≈ 1,000 KRW. Actual exchange rates and payment amounts may differ.",
+      "KRW amounts are simple planning estimates based on 1 CAD ≈ 1,000 KRW. Actual exchange rates and payment amounts may differ.",
     options: [
       {
         value: "budget1",
@@ -274,11 +274,11 @@ const frenchWorkingQuestions: WizardQuestion[] = [
     id: "budget",
     title: "Q2. Quelle fourchette de loyer mensuel envisagez-vous ?",
     intro:
-      "Les prix en dollars canadiens peuvent être difficiles à estimer au début. Pour cet aperçu MVP, MapleHouse utilise une estimation simple : 1 CAD ≈ 1 000 KRW.",
+      "Les prix en dollars canadiens peuvent être difficiles à estimer au début. MapleHouse utilise une estimation simple de préparation : 1 CAD ≈ 1 000 KRW.",
     notice:
       "Ce montant concerne uniquement le loyer mensuel. Le dépôt, le premier mois, les frais de vie et les transports doivent être considérés séparément.",
     footerNote:
-      "Les montants en KRW sont des estimations simples pour le MVP, basées sur 1 CAD ≈ 1 000 KRW. Les taux de change et montants réels peuvent varier.",
+      "Les montants en KRW sont des estimations simples de préparation, basées sur 1 CAD ≈ 1 000 KRW. Les taux de change et montants réels peuvent varier.",
     options: [
       {
         value: "budget1",
@@ -1961,7 +1961,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
 > = {
   en: {
     overview: {
-      heroLabel: "Toronto Station Checklist · MVP",
+      heroLabel: "Toronto Station Checklist",
       heroTitle: "Not sure where to start looking for housing in Toronto?",
       subtitle:
         "Answer a few questions and MapleHouse will suggest starting station areas based on your purpose, budget, and living style.",
@@ -1997,7 +1997,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         button: "Coming soon",
         action: "study",
         notice:
-          "The college / university checklist is being prepared. For this MVP preview, the working holiday station recommendation is available first.",
+          "The college / university checklist is being prepared. The working holiday station recommendation is available first.",
       },
     ],
     workingIntro: {
@@ -2034,7 +2034,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       retake: "Retake questionnaire",
       support: "Ask with MapleHouse support",
       supportNotice:
-        "MapleHouse-assisted inquiry will be connected to a paid plan later. This is an MVP preview.",
+        "MapleHouse-assisted inquiry will be connected to a paid plan later.",
     },
     languageStudy: {
       intro: {
@@ -2071,7 +2071,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         retake: "Retake survey",
         support: "Contact MapleHouse",
         supportNotice:
-          "MapleHouse-assisted inquiry will be connected to a paid plan later. This is an MVP preview.",
+          "MapleHouse-assisted inquiry will be connected to a paid plan later.",
       },
       legalNoticeLines: [
         "This recommendation is only a starting point for your housing search.",
@@ -2112,7 +2112,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       viewListings: "View listings",
       support: "Ask with MapleHouse support",
       supportNotice:
-        "MapleHouse-assisted inquiry will be connected to a paid plan later. This is an MVP preview.",
+        "MapleHouse-assisted inquiry will be connected to a paid plan later.",
     },
     housingGuide: {
       title: "How to think about housing types when looking for your first place",
@@ -2142,7 +2142,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
   },
   fr: {
     overview: {
-      heroLabel: "Checklist stations Toronto · MVP",
+      heroLabel: "Checklist stations Toronto",
       heroTitle: "Vous ne savez pas par où commencer votre recherche de logement à Toronto ?",
       subtitle:
         "Répondez à quelques questions et MapleHouse vous suggérera des zones de stations selon votre objectif, votre budget et votre mode de vie.",
@@ -2179,7 +2179,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         button: "En préparation",
         action: "study",
         notice:
-          "La liste collège / université est en préparation. Pour cet aperçu MVP, la recommandation de stations pour le permis vacances-travail est disponible en premier.",
+          "La liste collège / université est en préparation. La recommandation de stations pour le permis vacances-travail est disponible en premier.",
       },
     ],
     workingIntro: {
@@ -2216,7 +2216,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       retake: "Refaire le questionnaire",
       support: "Demander l’aide de MapleHouse",
       supportNotice:
-        "La demande assistée par MapleHouse sera liée à un forfait payant plus tard. Ceci est un aperçu MVP.",
+        "La demande assistée par MapleHouse sera liée à un forfait payant plus tard.",
     },
     languageStudy: {
       intro: {
@@ -2253,7 +2253,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
         retake: "Refaire le questionnaire",
         support: "Contacter MapleHouse",
         supportNotice:
-          "La demande assistée par MapleHouse sera liée à un forfait payant plus tard. Ceci est un aperçu MVP.",
+          "La demande assistée par MapleHouse sera liée à un forfait payant plus tard.",
       },
       legalNoticeLines: [
         "Cette recommandation sert seulement de point de départ pour votre recherche de logement.",
@@ -2294,7 +2294,7 @@ export const TRANSLATED_CHECKLIST_CONTENT: Record<
       viewListings: "Voir les annonces",
       support: "Demander l’aide de MapleHouse",
       supportNotice:
-        "La demande assistée par MapleHouse sera liée à un forfait payant plus tard. Ceci est un aperçu MVP.",
+        "La demande assistée par MapleHouse sera liée à un forfait payant plus tard.",
     },
     housingGuide: {
       title: "Comment réfléchir aux types de logement pour votre premier logement",

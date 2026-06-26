@@ -9,6 +9,7 @@ export type SelectedInquiryPayload = {
   locale: Locale;
   mode: "assisted";
   listingId: string;
+  roomId?: string;
   listingTitle: string;
   city: string;
   area: string;

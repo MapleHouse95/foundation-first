@@ -48,7 +48,7 @@ export function Header() {
           <Logo to={logoTo} />
           {isAdmin && (
             <span className="text-xs font-medium text-muted-foreground">
-              관리자 · 테스트 모드
+              관리자
             </span>
           )}
         </Container>

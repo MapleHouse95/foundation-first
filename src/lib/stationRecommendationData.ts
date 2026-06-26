@@ -177,7 +177,7 @@ export const STATION_METADATA: Record<StationId, StationMetadata> = {
   },
   dundas: {
     id: "dundas",
-    // TODO: migrate the internal `dundas` station id after the MVP station pool is validated.
+    // TODO: migrate the internal `dundas` station id after the station pool is validated.
     canonicalName: "TMU",
     displayName: {
       ko: "TMU Station (구 Dundas Station / 던다스 역)",
@@ -369,7 +369,7 @@ export interface StationReasonItem {
   answerEvidence?: string;
 }
 
-// TODO: expand station profile metadata to the full TTC network after the MVP station pool is validated.
+// TODO: expand station profile metadata to the full TTC network after the station pool is validated.
 export const STATION_PROFILE_METADATA: Record<StationId, StationProfile> = {
   finch: {
     rentAffordability: 4,
@@ -844,7 +844,7 @@ export const WORKING_HOLIDAY_QUESTIONS: WizardQuestion[] = [
     notice:
       "이 금액은 월세 기준이며, 보증금, 첫 달 비용, 생활비, 교통비는 별도로 생각해야 합니다.",
     footerNote:
-      "한화 금액은 1 CAD = 약 1,000원으로 단순 계산한 MVP 참고값입니다. 실제 환율과 결제 금액은 달라질 수 있습니다.",
+      "한화 금액은 1 CAD = 약 1,000원으로 단순 계산한 참고값입니다. 실제 환율과 결제 금액은 달라질 수 있습니다.",
     options: [
       {
         value: "budget1",
@@ -1529,7 +1529,7 @@ export const STUDY_ABROAD_QUESTIONS: StudyAbroadQuestion[] = [
     notice:
       "이 금액은 월세 기준이며, 보증금, 첫 달/마지막 달 월세, 생활비, 교통비, 공과금은 별도로 생각해야 합니다.",
     footerNote:
-      "한화 금액은 1 CAD = 약 1,000원으로 단순 계산한 MVP 참고값입니다. 실제 환율과 결제 금액은 달라질 수 있습니다.",
+      "한화 금액은 1 CAD = 약 1,000원으로 단순 계산한 참고값입니다. 실제 환율과 결제 금액은 달라질 수 있습니다.",
     options: [
       {
         value: "budget_400_600",
@@ -1901,7 +1901,7 @@ export const LANGUAGE_STUDY_QUESTIONS: LanguageStudyQuestion[] = [
     notice:
       "이 금액은 월세 기준이며, 보증금, 첫 달/마지막 달 월세, 생활비, 교통비, 공과금은 별도로 생각해야 합니다.",
     footerNote:
-      "한화 금액은 1 CAD = 약 1,000원으로 단순 계산한 MVP 참고값입니다. 실제 환율과 결제 금액은 달라질 수 있습니다.",
+      "한화 금액은 1 CAD = 약 1,000원으로 단순 계산한 참고값입니다. 실제 환율과 결제 금액은 달라질 수 있습니다.",
     options: [
       {
         value: "budget_400_600",
@@ -2216,7 +2216,7 @@ export const LANGUAGE_STUDY_RESULT_TEMPLATES: Record<string, LanguageStudyResult
     title: "ILAC Growth / 중심 환승형",
     recommendedStations: ["bloorYonge"],
     comparisonStations: ["college", "stGeorge", "sherbourne"],
-    goodFor: "ILAC Growth Campus 또는 캠퍼스 미정, 아침 등교 부담을 줄이고 싶은 사용자에게 맞습니다.",
+    goodFor: "ILAC Growth Campus 또는 캠퍼스를 아직 정하지 않았고, 아침 등교 부담을 줄이고 싶은 사용자에게 맞습니다.",
     reason: "ILAC 대표 캠퍼스와 중심 교통 접근성을 함께 보기 좋습니다.",
     caution: "ILAC은 캠퍼스가 여러 곳이므로 실제 배정 캠퍼스 확인이 필요합니다.",
   },
